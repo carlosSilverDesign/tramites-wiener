@@ -132,7 +132,15 @@
                 <div class="avatar">${initials(s.nombre)}</div>
                 <div class="who"><b>${s.nombre}</b><span>${rolLabel}</span></div>
               </div>
-              <button class="btn btn-sm btn-ghost" onclick="APP.logout()" title="Cerrar sesión">Salir</button>
+              <div class="topbar-divider" aria-hidden="true"></div>
+              <button class="btn btn-sm btn-ghost btn-logout" onclick="APP.logout()" title="Cerrar sesión">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                  <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+                  <polyline points="16 17 21 12 16 7"></polyline>
+                  <line x1="21" y1="12" x2="9" y2="12"></line>
+                </svg>
+                <span>Salir</span>
+              </button>
             </div>
           </header>
           <main class="content" id="page-content"></main>

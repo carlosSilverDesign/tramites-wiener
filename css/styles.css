@@ -232,6 +232,35 @@ a {
   gap: 14px;
 }
 
+.topbar-divider {
+  width: 1px;
+  height: 28px;
+  background-color: var(--border);
+  flex-shrink: 0;
+}
+
+.btn-logout {
+  color: var(--text-soft);
+  gap: 7px;
+  font-weight: 500;
+  transition: all 0.15s ease;
+}
+
+.btn-logout svg {
+  color: inherit;
+  transition: transform 0.15s ease;
+}
+
+.btn-logout:hover {
+  color: var(--err-fg);
+  background: var(--err-bg);
+  border-color: transparent;
+}
+
+.btn-logout:hover svg {
+  transform: translateX(2px);
+}
+
 .user-chip {
   display: flex;
   align-items: center;
