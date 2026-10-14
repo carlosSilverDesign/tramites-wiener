@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Revisar solicitudes · Wiener Admin</title>
+  <link href="https://fonts.googleapis.com/css2?family=Lato:wght@400;700;900&family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../css/styles.css">
+</head>
+<body>
+  <script src="../js/data.js"></script>
+  <script src="../js/shell.js"></script>
+  <script>
+    const ctx = APP.renderShell('solicitudes');
+    const admin = DB.getUsuario(ctx.session.id);
+    let filtro = 'todos', q = '';
+
+    function setFiltro(f, el) { filtro = f; document.querySelectorAll('.tab').forEach(t => t.classList.remove('active')); el.classList.add('active'); render(); }
+    function setQ(v) { q = v.toLowerCase(); render(); }
+
+    function render() {
+      const all = DB.solicitudes();
+      const counts = {
+        todos: all.length,
+        'En revisión': all.filter(s => s.estado === 'En revisión').length,
+        'Observado': all.filter(s => s.estado === 'Observado').length,
+        'Pendiente de pago': all.filter(s => s.estado === 'Pendiente de pago').length,
+        'Aprobado': all.filter(s => s.estado === 'Aprobado').length,
+        'Emitido': all.filter(s => s.estado === 'Emitido').length,
+        'Rechazado': all.filter(s => s.estado === 'Rechazado').length
+      };
+      let rows = all.filter(s => filtro === 'todos' || s.estado === filtro)
+                    .filter(s => !q || (s.alumnoNombre + s.tramiteNombre + s.id + s.alumnoCodigo).toLowerCase().includes(q));
+
+      const tbody = rows.map(s => `
+        <tr>
+          <td><span class="mono">${s.id}</span><br><span class="muted">${s.fecha}</span></td>
+          <td><span class="strong">${s.alumnoNombre}</span><br><span class="muted">${s.alumnoCodigo}</span></td>
+          <td>${s.tramiteNombre}<br><span class="muted">${s.area}</span></td>
+          <td>${APP.money(s.costo)}<br>${s.pago.estado === 'pagado' ? '<span class="pill ok">Pagado</span>' : '<span class="pill warn">Pendiente</span>'}</td>
+          <td>${APP.pillFor(s.estado)}</td>
+          <td class="row-actions">
+            ${s.estado === 'En revisión' ? `<button class="btn btn-primary btn-sm" onclick="revisar('${s.id}')">Revisar</button>` : `<button class="btn btn-sm" onclick="revisar('${s.id}')">Ver</button>`}
+          </td>
+        </tr>`).join('');
+
+      const tab = (id, label) => `<div class="tab ${filtro === id ? 'active' : ''}" onclick="setFiltro('${id}',this)">${label} <span style="opacity:.6">${counts[id] || 0}</span></div>`;
+
+      ctx.mount.innerHTML = `
+        <div class="page-head">
+          <div><h1>Revisar solicitudes</h1><p>Aprueba, observa o rechaza las solicitudes de los alumnos. Cada decisión notifica por correo.</p></div>
+        </div>
+        <div class="grid grid-4" style="margin-bottom:24px">
+          <div class="stat accent"><div class="label">Por revisar</div><div class="value">${counts['En revisión']}</div></div>
+          <div class="stat"><div class="label">Observadas</div><div class="value">${counts['Observado']}</div></div>
+          <div class="stat"><div class="label">Aprobadas</div><div class="value">${counts['Aprobado']}</div></div>
+          <div class="stat"><div class="label">Emitidas</div><div class="value">${counts['Emitido']}</div></div>
+        </div>
+        <div class="tabs">
+          ${tab('todos', 'Todas')} ${tab('En revisión', 'Por revisar')} ${tab('Observado', 'Observadas')} ${tab('Pendiente de pago', 'Pago pendiente')}
+          ${tab('Aprobado', 'Aprobadas')} ${tab('Emitido', 'Emitidas')} ${tab('Rechazado', 'Rechazadas')}
+        </div>
+        <div class="filters-bar">
+          <div class="search"><span class="s-ico">🔍</span><input class="input" placeholder="Buscar por alumno, código, trámite o N° de solicitud" oninput="setQ(this.value)"></div>
+        </div>
+        <div class="table-wrap">
+          <table class="data">
+            <thead><tr><th>Solicitud</th><th>Alumno</th><th>Trámite</th><th>Pago</th><th>Estado</th><th></th></tr></thead>
+            <tbody>${tbody || '<tr><td colspan="6"><div class="empty-state">Sin solicitudes para este filtro.</div></td></tr>'}</tbody>
+          </table>
+        </div>
+      `;
+    }
+
+    function revisar(id) {
+      const s = DB.getSolicitud(id);
+      const puede = s.estado === 'En revisión';
+      APP.openModal(`
+        <div class="modal-head"><h3>${s.id} - ${s.tramiteNombre}</h3><button class="modal-close" onclick="APP.closeModal()">×</button></div>
+        <div class="modal-body">
+          <dl class="kv">
+            <dt>Alumno</dt><dd>${s.alumnoNombre} (${s.alumnoCodigo})</dd>
+            <dt>Trámite</dt><dd>${s.tramiteNombre}</dd>
+            <dt>Motivo</dt><dd>${s.motivo || '-'}</dd>
+            <dt>Fecha</dt><dd>${s.fecha}</dd>
+            <dt>Costo</dt><dd>${APP.money(s.costo)}</dd>
+            <dt>Pago</dt><dd>${s.pago.estado === 'pagado' ? '<span class="pill ok">Pagado</span> ' + s.pago.metodo + ' · Op. ' + s.pago.operacion : '<span class="pill warn">Pendiente</span> (' + (s.pagoMomento === 'despues' ? 'paga al aprobar' : 'no registrado') + ')'}</dd>
+            <dt>Estado</dt><dd>${APP.pillFor(s.estado)}</dd>
+            <dt>Archivo adjunto</dt><dd>${s.adjunto ? '📎 <b style="color:var(--brand)">' + s.adjunto + '</b>' : '<span class="muted">Ninguno</span>'}</dd>
+          </dl>
+          ${s.observacion ? `<div class="alert info" style="margin-top:16px">${s.observacion}</div>` : ''}
+          ${puede ? `<div class="field full" style="margin-top:18px">
+            <label for="obs">Observación / motivo (se incluye en el correo y panel del alumno)</label>
+            <textarea class="input" id="obs" placeholder="Ej. Documento validado correctamente / La foto adjunta debe tener fondo blanco..."></textarea>
+          </div>` : `
+          <div class="section-label" style="margin-top:22px">Historial</div>
+          <div class="table-wrap"><table class="data"><tbody>
+            ${s.historial.map(h => `<tr><td>${APP.pillFor(h.estado)}</td><td class="muted">${h.fecha}</td><td>${h.nota}</td></tr>`).join('')}
+          </tbody></table></div>`}
+        </div>
+        <div class="modal-foot">
+          <button class="btn" onclick="APP.closeModal()">Cerrar</button>
+          ${puede ? `
+            <button class="btn btn-danger btn-sm" onclick="decidir('${s.id}','rechazar')">Rechazar</button>
+            <button class="btn btn-sm" style="background:#FFFBEB;color:#92400E;border-color:#FDE68A" onclick="decidir('${s.id}','observar')">⚠️ Observar (Subsanar 48h)</button>
+            <button class="btn btn-primary btn-sm" onclick="decidir('${s.id}','aprobar')">Aprobar y emitir</button>` : ''}
+        </div>
+      `, { wide: true });
+    }
+
+    function decidir(id, accion) {
+      const s = DB.getSolicitud(id);
+      const obs = (document.getElementById('obs') ? document.getElementById('obs').value.trim() : '');
+      const alumno = DB.getUsuario(s.alumnoId);
+      const correoAlumno = alumno ? alumno.email : s.alumnoCodigo + '@uwiener.edu.pe';
+
+      if (accion === 'aprobar') {
+        const yaPago = s.pago.estado === 'pagado';
+        s.estado = yaPago ? 'Emitido' : 'Aprobado';
+        s.observacion = obs || (yaPago ? 'Solicitud aprobada. Documento emitido.' : 'Solicitud aprobada. Pendiente de pago para emisión.');
+        s.historial.push({ estado: 'Aprobado', fecha: APP.nowStamp(), nota: 'Aprobado por ' + admin.nombre + (obs ? ' - ' + obs : '') });
+        if (yaPago) s.historial.push({ estado: 'Emitido', fecha: APP.nowStamp(), nota: 'Documento emitido y notificado con firma digital' });
+        DB.updateSolicitud(s);
+        APP.sendMail({
+          to: correoAlumno, cc: admin.email,
+          subject: `Solicitud ${s.id} APROBADA - ${s.tramiteNombre}`,
+          lines: [
+            `Hola ${s.alumnoNombre}, tu solicitud de <b>${s.tramiteNombre}</b> fue <b>aprobada</b>.`,
+            yaPago ? 'Tu documento ya está disponible para descarga en la intranet.' : `Realiza el pago de ${APP.money(s.costo)} en la intranet para emitir tu documento.`,
+            obs ? 'Observación: ' + obs : ''
+          ].filter(Boolean)
+        });
+      } else if (accion === 'observar') {
+        if (!obs) {
+          APP.toast({ icon: '⚠️', title: 'Falta la observación', body: 'Ingresa el motivo u observación para que el alumno pueda subsanar.' });
+          return;
+        }
+        s.estado = 'Observado';
+        s.observacion = obs;
+        s.requiereSubsanacion = true;
+        s.horasRestantesSubsanacion = 48;
+        s.historial.push({
+          estado: 'Observado',
+          fecha: APP.nowStamp(),
+          nota: 'Observado por ' + admin.nombre + ': ' + obs + ' (Se otorgan 48 horas para subsanar)'
+        });
+        DB.updateSolicitud(s);
+        APP.sendMail({
+          to: correoAlumno, cc: admin.email,
+          subject: `Solicitud ${s.id} OBSERVADA - ${s.tramiteNombre}`,
+          lines: [
+            `Hola ${s.alumnoNombre}, tu solicitud de <b>${s.tramiteNombre}</b> requiere una subsanación.`,
+            `<b>Observación:</b> ${obs}`,
+            'Tienes un plazo de <b>48 horas</b> para ingresar a la intranet y adjuntar el documento o respuesta solicitada.'
+          ]
+        });
+        APP.toast({ icon: '⚠️', title: 'Solicitud observada', body: 'Se notificó al alumno para que subsane en 48h.' });
+      } else {
+        s.estado = 'Rechazado';
+        s.observacion = obs || 'Solicitud rechazada.';
+        s.historial.push({ estado: 'Rechazado', fecha: APP.nowStamp(), nota: 'Rechazado por ' + admin.nombre + (obs ? ' - ' + obs : '') });
+        DB.updateSolicitud(s);
+        APP.sendMail({
+          to: correoAlumno, cc: admin.email,
+          subject: `Solicitud ${s.id} observada - ${s.tramiteNombre}`,
+          lines: [`Hola ${s.alumnoNombre}, tu solicitud de <b>${s.tramiteNombre}</b> fue <b>rechazada</b>.`,
+                  'Motivo: ' + (obs || 'No especificado') + '.',
+                  s.pago.estado === 'pagado' ? 'Si corresponde, se gestionará la devolución del pago.' : '']
+            .filter(Boolean)
+        });
+      }
+      APP.closeModal();
+      render();
+    }
+
+    render();
+  </script>
+</body>
+</html>

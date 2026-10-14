@@ -1,0 +1,565 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Estado de trámites · Universidad Norbert Wiener</title>
+  <link href="https://fonts.googleapis.com/css2?family=Lato:wght@400;700;900&family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../css/styles.css">
+  <style>
+    .tracking-card {
+      background: #FFFFFF;
+      border: 1px solid #D5DDE5;
+      border-radius: 14px;
+      padding: 24px;
+      margin-bottom: 22px;
+      box-shadow: var(--shadow);
+      transition: border-color 0.18s ease, box-shadow 0.18s ease;
+    }
+    .tracking-card:hover {
+      box-shadow: 0 10px 24px rgba(15, 23, 42, 0.07);
+    }
+    .tracking-card.is-observado {
+      border-color: #F59E0B;
+      border-left: 5px solid #F59E0B;
+      background: #FFFDF8;
+    }
+    .tracking-card.is-rechazado {
+      border-color: #FCA5A5;
+      border-left: 5px solid #EF4444;
+      background: #FFFDFC;
+    }
+    .tracking-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      flex-wrap: wrap;
+      gap: 16px;
+      margin-bottom: 16px;
+    }
+    .tracking-title-wrap {
+      flex: 1;
+      min-width: 260px;
+    }
+    .tracking-super-line {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 12.5px;
+      color: #64748B;
+      margin-bottom: 6px;
+      flex-wrap: wrap;
+    }
+    .tracking-id-badge {
+      font-family: monospace;
+      font-weight: 700;
+      color: #0F172A;
+      background: #F1F5F9;
+      padding: 2px 8px;
+      border-radius: 6px;
+      font-size: 12px;
+    }
+    .tracking-title-wrap h3 {
+      font-family: 'Lato', sans-serif;
+      font-size: 21px;
+      font-weight: 800;
+      color: #0F172A;
+      margin: 0 0 8px 0;
+      line-height: 1.25;
+      letter-spacing: -0.01em;
+    }
+    .tracking-meta {
+      font-size: 13.5px;
+      color: #475569;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 10px;
+    }
+    .tracking-meta .sep {
+      color: #CBD5E1;
+    }
+    .subsanacion-callout {
+      background: #FFFBEB;
+      border: 1px solid #FDE68A;
+      border-left: 4px solid #F59E0B;
+      border-radius: 8px;
+      padding: 14px 16px;
+      margin-top: 18px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+    .subsanacion-text b {
+      color: #92400E;
+      display: block;
+      font-size: 14px;
+      margin-bottom: 3px;
+    }
+    .subsanacion-text p {
+      margin: 0;
+      font-size: 13px;
+      color: #78350F;
+    }
+    .subsanacion-pill {
+      background: #FEF3C7;
+      color: #B45309;
+      font-size: 11.5px;
+      font-weight: 700;
+      padding: 3px 8px;
+      border-radius: 6px;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      margin-top: 4px;
+    }
+  </style>
+</head>
+<body>
+  <script src="../js/data.js"></script>
+  <script src="../js/shell.js"></script>
+  <script src="../js/doc.js"></script>
+  <script>
+    const ctx = APP.renderShell('mis-tramites');
+    const me = ctx.session;
+
+    let filtroEstado = 'todos';
+    let busqueda = '';
+
+    // Generador de Stepper Cronológico Corregido y Accesible
+    function renderStepper(s) {
+      const pagoAntes = s.pagoMomento === 'antes';
+      const steps = pagoAntes
+        ? [
+            { id: 'solicitud', label: 'Solicitud' },
+            { id: 'pago', label: 'Pago Niubiz' },
+            { id: 'revision', label: 'En revisión' },
+            { id: 'aprobacion', label: 'Aprobación' },
+            { id: 'emision', label: 'Emisión final' }
+          ]
+        : [
+            { id: 'solicitud', label: 'Solicitud' },
+            { id: 'revision', label: 'En revisión' },
+            { id: 'aprobacion', label: 'Aprobación' },
+            { id: 'pago', label: 'Pago Niubiz' },
+            { id: 'emision', label: 'Emisión final' }
+          ];
+
+      // Mapear cada paso con su estado visual exacto
+      const stepItems = steps.map((st, i) => {
+        let cls = '';
+        let dotContent = i + 1;
+        let subText = '';
+
+        if (s.estado === 'Emitido') {
+          cls = 'done';
+          dotContent = '✓';
+        } else if (s.estado === 'Rechazado') {
+          if (st.id === 'solicitud' || (st.id === 'pago' && s.pago.estado === 'pagado')) {
+            cls = 'done';
+            dotContent = '✓';
+          } else if (st.id === 'revision') {
+            cls = 'err';
+            dotContent = '✕';
+            subText = 'Rechazado';
+          }
+        } else if (s.estado === 'Observado') {
+          if (st.id === 'solicitud' || (st.id === 'pago' && s.pago.estado === 'pagado')) {
+            cls = 'done';
+            dotContent = '✓';
+          } else if (st.id === 'revision') {
+            cls = 'warn';
+            dotContent = '!';
+            subText = 'Observación';
+          }
+        } else if (s.estado === 'Aprobado') {
+          if (pagoAntes) {
+            if (['solicitud', 'pago', 'revision', 'aprobacion'].includes(st.id)) {
+              cls = 'done'; dotContent = '✓';
+            }
+          } else {
+            if (['solicitud', 'revision', 'aprobacion'].includes(st.id)) {
+              cls = 'done'; dotContent = '✓';
+            }
+            if (st.id === 'pago') {
+              cls = s.pago.estado === 'pagado' ? 'done' : 'current';
+              dotContent = s.pago.estado === 'pagado' ? '✓' : (i + 1);
+            }
+          }
+        } else if (s.estado === 'En revisión') {
+          if (st.id === 'solicitud' || (st.id === 'pago' && pagoAntes)) {
+            cls = 'done'; dotContent = '✓';
+          } else if (st.id === 'revision') {
+            cls = 'current';
+          }
+        } else if (s.estado === 'Pendiente de pago') {
+          if (st.id === 'solicitud') {
+            cls = 'done'; dotContent = '✓';
+          } else if (st.id === 'pago') {
+            cls = 'current';
+          }
+        }
+
+        return `
+          <div class="step ${cls}">
+            <div class="dot">${dotContent}</div>
+            <div class="step-label">${st.label}</div>
+            ${subText ? `<div class="step-date" style="color:${cls === 'err' ? 'var(--err-fg)' : 'var(--warn-fg)'};font-weight:700">${subText}</div>` : ''}
+          </div>`;
+      }).join('');
+
+      return `<div class="stepper" role="progressbar" aria-label="Progreso del trámite">${stepItems}</div>`;
+    }
+
+    function setFiltro(f, el) {
+      filtroEstado = f;
+      document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+      if (el) el.classList.add('active');
+      render();
+    }
+
+    function setBusqueda(val) {
+      busqueda = (val || '').toLowerCase().trim();
+      render();
+    }
+
+    function render() {
+      const allMine = DB.solicitudes().filter(s => s.alumnoId === me.id);
+
+      const counts = {
+        todos: allMine.length,
+        proceso: allMine.filter(s => ['Pendiente de pago', 'En revisión'].includes(s.estado)).length,
+        observados: allMine.filter(s => s.estado === 'Observado').length,
+        emitidos: allMine.filter(s => s.estado === 'Emitido').length,
+        rechazados: allMine.filter(s => s.estado === 'Rechazado').length
+      };
+
+      let filtradas = allMine.filter(s => {
+        if (filtroEstado === 'proceso') return ['Pendiente de pago', 'En revisión'].includes(s.estado);
+        if (filtroEstado === 'observados') return s.estado === 'Observado';
+        if (filtroEstado === 'emitidos') return s.estado === 'Emitido';
+        if (filtroEstado === 'rechazados') return s.estado === 'Rechazado';
+        return true;
+      });
+
+      if (busqueda) {
+        filtradas = filtradas.filter(s =>
+          (s.id + ' ' + s.tramiteNombre + ' ' + s.area + ' ' + (s.motivo || '')).toLowerCase().includes(busqueda)
+        );
+      }
+
+      const cardsHtml = filtradas.map(s => {
+        const esObservado = s.estado === 'Observado';
+        const esRechazado = s.estado === 'Rechazado';
+        const pagoPendiente = (s.estado === 'Aprobado' || s.estado === 'Pendiente de pago') && s.pago.estado !== 'pagado';
+        const esEmitido = s.estado === 'Emitido';
+
+        return `
+          <div class="tracking-card ${esObservado ? 'is-observado' : esRechazado ? 'is-rechazado' : ''}">
+            <div class="tracking-head">
+              <div class="tracking-title-wrap">
+                <div class="tracking-super-line">
+                  <span class="tracking-id-badge">${s.id}</span>
+                  <span>Registrado el <b>${s.fecha}</b></span>
+                  <span class="sep">·</span>
+                  <span>${s.area}</span>
+                </div>
+                <h3>${s.tramiteNombre}</h3>
+                <div class="tracking-meta">
+                  <span>Tasa: <b>${APP.money(s.costo)}</b></span>
+                  <span class="sep">·</span>
+                  <span style="color:${s.pago.estado === 'pagado' ? '#047857' : '#B45309'};font-weight:600">
+                    ${s.pago.estado === 'pagado' ? '✓ Pago confirmado' : '● Pendiente de pago'}
+                  </span>
+                  ${s.motivo ? `<span class="sep">·</span><span>Motivo: <i>${s.motivo}</i></span>` : ''}
+                  ${s.adjunto ? `<span class="sep">·</span><span>Adjunto: 📎 ${s.adjunto}</span>` : ''}
+                </div>
+              </div>
+
+              <div style="display:flex;flex-direction:column;align-items:flex-end;gap:10px">
+                <div>${APP.pillFor(s.estado)}</div>
+                <div class="row-actions">
+                  ${pagoPendiente ? `<button class="btn btn-primary btn-sm" onclick="pagar('${s.id}')">💳 Pagar ahora</button>` : ''}
+                  ${esEmitido ? `<button class="btn btn-primary btn-sm" onclick="verDoc('${s.id}')">📄 Ver documento oficial</button>` : ''}
+                  <button class="btn btn-sm" onclick="detalle('${s.id}')">Ver expediente</button>
+                </div>
+              </div>
+            </div>
+
+            <hr class="divider" style="margin:14px 0 20px 0">
+            ${renderStepper(s)}
+
+            <!-- Callout de Subsanación con Temporizador de 48h -->
+            ${esObservado ? `
+              <div class="subsanacion-callout">
+                <div class="subsanacion-text">
+                  <b>⚠️ Atención requerida: Tu solicitud tiene una observación</b>
+                  <p>${s.observacion || 'El área responsable requiere que actualices o corrijas un documento de sustento.'}</p>
+                  <div class="subsanacion-pill">
+                    ⏳ 48 horas restantes para subsanar sin reiniciar trámite
+                  </div>
+                </div>
+                <button class="btn btn-sm btn-primary" onclick="abrirSubsanacion('${s.id}')">
+                  ✏️ Subsanar observación ahora →
+                </button>
+              </div>` : ''}
+
+            ${esRechazado ? `
+              <div class="alert err" style="margin-top:16px;font-size:13px;display:flex;flex-direction:column;gap:6px">
+                <div><b>✕ Solicitud desestimada por ${s.area}:</b> ${s.observacion}</div>
+                <div style="font-size:12px;opacity:.9">
+                  ℹ️ Si requieres apelar la resolución o consultar sobre la devolución de derechos abonados, comunícate con <b>mesadepartes@uwiener.edu.pe</b> indicando tu N° de expediente <b>${s.id}</b>.
+                </div>
+              </div>` : s.observacion && !esObservado ? `
+              <div class="alert info" style="margin-top:16px;font-size:13px">
+                💬 <b>Detalle del área:</b> ${s.observacion}
+              </div>` : ''}
+          </div>`;
+      }).join('');
+
+      ctx.mount.innerHTML = `
+        <div class="page-head">
+          <div>
+            <h1>Estado y seguimiento de trámites</h1>
+            <p>Consulta en tiempo real el avance de tus solicitudes y resuelve observaciones pendientes.</p>
+          </div>
+          <a class="btn btn-primary" href="solicitar.html">+ Solicitar nuevo trámite</a>
+        </div>
+
+        <!-- Métricas resumidas -->
+        <div class="grid grid-3" style="margin-bottom:22px">
+          <div class="stat accent">
+            <div class="label">Total de trámites</div>
+            <div class="value">${counts.todos}</div>
+          </div>
+          <div class="stat">
+            <div class="label">En revisión / proceso</div>
+            <div class="value">${counts.proceso}</div>
+          </div>
+          <div class="stat" style="${counts.observados > 0 ? 'border-left:4px solid #F59E0B;' : ''}">
+            <div class="label" style="${counts.observados > 0 ? 'color:#B45309;font-weight:700' : ''}">
+              ${counts.observados > 0 ? '⚠️ Con observación' : 'Observados'}
+            </div>
+            <div class="value" style="${counts.observados > 0 ? 'color:#B45309' : ''}">${counts.observados}</div>
+          </div>
+        </div>
+
+        <!-- Barra de búsqueda y pestañas de filtrado -->
+        <div class="card" style="margin-bottom:20px;padding:16px 20px;">
+          <div class="tabs" style="margin-bottom:14px">
+            <div class="tab ${filtroEstado === 'todos' ? 'active' : ''}" onclick="setFiltro('todos', this)">
+              Todos <span style="opacity:.7">(${counts.todos})</span>
+            </div>
+            <div class="tab ${filtroEstado === 'proceso' ? 'active' : ''}" onclick="setFiltro('proceso', this)">
+              En proceso <span style="opacity:.7">(${counts.proceso})</span>
+            </div>
+            <div class="tab ${filtroEstado === 'observados' ? 'active' : ''}" onclick="setFiltro('observados', this)" style="${counts.observados > 0 ? 'color:#B45309;font-weight:700' : ''}">
+              Observados <span style="background:#FEF3C7;color:#92400E;padding:1px 6px;border-radius:999px;font-size:11px">${counts.observados}</span>
+            </div>
+            <div class="tab ${filtroEstado === 'emitidos' ? 'active' : ''}" onclick="setFiltro('emitidos', this)">
+              Emitidos <span style="opacity:.7">(${counts.emitidos})</span>
+            </div>
+            <div class="tab ${filtroEstado === 'rechazados' ? 'active' : ''}" onclick="setFiltro('rechazados', this)">
+              Rechazados <span style="opacity:.7">(${counts.rechazados})</span>
+            </div>
+          </div>
+
+          <div class="search">
+            <span class="s-ico">🔍</span>
+            <input class="input" placeholder="Buscar por número de solicitud (ej. S-2026-0188) o nombre del trámite..." oninput="setBusqueda(this.value)">
+          </div>
+        </div>
+
+        <!-- Listado de solicitudes -->
+        <div>
+          ${cardsHtml || `
+            <div class="card">
+              <div class="empty-state">
+                <div class="ico">📭</div>
+                No tienes solicitudes en esta categoría o no coinciden con la búsqueda.<br>
+                <a class="btn btn-primary" style="margin-top:16px" href="solicitar.html">Solicitar un nuevo trámite</a>
+              </div>
+            </div>`}
+        </div>
+      `;
+    }
+
+    // =========================================================================
+    // MODAL DE SUBSANACIÓN DE OBSERVACIONES (CIRCUITO 48 HORAS)
+    // =========================================================================
+    let SUB_TEMP = { file: null, nota: '' };
+
+    function abrirSubsanacion(id) {
+      const s = DB.getSolicitud(id);
+      SUB_TEMP = { file: null, nota: '' };
+
+      APP.openModal(`
+        <div class="modal-head">
+          <h3>Subsanar observación · ${s.id}</h3>
+          <button class="modal-close" aria-label="Cerrar modal" onclick="APP.closeModal()">×</button>
+        </div>
+        <div class="modal-body">
+          <div class="alert warn" style="margin-bottom:16px">
+            <b>Observación indicada por ${s.area}:</b><br>
+            ${s.observacion}
+          </div>
+
+          <div style="font-size:13px;color:var(--text-soft);margin-bottom:14px">
+            Cuentas con <b>48 horas</b> desde la notificación para subsanar los requisitos sin costo adicional.
+          </div>
+
+          <!-- Componente para adjuntar nuevo archivo -->
+          <div class="field full" style="margin-bottom:16px">
+            <label>Adjuntar documento o archivo corregido (PDF o JPG)</label>
+            <div class="file-dropzone" id="sub-dropzone" onclick="document.getElementById('sub-file-input').click()">
+              <input type="file" id="sub-file-input" accept=".pdf,.jpg,.jpeg,.png" onchange="handleSubFile(event)">
+              <div style="font-size:24px;margin-bottom:4px">📁</div>
+              <div style="font-weight:600;font-size:13px">Seleccionar archivo corregido</div>
+              <div style="font-size:11.5px;color:var(--text-muted)">PDF, JPG o PNG (máximo 5 MB)</div>
+            </div>
+            <div id="sub-file-preview"></div>
+          </div>
+
+          <div class="field full">
+            <label for="sub-nota">Explicación o aclaración para el evaluador</label>
+            <textarea class="input" id="sub-nota" placeholder="Describe los cambios realizados o documento adjunto..." oninput="SUB_TEMP.nota=this.value"></textarea>
+          </div>
+        </div>
+        <div class="modal-foot">
+          <button class="btn" onclick="APP.closeModal()">Cancelar</button>
+          <button class="btn btn-primary" onclick="enviarSubsanacion('${s.id}')">Enviar subsanación →</button>
+        </div>
+      `, { wide: false });
+    }
+
+    function handleSubFile(event) {
+      const f = event.target.files && event.target.files[0];
+      if (!f) return;
+      SUB_TEMP.file = f.name;
+      document.getElementById('sub-file-preview').innerHTML = `
+        <div class="file-preview-card">
+          <div class="file-meta">
+            <span style="font-size:18px">📄</span>
+            <div class="file-name">${f.name}</div>
+          </div>
+          <button class="btn btn-sm btn-ghost" type="button" style="color:var(--err-fg)" onclick="SUB_TEMP.file=null;document.getElementById('sub-file-preview').innerHTML=''">✕</button>
+        </div>`;
+    }
+
+    function enviarSubsanacion(id) {
+      const nota = SUB_TEMP.nota.trim();
+      const s = DB.subsanarSolicitud(id, { nota, adjuntoNombre: SUB_TEMP.file });
+      if (!s) return;
+
+      APP.sendMail({
+        to: me.email,
+        cc: 'mesadepartes@uwiener.edu.pe',
+        subject: `Subsanación recibida - Expediente ${s.id}`,
+        lines: [
+          `Hola ${me.nombre}, hemos recibido tu subsanación para el trámite <b>${s.tramiteNombre}</b>.`,
+          `Tu expediente volvió a la cola de <b>En revisión</b> con prioridad.`,
+          SUB_TEMP.file ? `Archivo adjuntado: ${SUB_TEMP.file}` : ''
+        ].filter(Boolean)
+      });
+
+      APP.closeModal();
+      APP.toast({
+        icon: '✅',
+        title: 'Subsanación enviada',
+        body: `El expediente ${s.id} fue devuelto a revisión prioritaria.`
+      });
+
+      render();
+    }
+
+    // =========================================================================
+    // MODAL DE EXPEDIENTE / HISTORIAL DETALLADO
+    // =========================================================================
+    function detalle(id) {
+      const s = DB.getSolicitud(id);
+      APP.openModal(`
+        <div class="modal-head">
+          <h3>Expediente ${s.id} · ${s.tramiteNombre}</h3>
+          <button class="modal-close" aria-label="Cerrar modal" onclick="APP.closeModal()">×</button>
+        </div>
+        <div class="modal-body">
+          <dl class="kv" style="margin-bottom:18px">
+            <dt>Trámite</dt><dd>${s.tramiteNombre}</dd>
+            <dt>Estado actual</dt><dd>${APP.pillFor(s.estado)}</dd>
+            <dt>Fecha de registro</dt><dd>${s.fecha}</dd>
+            <dt>Motivo</dt><dd>${s.motivo || 'No especificado'}</dd>
+            <dt>Costo</dt><dd><b>${APP.money(s.costo)}</b></dd>
+            <dt>Pago</dt><dd>${s.pago.estado === 'pagado' ? s.pago.metodo + ' (Op. ' + s.pago.operacion + ')' : '<span class="pill warn">Pendiente</span>'}</dd>
+            <dt>Área responsable</dt><dd>${s.area}</dd>
+            <dt>Archivo adjunto</dt><dd>${s.adjunto ? '📎 ' + s.adjunto : 'Ninguno'}</dd>
+          </dl>
+
+          <div class="section-label" style="margin-top:20px">Trazabilidad cronológica del expediente</div>
+          <div class="table-wrap">
+            <table class="data">
+              <thead>
+                <tr>
+                  <th>Estado</th>
+                  <th>Fecha y hora</th>
+                  <th>Detalle / Nota</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${s.historial.map(h => `
+                  <tr>
+                    <td style="white-space:nowrap">${APP.pillFor(h.estado)}</td>
+                    <td class="muted" style="white-space:nowrap">${h.fecha}</td>
+                    <td>${h.nota}</td>
+                  </tr>`).join('')}
+              </tbody>
+            </table>
+          </div>
+        </div>
+        <div class="modal-foot">
+          <button class="btn" onclick="APP.closeModal()">Cerrar</button>
+        </div>
+      `, { wide: true });
+    }
+
+    function pagar(id) {
+      const s = DB.getSolicitud(id);
+      APP.niubizCheckout({
+        amount: s.costo,
+        concepto: `${s.tramiteNombre} · ${s.alumnoNombre}`,
+        onSuccess: (pago) => {
+          s.pago = { estado: 'pagado', metodo: pago.metodo, monto: pago.monto, fecha: APP.todayISO(), operacion: pago.operacion };
+          s.estado = 'Emitido';
+          s.observacion = 'Pago recibido. Documento emitido y disponible para descarga.';
+          s.historial.push({
+            estado: 'Emitido',
+            fecha: APP.nowStamp(),
+            nota: 'Pago confirmado vía ' + pago.metodo + '. Documento emitido con firma digital.'
+          });
+          DB.updateSolicitud(s);
+          APP.sendMail({
+            to: me.email,
+            cc: 'mesadepartes@uwiener.edu.pe',
+            subject: `Pago confirmado - ${s.tramiteNombre} (${s.id})`,
+            lines: [
+              `Tu pago de ${APP.money(pago.monto)} fue procesado por Niubiz (Op. ${pago.operacion}).`,
+              'Tu documento oficial ya está disponible para descarga en tu intranet.'
+            ]
+          });
+          render();
+        }
+      });
+    }
+
+    function verDoc(id) {
+      const s = DB.getSolicitud(id);
+      const alumno = DB.getUsuario(s.alumnoId);
+      const t = DB.getTramite(s.tramiteId) || { nombre: s.tramiteNombre, tipo: 'Constancia', modelo: 'constancia' };
+      DOC.preview(t, alumno, s);
+    }
+
+    render();
+  </script>
+</body>
+</html>

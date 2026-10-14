@@ -1,0 +1,773 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Solicitar trámite · Universidad Norbert Wiener</title>
+  <link href="https://fonts.googleapis.com/css2?family=Lato:wght@400;700;900&family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../css/styles.css">
+  <style>
+    /* =========================================================================
+       BANNER DE PERFIL DEL ESTUDIANTE (REDISEÑO LIMPIO Y EJECUTIVO)
+       ========================================================================= */
+    .student-profile-bar {
+      background: #FFFFFF;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 22px 28px;
+      margin-bottom: 22px;
+      box-shadow: var(--shadow);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 20px;
+    }
+    .student-profile-left {
+      display: flex;
+      align-items: center;
+      gap: 18px;
+      min-width: 0;
+    }
+    .student-profile-avatar {
+      width: 52px;
+      height: 52px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--brand), var(--brand-dark));
+      color: #FFFFFF;
+      font-family: 'Lato', sans-serif;
+      font-size: 20px;
+      font-weight: 900;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      box-shadow: 0 4px 12px rgba(15, 132, 143, 0.25);
+    }
+    .student-profile-details h2 {
+      font-size: 20px;
+      font-weight: 700;
+      color: #111827;
+      margin: 0 0 3px 0;
+      line-height: 1.2;
+    }
+    .student-career-text {
+      font-size: 14px;
+      color: var(--brand-dark);
+      font-weight: 600;
+      margin-bottom: 4px;
+    }
+    .student-code-meta {
+      font-size: 12.5px;
+      color: var(--text-muted);
+      display: flex;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+    .student-code-meta .sep {
+      color: #CBD5E1;
+    }
+    .student-profile-kpis {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+    .kpi-box {
+      background: var(--surface-2);
+      border: 1px solid var(--border-soft);
+      border-radius: 10px;
+      padding: 8px 16px;
+      text-align: center;
+      min-width: 90px;
+    }
+    .kpi-box .kpi-label {
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--text-muted);
+      font-weight: 700;
+      display: block;
+      margin-bottom: 2px;
+    }
+    .kpi-box .kpi-val {
+      font-size: 15px;
+      font-weight: 700;
+      color: #111827;
+      font-family: 'Lato', sans-serif;
+    }
+    .kpi-box.highlight {
+      background: #ECFDF5;
+      border-color: #A7F3D0;
+    }
+    .kpi-box.highlight .kpi-val {
+      color: #047857;
+    }
+
+    /* =========================================================================
+       BUSCADOR Y FILTROS POR INTENCIÓN
+       ========================================================================= */
+    .catalog-search-card {
+      background: #FFFFFF;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 20px 24px;
+      margin-bottom: 24px;
+      box-shadow: var(--shadow);
+    }
+    .search-input-wrap {
+      position: relative;
+    }
+    .search-input-wrap input {
+      width: 100%;
+      height: 46px;
+      padding: 10px 16px 10px 44px;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      font-size: 14.5px;
+      color: #111827;
+      background: #FFFFFF;
+      transition: all 0.15s ease;
+    }
+    .search-input-wrap input:focus {
+      border-color: var(--brand);
+      box-shadow: 0 0 0 3px rgba(15, 132, 143, 0.12);
+      outline: none;
+    }
+    .search-input-wrap .search-ico {
+      position: absolute;
+      left: 15px;
+      top: 50%;
+      transform: translateY(-50%);
+      font-size: 16px;
+      color: var(--text-muted);
+      pointer-events: none;
+    }
+    .intent-section-title {
+      font-size: 12.5px;
+      font-weight: 700;
+      color: #374151;
+      margin: 14px 0 8px 0;
+    }
+    .intent-bar {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+    .intent-btn {
+      padding: 7px 15px;
+      border-radius: 999px;
+      border: 1px solid var(--border-soft);
+      background: var(--surface-2);
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text-soft);
+      cursor: pointer;
+      transition: all 0.15s ease;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .intent-btn:hover {
+      border-color: var(--brand);
+      color: var(--brand);
+      background: #FFFFFF;
+    }
+    .intent-btn.active {
+      background: var(--brand);
+      border-color: var(--brand);
+      color: #FFFFFF;
+      box-shadow: 0 2px 6px rgba(15, 132, 143, 0.25);
+    }
+
+    /* =========================================================================
+       TARJETAS DE TRÁMITES (LIMPIEZA DE TAGS Y FUERTE JERARQUÍA VISUAL)
+       ========================================================================= */
+    .tram-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 20px;
+    }
+    @media (max-width: 920px) {
+      .tram-grid { grid-template-columns: 1fr; }
+      .student-profile-bar { flex-direction: column; align-items: stretch; }
+      .student-profile-kpis { justify-content: flex-start; }
+    }
+
+    .tram-card {
+      background: #FFFFFF;
+      border: 1px solid #D5DDE5;
+      border-radius: 14px;
+      padding: 24px;
+      display: flex;
+      flex-direction: column;
+      position: relative;
+      box-shadow: var(--shadow);
+      transition: border-color 0.18s ease, box-shadow 0.18s ease, transform 0.18s ease;
+    }
+    .tram-card:hover {
+      border-color: var(--brand);
+      box-shadow: 0 10px 28px rgba(15, 23, 42, 0.09);
+      transform: translateY(-2px);
+    }
+    .tram-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 8px;
+    }
+    .tram-category-text {
+      font-size: 11px;
+      font-weight: 800;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--brand-dark);
+    }
+    .tram-title {
+      font-family: 'Lato', sans-serif;
+      font-size: 21px;
+      font-weight: 800;
+      color: #0F172A;
+      margin: 0 0 8px 0;
+      line-height: 1.3;
+      letter-spacing: -0.01em;
+    }
+    .tram-desc {
+      font-size: 14.5px;
+      color: #334155;
+      line-height: 1.55;
+      margin: 0 0 16px 0;
+      flex: 1;
+    }
+    .tram-specs-line {
+      display: flex;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 14px;
+      margin-bottom: 18px;
+      padding-top: 12px;
+      border-top: 1px dashed var(--border-soft);
+      font-size: 13px;
+      color: #475569;
+    }
+    .spec-item {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .spec-item b {
+      color: #0F172A;
+    }
+
+    .tram-foot {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding-top: 14px;
+      border-top: 1px solid var(--border-soft);
+      margin-top: auto;
+    }
+    .tram-price-wrap {
+      display: flex;
+      flex-direction: column;
+    }
+    .tram-price-main {
+      font-family: 'Lato', sans-serif;
+      font-size: 24px;
+      font-weight: 900;
+      color: #0F848F;
+      line-height: 1;
+    }
+    .tram-price-sub {
+      font-size: 11.5px;
+      color: #64748B;
+      margin-top: 4px;
+      font-weight: 500;
+    }
+    .tram-actions {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    /* Modal Wizard Panes */
+    .wizard-pane { display: none; }
+    .wizard-pane.active { display: block; }
+  </style>
+</head>
+<body>
+  <script src="../js/data.js"></script>
+  <script src="../js/shell.js"></script>
+  <script src="../js/doc.js"></script>
+  <script>
+    const ctx = APP.renderShell('solicitar');
+    const me = DB.getUsuario(ctx.session.id);
+    const perfil = me.perfil;
+
+    let searchTxt = '';
+    let intencionSel = 'todos';
+
+    // Estado del Wizard Modal
+    let WIZARD = {
+      step: 1,
+      tramiteId: null,
+      motivo: 'Trámite bancario',
+      comentario: '',
+      adjuntoNombre: null,
+      adjuntoTamano: null
+    };
+
+    function setQ(val) {
+      searchTxt = (val || '').toLowerCase().trim();
+      renderCatalog();
+    }
+
+    function setIntencion(intencion) {
+      intencionSel = intencion;
+      document.querySelectorAll('.intent-btn').forEach(b => {
+        b.classList.toggle('active', b.dataset.intent === intencion);
+      });
+      renderCatalog();
+    }
+
+    function renderCatalog() {
+      const all = DB.tramites();
+      const elegibles = all.filter(t => DB.elegible(t, perfil));
+      const noEleg = all.filter(t => t.activo && !DB.elegible(t, perfil));
+
+      // Filtro reactivo por búsqueda y por categoría de intención
+      let filtrados = elegibles.filter(t => {
+        const matchText = !searchTxt || (t.nombre + ' ' + t.descripcion + ' ' + t.tipo + ' ' + t.area).toLowerCase().includes(searchTxt);
+        const matchIntent = (intencionSel === 'todos') || (t.intenciones && t.intenciones.includes(intencionSel));
+        return matchText && matchIntent;
+      });
+
+      const cardsHtml = filtrados.map(t => {
+        const slaExacto = APP.calcSLA(t.diasEntrega);
+        return `
+          <div class="tram-card">
+            <!-- Kicker de categoría sin tags estruendosos -->
+            <div class="tram-header">
+              <span class="tram-category-text">${t.tipo} · ${t.area}</span>
+            </div>
+
+            <!-- Título con fuerte peso visual -->
+            <h3 class="tram-title">${t.nombre}</h3>
+            
+            <!-- Descripción clara y legible -->
+            <p class="tram-desc">${t.descripcion}</p>
+
+            <!-- Especificaciones limpias sin tags de colores que marean -->
+            <div class="tram-specs-line">
+              <span class="spec-item">
+                <span>⏱ Entrega estimada: <b>${slaExacto}</b> (${t.diasEntrega} días hábiles)</span>
+              </span>
+              ${t.requiereAdjunto ? `
+                <span class="spec-item" style="color:#B45309;font-weight:600">
+                  <span>📎 Requiere adjuntar sustento</span>
+                </span>` : `
+                <span class="spec-item" style="color:#047857;font-weight:500">
+                  <span>✓ Emisión 100% digital</span>
+                </span>`}
+            </div>
+
+            <!-- Footer: Precio rotundo y acciones directas -->
+            <div class="tram-foot">
+              <div class="tram-price-wrap">
+                <div class="tram-price-main">${APP.money(t.costo)}</div>
+                <div class="tram-price-sub">Tasa oficial · Incluye IGV</div>
+              </div>
+              <div class="tram-actions">
+                ${DOC.getPlantilla(t).generaDocumento ? `<button class="btn btn-sm btn-ghost" onclick="DOC.preview(DB.getTramite('${t.id}'), me, null, {modelo:true})">Ver modelo</button>` : ''}
+                <button class="btn btn-primary" onclick="abrirWizard('${t.id}')">Solicitar trámite →</button>
+              </div>
+            </div>
+          </div>`;
+      }).join('');
+
+      const noElegHtml = noEleg.length ? `
+        <div class="section-label" style="margin-top:36px;margin-bottom:12px;font-size:13px;font-weight:700;color:#334155;letter-spacing:0.04em">
+          Trámites no habilitados para tu ciclo o carrera
+        </div>
+        <div class="card" style="padding:0">
+          <div class="table-wrap" style="border:none">
+            <table class="data">
+              <thead>
+                <tr>
+                  <th style="padding:14px 18px">Trámite</th>
+                  <th>Tipo</th>
+                  <th>Requisitos que solicita</th>
+                  <th style="text-align:right;padding-right:18px">Estado</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${noEleg.map(t => `
+                  <tr>
+                    <td style="padding:14px 18px"><b style="color:#0F172A;font-size:14.5px">${t.nombre}</b></td>
+                    <td class="muted">${t.tipo}</td>
+                    <td class="muted">${DB.audienciaTexto(t.audiencia).join(' · ')}</td>
+                    <td style="text-align:right;padding-right:18px"><span class="pill gray">No habilitado</span></td>
+                  </tr>`).join('')}
+              </tbody>
+            </table>
+          </div>
+        </div>` : '';
+
+      document.getElementById('catalog-grid').innerHTML = cardsHtml || `
+        <div class="card" style="grid-column: 1 / -1;">
+          <div class="empty-state">
+            <div class="ico">🔍</div>
+            <div style="font-size:15px;font-weight:600;color:#1E293B;margin-bottom:4px">No encontramos trámites con esa búsqueda</div>
+            <div style="font-size:13px;color:#64748B;margin-bottom:14px">Prueba buscando otra palabra clave o selecciona otra categoría.</div>
+            <button class="btn btn-sm" onclick="setQ('');setIntencion('todos');">Ver todos los trámites</button>
+          </div>
+        </div>`;
+
+      document.getElementById('catalog-no-eleg').innerHTML = noElegHtml;
+    }
+
+    function initView() {
+      ctx.mount.innerHTML = `
+        <div class="page-head">
+          <div>
+            <h1>Catálogo de trámites estudiantiles</h1>
+            <p>Emisión de constancias y certificados oficiales con código de verificación QR y firma digital.</p>
+          </div>
+          <a class="btn" href="mis-tramites.html">📋 Ver mis solicitudes →</a>
+        </div>
+
+        <!-- Banner de Perfil del Estudiante Rediseñado y Despejado -->
+        <div class="student-profile-bar">
+          <div class="student-profile-left">
+            <div class="student-profile-avatar">${APP.initials(me.nombre)}</div>
+            <div class="student-profile-details">
+              <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+                <h2>${me.nombre}</h2>
+                <span class="pill ok" style="font-size:11.5px">● Alumno regular</span>
+              </div>
+              <div class="student-career-text">
+                <b>${perfil.programa}</b> · ${perfil.nivel === 'pregrado' ? 'Pregrado' : 'Postgrado'} (Ciclo ${perfil.ciclo})
+              </div>
+              <div class="student-code-meta">
+                <span>Código: <b>${me.codigo}</b></span>
+                <span class="sep">·</span>
+                <span>DNI: <b>${me.dni}</b></span>
+                <span class="sep">·</span>
+                <span>${me.email}</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="student-profile-kpis">
+            <div class="kpi-box">
+              <span class="kpi-label">Créditos</span>
+              <span class="kpi-val">${perfil.creditos}</span>
+            </div>
+            <div class="kpi-box">
+              <span class="kpi-label">Promedio</span>
+              <span class="kpi-val">${perfil.promedio}</span>
+            </div>
+            <div class="kpi-box highlight">
+              <span class="kpi-label">Mérito</span>
+              <span class="kpi-val">${perfil.tercioSuperior ? 'Tercio superior ✓' : perfil.quintoSuperior ? 'Quinto superior ✓' : 'Regular'}</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Buscador e Intenciones -->
+        <div class="catalog-search-card">
+          <div class="search-input-wrap">
+            <span class="search-ico">🔍</span>
+            <input id="search-input" placeholder="Buscar trámite por nombre (ej. Matrícula, Certificado, Tercio, Carné...)" oninput="setQ(this.value)">
+          </div>
+
+          <div class="intent-section-title">¿Qué trámite deseas realizar?</div>
+          <div class="intent-bar">
+            <button class="intent-btn active" data-intent="todos" onclick="setIntencion('todos')">🎯 Todos</button>
+            <button class="intent-btn" data-intent="beca" onclick="setIntencion('beca')">🎓 Becas y descuentos</button>
+            <button class="intent-btn" data-intent="practicas" onclick="setIntencion('practicas')">💼 Prácticas y empleo</button>
+            <button class="intent-btn" data-intent="grado" onclick="setIntencion('grado')">🏛️ Grados y egreso</button>
+            <button class="intent-btn" data-intent="carne" onclick="setIntencion('carne')">🪪 Carné universitario</button>
+          </div>
+        </div>
+
+        <div class="tram-grid" id="catalog-grid"></div>
+        <div id="catalog-no-eleg"></div>
+      `;
+
+      renderCatalog();
+    }
+
+    // =========================================================================
+    // MODAL ASISTIDO POR PASOS (WIZARD DE SOLICITUD)
+    // =========================================================================
+    function abrirWizard(tramiteId) {
+      const t = DB.getTramite(tramiteId);
+      WIZARD = {
+        step: 1,
+        tramiteId: t.id,
+        motivo: 'Trámite bancario',
+        comentario: '',
+        adjuntoNombre: null,
+        adjuntoTamano: null
+      };
+      paintWizardModal();
+    }
+
+    function paintWizardModal() {
+      const t = DB.getTramite(WIZARD.tramiteId);
+      const slaExacto = APP.calcSLA(t.diasEntrega);
+
+      APP.openModal(`
+        <div class="wizard-bar" aria-label="Progreso de la solicitud">
+          <div class="wizard-step-item ${WIZARD.step === 1 ? 'active' : WIZARD.step > 1 ? 'done' : ''}">
+            <span class="w-circle">${WIZARD.step > 1 ? '✓' : '1'}</span>
+            <span>1. Confirmar datos</span>
+          </div>
+          <div class="wizard-step-item ${WIZARD.step === 2 ? 'active' : WIZARD.step > 2 ? 'done' : ''}">
+            <span class="w-circle">${WIZARD.step > 2 ? '✓' : '2'}</span>
+            <span>2. Requisitos y motivo</span>
+          </div>
+          <div class="wizard-step-item ${WIZARD.step === 3 ? 'active' : ''}">
+            <span class="w-circle">3</span>
+            <span>3. Confirmación</span>
+          </div>
+        </div>
+
+        <div class="modal-head">
+          <h3>Solicitud de ${t.nombre}</h3>
+          <button class="modal-close" aria-label="Cerrar modal" onclick="APP.closeModal()">×</button>
+        </div>
+
+        <div class="modal-body">
+          <!-- PASO 1: CONFIRMAR DATOS -->
+          <div class="wizard-pane ${WIZARD.step === 1 ? 'active' : ''}" id="wiz-step-1">
+            <div style="font-size:14px;color:#1E293B;margin-bottom:14px;line-height:1.4">
+              Verifica que tus datos registrados en la universidad sean correctos. Tu documento oficial será emitido con esta información:
+            </div>
+            <dl class="kv" style="background:var(--surface-2);padding:18px;border-radius:10px;margin-bottom:18px">
+              <dt>Estudiante</dt><dd><b>${me.nombre}</b></dd>
+              <dt>Código / DNI</dt><dd>${me.codigo} · DNI ${me.dni}</dd>
+              <dt>Carrera / Programa</dt><dd>${perfil.programa}</dd>
+              <dt>Nivel y Ciclo</dt><dd>${perfil.nivel === 'pregrado' ? 'Pregrado' : 'Postgrado'} · Ciclo ${perfil.ciclo}</dd>
+              <dt>Correo institucional</dt><dd>${me.email}</dd>
+            </dl>
+            <div class="alert info">
+              ℹ️ Si notas alguna discrepancia en tu información personal o carrera, comunícate con Registros Académicos antes de emitir el documento.
+            </div>
+          </div>
+
+          <!-- PASO 2: REQUISITOS, MOTIVO Y ADJUNTOS -->
+          <div class="wizard-pane ${WIZARD.step === 2 ? 'active' : ''}" id="wiz-step-2">
+            <div class="field full" style="margin-bottom:16px">
+              <label for="wiz-motivo">Motivo de la solicitud *</label>
+              <select class="select" id="wiz-motivo" onchange="WIZARD.motivo=this.value">
+                <option ${WIZARD.motivo === 'Trámite bancario' ? 'selected' : ''}>Trámite bancario</option>
+                <option ${WIZARD.motivo === 'Postulación laboral' ? 'selected' : ''}>Postulación laboral</option>
+                <option ${WIZARD.motivo === 'Beca de estudios' ? 'selected' : ''}>Beca de estudios</option>
+                <option ${WIZARD.motivo === 'Trámite migratorio / Visa' ? 'selected' : ''}>Trámite migratorio / Visa</option>
+                <option ${WIZARD.motivo === 'Continuidad de estudios' ? 'selected' : ''}>Continuidad de estudios</option>
+                <option ${WIZARD.motivo === 'Otro' ? 'selected' : ''}>Otro</option>
+              </select>
+            </div>
+
+            <div class="field full" style="margin-bottom:18px">
+              <label for="wiz-coment">Comentario o especificación (opcional)</label>
+              <textarea class="input" id="wiz-coment" placeholder="Indica información complementaria si es necesario..." oninput="WIZARD.comentario=this.value">${WIZARD.comentario}</textarea>
+            </div>
+
+            <!-- Componente para adjuntar archivo -->
+            <div class="field full">
+              <label>
+                Documento de sustento
+                ${t.requiereAdjunto ? '<span style="color:var(--err-fg);font-weight:700">* (Obligatorio)</span>' : '<span class="hint">(Opcional)</span>'}
+              </label>
+
+              ${t.requiereAdjunto && t.adjuntoIndicacion ? `
+                <div class="alert warn" style="margin-bottom:10px;font-size:12.5px">
+                  📌 <b>Indicación del área:</b> ${t.adjuntoIndicacion}
+                </div>` : ''}
+
+              <div class="file-dropzone" id="dropzone" onclick="document.getElementById('file-input').click()">
+                <input type="file" id="file-input" accept=".pdf,.jpg,.jpeg,.png" onchange="handleFileSelect(event)">
+                <div style="font-size:26px;margin-bottom:4px">📁</div>
+                <div style="font-weight:600;font-size:13.5px">Haz clic para seleccionar o arrastra tu archivo aquí</div>
+                <div style="font-size:12px;color:var(--text-muted);margin-top:4px">Formatos permitidos: PDF, JPG o PNG (máx. 5 MB)</div>
+              </div>
+
+              <div id="file-preview-area">
+                ${WIZARD.adjuntoNombre ? `
+                  <div class="file-preview-card">
+                    <div class="file-meta">
+                      <span style="font-size:20px">📄</span>
+                      <div>
+                        <div class="file-name">${WIZARD.adjuntoNombre}</div>
+                        <div class="file-size">${WIZARD.adjuntoTamano || '1.2 MB'} · Archivo adjunto listo</div>
+                      </div>
+                    </div>
+                    <button class="btn btn-sm btn-ghost" type="button" style="color:var(--err-fg)" onclick="removeFile(event)">✕ Quitar</button>
+                  </div>` : ''}
+              </div>
+            </div>
+          </div>
+
+          <!-- PASO 3: REVISIÓN Y CONFIRMACIÓN -->
+          <div class="wizard-pane ${WIZARD.step === 3 ? 'active' : ''}" id="wiz-step-3">
+            <div class="section-label" style="margin-bottom:8px">Resumen de tu solicitud</div>
+            <dl class="kv" style="margin-bottom:18px">
+              <dt>Trámite</dt><dd><b>${t.nombre}</b> (${t.tipo})</dd>
+              <dt>Costo total</dt><dd><b style="font-size:18px;color:#0F848F">${APP.money(t.costo)}</b> (incluye IGV)</dd>
+              <dt>Modalidad de pago</dt><dd>${t.pagoMomento === 'antes' ? 'Pago seguro en línea al solicitar' : 'Pago posterior a la aprobación del trámite'}</dd>
+              <dt>Entrega estimada</dt><dd><b>${slaExacto}</b></dd>
+              <dt>Motivo</dt><dd>${WIZARD.motivo}</dd>
+              <dt>Archivo adjunto</dt><dd>${WIZARD.adjuntoNombre ? '📎 ' + WIZARD.adjuntoNombre : '<span class="muted">Ninguno</span>'}</dd>
+            </dl>
+
+            <div class="nudge-card" style="margin-bottom:14px">
+              <div>🔒</div>
+              <div>
+                <b>Garantía Institucional Wiener:</b>
+                Tu solicitud será validada y procesada por <b>${t.area}</b>. El documento emitido contará con código de verificación QR y firma digital legal.
+              </div>
+            </div>
+
+            <div class="alert info" style="font-size:12.5px">
+              ${t.pagoMomento === 'antes'
+                ? 'Al confirmar serás dirigido a la pasarela segura <b>Niubiz</b> para abonar ' + APP.money(t.costo) + ' mediante tarjeta de débito o crédito.'
+                : 'Tu solicitud entrará a revisión por ' + t.area + '. El pago de ' + APP.money(t.costo) + ' se realizará una vez que sea aprobada.'}
+            </div>
+          </div>
+        </div>
+
+        <div class="modal-foot">
+          ${WIZARD.step === 1 ? `
+            <button class="btn" onclick="APP.closeModal()">Cancelar</button>
+            <button class="btn btn-primary" onclick="setWizardStep(2)">Continuar al paso 2 →</button>
+          ` : WIZARD.step === 2 ? `
+            <button class="btn" onclick="setWizardStep(1)">← Volver</button>
+            <button class="btn btn-primary" onclick="validarYPasarPaso3()">Continuar a revisión →</button>
+          ` : `
+            <button class="btn" onclick="setWizardStep(2)">← Corregir datos</button>
+            <button class="btn btn-primary" onclick="finalizarSolicitud('${t.id}')">
+              ${t.pagoMomento === 'antes' ? 'Confirmar y pagar ' + APP.money(t.costo) + ' →' : 'Enviar solicitud a revisión →'}
+            </button>
+          `}
+        </div>
+      `, { wide: true });
+    }
+
+    function setWizardStep(step) {
+      WIZARD.step = step;
+      paintWizardModal();
+    }
+
+    function handleFileSelect(event) {
+      const file = event.target.files && event.target.files[0];
+      if (!file) return;
+      WIZARD.adjuntoNombre = file.name;
+      const sizeMb = (file.size / (1024 * 1024)).toFixed(1);
+      WIZARD.adjuntoTamano = (sizeMb > 0 ? sizeMb : '0.5') + ' MB';
+      paintWizardModal();
+    }
+
+    function removeFile(event) {
+      if (event) event.stopPropagation();
+      WIZARD.adjuntoNombre = null;
+      WIZARD.adjuntoTamano = null;
+      paintWizardModal();
+    }
+
+    function validarYPasarPaso3() {
+      const t = DB.getTramite(WIZARD.tramiteId);
+      if (t.requiereAdjunto && !WIZARD.adjuntoNombre) {
+        APP.toast({
+          icon: '⚠️',
+          title: 'Falta documento de sustento',
+          body: t.adjuntoIndicacion || 'Debes adjuntar el archivo solicitado para continuar este trámite.'
+        });
+        return;
+      }
+      setWizardStep(3);
+    }
+
+    function finalizarSolicitud(id) {
+      const t = DB.getTramite(id);
+      if (t.pagoMomento === 'antes') {
+        APP.niubizCheckout({
+          amount: t.costo,
+          concepto: `${t.nombre} · ${me.nombre} (${me.codigo})`,
+          onSuccess: (pago) => procesarCreacion(t, pago)
+        });
+      } else {
+        procesarCreacion(t, null);
+      }
+    }
+
+    function procesarCreacion(t, pago) {
+      const num = DB.solicitudes().length + 201;
+      const pagado = !!pago;
+      const estado = 'En revisión';
+
+      const s = {
+        id: 'S-2026-0' + num,
+        tramiteId: t.id,
+        tramiteNombre: t.nombre,
+        alumnoId: me.id,
+        alumnoNombre: me.nombre,
+        alumnoCodigo: me.codigo,
+        fecha: APP.todayISO(),
+        estado,
+        costo: t.costo,
+        area: t.area,
+        pagoMomento: t.pagoMomento,
+        motivo: WIZARD.motivo,
+        observacion: WIZARD.comentario ? 'Comentario del alumno: ' + WIZARD.comentario : '',
+        adjunto: WIZARD.adjuntoNombre || null,
+        pago: pagado
+          ? { estado: 'pagado', metodo: pago.metodo, monto: pago.monto, fecha: APP.todayISO(), operacion: pago.operacion }
+          : { estado: 'pendiente', metodo: '-', monto: t.costo, fecha: '', operacion: '' },
+        historial: [
+          { estado: 'Pendiente de pago', fecha: APP.nowStamp(), nota: 'Solicitud creada con expediente digital' }
+        ]
+      };
+
+      if (pagado) {
+        s.historial.push({
+          estado: 'En revisión',
+          fecha: APP.nowStamp(),
+          nota: 'Pago confirmado vía ' + pago.metodo + ' (Op. ' + pago.operacion + ')'
+        });
+      }
+
+      DB.addSolicitud(s);
+
+      APP.sendMail({
+        to: me.email,
+        cc: 'mesadepartes@uwiener.edu.pe',
+        subject: `Expediente ${s.id} registrado - ${t.nombre}`,
+        lines: [
+          `Hola ${me.nombre}, hemos registrado con éxito tu solicitud de <b>${t.nombre}</b>.`,
+          `N° de Expediente: <b>${s.id}</b>.`,
+          `Fecha estimada de resolución: <b>${APP.calcSLA(t.diasEntrega)}</b>.`,
+          pagado ? `Pago confirmado: ${APP.money(pago.monto)}.` : `Pago de ${APP.money(t.costo)} pendiente de abono tras aprobación.`
+        ]
+      });
+
+      APP.closeModal();
+      APP.toast({
+        icon: '✅',
+        title: '¡Solicitud registrada!',
+        body: `Expediente ${s.id} generado. Redirigiendo a seguimiento...`
+      });
+
+      setTimeout(() => {
+        location.href = 'mis-tramites.html';
+      }, 1200);
+    }
+
+    initView();
+  </script>
+</body>
+</html>

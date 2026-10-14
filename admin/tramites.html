@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Trámites · Wiener Admin</title>
+  <link href="https://fonts.googleapis.com/css2?family=Lato:wght@400;700;900&family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../css/styles.css">
+</head>
+<body>
+  <script src="../js/data.js"></script>
+  <script src="../js/shell.js"></script>
+  <script src="../js/doc.js"></script>
+  <script>
+    const ctx = APP.renderShell('tramites');
+    const CICLOS = [1,2,3,4,5,6,7,8,9,10];
+    let DRAFT = null; // trámite en edición (para la vista previa de plantilla)
+
+    function render() {
+      const ts = DB.tramites();
+      const rows = ts.map(t => `
+        <tr>
+          <td><span class="mono muted">${t.id}</span></td>
+          <td><span class="strong">${t.nombre}</span><br><span class="muted">${DB.audienciaTexto(t.audiencia).join(' · ')}</span></td>
+          <td><span class="tag teal">${t.tipo}</span><br><span class="muted">modelo: ${t.modelo}</span></td>
+          <td>${APP.money(t.costo)}</td>
+          <td><span class="pill ${t.pagoMomento === 'antes' ? 'info' : 'warn'}">${t.pagoMomento === 'antes' ? 'Antes' : 'Después'}</span></td>
+          <td>${t.activo ? '<span class="pill ok">Activo</span>' : '<span class="pill gray">Inactivo</span>'}</td>
+          <td class="row-actions">
+            ${DOC.getPlantilla(t).generaDocumento ? `<button class="btn btn-sm" title="Vista previa del documento" onclick="DOC.abrir(DB.getTramite('${t.id}'),null,null)">Documento</button>` : ''}
+            <button class="btn btn-sm" onclick="editar('${t.id}')">Editar</button>
+            <button class="btn btn-sm btn-danger" onclick="eliminar('${t.id}')">Eliminar</button>
+          </td>
+        </tr>`).join('');
+
+      ctx.mount.innerHTML = `
+        <div class="page-head">
+          <div><h1>Trámites</h1><p>Crea y configura los trámites, sus costos, modelos y a qué alumnos se muestran.</p></div>
+          <button class="btn btn-primary" onclick="editar(null)">+ Nuevo trámite</button>
+        </div>
+        <div class="table-wrap">
+          <table class="data">
+            <thead><tr><th>Código</th><th>Trámite / Audiencia</th><th>Tipo</th><th>Costo</th><th>Pago</th><th>Estado</th><th></th></tr></thead>
+            <tbody>${rows}</tbody>
+          </table>
+        </div>
+      `;
+    }
+
+    function editar(id) {
+      const t = id ? JSON.parse(JSON.stringify(DB.getTramite(id))) : {
+        id: null, nombre: '', tipo: 'Constancia', modelo: 'constancia', descripcion: '', costo: 0,
+        pagoMomento: 'antes', requiereAprobacion: true, diasEntrega: 3, activo: true, area: 'Registros Académicos',
+        requiereAdjunto: false, adjuntoIndicacion: '',
+        audiencia: { niveles: ['pregrado'], ciclos: [], minCreditos: 0, tercioSuperior: false, quintoSuperior: false, promedioMin: 0 }
+      };
+      DRAFT = t;
+      const a = t.audiencia;
+      const pl = DOC.getPlantilla(t);
+      const opt = (arr, v) => arr.map(x => `<option ${x === v ? 'selected' : ''}>${x}</option>`).join('');
+      const cicloChips = CICLOS.map(c => `<label class="chip-check ${a.ciclos.includes(c) ? 'checked' : ''}"><input type="checkbox" data-ciclo="${c}" ${a.ciclos.includes(c) ? 'checked' : ''} onchange="this.closest('.chip-check').classList.toggle('checked',this.checked)">${c}° ciclo</label>`).join('');
+
+      APP.openModal(`
+        <div class="modal-head"><h3>${id ? 'Editar trámite' : 'Nuevo trámite'}</h3><button class="modal-close" onclick="APP.closeModal()">×</button></div>
+        <div class="modal-body">
+          <div class="section-label">Datos generales</div>
+          <div class="form-grid">
+            <div class="field full"><label>Nombre del trámite *</label><input class="input" id="f-nombre" value="${t.nombre}" placeholder="Ej. Constancia de Matrícula"></div>
+            <div class="field"><label>Tipo</label><select class="select" id="f-tipo">${opt(DB.TIPOS, t.tipo)}</select></div>
+            <div class="field"><label>Modelo / plantilla</label><select class="select" id="f-modelo">${opt(DB.MODELOS, t.modelo)}</select></div>
+            <div class="field"><label>Costo (S/)</label><input class="input" id="f-costo" type="number" min="0" step="0.5" value="${t.costo}"></div>
+            <div class="field"><label>Días de entrega (hábiles)</label><input class="input" id="f-dias" type="number" min="0" value="${t.diasEntrega}"></div>
+            <div class="field full"><label>Área responsable</label><input class="input" id="f-area" value="${t.area}"></div>
+            <div class="field full"><label>Descripción</label><textarea class="input" id="f-desc">${t.descripcion}</textarea></div>
+          </div>
+
+          <hr class="divider">
+          <div class="section-label">Modalidad de pago</div>
+          <div class="radio-cards">
+            <label class="radio-card ${t.pagoMomento === 'antes' ? 'checked' : ''}" onclick="pickRadio(this,'pago')">
+              <input type="radio" name="pago" value="antes" ${t.pagoMomento === 'antes' ? 'checked' : ''}>
+              <b>💳 Pago antes</b><span>El alumno paga al solicitar (Niubiz)</span></label>
+            <label class="radio-card ${t.pagoMomento === 'despues' ? 'checked' : ''}" onclick="pickRadio(this,'pago')">
+              <input type="radio" name="pago" value="despues" ${t.pagoMomento === 'despues' ? 'checked' : ''}>
+              <b>🧾 Pago después</b><span>Paga una vez aprobado el trámite</span></label>
+          </div>
+
+          <hr class="divider">
+          <div class="section-label">¿A quién se muestra este trámite? (audiencia)</div>
+          <div class="field full" style="margin-bottom:16px">
+            <label>Nivel académico</label>
+            <div class="chip-row">
+              <label class="chip-check ${a.niveles.includes('pregrado') ? 'checked' : ''}"><input type="checkbox" id="n-pre" ${a.niveles.includes('pregrado') ? 'checked' : ''} onchange="this.closest('.chip-check').classList.toggle('checked',this.checked)">Pregrado</label>
+              <label class="chip-check ${a.niveles.includes('postgrado') ? 'checked' : ''}"><input type="checkbox" id="n-post" ${a.niveles.includes('postgrado') ? 'checked' : ''} onchange="this.closest('.chip-check').classList.toggle('checked',this.checked)">Postgrado</label>
+            </div>
+          </div>
+          <div class="field full" style="margin-bottom:16px">
+            <label>Ciclos habilitados <span class="hint">(vacío = todos los ciclos)</span></label>
+            <div class="chip-row">${cicloChips}</div>
+          </div>
+          <div class="form-grid">
+            <div class="field"><label>Créditos aprobados mínimos</label><input class="input" id="f-cred" type="number" min="0" value="${a.minCreditos}" placeholder="Ej. 100"></div>
+            <div class="field"><label>Promedio mínimo</label><input class="input" id="f-prom" type="number" min="0" max="20" step="0.1" value="${a.promedioMin}" placeholder="Ej. 14"></div>
+          </div>
+          <div class="chip-row" style="margin-top:16px">
+            <label class="chip-check ${a.tercioSuperior ? 'checked' : ''}"><input type="checkbox" id="f-tercio" ${a.tercioSuperior ? 'checked' : ''} onchange="this.closest('.chip-check').classList.toggle('checked',this.checked)">Solo tercio superior</label>
+            <label class="chip-check ${a.quintoSuperior ? 'checked' : ''}"><input type="checkbox" id="f-quinto" ${a.quintoSuperior ? 'checked' : ''} onchange="this.closest('.chip-check').classList.toggle('checked',this.checked)">Solo quinto superior</label>
+          </div>
+
+          <hr class="divider">
+          <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px">
+            <div class="section-label" style="margin:0">Plantilla del documento</div>
+            <button class="btn btn-sm" type="button" onclick="vistaPrevia()">👁 Vista previa</button>
+          </div>
+          <label style="display:flex;align-items:center;gap:10px;font-size:14px;font-weight:600;color:var(--text-soft);margin:14px 0 4px">
+            <span class="switch"><input type="checkbox" id="p-genera" ${pl.generaDocumento ? 'checked' : ''}><span class="slider"></span></span>
+            Genera documento descargable (constancia/certificado)</label>
+          <div class="form-grid" style="margin-top:12px">
+            <div class="field"><label>Emisor</label><input class="input" id="p-emisor" value="${pl.emisor}"></div>
+            <div class="field"><label>Título del documento</label><input class="input" id="p-titulo" value="${pl.titulo}"></div>
+            <div class="field full"><label>Cuerpo
+              <span class="hint">Variables: {nombre} {dni} {codigo} {programa} {nivel} {ciclo} {creditos} {fecha} {periodo}</span></label>
+              <textarea class="input" id="p-cuerpo" style="min-height:120px">${pl.cuerpo}</textarea></div>
+            <div class="field"><label>Firmante</label><input class="input" id="p-firmante" value="${pl.firmante}"></div>
+            <div class="field"><label>Cargo del firmante</label><input class="input" id="p-cargo" value="${pl.cargo}"></div>
+          </div>
+
+          <hr class="divider">
+          <div class="section-label">Documentos de sustento / Adjuntos</div>
+          <label style="display:flex;align-items:center;gap:10px;font-size:14px;font-weight:600;color:var(--text-soft);margin-bottom:12px">
+            <span class="switch"><input type="checkbox" id="f-req-adjunto" ${t.requiereAdjunto ? 'checked' : ''}><span class="slider"></span></span>
+            Requiere adjuntar documentos / archivos de sustento (PDF o imagen)</label>
+          <div class="field full" style="margin-bottom:16px">
+            <label for="f-adj-ind">Indicación del requisito para el alumno</label>
+            <input class="input" id="f-adj-ind" value="${t.adjuntoIndicacion || ''}" placeholder="Ej. Adjuntar copia de DNI o fotografía tamaño carné con fondo blanco">
+          </div>
+
+          <hr class="divider">
+          <div style="display:flex;gap:28px;flex-wrap:wrap">
+            <label style="display:flex;align-items:center;gap:10px;font-size:14px;font-weight:600;color:var(--text-soft)">
+              <span class="switch"><input type="checkbox" id="f-aprob" ${t.requiereAprobacion ? 'checked' : ''}><span class="slider"></span></span> Requiere aprobación administrativa</label>
+            <label style="display:flex;align-items:center;gap:10px;font-size:14px;font-weight:600;color:var(--text-soft)">
+              <span class="switch"><input type="checkbox" id="f-activo" ${t.activo ? 'checked' : ''}><span class="slider"></span></span> Trámite activo (visible)</label>
+          </div>
+        </div>
+        <div class="modal-foot">
+          <button class="btn" onclick="APP.closeModal()">Cancelar</button>
+          <button class="btn btn-primary" onclick="guardar('${id || ''}')">Guardar trámite</button>
+        </div>
+      `, { wide: true });
+    }
+
+    function leerPlantilla() {
+      return {
+        generaDocumento: document.getElementById('p-genera').checked,
+        emisor: document.getElementById('p-emisor').value.trim(),
+        titulo: document.getElementById('p-titulo').value.trim(),
+        cuerpo: document.getElementById('p-cuerpo').value.trim(),
+        firmante: document.getElementById('p-firmante').value.trim(),
+        cargo: document.getElementById('p-cargo').value.trim()
+      };
+    }
+
+    function vistaPrevia() {
+      const temp = Object.assign({}, DRAFT, {
+        nombre: document.getElementById('f-nombre').value || DRAFT.nombre,
+        tipo: document.getElementById('f-tipo').value,
+        modelo: document.getElementById('f-modelo').value,
+        plantilla: leerPlantilla()
+      });
+      DOC.abrir(temp, null, null);
+    }
+
+    function pickRadio(el, name) {
+      document.querySelectorAll(`.radio-card`).forEach(c => { if (c.querySelector(`input[name="${name}"]`)) c.classList.remove('checked'); });
+      el.classList.add('checked'); el.querySelector('input').checked = true;
+    }
+
+    function guardar(id) {
+      const nombre = document.getElementById('f-nombre').value.trim();
+      if (!nombre) { APP.toast({ icon: '⚠️', title: 'Falta el nombre', body: 'Ingresa el nombre del trámite.' }); return; }
+      const niveles = [];
+      if (document.getElementById('n-pre').checked) niveles.push('pregrado');
+      if (document.getElementById('n-post').checked) niveles.push('postgrado');
+      const ciclos = Array.from(document.querySelectorAll('input[data-ciclo]:checked')).map(i => +i.dataset.ciclo);
+
+      const t = {
+        id: id || null,
+        nombre,
+        tipo: document.getElementById('f-tipo').value,
+        modelo: document.getElementById('f-modelo').value,
+        descripcion: document.getElementById('f-desc').value.trim(),
+        costo: parseFloat(document.getElementById('f-costo').value) || 0,
+        diasEntrega: parseInt(document.getElementById('f-dias').value) || 0,
+        area: document.getElementById('f-area').value.trim(),
+        pagoMomento: document.querySelector('input[name="pago"]:checked').value,
+        requiereAprobacion: document.getElementById('f-aprob').checked,
+        activo: document.getElementById('f-activo').checked,
+        requiereAdjunto: document.getElementById('f-req-adjunto') ? document.getElementById('f-req-adjunto').checked : false,
+        adjuntoIndicacion: document.getElementById('f-adj-ind') ? document.getElementById('f-adj-ind').value.trim() : '',
+        audiencia: {
+          niveles,
+          ciclos,
+          minCreditos: parseInt(document.getElementById('f-cred').value) || 0,
+          promedioMin: parseFloat(document.getElementById('f-prom').value) || 0,
+          tercioSuperior: document.getElementById('f-tercio').checked,
+          quintoSuperior: document.getElementById('f-quinto').checked
+        },
+        plantilla: leerPlantilla()
+      };
+      DB.upsertTramite(t);
+      APP.closeModal();
+      APP.toast({ icon: '✅', title: 'Trámite guardado', body: `«${nombre}» se configuró correctamente.` });
+      render();
+    }
+
+    function eliminar(id) {
+      const t = DB.getTramite(id);
+      APP.openModal(`
+        <div class="modal-head"><h3>Eliminar trámite</h3><button class="modal-close" onclick="APP.closeModal()">×</button></div>
+        <div class="modal-body">¿Seguro que deseas eliminar <b>${t.nombre}</b>? Esta acción no afecta solicitudes ya realizadas.</div>
+        <div class="modal-foot"><button class="btn" onclick="APP.closeModal()">Cancelar</button>
+          <button class="btn btn-danger" onclick="DB.deleteTramite('${id}');APP.closeModal();APP.toast({icon:'🗑️',title:'Trámite eliminado',body:'Se quitó del catálogo.'});render()">Eliminar</button></div>
+      `);
+    }
+
+    render();
+  </script>
+</body>
+</html>

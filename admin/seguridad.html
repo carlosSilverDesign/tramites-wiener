@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Seguridad · Wiener Admin</title>
+  <link href="https://fonts.googleapis.com/css2?family=Lato:wght@400;700;900&family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../css/styles.css">
+  <style>
+    .perm-table td.chk { text-align:center; }
+    .dot-yes { color: var(--ok-fg); font-weight:700; } .dot-no { color: var(--text-muted); }
+  </style>
+</head>
+<body>
+  <script src="../js/data.js"></script>
+  <script src="../js/shell.js"></script>
+  <script>
+    const ctx = APP.renderShell('seguridad');
+    let tab = 'roles';
+    function setTab(t, el){ tab=t; document.querySelectorAll('.tab').forEach(x=>x.classList.remove('active')); el.classList.add('active'); paint(); }
+
+    const MODULOS = ['Solicitar trámite','Estado de trámites','Revisar solicitudes','Flujos','Trámites','Usuarios','Seguridad'];
+    const MATRIX = {
+      'Alumno':         [true,true,false,false,false,false,false],
+      'Administrativo': [false,false,true,true,true,true,true]
+    };
+    const AUDIT = [
+      ['2026-06-22 09:20','c.mendoza','Aprobó solicitud S-2026-0181','192.168.10.24'],
+      ['2026-06-22 09:14','mf.quispe','Creó solicitud S-2026-0188','201.230.44.11'],
+      ['2026-06-21 18:02','c.mendoza','Editó trámite T-003 (Certificado de Estudios)','192.168.10.24'],
+      ['2026-06-21 16:40','c.mendoza','Inicio de sesión','192.168.10.24'],
+      ['2026-06-20 11:10','sistema','Pago Niubiz confirmado · Op. NB-90377112','-']
+    ];
+
+    function paint() {
+      const host = document.getElementById('sec-body');
+      if (tab === 'roles') {
+        host.innerHTML = `
+          <div class="card">
+            <div class="card-title">Matriz de roles y permisos</div>
+            <div class="card-sub">Define qué módulos puede ver cada perfil.</div>
+            <div class="table-wrap"><table class="data perm-table">
+              <thead><tr><th>Módulo</th><th style="text-align:center">Alumno</th><th style="text-align:center">Administrativo</th></tr></thead>
+              <tbody>${MODULOS.map((m,i)=>`<tr><td class="strong">${m}</td>
+                <td class="chk">${MATRIX['Alumno'][i]?'<span class="dot-yes">●</span>':'<span class="dot-no">○</span>'}</td>
+                <td class="chk">${MATRIX['Administrativo'][i]?'<span class="dot-yes">●</span>':'<span class="dot-no">○</span>'}</td></tr>`).join('')}</tbody>
+            </table></div>
+          </div>`;
+      } else if (tab === 'politicas') {
+        host.innerHTML = `
+          <div class="card">
+            <div class="card-title">Políticas de seguridad</div>
+            <div class="card-sub">Parámetros de acceso y contraseñas.</div>
+            <div class="resp-list" style="display:flex;flex-direction:column;gap:14px">
+              ${policy('Longitud mínima de contraseña','8 caracteres', true)}
+              ${policy('Requerir mayúsculas, números y símbolos','', true)}
+              ${policy('Caducidad de contraseña (90 días)','', true)}
+              ${policy('Autenticación en dos pasos (2FA) para administrativos','', true)}
+              ${policy('Bloqueo tras 5 intentos fallidos','', true)}
+              ${policy('Cierre de sesión por inactividad (15 min)','', false)}
+            </div>
+          </div>`;
+      } else {
+        host.innerHTML = `
+          <div class="card">
+            <div class="card-title">Registro de auditoría</div>
+            <div class="card-sub">Acciones realizadas en el sistema.</div>
+            <div class="table-wrap"><table class="data">
+              <thead><tr><th>Fecha</th><th>Usuario</th><th>Acción</th><th>IP</th></tr></thead>
+              <tbody>${AUDIT.map(a=>`<tr><td class="muted" style="white-space:nowrap">${a[0]}</td><td class="strong">${a[1]}</td><td>${a[2]}</td><td class="mono muted">${a[3]}</td></tr>`).join('')}</tbody>
+            </table></div>
+          </div>`;
+      }
+    }
+    function policy(label, val, on) {
+      return `<label class="resp-item" style="display:flex;justify-content:space-between;align-items:center;padding:14px;border:1px solid var(--border-soft);border-radius:10px">
+        <div><b style="font-size:14px">${label}</b>${val?`<br><span class="muted">${val}</span>`:''}</div>
+        <span class="switch"><input type="checkbox" ${on?'checked':''}><span class="slider"></span></span></label>`;
+    }
+
+    ctx.mount.innerHTML = `
+      <div class="page-head"><div><h1>Seguridad</h1><p>Roles, permisos, políticas de acceso y auditoría del sistema.</p></div></div>
+      <div class="tabs">
+        <div class="tab active" onclick="setTab('roles',this)">Roles y permisos</div>
+        <div class="tab" onclick="setTab('politicas',this)">Políticas</div>
+        <div class="tab" onclick="setTab('audit',this)">Auditoría</div>
+      </div>
+      <div id="sec-body"></div>`;
+    paint();
+  </script>
+</body>
+</html>

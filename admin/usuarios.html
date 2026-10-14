@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Usuarios · Wiener Admin</title>
+  <link href="https://fonts.googleapis.com/css2?family=Lato:wght@400;700;900&family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../css/styles.css">
+</head>
+<body>
+  <script src="../js/data.js"></script>
+  <script src="../js/shell.js"></script>
+  <script>
+    const ctx = APP.renderShell('usuarios');
+    let tab = 'todos';
+    const PERMS = [['tramites','Trámites'],['solicitudes','Solicitudes'],['flujos','Flujos'],['usuarios','Usuarios'],['seguridad','Seguridad']];
+
+    function setTab(t, el){ tab=t; document.querySelectorAll('.tab').forEach(x=>x.classList.remove('active')); el.classList.add('active'); render(); }
+
+    function render() {
+      const us = DB.usuarios().filter(u => tab === 'todos' || u.rol === tab);
+      const rows = us.map(u => `
+        <tr>
+          <td><div style="display:flex;align-items:center;gap:10px">
+            <div class="user-chip"><div class="avatar">${APP.initials(u.nombre)}</div></div>
+            <div><span class="strong">${u.nombre}</span><br><span class="muted">${u.email}</span></div></div></td>
+          <td><span class="mono muted">${u.codigo}</span></td>
+          <td>${u.rol === 'alumno' ? '<span class="pill info">Alumno</span>' : '<span class="pill purple">Administrativo</span>'}</td>
+          <td class="muted">${u.rol === 'alumno' ? (u.perfil.programa + ' · Ciclo ' + u.perfil.ciclo) : (u.area || '-')}</td>
+          <td>${u.estado === 'activo' ? '<span class="pill ok">Activo</span>' : '<span class="pill gray">Inactivo</span>'}</td>
+          <td class="row-actions">
+            <button class="btn btn-sm" onclick="editar('${u.id}')">Editar</button>
+            <button class="btn btn-sm" onclick="toggle('${u.id}')">${u.estado === 'activo' ? 'Desactivar' : 'Activar'}</button>
+          </td>
+        </tr>`).join('');
+
+      const counts = { todos: DB.usuarios().length, alumno: DB.usuarios().filter(u=>u.rol==='alumno').length, administrativo: DB.usuarios().filter(u=>u.rol==='administrativo').length };
+      ctx.mount.innerHTML = `
+        <div class="page-head"><div><h1>Administrador de usuarios</h1><p>Gestiona alumnos y personal administrativo, sus roles y permisos.</p></div>
+          <button class="btn btn-primary" onclick="editar(null)">+ Nuevo usuario</button></div>
+        <div class="grid grid-3" style="margin-bottom:22px">
+          <div class="stat accent"><div class="label">Total usuarios</div><div class="value">${counts.todos}</div></div>
+          <div class="stat"><div class="label">Alumnos</div><div class="value">${counts.alumno}</div></div>
+          <div class="stat"><div class="label">Administrativos</div><div class="value">${counts.administrativo}</div></div>
+        </div>
+        <div class="tabs">
+          <div class="tab ${tab==='todos'?'active':''}" onclick="setTab('todos',this)">Todos</div>
+          <div class="tab ${tab==='alumno'?'active':''}" onclick="setTab('alumno',this)">Alumnos</div>
+          <div class="tab ${tab==='administrativo'?'active':''}" onclick="setTab('administrativo',this)">Administrativos</div>
+        </div>
+        <div class="table-wrap"><table class="data">
+          <thead><tr><th>Usuario</th><th>Código</th><th>Rol</th><th>Programa / Área</th><th>Estado</th><th></th></tr></thead>
+          <tbody>${rows}</tbody></table></div>
+      `;
+    }
+
+    function editar(id) {
+      const u = id ? DB.getUsuario(id) : { id:null, rol:'administrativo', nombre:'', codigo:'', email:'', dni:'', estado:'activo', area:'', permisos:['solicitudes'] };
+      const isAlumno = u.rol === 'alumno';
+      const permChecks = PERMS.map(([k,l]) => `<label class="chip-check ${(u.permisos||[]).includes(k)?'checked':''}"><input type="checkbox" data-perm="${k}" ${(u.permisos||[]).includes(k)?'checked':''} onchange="this.closest('.chip-check').classList.toggle('checked',this.checked)">${l}</label>`).join('');
+      APP.openModal(`
+        <div class="modal-head"><h3>${id?'Editar usuario':'Nuevo usuario'}</h3><button class="modal-close" onclick="APP.closeModal()">×</button></div>
+        <div class="modal-body">
+          <div class="form-grid">
+            <div class="field full"><label>Nombre completo *</label><input class="input" id="u-nombre" value="${u.nombre}"></div>
+            <div class="field"><label>Rol</label><select class="select" id="u-rol" ${id?'disabled':''}>
+              <option value="administrativo" ${!isAlumno?'selected':''}>Administrativo</option>
+              <option value="alumno" ${isAlumno?'selected':''}>Alumno</option></select></div>
+            <div class="field"><label>Código</label><input class="input" id="u-cod" value="${u.codigo}"></div>
+            <div class="field"><label>Correo institucional</label><input class="input" id="u-email" value="${u.email}"></div>
+            <div class="field"><label>DNI</label><input class="input" id="u-dni" value="${u.dni||''}"></div>
+            <div class="field full"><label>Área (si es administrativo)</label><input class="input" id="u-area" value="${u.area||''}" placeholder="Ej. Registros Académicos"></div>
+          </div>
+          ${!isAlumno ? `<div class="section-label" style="margin-top:18px">Permisos / módulos</div><div class="chip-row" id="perm-row">${permChecks}</div>` : '<div class="alert info" style="margin-top:16px">Los alumnos solo acceden a Solicitar trámite y Estado de trámites.</div>'}
+        </div>
+        <div class="modal-foot"><button class="btn" onclick="APP.closeModal()">Cancelar</button>
+          <button class="btn btn-primary" onclick="guardar('${id||''}')">Guardar</button></div>
+      `, { wide: true });
+    }
+
+    function guardar(id) {
+      const nombre = document.getElementById('u-nombre').value.trim();
+      if (!nombre) { APP.toast({icon:'⚠️',title:'Falta el nombre',body:'Ingresa el nombre del usuario.'}); return; }
+      const base = id ? DB.getUsuario(id) : {};
+      const rol = document.getElementById('u-rol').value;
+      const permisos = Array.from(document.querySelectorAll('input[data-perm]:checked')).map(i=>i.dataset.perm);
+      const u = Object.assign({}, base, {
+        id: id || null, rol, nombre,
+        codigo: document.getElementById('u-cod').value.trim(),
+        email: document.getElementById('u-email').value.trim(),
+        dni: document.getElementById('u-dni').value.trim(),
+        area: document.getElementById('u-area').value.trim(),
+        estado: base.estado || 'activo',
+        permisos: rol === 'administrativo' ? permisos : undefined
+      });
+      if (rol === 'alumno' && !u.perfil) u.perfil = { nivel:'pregrado', programa:'-', ciclo:1, creditos:0, tercioSuperior:false, quintoSuperior:false, promedio:0 };
+      DB.upsertUsuario(u);
+      APP.closeModal(); APP.toast({icon:'✅',title:'Usuario guardado',body:nombre+' fue actualizado.'}); render();
+    }
+
+    function toggle(id) {
+      const u = DB.getUsuario(id);
+      u.estado = u.estado === 'activo' ? 'inactivo' : 'activo';
+      DB.upsertUsuario(u); render();
+    }
+
+    render();
+  </script>
+</body>
+</html>
