@@ -18,7 +18,7 @@
           descripcion: 'Acredita tu condición de matrícula vigente en el periodo académico regular actual.',
           costo: 25.00, pagoMomento: 'antes', requiereAprobacion: true, diasEntrega: 2, activo: true,
           area: 'Registros Académicos', requiereAdjunto: false, adjuntoIndicacion: '',
-          intenciones: ['todos', 'beca', 'practicas', 'matricula'],
+          intenciones: ['todos', 'beca', 'practicas', 'matricula', 'otros'],
           audiencia: { niveles: ['pregrado'], ciclos: [], minCreditos: 0, tercioSuperior: false, quintoSuperior: false, promedioMin: 0 }
         },
         {

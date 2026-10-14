@@ -1,10 +1,13 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Solicitar trámite · Universidad Norbert Wiener</title>
-  <link href="https://fonts.googleapis.com/css2?family=Lato:wght@400;700;900&family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+  <link
+    href="https://fonts.googleapis.com/css2?family=Lato:wght@400;700;900&family=Roboto:wght@400;500;700&display=swap"
+    rel="stylesheet">
   <link rel="stylesheet" href="../css/styles.css">
   <style>
     /* =========================================================================
@@ -23,12 +26,14 @@
       flex-wrap: wrap;
       gap: 20px;
     }
+
     .student-profile-left {
       display: flex;
       align-items: center;
       gap: 18px;
       min-width: 0;
     }
+
     .student-profile-avatar {
       width: 52px;
       height: 52px;
@@ -44,6 +49,7 @@
       flex-shrink: 0;
       box-shadow: 0 4px 12px rgba(15, 132, 143, 0.25);
     }
+
     .student-profile-details h2 {
       font-size: 20px;
       font-weight: 700;
@@ -51,12 +57,15 @@
       margin: 0 0 3px 0;
       line-height: 1.2;
     }
+
     .student-career-text {
       font-size: 14px;
       color: var(--brand-dark);
       font-weight: 600;
-      margin-bottom: 4px;
+      margin-top: 4px;
+      margin-bottom: 8px;
     }
+
     .student-code-meta {
       font-size: 12.5px;
       color: var(--text-muted);
@@ -65,15 +74,18 @@
       flex-wrap: wrap;
       gap: 8px;
     }
+
     .student-code-meta .sep {
       color: #CBD5E1;
     }
+
     .student-profile-kpis {
       display: flex;
       align-items: center;
       gap: 12px;
       flex-wrap: wrap;
     }
+
     .kpi-box {
       background: var(--surface-2);
       border: 1px solid var(--border-soft);
@@ -82,6 +94,7 @@
       text-align: center;
       min-width: 90px;
     }
+
     .kpi-box .kpi-label {
       font-size: 11px;
       text-transform: uppercase;
@@ -91,89 +104,109 @@
       display: block;
       margin-bottom: 2px;
     }
+
     .kpi-box .kpi-val {
       font-size: 15px;
       font-weight: 700;
       color: #111827;
       font-family: 'Lato', sans-serif;
     }
+
     .kpi-box.highlight {
       background: #ECFDF5;
       border-color: #A7F3D0;
     }
+
     .kpi-box.highlight .kpi-val {
       color: #047857;
     }
 
     /* =========================================================================
-       BUSCADOR Y FILTROS POR INTENCIÓN
+       BUSCADOR Y FILTROS POR INTENCIÓN (SIN CONTENEDOR DE CAJA)
        ========================================================================= */
     .catalog-search-card {
-      background: #FFFFFF;
-      border: 1px solid var(--border);
-      border-radius: var(--radius);
-      padding: 20px 24px;
-      margin-bottom: 24px;
-      box-shadow: var(--shadow);
+      background: transparent;
+      border: none;
+      border-radius: 0;
+      padding: 0;
+      margin-bottom: 22px;
+      box-shadow: none;
     }
+
     .search-input-wrap {
       position: relative;
     }
+
     .search-input-wrap input {
       width: 100%;
-      height: 46px;
-      padding: 10px 16px 10px 44px;
-      border: 1px solid var(--border);
-      border-radius: 10px;
+      height: 48px;
+      padding: 10px 18px 10px 46px;
+      border: 1px solid #C6CFD7;
+      border-radius: 12px;
       font-size: 14.5px;
-      color: #111827;
+      color: #0F172A;
       background: #FFFFFF;
+      box-shadow: 0 1px 3px rgba(15, 23, 42, 0.04);
       transition: all 0.15s ease;
+      margin-bottom: 16px;
     }
+
     .search-input-wrap input:focus {
       border-color: var(--brand);
-      box-shadow: 0 0 0 3px rgba(15, 132, 143, 0.12);
+      box-shadow: 0 0 0 3px rgba(15, 132, 143, 0.14);
       outline: none;
     }
+
     .search-input-wrap .search-ico {
       position: absolute;
-      left: 15px;
-      top: 50%;
+      left: 16px;
+      top: 38%;
       transform: translateY(-50%);
-      font-size: 16px;
-      color: var(--text-muted);
+      color: #64748B;
       pointer-events: none;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
     }
+
     .intent-section-title {
-      font-size: 12.5px;
+      font-size: 12px;
       font-weight: 700;
-      color: #374151;
-      margin: 14px 0 8px 0;
+      color: #64748B;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      margin: 16px 0 10px 0;
     }
+
     .intent-bar {
       display: flex;
       gap: 8px;
       flex-wrap: wrap;
     }
+
     .intent-btn {
-      padding: 7px 15px;
+      padding: 8px 16px;
       border-radius: 999px;
-      border: 1px solid var(--border-soft);
-      background: var(--surface-2);
+      border: 1px solid #CBD5E1;
+      background: #FFFFFF;
       font-size: 13px;
       font-weight: 600;
-      color: var(--text-soft);
+      color: #334155;
       cursor: pointer;
       transition: all 0.15s ease;
       display: inline-flex;
       align-items: center;
       gap: 6px;
+      box-shadow: 0 1px 2px rgba(15, 23, 42, 0.03);
     }
+
     .intent-btn:hover {
       border-color: var(--brand);
       color: var(--brand);
       background: #FFFFFF;
+      transform: translateY(-1px);
     }
+
     .intent-btn.active {
       background: var(--brand);
       border-color: var(--brand);
@@ -189,10 +222,20 @@
       grid-template-columns: repeat(2, 1fr);
       gap: 20px;
     }
+
     @media (max-width: 920px) {
-      .tram-grid { grid-template-columns: 1fr; }
-      .student-profile-bar { flex-direction: column; align-items: stretch; }
-      .student-profile-kpis { justify-content: flex-start; }
+      .tram-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .student-profile-bar {
+        flex-direction: column;
+        align-items: stretch;
+      }
+
+      .student-profile-kpis {
+        justify-content: flex-start;
+      }
     }
 
     .tram-card {
@@ -206,11 +249,13 @@
       box-shadow: var(--shadow);
       transition: border-color 0.18s ease, box-shadow 0.18s ease, transform 0.18s ease;
     }
+
     .tram-card:hover {
       border-color: var(--brand);
       box-shadow: 0 10px 28px rgba(15, 23, 42, 0.09);
       transform: translateY(-2px);
     }
+
     .tram-header {
       display: flex;
       justify-content: space-between;
@@ -218,6 +263,7 @@
       gap: 10px;
       margin-bottom: 8px;
     }
+
     .tram-category-text {
       font-size: 11px;
       font-weight: 800;
@@ -225,6 +271,7 @@
       text-transform: uppercase;
       color: var(--brand-dark);
     }
+
     .tram-title {
       font-family: 'Lato', sans-serif;
       font-size: 21px;
@@ -234,6 +281,7 @@
       line-height: 1.3;
       letter-spacing: -0.01em;
     }
+
     .tram-desc {
       font-size: 14.5px;
       color: #334155;
@@ -241,6 +289,7 @@
       margin: 0 0 16px 0;
       flex: 1;
     }
+
     .tram-specs-line {
       display: flex;
       align-items: center;
@@ -252,11 +301,13 @@
       font-size: 13px;
       color: #475569;
     }
+
     .spec-item {
       display: inline-flex;
       align-items: center;
       gap: 6px;
     }
+
     .spec-item b {
       color: #0F172A;
     }
@@ -269,10 +320,12 @@
       border-top: 1px solid var(--border-soft);
       margin-top: auto;
     }
+
     .tram-price-wrap {
       display: flex;
       flex-direction: column;
     }
+
     .tram-price-main {
       font-family: 'Lato', sans-serif;
       font-size: 24px;
@@ -280,23 +333,124 @@
       color: #0F848F;
       line-height: 1;
     }
+
     .tram-price-sub {
       font-size: 11.5px;
       color: #64748B;
       margin-top: 4px;
       font-weight: 500;
     }
+
     .tram-actions {
       display: flex;
       align-items: center;
       gap: 10px;
     }
 
-    /* Modal Wizard Panes */
-    .wizard-pane { display: none; }
-    .wizard-pane.active { display: block; }
+    .tram-actions .btn {
+      height: 42px;
+      padding: 0 18px;
+      font-size: 14px;
+      font-weight: 600;
+      border-radius: 8px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      box-sizing: border-box;
+      white-space: nowrap;
+    }
+
+    .tram-actions .btn-ghost {
+      border: 1.5px solid var(--brand);
+      color: var(--brand);
+      background: #FFFFFF;
+    }
+
+    .tram-actions .btn-ghost:hover {
+      background: var(--brand-soft);
+      border-color: var(--brand-dark);
+      color: var(--brand-dark);
+    }
+
+    .btn-arrow {
+      display: inline-block;
+      vertical-align: middle;
+      flex-shrink: 0;
+      transition: transform 0.15s ease;
+    }
+
+    .btn:hover .btn-arrow-right {
+      transform: translateX(3px);
+    }
+
+    .btn:hover .btn-arrow-left {
+      transform: translateX(-3px);
+    }
+
+    .spec-item .spec-ico {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    /* Card de trámites no habilitados con bordes redondeados limpios */
+    .no-eleg-card {
+      padding: 0 !important;
+      border-radius: 14px !important;
+      overflow: hidden !important;
+      border: 1px solid #D5DDE5 !important;
+      box-shadow: var(--shadow);
+      background: #FFFFFF;
+    }
+
+    .no-eleg-card .table-wrap {
+      border: none !important;
+      border-radius: 0 !important;
+      padding: 0 !important;
+      margin: 0 !important;
+      background: transparent !important;
+      overflow-x: auto;
+    }
+
+    .no-eleg-card table.data {
+      width: 100%;
+      border-collapse: separate !important;
+      border-spacing: 0 !important;
+      border: none !important;
+    }
+
+    .no-eleg-card table.data thead th {
+      background: #F8FAFC;
+      border-top: none !important;
+      border-left: none !important;
+      border-right: none !important;
+      border-bottom: 1px solid #E2E8F0;
+    }
+
+    .no-eleg-card table.data thead th:first-child {
+      border-top-left-radius: 13px;
+    }
+
+    .no-eleg-card table.data thead th:last-child {
+      border-top-right-radius: 13px;
+    }
+
+    .no-eleg-card table.data tbody tr:last-child td {
+      border-bottom: none;
+    }
+
+    .no-eleg-card table.data tbody tr:last-child td:first-child {
+      border-bottom-left-radius: 13px;
+    }
+
+    .no-eleg-card table.data tbody tr:last-child td:last-child {
+      border-bottom-right-radius: 13px;
+    }
   </style>
 </head>
+
 <body>
   <script src="../js/data.js"></script>
   <script src="../js/shell.js"></script>
@@ -305,6 +459,15 @@
     const ctx = APP.renderShell('solicitar');
     const me = DB.getUsuario(ctx.session.id);
     const perfil = me.perfil;
+
+    const SVG_ICONS = {
+      arrowRight: `<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" class="btn-arrow btn-arrow-right"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>`,
+      arrowLeft: `<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" class="btn-arrow btn-arrow-left"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>`,
+      clock: `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="spec-ico"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>`,
+      attachment: `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="spec-ico"><path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"></path></svg>`,
+      checkCircle: `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" class="spec-ico"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>`,
+      search: `<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>`
+    };
 
     let searchTxt = '';
     let intencionSel = 'todos';
@@ -338,9 +501,15 @@
       const noEleg = all.filter(t => t.activo && !DB.elegible(t, perfil));
 
       // Filtro reactivo por búsqueda y por categoría de intención
+      const specificIntents = ['beca', 'practicas', 'grado', 'carne'];
       let filtrados = elegibles.filter(t => {
         const matchText = !searchTxt || (t.nombre + ' ' + t.descripcion + ' ' + t.tipo + ' ' + t.area).toLowerCase().includes(searchTxt);
-        const matchIntent = (intencionSel === 'todos') || (t.intenciones && t.intenciones.includes(intencionSel));
+        const matchIntent = (intencionSel === 'todos')
+          || (intencionSel === 'otros' && (
+            (t.intenciones && (t.intenciones.includes('otros') || t.intenciones.includes('matricula'))) ||
+            (!t.intenciones || !t.intenciones.some(i => specificIntents.includes(i)))
+          ))
+          || (t.intenciones && t.intenciones.includes(intencionSel));
         return matchText && matchIntent;
       });
 
@@ -362,14 +531,17 @@
             <!-- Especificaciones limpias sin tags de colores que marean -->
             <div class="tram-specs-line">
               <span class="spec-item">
-                <span>⏱ Entrega estimada: <b>${slaExacto}</b> (${t.diasEntrega} días hábiles)</span>
+                <span class="spec-ico">${SVG_ICONS.clock}</span>
+                <span>Entrega estimada: <b>${slaExacto}</b> (${t.diasEntrega} días hábiles)</span>
               </span>
               ${t.requiereAdjunto ? `
                 <span class="spec-item" style="color:#B45309;font-weight:600">
-                  <span>📎 Requiere adjuntar sustento</span>
+                  <span class="spec-ico">${SVG_ICONS.attachment}</span>
+                  <span>Requiere adjuntar sustento</span>
                 </span>` : `
                 <span class="spec-item" style="color:#047857;font-weight:500">
-                  <span>✓ Emisión 100% digital</span>
+                  <span class="spec-ico">${SVG_ICONS.checkCircle}</span>
+                  <span>Emisión 100% digital</span>
                 </span>`}
             </div>
 
@@ -380,8 +552,8 @@
                 <div class="tram-price-sub">Tasa oficial · Incluye IGV</div>
               </div>
               <div class="tram-actions">
-                ${DOC.getPlantilla(t).generaDocumento ? `<button class="btn btn-sm btn-ghost" onclick="DOC.preview(DB.getTramite('${t.id}'), me, null, {modelo:true})">Ver modelo</button>` : ''}
-                <button class="btn btn-primary" onclick="abrirWizard('${t.id}')">Solicitar trámite →</button>
+                ${DOC.getPlantilla(t).generaDocumento ? `<button class="btn btn-ghost" onclick="DOC.preview(DB.getTramite('${t.id}'), me, null, {modelo:true})">Ver modelo</button>` : ''}
+                <button class="btn btn-primary" onclick="abrirWizard('${t.id}')">Solicitar trámite ${SVG_ICONS.arrowRight}</button>
               </div>
             </div>
           </div>`;
@@ -391,8 +563,8 @@
         <div class="section-label" style="margin-top:36px;margin-bottom:12px;font-size:13px;font-weight:700;color:#334155;letter-spacing:0.04em">
           Trámites no habilitados para tu ciclo o carrera
         </div>
-        <div class="card" style="padding:0">
-          <div class="table-wrap" style="border:none">
+        <div class="card no-eleg-card">
+          <div class="table-wrap">
             <table class="data">
               <thead>
                 <tr>
@@ -435,7 +607,9 @@
             <h1>Catálogo de trámites estudiantiles</h1>
             <p>Emisión de constancias y certificados oficiales con código de verificación QR y firma digital.</p>
           </div>
-          <a class="btn" href="mis-tramites.html">📋 Ver mis solicitudes →</a>
+          <a class="btn" href="mis-tramites.html">Ver mis trámites
+            <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#404040"><path d="M664.46-450H210q-12.77 0-21.38-8.62Q180-467.23 180-480t8.62-21.38Q197.23-510 210-510h454.46L532.77-641.69q-8.92-8.93-8.81-20.89.12-11.96 8.81-21.27 9.31-9.3 21.38-9.61 12.08-.31 21.39 9l179.15 179.15q5.62 5.62 7.92 11.85 2.31 6.23 2.31 13.46t-2.31 13.46q-2.3 6.23-7.92 11.85L575.54-275.54q-8.93 8.92-21.19 8.81-12.27-.12-21.58-9.42-8.69-9.31-9-21.08-.31-11.77 9-21.08L664.46-450Z"/></svg>
+          </a>
         </div>
 
         <!-- Banner de Perfil del Estudiante Rediseñado y Despejado -->
@@ -445,7 +619,7 @@
             <div class="student-profile-details">
               <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
                 <h2>${me.nombre}</h2>
-                <span class="pill ok" style="font-size:11.5px">● Alumno regular</span>
+                <span class="pill ok" style="font-size:11.5px">Alumno regular</span>
               </div>
               <div class="student-career-text">
                 <b>${perfil.programa}</b> · ${perfil.nivel === 'pregrado' ? 'Pregrado' : 'Postgrado'} (Ciclo ${perfil.ciclo})
@@ -471,7 +645,7 @@
             </div>
             <div class="kpi-box highlight">
               <span class="kpi-label">Mérito</span>
-              <span class="kpi-val">${perfil.tercioSuperior ? 'Tercio superior ✓' : perfil.quintoSuperior ? 'Quinto superior ✓' : 'Regular'}</span>
+              <span class="kpi-val">${perfil.tercioSuperior ? 'Tercio superior' : perfil.quintoSuperior ? 'Quinto superior ✓' : 'Regular'}</span>
             </div>
           </div>
         </div>
@@ -479,17 +653,18 @@
         <!-- Buscador e Intenciones -->
         <div class="catalog-search-card">
           <div class="search-input-wrap">
-            <span class="search-ico">🔍</span>
+            <span class="search-ico">${SVG_ICONS.search}</span>
             <input id="search-input" placeholder="Buscar trámite por nombre (ej. Matrícula, Certificado, Tercio, Carné...)" oninput="setQ(this.value)">
           </div>
 
           <div class="intent-section-title">¿Qué trámite deseas realizar?</div>
           <div class="intent-bar">
-            <button class="intent-btn active" data-intent="todos" onclick="setIntencion('todos')">🎯 Todos</button>
-            <button class="intent-btn" data-intent="beca" onclick="setIntencion('beca')">🎓 Becas y descuentos</button>
-            <button class="intent-btn" data-intent="practicas" onclick="setIntencion('practicas')">💼 Prácticas y empleo</button>
-            <button class="intent-btn" data-intent="grado" onclick="setIntencion('grado')">🏛️ Grados y egreso</button>
-            <button class="intent-btn" data-intent="carne" onclick="setIntencion('carne')">🪪 Carné universitario</button>
+            <button class="intent-btn active" data-intent="todos" onclick="setIntencion('todos')">Todos</button>
+            <button class="intent-btn" data-intent="beca" onclick="setIntencion('beca')">Becas y descuentos</button>
+            <button class="intent-btn" data-intent="practicas" onclick="setIntencion('practicas')">Prácticas y empleo</button>
+            <button class="intent-btn" data-intent="grado" onclick="setIntencion('grado')">Grados y egreso</button>
+            <button class="intent-btn" data-intent="carne" onclick="setIntencion('carne')">Carné universitario</button>
+            <button class="intent-btn" data-intent="otros" onclick="setIntencion('otros')">Otros</button>
           </div>
         </div>
 
@@ -635,8 +810,8 @@
 
             <div class="alert info" style="font-size:12.5px">
               ${t.pagoMomento === 'antes'
-                ? 'Al confirmar serás dirigido a la pasarela segura <b>Niubiz</b> para abonar ' + APP.money(t.costo) + ' mediante tarjeta de débito o crédito.'
-                : 'Tu solicitud entrará a revisión por ' + t.area + '. El pago de ' + APP.money(t.costo) + ' se realizará una vez que sea aprobada.'}
+          ? 'Al confirmar serás dirigido a la pasarela segura <b>Niubiz</b> para abonar ' + APP.money(t.costo) + ' mediante tarjeta de débito o crédito.'
+          : 'Tu solicitud entrará a revisión por ' + t.area + '. El pago de ' + APP.money(t.costo) + ' se realizará una vez que sea aprobada.'}
             </div>
           </div>
         </div>
@@ -644,14 +819,14 @@
         <div class="modal-foot">
           ${WIZARD.step === 1 ? `
             <button class="btn" onclick="APP.closeModal()">Cancelar</button>
-            <button class="btn btn-primary" onclick="setWizardStep(2)">Continuar al paso 2 →</button>
+            <button class="btn btn-primary" onclick="setWizardStep(2)">Continuar al paso 2 ${SVG_ICONS.arrowRight}</button>
           ` : WIZARD.step === 2 ? `
-            <button class="btn" onclick="setWizardStep(1)">← Volver</button>
-            <button class="btn btn-primary" onclick="validarYPasarPaso3()">Continuar a revisión →</button>
+            <button class="btn" onclick="setWizardStep(1)">${SVG_ICONS.arrowLeft} Volver</button>
+            <button class="btn btn-primary" onclick="validarYPasarPaso3()">Continuar a revisión ${SVG_ICONS.arrowRight}</button>
           ` : `
-            <button class="btn" onclick="setWizardStep(2)">← Corregir datos</button>
+            <button class="btn" onclick="setWizardStep(2)">${SVG_ICONS.arrowLeft} Corregir datos</button>
             <button class="btn btn-primary" onclick="finalizarSolicitud('${t.id}')">
-              ${t.pagoMomento === 'antes' ? 'Confirmar y pagar ' + APP.money(t.costo) + ' →' : 'Enviar solicitud a revisión →'}
+              ${t.pagoMomento === 'antes' ? 'Confirmar y pagar ' + APP.money(t.costo) : 'Enviar solicitud a revisión'} ${SVG_ICONS.arrowRight}
             </button>
           `}
         </div>
@@ -770,4 +945,5 @@
     initView();
   </script>
 </body>
+
 </html>

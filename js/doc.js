@@ -203,18 +203,73 @@
     host.style.zIndex = '300';
     host.setAttribute('role', 'dialog');
     host.setAttribute('aria-modal', 'true');
-    host.setAttribute('aria-label', 'Modelo del documento');
+    host.setAttribute('aria-label', 'Modelo del documento: ' + t.nombre);
+
+    const canSolicitar = typeof window.abrirWizard === 'function';
+
     host.innerHTML =
-      '<div class="modal wide">'
-      + '<div class="modal-head"><h3>Modelo del documento</h3><button class="modal-close" aria-label="Cerrar">×</button></div>'
-      + '<div class="modal-body doc-preview-body" style="text-align:center">'
-      + '<canvas class="doc-raster" oncontextmenu="return false" ondragstart="return false"></canvas>'
-      + '<div class="alert info" style="margin-top:16px;text-align:left">Vista del modelo con marca de agua. No tiene validez legal ni es descargable; el documento oficial se genera al emitir el trámite.</div>'
+      '<div class="modal wide modal-doc-preview">'
+      + '<div class="modal-head">'
+      + '  <div style="display:flex;align-items:center;gap:12px">'
+      + '    <div class="doc-modal-icon">'
+      + '      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">'
+      + '        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>'
+      + '        <polyline points="14 2 14 8 20 8"></polyline>'
+      + '        <line x1="16" y1="13" x2="8" y2="13"></line>'
+      + '        <line x1="16" y1="17" x2="8" y2="17"></line>'
+      + '        <polyline points="10 9 9 9 8 9"></polyline>'
+      + '      </svg>'
+      + '    </div>'
+      + '    <div>'
+      + '      <span class="doc-modal-kicker">Modelo de documento oficial</span>'
+      + '      <h3 class="doc-modal-title">' + t.nombre + '</h3>'
+      + '    </div>'
+      + '  </div>'
+      + '  <button class="btn-close-modal" aria-label="Cerrar vista">'
+      + '    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">'
+      + '      <line x1="18" y1="6" x2="6" y2="18"></line>'
+      + '      <line x1="6" y1="6" x2="18" y2="18"></line>'
+      + '    </svg>'
+      + '  </button>'
       + '</div>'
-      + '<div class="modal-foot"><button class="btn btn-primary close-x">Cerrar</button></div>'
+      + '<div class="modal-body doc-preview-body" id="doc-modal-body">'
+      + '  <div class="doc-preview-wrapper">'
+      + '    <canvas class="doc-raster" oncontextmenu="return false" ondragstart="return false"></canvas>'
+      + '  </div>'
+      + '</div>'
+      + '<div class="modal-foot doc-modal-foot">'
+      + '  <div class="doc-foot-info">'
+      + '    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0">'
+      + '      <circle cx="12" cy="12" r="10"></circle>'
+      + '      <line x1="12" y1="16" x2="12" y2="12"></line>'
+      + '      <line x1="12" y1="8" x2="12.01" y2="8"></line>'
+      + '    </svg>'
+      + '    <span>Vista con marca de agua referencial. El documento oficial se emitirá con firma digital y código QR.</span>'
+      + '  </div>'
+      + '  <div class="doc-foot-actions">'
+      + '    <button class="btn btn-ghost close-x">Cerrar</button>'
+      + (canSolicitar
+          ? '    <button class="btn btn-primary btn-solicitar-desde-modelo">Solicitar trámite <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg></button>'
+          : '')
+      + '  </div>'
+      + '</div>'
       + '</div>';
+
     document.body.appendChild(host);
+
+    const modalBody = host.querySelector('#doc-modal-body');
+    const modalElem = host.querySelector('.modal-doc-preview');
+    if (modalBody) modalBody.scrollTop = 0;
+    if (modalElem) modalElem.scrollTop = 0;
+
     drawModel(host.querySelector('canvas'), t, alumno, sol);
+
+    // Asegurar posición al inicio (top) sin desplazamiento involuntario
+    requestAnimationFrame(() => {
+      if (modalBody) modalBody.scrollTop = 0;
+      if (modalElem) modalElem.scrollTop = 0;
+    });
+
     const escHandler = (e) => {
       if (e.key === 'Escape') {
         e.preventDefault();
@@ -226,12 +281,28 @@
       host.remove();
     };
     document.addEventListener('keydown', escHandler);
-    host.querySelector('.modal-close').onclick = close;
+    host.querySelector('.btn-close-modal').onclick = close;
     host.querySelector('.close-x').onclick = close;
     host.addEventListener('click', e => { if (e.target === host) close(); });
+
+    const btnSolicitar = host.querySelector('.btn-solicitar-desde-modelo');
+    if (btnSolicitar) {
+      btnSolicitar.onclick = () => {
+        close();
+        if (typeof window.abrirWizard === 'function') {
+          window.abrirWizard(t.id);
+        }
+      };
+    }
+
+    // Foco en botón de cerrar del header sin hacer scroll hacia abajo
     setTimeout(() => {
-      const btn = host.querySelector('.close-x');
-      if (btn) btn.focus();
+      const closeBtn = host.querySelector('.btn-close-modal');
+      if (closeBtn && typeof closeBtn.focus === 'function') {
+        closeBtn.focus({ preventScroll: true });
+      }
+      if (modalBody) modalBody.scrollTop = 0;
+      if (modalElem) modalElem.scrollTop = 0;
     }, 40);
   }
 
