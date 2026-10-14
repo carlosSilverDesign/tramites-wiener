@@ -272,7 +272,10 @@
           <div class="field"><label for="f-cvv">CVV</label>
             <input class="input" id="f-cvv" maxlength="4" placeholder="•••" type="password"></div>
         </div>
-        <div class="alert info" style="margin-top:16px;font-size:12.5px">🔒 Entorno de demostración. Los datos no se procesan. En producción se usa la pasarela <b>Niubiz</b> (VisaNet) con tokenización.</div>
+        <div class="alert info" style="margin-top:16px;font-size:12.5px;display:flex;justify-content:space-between;align-items:center;gap:12px">
+          <div style="flex:1">🔒 Entorno de demostración. Los datos no se procesan. En producción se usa la pasarela</div>
+          <div style="text-align:right;white-space:nowrap"><b style="color:var(--brand-dark)">Niubiz</b> <span style="font-size:11.5px">(VisaNet) con tokenización.</span></div>
+        </div>
       </div>
       <div class="modal-foot">
         <button class="btn" onclick="APP.closeModal()">Cancelar</button>
@@ -281,11 +284,18 @@
     `, { wide: false });
 
     document.getElementById('nb-pay').addEventListener('click', function () {
-      const num = document.getElementById('f-num').value.replace(/\s/g, '');
-      const name = document.getElementById('f-name').value.trim();
-      const exp = document.getElementById('f-exp').value;
-      const cvv = document.getElementById('f-cvv').value;
-      if (num.length < 15 || !name || exp.length < 5 || cvv.length < 3) {
+      let num = document.getElementById('f-num').value.replace(/\s/g, '');
+      let name = document.getElementById('f-name').value.trim();
+      let exp = document.getElementById('f-exp').value.trim();
+      let cvv = document.getElementById('f-cvv').value.trim();
+
+      // En el entorno de demostración: si el usuario no tipea datos, se asumen los de prueba
+      if (!num && !name && !exp && !cvv) {
+        num = '4111111111111111';
+        name = (getSession() ? getSession().nombre : 'ESTUDIANTE').toUpperCase();
+        exp = '12/28';
+        cvv = '123';
+      } else if (num.length < 15 || !name || exp.length < 5 || cvv.length < 3) {
         toast({ icon: '⚠️', title: 'Datos incompletos', body: 'Completa los datos de la tarjeta para continuar.' });
         return;
       }

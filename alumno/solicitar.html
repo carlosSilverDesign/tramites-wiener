@@ -471,16 +471,7 @@
 
     let searchTxt = '';
     let intencionSel = 'todos';
-
-    // Estado del Wizard Modal
-    let WIZARD = {
-      step: 1,
-      tramiteId: null,
-      motivo: 'Trámite bancario',
-      comentario: '',
-      adjuntoNombre: null,
-      adjuntoTamano: null
-    };
+    let CURRENT_FILE = null;
 
     function setQ(val) {
       searchTxt = (val || '').toLowerCase().trim();
@@ -553,7 +544,7 @@
               </div>
               <div class="tram-actions">
                 ${DOC.getPlantilla(t).generaDocumento ? `<button class="btn btn-ghost" onclick="DOC.preview(DB.getTramite('${t.id}'), me, null, {modelo:true})">Ver modelo</button>` : ''}
-                <button class="btn btn-primary" onclick="abrirWizard('${t.id}')">Solicitar trámite ${SVG_ICONS.arrowRight}</button>
+                <button class="btn btn-primary" onclick="abrirSolicitud('${t.id}')">Solicitar trámite ${SVG_ICONS.arrowRight}</button>
               </div>
             </div>
           </div>`;
@@ -676,187 +667,120 @@
     }
 
     // =========================================================================
-    // MODAL ASISTIDO POR PASOS (WIZARD DE SOLICITUD)
+    // MODAL DE SOLICITUD (FORMULARIO ÁGIL + PASARELA NIUBIZ)
     // =========================================================================
-    function abrirWizard(tramiteId) {
-      const t = DB.getTramite(tramiteId);
-      WIZARD = {
-        step: 1,
-        tramiteId: t.id,
-        motivo: 'Trámite bancario',
-        comentario: '',
-        adjuntoNombre: null,
-        adjuntoTamano: null
-      };
-      paintWizardModal();
-    }
+    let CURRENT_ATTACHMENT = null;
 
-    function paintWizardModal() {
-      const t = DB.getTramite(WIZARD.tramiteId);
-      const slaExacto = APP.calcSLA(t.diasEntrega);
+    function abrirSolicitud(tramiteId) {
+      CURRENT_ATTACHMENT = null;
+      const t = DB.getTramite(tramiteId);
+      if (!t) return;
+
+      const diasTexto = t.diasEntrega === 1 ? '1 día hábil' : `${t.diasEntrega} días hábiles`;
+      const modalidadTexto = t.pagoMomento === 'antes' ? 'Pago al momento de solicitar' : 'Pago posterior a la aprobación';
+      const modeloTexto = t.modelo || t.plantilla || (t.tipo ? t.tipo.toLowerCase() : 'trámite');
 
       APP.openModal(`
-        <div class="wizard-bar" aria-label="Progreso de la solicitud">
-          <div class="wizard-step-item ${WIZARD.step === 1 ? 'active' : WIZARD.step > 1 ? 'done' : ''}">
-            <span class="w-circle">${WIZARD.step > 1 ? '✓' : '1'}</span>
-            <span>1. Confirmar datos</span>
-          </div>
-          <div class="wizard-step-item ${WIZARD.step === 2 ? 'active' : WIZARD.step > 2 ? 'done' : ''}">
-            <span class="w-circle">${WIZARD.step > 2 ? '✓' : '2'}</span>
-            <span>2. Requisitos y motivo</span>
-          </div>
-          <div class="wizard-step-item ${WIZARD.step === 3 ? 'active' : ''}">
-            <span class="w-circle">3</span>
-            <span>3. Confirmación</span>
-          </div>
-        </div>
-
         <div class="modal-head">
-          <h3>Solicitud de ${t.nombre}</h3>
+          <h3>Solicitar: ${t.nombre}</h3>
           <button class="modal-close" aria-label="Cerrar modal" onclick="APP.closeModal()">×</button>
         </div>
 
         <div class="modal-body">
-          <!-- PASO 1: CONFIRMAR DATOS -->
-          <div class="wizard-pane ${WIZARD.step === 1 ? 'active' : ''}" id="wiz-step-1">
-            <div style="font-size:14px;color:#1E293B;margin-bottom:14px;line-height:1.4">
-              Verifica que tus datos registrados en la universidad sean correctos. Tu documento oficial será emitido con esta información:
-            </div>
-            <dl class="kv" style="background:var(--surface-2);padding:18px;border-radius:10px;margin-bottom:18px">
-              <dt>Estudiante</dt><dd><b>${me.nombre}</b></dd>
-              <dt>Código / DNI</dt><dd>${me.codigo} · DNI ${me.dni}</dd>
-              <dt>Carrera / Programa</dt><dd>${perfil.programa}</dd>
-              <dt>Nivel y Ciclo</dt><dd>${perfil.nivel === 'pregrado' ? 'Pregrado' : 'Postgrado'} · Ciclo ${perfil.ciclo}</dd>
-              <dt>Correo institucional</dt><dd>${me.email}</dd>
-            </dl>
-            <div class="alert info">
-              ℹ️ Si notas alguna discrepancia en tu información personal o carrera, comunícate con Registros Académicos antes de emitir el documento.
-            </div>
+          <dl class="kv" style="margin-bottom:18px">
+            <dt>Tipo</dt><dd>${t.tipo} · modelo «${modeloTexto}»</dd>
+            <dt>Costo</dt><dd><b style="color:var(--text);font-size:15px">${APP.money(t.costo)}</b></dd>
+            <dt>Entrega estimada</dt><dd>${diasTexto}</dd>
+            <dt>Modalidad de pago</dt><dd>${modalidadTexto}</dd>
+          </dl>
+
+          <div class="field full" style="margin-bottom:14px">
+            <label for="sol-motivo">Motivo de la solicitud</label>
+            <select class="select" id="sol-motivo">
+              <option value="Trámite bancario" selected>Trámite bancario</option>
+              <option value="Postulación laboral">Postulación laboral</option>
+              <option value="Beca de estudios">Beca de estudios</option>
+              <option value="Trámite migratorio / Visa">Trámite migratorio / Visa</option>
+              <option value="Continuidad de estudios">Continuidad de estudios</option>
+              <option value="Otro">Otro</option>
+            </select>
           </div>
 
-          <!-- PASO 2: REQUISITOS, MOTIVO Y ADJUNTOS -->
-          <div class="wizard-pane ${WIZARD.step === 2 ? 'active' : ''}" id="wiz-step-2">
+          <div class="field full" style="margin-bottom:16px">
+            <label for="sol-coment">Comentario (opcional)</label>
+            <textarea class="input" id="sol-coment" rows="3" placeholder="Información adicional para el área responsable..."></textarea>
+          </div>
+
+          ${t.requiereAdjunto ? `
             <div class="field full" style="margin-bottom:16px">
-              <label for="wiz-motivo">Motivo de la solicitud *</label>
-              <select class="select" id="wiz-motivo" onchange="WIZARD.motivo=this.value">
-                <option ${WIZARD.motivo === 'Trámite bancario' ? 'selected' : ''}>Trámite bancario</option>
-                <option ${WIZARD.motivo === 'Postulación laboral' ? 'selected' : ''}>Postulación laboral</option>
-                <option ${WIZARD.motivo === 'Beca de estudios' ? 'selected' : ''}>Beca de estudios</option>
-                <option ${WIZARD.motivo === 'Trámite migratorio / Visa' ? 'selected' : ''}>Trámite migratorio / Visa</option>
-                <option ${WIZARD.motivo === 'Continuidad de estudios' ? 'selected' : ''}>Continuidad de estudios</option>
-                <option ${WIZARD.motivo === 'Otro' ? 'selected' : ''}>Otro</option>
-              </select>
-            </div>
-
-            <div class="field full" style="margin-bottom:18px">
-              <label for="wiz-coment">Comentario o especificación (opcional)</label>
-              <textarea class="input" id="wiz-coment" placeholder="Indica información complementaria si es necesario..." oninput="WIZARD.comentario=this.value">${WIZARD.comentario}</textarea>
-            </div>
-
-            <!-- Componente para adjuntar archivo -->
-            <div class="field full">
               <label>
                 Documento de sustento
-                ${t.requiereAdjunto ? '<span style="color:var(--err-fg);font-weight:700">* (Obligatorio)</span>' : '<span class="hint">(Opcional)</span>'}
+                <span style="color:var(--err-fg);font-weight:700">* (Obligatorio)</span>
               </label>
-
-              ${t.requiereAdjunto && t.adjuntoIndicacion ? `
+              ${t.adjuntoIndicacion ? `
                 <div class="alert warn" style="margin-bottom:10px;font-size:12.5px">
                   📌 <b>Indicación del área:</b> ${t.adjuntoIndicacion}
                 </div>` : ''}
-
               <div class="file-dropzone" id="dropzone" onclick="document.getElementById('file-input').click()">
                 <input type="file" id="file-input" accept=".pdf,.jpg,.jpeg,.png" onchange="handleFileSelect(event)">
                 <div style="font-size:26px;margin-bottom:4px">📁</div>
-                <div style="font-weight:600;font-size:13.5px">Haz clic para seleccionar o arrastra tu archivo aquí</div>
-                <div style="font-size:12px;color:var(--text-muted);margin-top:4px">Formatos permitidos: PDF, JPG o PNG (máx. 5 MB)</div>
+                <div style="font-weight:600;font-size:13px">Haz clic para seleccionar o arrastra tu archivo aquí</div>
+                <div style="font-size:11.5px;color:var(--text-muted);margin-top:2px">Formatos permitidos: PDF, JPG o PNG (máx. 5 MB)</div>
               </div>
+              <div id="file-preview-area"></div>
+            </div>` : ''}
 
-              <div id="file-preview-area">
-                ${WIZARD.adjuntoNombre ? `
-                  <div class="file-preview-card">
-                    <div class="file-meta">
-                      <span style="font-size:20px">📄</span>
-                      <div>
-                        <div class="file-name">${WIZARD.adjuntoNombre}</div>
-                        <div class="file-size">${WIZARD.adjuntoTamano || '1.2 MB'} · Archivo adjunto listo</div>
-                      </div>
-                    </div>
-                    <button class="btn btn-sm btn-ghost" type="button" style="color:var(--err-fg)" onclick="removeFile(event)">✕ Quitar</button>
-                  </div>` : ''}
-              </div>
-            </div>
-          </div>
-
-          <!-- PASO 3: REVISIÓN Y CONFIRMACIÓN -->
-          <div class="wizard-pane ${WIZARD.step === 3 ? 'active' : ''}" id="wiz-step-3">
-            <div class="section-label" style="margin-bottom:8px">Resumen de tu solicitud</div>
-            <dl class="kv" style="margin-bottom:18px">
-              <dt>Trámite</dt><dd><b>${t.nombre}</b> (${t.tipo})</dd>
-              <dt>Costo total</dt><dd><b style="font-size:18px;color:#0F848F">${APP.money(t.costo)}</b> (incluye IGV)</dd>
-              <dt>Modalidad de pago</dt><dd>${t.pagoMomento === 'antes' ? 'Pago seguro en línea al solicitar' : 'Pago posterior a la aprobación del trámite'}</dd>
-              <dt>Entrega estimada</dt><dd><b>${slaExacto}</b></dd>
-              <dt>Motivo</dt><dd>${WIZARD.motivo}</dd>
-              <dt>Archivo adjunto</dt><dd>${WIZARD.adjuntoNombre ? '📎 ' + WIZARD.adjuntoNombre : '<span class="muted">Ninguno</span>'}</dd>
-            </dl>
-
-            <div class="nudge-card" style="margin-bottom:14px">
-              <div>🔒</div>
-              <div>
-                <b>Garantía Institucional Wiener:</b>
-                Tu solicitud será validada y procesada por <b>${t.area}</b>. El documento emitido contará con código de verificación QR y firma digital legal.
-              </div>
-            </div>
-
-            <div class="alert info" style="font-size:12.5px">
-              ${t.pagoMomento === 'antes'
-          ? 'Al confirmar serás dirigido a la pasarela segura <b>Niubiz</b> para abonar ' + APP.money(t.costo) + ' mediante tarjeta de débito o crédito.'
-          : 'Tu solicitud entrará a revisión por ' + t.area + '. El pago de ' + APP.money(t.costo) + ' se realizará una vez que sea aprobada.'}
-            </div>
+          <div class="alert info" style="margin-top:14px;font-size:13px;line-height:1.45">
+            ${t.pagoMomento === 'antes'
+              ? 'Al continuar serás dirigido a la pasarela de pago <b>Niubiz</b> para abonar ' + APP.money(t.costo) + '.'
+              : 'Tu solicitud entrará a revisión por ' + t.area + '. El pago de ' + APP.money(t.costo) + ' se realizará una vez que sea aprobada.'}
           </div>
         </div>
 
         <div class="modal-foot">
-          ${WIZARD.step === 1 ? `
-            <button class="btn" onclick="APP.closeModal()">Cancelar</button>
-            <button class="btn btn-primary" onclick="setWizardStep(2)">Continuar al paso 2 ${SVG_ICONS.arrowRight}</button>
-          ` : WIZARD.step === 2 ? `
-            <button class="btn" onclick="setWizardStep(1)">${SVG_ICONS.arrowLeft} Volver</button>
-            <button class="btn btn-primary" onclick="validarYPasarPaso3()">Continuar a revisión ${SVG_ICONS.arrowRight}</button>
-          ` : `
-            <button class="btn" onclick="setWizardStep(2)">${SVG_ICONS.arrowLeft} Corregir datos</button>
-            <button class="btn btn-primary" onclick="finalizarSolicitud('${t.id}')">
-              ${t.pagoMomento === 'antes' ? 'Confirmar y pagar ' + APP.money(t.costo) : 'Enviar solicitud a revisión'} ${SVG_ICONS.arrowRight}
-            </button>
-          `}
+          <button class="btn" onclick="APP.closeModal()">Cancelar</button>
+          <button class="btn btn-primary" onclick="confirmarSolicitud('${t.id}')">
+            ${t.pagoMomento === 'antes' ? 'Continuar al pago' : 'Enviar solicitud'}
+          </button>
         </div>
-      `, { wide: true });
-    }
-
-    function setWizardStep(step) {
-      WIZARD.step = step;
-      paintWizardModal();
+      `, { wide: false });
     }
 
     function handleFileSelect(event) {
       const file = event.target.files && event.target.files[0];
       if (!file) return;
-      WIZARD.adjuntoNombre = file.name;
-      const sizeMb = (file.size / (1024 * 1024)).toFixed(1);
-      WIZARD.adjuntoTamano = (sizeMb > 0 ? sizeMb : '0.5') + ' MB';
-      paintWizardModal();
+      CURRENT_ATTACHMENT = file.name;
+      const preview = document.getElementById('file-preview-area');
+      if (preview) {
+        const sizeMb = (file.size / (1024 * 1024)).toFixed(1);
+        preview.innerHTML = `
+          <div class="file-preview-card">
+            <div class="file-meta">
+              <span style="font-size:18px">📄</span>
+              <div>
+                <div class="file-name">${file.name}</div>
+                <div class="file-size">${sizeMb > 0 ? sizeMb : '0.5'} MB · Archivo adjunto listo</div>
+              </div>
+            </div>
+            <button class="btn btn-sm btn-ghost" type="button" style="color:var(--err-fg)" onclick="removeFile(event)">✕ Quitar</button>
+          </div>`;
+      }
     }
 
     function removeFile(event) {
       if (event) event.stopPropagation();
-      WIZARD.adjuntoNombre = null;
-      WIZARD.adjuntoTamano = null;
-      paintWizardModal();
+      CURRENT_ATTACHMENT = null;
+      const input = document.getElementById('file-input');
+      if (input) input.value = '';
+      const preview = document.getElementById('file-preview-area');
+      if (preview) preview.innerHTML = '';
     }
 
-    function validarYPasarPaso3() {
-      const t = DB.getTramite(WIZARD.tramiteId);
-      if (t.requiereAdjunto && !WIZARD.adjuntoNombre) {
+    function confirmarSolicitud(id) {
+      const t = DB.getTramite(id);
+      if (!t) return;
+
+      if (t.requiereAdjunto && !CURRENT_ATTACHMENT) {
         APP.toast({
           icon: '⚠️',
           title: 'Falta documento de sustento',
@@ -864,23 +788,24 @@
         });
         return;
       }
-      setWizardStep(3);
-    }
 
-    function finalizarSolicitud(id) {
-      const t = DB.getTramite(id);
+      const motivoEl = document.getElementById('sol-motivo');
+      const motivo = motivoEl ? motivoEl.value : 'Trámite bancario';
+      const comentEl = document.getElementById('sol-coment');
+      const comentario = comentEl ? comentEl.value.trim() : '';
+
       if (t.pagoMomento === 'antes') {
         APP.niubizCheckout({
           amount: t.costo,
           concepto: `${t.nombre} · ${me.nombre} (${me.codigo})`,
-          onSuccess: (pago) => procesarCreacion(t, pago)
+          onSuccess: (pago) => procesarCreacion(t, pago, motivo, comentario, CURRENT_ATTACHMENT)
         });
       } else {
-        procesarCreacion(t, null);
+        procesarCreacion(t, null, motivo, comentario, CURRENT_ATTACHMENT);
       }
     }
 
-    function procesarCreacion(t, pago) {
+    function procesarCreacion(t, pago, motivo, comentario, adjunto) {
       const num = DB.solicitudes().length + 201;
       const pagado = !!pago;
       const estado = 'En revisión';
@@ -897,9 +822,9 @@
         costo: t.costo,
         area: t.area,
         pagoMomento: t.pagoMomento,
-        motivo: WIZARD.motivo,
-        observacion: WIZARD.comentario ? 'Comentario del alumno: ' + WIZARD.comentario : '',
-        adjunto: WIZARD.adjuntoNombre || null,
+        motivo: motivo || 'Trámite bancario',
+        observacion: comentario ? 'Comentario del alumno: ' + comentario : '',
+        adjunto: adjunto || null,
         pago: pagado
           ? { estado: 'pagado', metodo: pago.metodo, monto: pago.monto, fecha: APP.todayISO(), operacion: pago.operacion }
           : { estado: 'pendiente', metodo: '-', monto: t.costo, fecha: '', operacion: '' },
@@ -934,13 +859,17 @@
       APP.toast({
         icon: '✅',
         title: '¡Solicitud registrada!',
-        body: `Expediente ${s.id} generado. Redirigiendo a seguimiento...`
+        body: `Expediente ${s.id} generado. Redirigiendo a mis trámites...`
       });
 
       setTimeout(() => {
         location.href = 'mis-tramites.html';
       }, 1200);
     }
+
+    // Alias de compatibilidad global
+    window.abrirSolicitud = abrirSolicitud;
+    window.abrirWizard = abrirSolicitud;
 
     initView();
   </script>
