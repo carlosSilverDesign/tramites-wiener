@@ -14,139 +14,292 @@
       // ---- Catálogo de trámites configurables ----
       tramites: [
         {
-          id: 'T-001', nombre: 'Constancia de Matrícula', tipo: 'Constancia', modelo: 'constancia',
-          descripcion: 'Acredita tu condición de matrícula vigente en el periodo académico regular actual.',
-          costo: 25.00, pagoMomento: 'antes', requiereAprobacion: true, diasEntrega: 2, activo: true,
-          area: 'Registros Académicos', requiereAdjunto: false, adjuntoIndicacion: '',
-          intenciones: ['todos', 'beca', 'practicas', 'matricula', 'otros'],
+          id: 'T-001', nombre: 'BECA IMPULSA 30%', tipo: 'Solicitud', modelo: 'oficio',
+          descripcion: 'DESCRIPCIÓN:\n\nAplica a estudiantes de pregrado regular que acrediten excelencia académica y solvencia según las bases del programa institucional Impulsa.',
+          costo: 0.00, conceptoCodigo: '00000000', conceptoServicio: 'BECA IMPULSA 30% / COSTO CERO',
+          tiempoVigenciaHrs: 48, plazoRecojoDias: 3, observacion: '', tipoActivacion: 'Permanente',
+          envioCorreo: true, activo: true, fechaRegistro: '2026-07-19',
+          pagoMomento: 'despues', requiereAprobacion: true, diasEntrega: 3, area: 'Retención y Fidelización',
+          requiereAdjunto: true,
+          requisitos: [
+            { id: 'REQ-001', titulo: 'Certificado de voluntariado', adjuntarArchivo: true, activo: true, orden: 1 },
+            { id: 'REQ-002', titulo: 'DNI del paciente / solicitante', adjuntarArchivo: true, activo: true, orden: 2 }
+          ],
+          proceso: [
+            { id: 'P-1', orden: 1, area: 'Registros Académicos', descripcion: 'revisa las notas', observacion: '', duracionDias: 2, activo: true },
+            { id: 'P-2', orden: 2, area: 'Retención y Fidelización', descripcion: 'evaluación de condiciones socioeconómicas', observacion: '', duracionDias: 3, activo: true },
+            { id: 'P-3', orden: 3, area: 'Soluciones Financieras', descripcion: 'aplicar descuento en el sistema', observacion: '', duracionDias: 1, activo: true }
+          ],
+          cronogramas: [
+            { id: 'CR-01', grado: 'Pregrado', modalidad: 'Modalidad Ordinaria', facultad: 'Todas', carrera: 'Todas', periodo: '2026-1', fechaInicio: '2026-10-01', fechaFin: '2026-11-01', activo: true }
+          ],
           audiencia: { niveles: ['pregrado'], ciclos: [], minCreditos: 0, tercioSuperior: false, quintoSuperior: false, promedioMin: 0 }
         },
         {
-          id: 'T-002', nombre: 'Constancia de Tercio Superior', tipo: 'Constancia', modelo: 'constancia',
-          descripcion: 'Acredita tu pertenencia al tercio superior de tu promoción o carrera académica.',
-          costo: 40.00, pagoMomento: 'antes', requiereAprobacion: true, diasEntrega: 3, activo: true,
-          area: 'Registros Académicos', requiereAdjunto: false, adjuntoIndicacion: '',
-          intenciones: ['todos', 'beca', 'practicas'],
-          audiencia: { niveles: ['pregrado'], ciclos: [], minCreditos: 0, tercioSuperior: true, quintoSuperior: false, promedioMin: 0 }
+          id: 'T-002', nombre: 'BECA IMPULSA 35%', tipo: 'Solicitud', modelo: 'oficio',
+          descripcion: 'DESCRIPCIÓN:\n\nAplica a estudiantes con rendimiento destacado en situación de vulnerabilidad evaluada por Bienestar y Retención.',
+          costo: 0.00, conceptoCodigo: '00000000', conceptoServicio: 'BECA IMPULSA 35% / COSTO CERO',
+          tiempoVigenciaHrs: 48, plazoRecojoDias: 3, observacion: '', tipoActivacion: 'Permanente',
+          envioCorreo: true, activo: true, fechaRegistro: '2026-07-19',
+          pagoMomento: 'despues', requiereAprobacion: true, diasEntrega: 3, area: 'Retención y Fidelización',
+          requiereAdjunto: true,
+          requisitos: [
+            { id: 'REQ-002', titulo: 'DNI del paciente / solicitante', adjuntarArchivo: true, activo: true, orden: 1 }
+          ],
+          proceso: [
+            { id: 'P-1', orden: 1, area: 'Registros Académicos', descripcion: 'Validación de récord de notas', observacion: '', duracionDias: 2, activo: true },
+            { id: 'P-2', orden: 2, area: 'Retención y Fidelización', descripcion: 'Evaluación de informe social', observacion: '', duracionDias: 2, activo: true }
+          ],
+          cronogramas: [
+            { id: 'CR-02', grado: 'Pregrado', modalidad: 'Modalidad Ordinaria', facultad: 'Todas', carrera: 'Todas', periodo: '2026-1', fechaInicio: '2026-10-01', fechaFin: '2026-11-01', activo: true }
+          ],
+          audiencia: { niveles: ['pregrado'], ciclos: [], minCreditos: 0, tercioSuperior: false, quintoSuperior: false, promedioMin: 0 }
         },
         {
-          id: 'T-003', nombre: 'Certificado de Estudios', tipo: 'Certificado', modelo: 'certificado',
-          descripcion: 'Certificado oficial con el detalle de asignaturas, calificaciones y créditos cursados.',
-          costo: 120.00, pagoMomento: 'antes', requiereAprobacion: true, diasEntrega: 7, activo: true,
-          area: 'Grados y Títulos', requiereAdjunto: true,
-          adjuntoIndicacion: 'Adjuntar copia de DNI o documento de identidad escaneado en PDF o JPG (máx. 5MB).',
-          intenciones: ['todos', 'practicas', 'grado'],
-          audiencia: { niveles: ['pregrado'], ciclos: [], minCreditos: 100, tercioSuperior: false, quintoSuperior: false, promedioMin: 0 }
-        },
-        {
-          id: 'T-004', nombre: 'Constancia de Quinto Superior', tipo: 'Constancia', modelo: 'constancia',
-          descripcion: 'Acredita tu pertenencia al quinto superior de la carrera o promoción.',
-          costo: 45.00, pagoMomento: 'antes', requiereAprobacion: true, diasEntrega: 3, activo: true,
-          area: 'Registros Académicos', requiereAdjunto: false, adjuntoIndicacion: '',
-          intenciones: ['todos', 'beca'],
-          audiencia: { niveles: ['pregrado'], ciclos: [], minCreditos: 0, tercioSuperior: false, quintoSuperior: true, promedioMin: 0 }
-        },
-        {
-          id: 'T-005', nombre: 'Constancia de Egresado', tipo: 'Constancia', modelo: 'oficio',
-          descripcion: 'Para estudiantes que han culminado satisfactoriamente el plan de estudios completo.',
-          costo: 60.00, pagoMomento: 'despues', requiereAprobacion: true, diasEntrega: 5, activo: true,
-          area: 'Grados y Títulos', requiereAdjunto: true,
-          adjuntoIndicacion: 'Adjuntar constancia de prácticas preprofesionales aprobadas o constancia de no adeudo.',
-          intenciones: ['todos', 'grado'],
-          audiencia: { niveles: ['pregrado', 'postgrado'], ciclos: [], minCreditos: 200, tercioSuperior: false, quintoSuperior: false, promedioMin: 0 }
-        },
-        {
-          id: 'T-006', nombre: 'Certificado de Postgrado', tipo: 'Certificado', modelo: 'certificado',
-          descripcion: 'Certificado de notas para programas oficiales de maestría y doctorado.',
-          costo: 150.00, pagoMomento: 'antes', requiereAprobacion: true, diasEntrega: 7, activo: true,
-          area: 'Escuela de Postgrado', requiereAdjunto: false, adjuntoIndicacion: '',
-          intenciones: ['todos', 'grado'],
+          id: 'T-003', nombre: 'CAMBIO DE MODALIDAD DE ESTUDIOS A DISTANCIA - POSGRADO', tipo: 'Solicitud', modelo: 'oficio',
+          descripcion: 'Procedimiento para traslado interno de modalidad presencial/semipresencial a modalidad a distancia en programas de maestría y posgrado.',
+          costo: 0.00, conceptoCodigo: '51040402', conceptoServicio: 'ADECUACIÓN POSGRADO',
+          tiempoVigenciaHrs: 72, plazoRecojoDias: 5, observacion: '', tipoActivacion: 'Cronograma',
+          envioCorreo: true, activo: true, fechaRegistro: '2023-03-19',
+          pagoMomento: 'despues', requiereAprobacion: true, diasEntrega: 5, area: 'Registros Académicos',
+          requiereAdjunto: false,
+          proceso: [
+            { id: 'P-1', orden: 1, area: 'Registros Académicos', descripcion: 'Validación de plan curricular posgrado', observacion: '', duracionDias: 2, activo: true }
+          ],
+          cronogramas: [
+            { id: 'CR-03', grado: 'Posgrado', modalidad: 'Maestría A Distancia', facultad: 'Todas', carrera: 'Todas', periodo: '2026-2', fechaInicio: '2026-08-01', fechaFin: '2026-09-15', activo: true }
+          ],
           audiencia: { niveles: ['postgrado'], ciclos: [], minCreditos: 0, tercioSuperior: false, quintoSuperior: false, promedioMin: 0 }
         },
         {
-          id: 'T-007', nombre: 'Carné Universitario (Duplicado)', tipo: 'Carné', modelo: 'carne',
+          id: 'T-004', nombre: 'CAMBIO DE MODALIDAD DE ESTUDIOS A PRESENCIAL - PREGRADO', tipo: 'Solicitud', modelo: 'oficio',
+          descripcion: 'Procedimiento de traslado interno a programas en modalidad presencial de pregrado según disponibilidad de vacantes curriculares.',
+          costo: 0.00, conceptoCodigo: '03030104', conceptoServicio: 'ADECUACION CURRICULAR - PREGRADO',
+          tiempoVigenciaHrs: 72, plazoRecojoDias: 5, observacion: '', tipoActivacion: 'Cronograma',
+          envioCorreo: true, activo: true, fechaRegistro: '2023-07-18',
+          pagoMomento: 'despues', requiereAprobacion: true, diasEntrega: 5, area: 'Registros Académicos',
+          requiereAdjunto: false,
+          proceso: [
+            { id: 'P-1', orden: 1, area: 'Registros Académicos', descripcion: 'Validación de vacantes y convalidación', observacion: '', duracionDias: 3, activo: true }
+          ],
+          cronogramas: [
+            { id: 'CR-04', grado: 'Pregrado', modalidad: 'Modalidad Ordinaria', facultad: 'Todas', carrera: 'Todas', periodo: '2026-2', fechaInicio: '2026-08-01', fechaFin: '2026-09-15', activo: true }
+          ],
+          audiencia: { niveles: ['pregrado'], ciclos: [], minCreditos: 0, tercioSuperior: false, quintoSuperior: false, promedioMin: 0 }
+        },
+        {
+          id: 'T-005', nombre: 'CAMBIO DE MODALIDAD DE ESTUDIOS A PRESENCIAL - SEGUNDA ESPECIALIDAD', tipo: 'Solicitud', modelo: 'oficio',
+          descripcion: 'Trámite de adecuación y cambio de modalidad para estudiantes de programas de segunda especialidad profesional.',
+          costo: 0.00, conceptoCodigo: '03070322', conceptoServicio: 'ADECUACION CURRICULAR - SEGUNDA ESPECIALIDAD',
+          tiempoVigenciaHrs: 72, plazoRecojoDias: 5, observacion: '', tipoActivacion: 'Cronograma',
+          envioCorreo: true, activo: true, fechaRegistro: '2023-09-20',
+          pagoMomento: 'despues', requiereAprobacion: true, diasEntrega: 5, area: 'Registros Académicos',
+          requiereAdjunto: false,
+          proceso: [
+            { id: 'P-1', orden: 1, area: 'Registros Académicos', descripcion: 'Validación académica', observacion: '', duracionDias: 2, activo: true }
+          ],
+          cronogramas: [
+            { id: 'CR-05', grado: 'Segunda Especialidad', modalidad: 'Presencial', facultad: 'Todas', carrera: 'Todas', periodo: '2026-2', fechaInicio: '2026-08-01', fechaFin: '2026-09-20', activo: true }
+          ],
+          audiencia: { niveles: ['postgrado'], ciclos: [], minCreditos: 0, tercioSuperior: false, quintoSuperior: false, promedioMin: 0 }
+        },
+        {
+          id: 'T-006', nombre: 'Constancia de Matrícula', tipo: 'Constancia', modelo: 'constancia',
+          descripcion: 'Acredita tu condición de matrícula vigente en el periodo académico regular actual.',
+          costo: 25.00, conceptoCodigo: '01010025', conceptoServicio: 'CONSTANCIA DE MATRÍCULA',
+          tiempoVigenciaHrs: 48, plazoRecojoDias: 2, observacion: 'Emisión con firma digital.', tipoActivacion: 'Permanente',
+          envioCorreo: true, activo: true, fechaRegistro: '2022-06-10',
+          pagoMomento: 'antes', requiereAprobacion: true, diasEntrega: 2, area: 'Registros Académicos',
+          requiereAdjunto: false,
+          proceso: [
+            { id: 'P-1', orden: 1, area: 'Registros Académicos', descripcion: 'Validación de matrícula y asignaturas registradas', observacion: '', duracionDias: 1, activo: true },
+            { id: 'P-2', orden: 2, area: 'Soluciones Financieras', descripcion: 'Validación de pago en caja Niubiz', observacion: '', duracionDias: 1, activo: true }
+          ],
+          cronogramas: [],
+          audiencia: { niveles: ['pregrado'], ciclos: [], minCreditos: 0, tercioSuperior: false, quintoSuperior: false, promedioMin: 0 }
+        },
+        {
+          id: 'T-007', nombre: 'Constancia de Tercio Superior', tipo: 'Constancia', modelo: 'constancia',
+          descripcion: 'Acredita tu pertenencia al tercio superior de tu promoción o carrera académica.',
+          costo: 40.00, conceptoCodigo: '01010040', conceptoServicio: 'CONSTANCIA DE TERCIO SUPERIOR',
+          tiempoVigenciaHrs: 72, plazoRecojoDias: 3, observacion: '', tipoActivacion: 'Permanente',
+          envioCorreo: true, activo: true, fechaRegistro: '2022-06-10',
+          pagoMomento: 'antes', requiereAprobacion: true, diasEntrega: 3, area: 'Registros Académicos',
+          requiereAdjunto: false,
+          cronogramas: [],
+          audiencia: { niveles: ['pregrado'], ciclos: [], minCreditos: 0, tercioSuperior: true, quintoSuperior: false, promedioMin: 0 }
+        },
+        {
+          id: 'T-008', nombre: 'Certificado de Estudios', tipo: 'Certificado', modelo: 'certificado',
+          descripcion: 'Certificado oficial con el detalle de asignaturas, calificaciones y créditos cursados.',
+          costo: 120.00, conceptoCodigo: '01010120', conceptoServicio: 'CERTIFICADO DE ESTUDIOS',
+          tiempoVigenciaHrs: 120, plazoRecojoDias: 7, observacion: 'Requiere DNI legible escaneado.', tipoActivacion: 'Permanente',
+          envioCorreo: true, activo: true, fechaRegistro: '2022-05-15',
+          pagoMomento: 'antes', requiereAprobacion: true, diasEntrega: 7, area: 'Grados y Títulos',
+          requiereAdjunto: true,
+          requisitos: [
+            { id: 'REQ-002', titulo: 'DNI del paciente / solicitante', adjuntarArchivo: true, activo: true, orden: 1 }
+          ],
+          proceso: [
+            { id: 'P-1', orden: 1, area: 'Registros Académicos', descripcion: 'Cierre y consolidación de actas oficiales', observacion: '', duracionDias: 3, activo: true },
+            { id: 'P-2', orden: 2, area: 'Grados y Títulos', descripcion: 'Emisión e impresión en papel membretado', observacion: '', duracionDias: 4, activo: true }
+          ],
+          cronogramas: [],
+          audiencia: { niveles: ['pregrado'], ciclos: [], minCreditos: 100, tercioSuperior: false, quintoSuperior: false, promedioMin: 0 }
+        },
+        {
+          id: 'T-009', nombre: 'Carné Universitario (Duplicado)', tipo: 'Carné', modelo: 'carne',
           descripcion: 'Reposición oficial del carné universitario por extravío, robo o deterioro.',
-          costo: 35.00, pagoMomento: 'antes', requiereAprobacion: false, diasEntrega: 10, activo: true,
-          area: 'Bienestar Universitario', requiereAdjunto: true,
-          adjuntoIndicacion: 'Adjuntar fotografía formal a color con fondo blanco en JPG o PNG (máx. 5MB).',
-          intenciones: ['todos', 'carne'],
+          costo: 35.00, conceptoCodigo: '01010035', conceptoServicio: 'CARNÉ UNIVERSITARIO (DUPLICADO)',
+          tiempoVigenciaHrs: 240, plazoRecojoDias: 10, observacion: 'Trámite SUNEDU', tipoActivacion: 'Permanente',
+          envioCorreo: true, activo: true, fechaRegistro: '2022-07-01',
+          pagoMomento: 'antes', requiereAprobacion: false, diasEntrega: 10, area: 'Dirección de Bienestar Universitario',
+          requiereAdjunto: true,
+          requisitos: [
+            { id: 'REQ-003', titulo: 'Fotografía formal fondo blanco', adjuntarArchivo: true, activo: true, orden: 1 }
+          ],
+          cronogramas: [],
           audiencia: { niveles: ['pregrado', 'postgrado'], ciclos: [], minCreditos: 0, tercioSuperior: false, quintoSuperior: false, promedioMin: 0 }
         }
+      ],
+
+      // ---- Catálogo de Sedes Institucionales ----
+      sedesCatalogo: [
+        '7803-2 --> LOCAL 1 / Jr. Larrabure y Unanue 110 Santa Beatriz, Lima',
+        '7803-1 --> LOCAL 2 / Av. Arequipa 440 Lima Centro',
+        '7803-3 --> LOCAL 3 / Av. Arequipa 444 Lima Centro',
+        '7803-4 --> CAMPUS VIRTUAL / Ventanilla Digital'
+      ],
+
+      // ---- Catálogo de Colaboradores / Personal Administrativo ----
+      colaboradores: [
+        { personal: '665092', paterno: 'ZORRILLA', materno: 'MORRIS', nombres: 'PAULA MAYRA JACKELINE', gerencia: 'Dirección de Bienestar Universitario', gerCodigo: 'W012', obs: '' },
+        { personal: '800251', paterno: 'SANTA CRUZ', materno: 'CCORAHUA', nombres: 'ESTEFANY', gerencia: 'Jefatura De Call Center', gerCodigo: 'W045', obs: '' },
+        { personal: '794673', paterno: 'SANTA CRUZ', materno: 'JARA', nombres: 'NAHUM', gerencia: 'Medicina Humana', gerCodigo: 'W093', obs: '' },
+        { personal: '712149', paterno: 'SANTA CRUZ', materno: 'SALAZAR', nombres: 'JORGE ALFONSO', gerencia: 'Coord. Escuela De Posgrado', gerCodigo: 'W089', obs: '' },
+        { personal: '722486', paterno: 'SANTAMARIA', materno: 'CALDERON', nombres: 'JHAN KARLO', gerencia: 'Project Manager Academico', gerCodigo: 'W157', obs: '' },
+        { personal: '634370', paterno: 'CASTILLO', materno: 'DIAZ', nombres: 'YULL ADRIAN', gerencia: 'Registros Académicos', gerCodigo: 'W010', obs: '' },
+        { personal: '494220', paterno: 'CHAVEZ', materno: 'CAPACOILA', nombres: 'CAROLINE MARTHA', gerencia: 'Registros Académicos', gerCodigo: 'W010', obs: '' },
+        { personal: '589340', paterno: 'DOMINGUEZ', materno: 'LOPE', nombres: 'JUAN DAVID', gerencia: 'Registros Académicos', gerCodigo: 'W010', obs: '' },
+        { personal: '543351', paterno: 'DURAND', materno: 'HUAMANI', nombres: 'CRISTIAN ALBERTO', gerencia: 'Registros Académicos', gerCodigo: 'W010', obs: '' },
+        { personal: '611901', paterno: 'FAUSTOR', materno: 'MÜLLER', nombres: 'MIGUEL ANGEL', gerencia: 'Registros Académicos', gerCodigo: 'W010', obs: '' },
+        { personal: '371258', paterno: 'GARAY', materno: 'ORBEGOSO', nombres: 'CARLA ANDREA', gerencia: 'Registros Académicos', gerCodigo: 'W010', obs: '' },
+        { personal: '636671', paterno: 'GARCIA', materno: 'GRANDEZ', nombres: 'GIANELLA MAGDALENA', gerencia: 'Registros Académicos', gerCodigo: 'W010', obs: '' },
+        { personal: '409812', paterno: 'MENDOZA', materno: 'RÍOS', nombres: 'CARLOS ALBERTO', gerencia: 'Registros Académicos', gerCodigo: 'W010', obs: '' },
+        { personal: '412236', paterno: 'PAREDES', materno: 'SOTO', nombres: 'LUCÍA MARGARITA', gerencia: 'Grados y Títulos', gerCodigo: 'W014', obs: '' },
+        { personal: '512903', paterno: 'QUISPE', materno: 'RODRIGUEZ', nombres: 'ANA MARÍA', gerencia: 'Soluciones Financieras', gerCodigo: 'W018', obs: '' }
       ],
 
       // ---- Áreas responsables del flujo de atención ----
       areas: [
         {
           id: 'A-001',
+          codigo: 'A-001',
+          institucion: 'Universidad Privada Norbert Wiener S.A.',
           nombre: 'Dirección de Bienestar Universitario',
           observacion: 'Gestión de servicios de salud, becas, deporte y acompañamiento estudiantil.',
           activo: true,
-          fechaRegistro: '2026-06-10',
-          sedes: ['Sede Lima Centro - Av. Arequipa'],
+          fechaRegistro: '2022-06-10',
+          sedes: [
+            { id: 'SED-1', nombre: '7803-2 --> LOCAL 1 / Jr. Larrabure y Unanue 110 Santa Beatriz, Lima', activo: true }
+          ],
           responsables: [
-            { id: 'RESP-01', usuarioId: 'U-ADM-1', nombre: 'Carlos Mendoza Ríos', email: 'c.mendoza@uwiener.edu.pe', cargo: 'Responsable', activo: true }
+            { id: 'RESP-01', personal: '665092', nombre: 'ZORRILLA MORRIS, PAULA MAYRA JACKELINE', sede: '7803-2 --> LOCAL 1 / Jr. Larrabure y Unanue 110 Santa Beatriz, Lima', cargo: 'Responsable', activo: true }
           ]
         },
         {
           id: 'A-002',
+          codigo: 'A-002',
+          institucion: 'Universidad Privada Norbert Wiener S.A.',
           nombre: 'Jefatura de Responsabilidad Social',
           observacion: 'Supervisión de actividades de extensión comunitaria y voluntariado.',
           activo: true,
-          fechaRegistro: '2026-06-10',
-          sedes: ['Sede Lima Centro - Av. Arequipa'],
+          fechaRegistro: '2022-06-10',
+          sedes: [
+            { id: 'SED-1', nombre: '7803-2 --> LOCAL 1 / Jr. Larrabure y Unanue 110 Santa Beatriz, Lima', activo: true }
+          ],
           responsables: [
-            { id: 'RESP-02', usuarioId: 'U-ADM-2', nombre: 'Lucía Paredes Soto', email: 'l.paredes@uwiener.edu.pe', cargo: 'Coordinador', activo: true }
+            { id: 'RESP-02', personal: '412236', nombre: 'PAREDES SOTO, LUCÍA MARGARITA', sede: '7803-2 --> LOCAL 1 / Jr. Larrabure y Unanue 110 Santa Beatriz, Lima', cargo: 'Coordinador', activo: true }
           ]
         },
         {
           id: 'A-003',
+          codigo: 'A-003',
+          institucion: 'Universidad Privada Norbert Wiener S.A.',
           nombre: 'Registros Académicos',
           observacion: 'Emisión de documentos oficiales, actas, convalidaciones y constancias.',
           activo: true,
-          fechaRegistro: '2026-02-19',
-          sedes: ['Sede Lima Centro - Av. Arequipa'],
+          fechaRegistro: '2023-02-19',
+          sedes: [
+            { id: 'SED-1', nombre: '7803-2 --> LOCAL 1 / Jr. Larrabure y Unanue 110 Santa Beatriz, Lima', activo: true },
+            { id: 'SED-2', nombre: '7803-1 --> LOCAL 2 / Av. Arequipa 440 Lima Centro', activo: true }
+          ],
           responsables: [
-            { id: 'RESP-03', usuarioId: 'U-ADM-1', nombre: 'Carlos Mendoza Ríos', email: 'c.mendoza@uwiener.edu.pe', cargo: 'Responsable', activo: true }
+            { id: 'RESP-03', personal: '634370', nombre: 'CASTILLO DIAZ, YULL ADRIAN', sede: '7803-2 --> LOCAL 1 / Jr. Larrabure y Unanue 110 Santa Beatriz, Lima', cargo: 'Responsable', activo: true },
+            { id: 'RESP-04', personal: '494220', nombre: 'CHAVEZ CAPACOILA, CAROLINE MARTHA', sede: '7803-2 --> LOCAL 1 / Jr. Larrabure y Unanue 110 Santa Beatriz, Lima', cargo: 'Responsable', activo: true },
+            { id: 'RESP-05', personal: '589340', nombre: 'DOMINGUEZ LOPE, JUAN DAVID', sede: '7803-2 --> LOCAL 1 / Jr. Larrabure y Unanue 110 Santa Beatriz, Lima', cargo: 'Responsable', activo: true },
+            { id: 'RESP-06', personal: '543351', nombre: 'DURAND HUAMANI, CRISTIAN ALBERTO', sede: '7803-2 --> LOCAL 1 / Jr. Larrabure y Unanue 110 Santa Beatriz, Lima', cargo: 'Responsable', activo: true },
+            { id: 'RESP-07', personal: '611901', nombre: 'FAUSTOR MÜLLER, MIGUEL ANGEL', sede: '7803-2 --> LOCAL 1 / Jr. Larrabure y Unanue 110 Santa Beatriz, Lima', cargo: 'Responsable', activo: true },
+            { id: 'RESP-08', personal: '371258', nombre: 'GARAY ORBEGOSO, CARLA ANDREA', sede: '7803-2 --> LOCAL 1 / Jr. Larrabure y Unanue 110 Santa Beatriz, Lima', cargo: 'Responsable', activo: true },
+            { id: 'RESP-09', personal: '636671', nombre: 'GARCIA GRANDEZ, GIANELLA MAGDALENA', sede: '7803-2 --> LOCAL 1 / Jr. Larrabure y Unanue 110 Santa Beatriz, Lima', cargo: 'Responsable', activo: true }
           ]
         },
         {
           id: 'A-004',
+          codigo: 'A-004',
+          institucion: 'Universidad Privada Norbert Wiener S.A.',
           nombre: 'Representante de Unidades Académicas',
           observacion: 'Validación de planes de estudio, directores de escuela y coordinadores.',
           activo: true,
-          fechaRegistro: '2026-08-25',
-          sedes: ['Sede Lima Centro - Av. Arequipa'],
+          fechaRegistro: '2022-08-25',
+          sedes: [
+            { id: 'SED-1', nombre: '7803-2 --> LOCAL 1 / Jr. Larrabure y Unanue 110 Santa Beatriz, Lima', activo: true }
+          ],
           responsables: []
         },
         {
           id: 'A-005',
+          codigo: 'A-005',
+          institucion: 'Universidad Privada Norbert Wiener S.A.',
           nombre: 'Retención y Fidelización',
           observacion: 'Evaluación de beneficios socioeconómicos, becas y continuidad.',
           activo: true,
-          fechaRegistro: '2026-06-10',
-          sedes: ['Sede Lima Centro - Av. Arequipa'],
+          fechaRegistro: '2022-06-10',
+          sedes: [
+            { id: 'SED-1', nombre: '7803-2 --> LOCAL 1 / Jr. Larrabure y Unanue 110 Santa Beatriz, Lima', activo: true }
+          ],
           responsables: [
-            { id: 'RESP-04', usuarioId: 'U-ADM-3', nombre: 'Giancarlo Santa María', email: 'g.santamaria@uwiener.edu.pe', cargo: 'Responsable', activo: true }
+            { id: 'RESP-10', personal: '722486', nombre: 'SANTAMARIA CALDERON, JHAN KARLO', sede: '7803-2 --> LOCAL 1 / Jr. Larrabure y Unanue 110 Santa Beatriz, Lima', cargo: 'Responsable', activo: true }
           ]
         },
         {
           id: 'A-006',
+          codigo: 'A-006',
+          institucion: 'Universidad Privada Norbert Wiener S.A.',
           nombre: 'Soluciones Financieras',
           observacion: 'Validación de estado de cuenta, no adeudo, pasarela y aplicaciones de descuento.',
           activo: true,
-          fechaRegistro: '2026-07-25',
-          sedes: ['Sede Lima Centro - Av. Arequipa'],
-          responsables: []
+          fechaRegistro: '2020-07-25',
+          sedes: [
+            { id: 'SED-1', nombre: '7803-2 --> LOCAL 1 / Jr. Larrabure y Unanue 110 Santa Beatriz, Lima', activo: true }
+          ],
+          responsables: [
+            { id: 'RESP-11', personal: '512903', nombre: 'QUISPE RODRIGUEZ, ANA MARÍA', sede: '7803-2 --> LOCAL 1 / Jr. Larrabure y Unanue 110 Santa Beatriz, Lima', cargo: 'Responsable', activo: true }
+          ]
         },
         {
           id: 'A-007',
+          codigo: 'A-007',
+          institucion: 'Universidad Privada Norbert Wiener S.A.',
           nombre: 'Grados y Títulos',
           observacion: 'Expedición de certificados integrales, constancias de egreso y títulos profesionales.',
           activo: true,
-          fechaRegistro: '2026-05-15',
-          sedes: ['Sede Lima Centro - Av. Arequipa'],
+          fechaRegistro: '2022-05-15',
+          sedes: [
+            { id: 'SED-1', nombre: '7803-2 --> LOCAL 1 / Jr. Larrabure y Unanue 110 Santa Beatriz, Lima', activo: true }
+          ],
           responsables: [
-            { id: 'RESP-05', usuarioId: 'U-ADM-2', nombre: 'Lucía Paredes Soto', email: 'l.paredes@uwiener.edu.pe', cargo: 'Responsable', activo: true }
+            { id: 'RESP-12', personal: '412236', nombre: 'PAREDES SOTO, LUCÍA MARGARITA', sede: '7803-2 --> LOCAL 1 / Jr. Larrabure y Unanue 110 Santa Beatriz, Lima', cargo: 'Responsable', activo: true }
           ]
         }
       ],
@@ -171,7 +324,7 @@
           observacion: 'Debe ser nítido. Copia legible de ambas caras del documento de identidad.',
           requiereAdjunto: true,
           adjuntoNombre: 'DNI_Solicitante',
-          formato: 'PDF o JPG',
+          formato: 'PDF',
           activo: true,
           fechaRegistro: '2026-06-12'
         },
@@ -182,7 +335,7 @@
           observacion: 'Fotografía tamaño carné en fondo blanco, vestimenta formal sin accesorios.',
           requiereAdjunto: true,
           adjuntoNombre: 'Foto_Carne',
-          formato: 'JPG o PNG',
+          formato: 'JPG',
           activo: true,
           fechaRegistro: '2026-06-15'
         },
@@ -357,44 +510,161 @@
       s.conceptos = defaults.conceptos;
       dirty = true;
     }
-    // Asegurar compatibilidad en trámites existentes
-    if (s.tramites) {
-      s.tramites.forEach((t, idx) => {
-        if (!t.codigo) t.codigo = t.id;
-        if (t.tipoActivacion === undefined) t.tipoActivacion = 'Permanente';
-        if (t.tiempoVigenciaHrs === undefined) t.tiempoVigenciaHrs = 72;
-        if (t.plazoRecojoDias === undefined) t.plazoRecojoDias = t.diasEntrega || 3;
-        if (t.envioCorreo === undefined) t.envioCorreo = true;
-        if (!t.fechaRegistro) t.fechaRegistro = '2026-06-' + String(10 + idx).padStart(2, '0');
-        if (!t.requisitos) {
-          t.requisitos = t.requiereAdjunto ? [
-            { id: 'REQ-002', titulo: 'DNI del paciente / solicitante', adjuntarArchivo: true, formato: 'PDF o JPG', activo: true, orden: 1 }
-          ] : [];
-        }
-        if (!t.proceso || t.proceso.length === 0) {
-          t.proceso = [
-            { id: 'P-1', orden: 1, area: t.area || 'Registros Académicos', descripcion: 'Revisión y validación de expediente', observacion: 'Verificar datos académicos', duracionDias: t.diasEntrega || 2, activo: true }
+    if (!s.sedesCatalogo || !Array.isArray(s.sedesCatalogo)) {
+      s.sedesCatalogo = defaults.sedesCatalogo;
+      dirty = true;
+    }
+    if (!s.colaboradores || !Array.isArray(s.colaboradores)) {
+      s.colaboradores = defaults.colaboradores;
+      dirty = true;
+    }
+
+    // Normalizar áreas existentes
+    if (s.areas) {
+      s.areas.forEach((a, idx) => {
+        if (!a.codigo) { a.codigo = a.id; dirty = true; }
+        if (!a.institucion) { a.institucion = 'Universidad Privada Norbert Wiener S.A.'; dirty = true; }
+        if (!a.fechaRegistro) { a.fechaRegistro = '2022-06-10'; dirty = true; }
+        if (!Array.isArray(a.sedes) || a.sedes.length === 0) {
+          a.sedes = [
+            { id: 'SED-1', nombre: '7803-2 --> LOCAL 1 / Jr. Larrabure y Unanue 110 Santa Beatriz, Lima', activo: true }
           ];
-          if (t.area && t.area !== 'Soluciones Financieras') {
-            t.proceso.push({
-              id: 'P-2', orden: 2, area: 'Soluciones Financieras', descripcion: 'Validación de derechos de trámite y comprobante', observacion: 'Caja central', duracionDias: 1, activo: true
-            });
-          }
+          dirty = true;
+        } else if (typeof a.sedes[0] === 'string') {
+          a.sedes = a.sedes.map((sNom, sIdx) => ({
+            id: 'SED-' + (sIdx + 1),
+            nombre: sNom.includes('-->') ? sNom : `7803-${sIdx+1} --> ${sNom}`,
+            activo: true
+          }));
+          dirty = true;
         }
-        if (!t.cronogramas) {
-          t.cronogramas = [
-            { id: 'CR-01', grado: 'Pregrado', modalidad: 'Presencial', facultad: 'Todas', carrera: 'Todas', periodo: '2026-II', fechaInicio: '2026-07-01', fechaFin: '2026-12-31', activo: true }
-          ];
-        }
-        if (!t.correoConfig) {
-          t.correoConfig = {
-            remitente: 'tramites@uwiener.edu.pe',
-            asunto: `Actualización de solicitud: ${t.nombre}`,
-            mensaje: `Estimado(a) estudiante, tu trámite de «${t.nombre}» ha cambiado de estado y continúa su flujo institucional.`
-          };
+        if (!Array.isArray(a.responsables)) {
+          a.responsables = [];
+          dirty = true;
+        } else {
+          a.responsables.forEach((r, rIdx) => {
+            if (!r.personal) { r.personal = String(600000 + idx * 1000 + rIdx); dirty = true; }
+            if (!r.sede) {
+              r.sede = a.sedes && a.sedes[0] ? (typeof a.sedes[0] === 'string' ? a.sedes[0] : a.sedes[0].nombre) : '7803-2 --> LOCAL 1 / Jr. Larrabure y Unanue 110 Santa Beatriz, Lima';
+              dirty = true;
+            }
+            if (!r.cargo) { r.cargo = 'Responsable'; dirty = true; }
+            if (r.activo === undefined) { r.activo = true; dirty = true; }
+          });
         }
       });
     }
+
+    // Asegurar compatibilidad en trámites existentes
+    if (s.tramites) {
+      // Si no están los trámites de referencia de producción, integrarlos
+      const tieneBeca30 = s.tramites.some(t => t.nombre && t.nombre.includes('BECA IMPULSA 30%'));
+      if (!tieneBeca30) {
+        const seedTs = seed().tramites;
+        s.tramites = seedTs;
+        dirty = true;
+      }
+
+      s.tramites.forEach((t, idx) => {
+        if (!t.codigo) { t.codigo = t.id; dirty = true; }
+        if (t.tipoActivacion === undefined) { t.tipoActivacion = 'Permanente'; dirty = true; }
+        if (t.tiempoVigenciaHrs === undefined) { t.tiempoVigenciaHrs = 72; dirty = true; }
+        if (t.plazoRecojoDias === undefined) { t.plazoRecojoDias = t.diasEntrega || 3; dirty = true; }
+        if (t.envioCorreo === undefined) { t.envioCorreo = true; dirty = true; }
+        if (!t.fechaRegistro) { t.fechaRegistro = '2026-07-' + String(15 + (idx % 10)).padStart(2, '0'); dirty = true; }
+        if (t.observacion === undefined) { t.observacion = ''; dirty = true; }
+        if (!Array.isArray(t.requisitos)) {
+          t.requisitos = t.requiereAdjunto ? [
+            { id: 'REQ-002', titulo: 'DNI del paciente / solicitante', adjuntarArchivo: true, formato: 'PDF', activo: true, orden: 1 }
+          ] : [];
+          dirty = true;
+        }
+        if (!Array.isArray(t.proceso) || t.proceso.length === 0) {
+          t.proceso = [
+            { id: 'P-1', orden: 1, area: t.area || 'Registros Académicos', descripcion: 'revisa las notas', observacion: '', duracionDias: t.diasEntrega || 2, activo: true }
+          ];
+          if (t.area && t.area !== 'Soluciones Financieras') {
+            t.proceso.push({
+              id: 'P-2', orden: 2, area: 'Soluciones Financieras', descripcion: 'Validación de derechos de trámite y comprobante', observacion: '', duracionDias: 1, activo: true
+            });
+          }
+          dirty = true;
+        }
+        if (!Array.isArray(t.cronogramas)) {
+          t.cronogramas = [
+            { id: 'CR-01', grado: 'Pregrado', modalidad: 'Modalidad Ordinaria', facultad: 'Todas', carrera: 'Todas', periodo: '2026-1', fechaInicio: '2026-10-01', fechaFin: '2026-11-01', activo: true }
+          ];
+          dirty = true;
+        } else {
+          t.cronogramas.forEach((c, cIdx) => {
+            if (!c.id) { c.id = 'CR-' + (cIdx + 1); dirty = true; }
+            if (!c.grado) { c.grado = 'Pregrado'; dirty = true; }
+            if (!c.modalidad) { c.modalidad = 'Modalidad Ordinaria'; dirty = true; }
+            if (!c.facultad) { c.facultad = 'Todas'; dirty = true; }
+            if (!c.carrera) { c.carrera = 'Todas'; dirty = true; }
+            if (!c.periodo) { c.periodo = '2026-1'; dirty = true; }
+            if (!c.fechaInicio) { c.fechaInicio = '2026-10-01'; dirty = true; }
+            if (!c.fechaFin) { c.fechaFin = '2026-11-01'; dirty = true; }
+            if (c.activo === undefined) { c.activo = true; dirty = true; }
+          });
+        }
+        if (!Array.isArray(t.correos) || !t.correos.length) {
+          t.correos = [
+            {
+              id: 'MAIL-' + (t.id || 'T') + '-1',
+              tipoEstado: 'Aprobado',
+              remitente: 'cobranzas@uwiener.edu.pe',
+              password: '••••••••',
+              asunto: `CONFIRMACIÓN TRAMITE ${t.nombre.toUpperCase()}`,
+              cc: 'registros@uwiener.edu.pe',
+              contenido: `<div>Estimado estudiante:</div><br><div>Agradecemos su atención y le informamos que el trámite de <b>«${t.nombre}»</b> se realizó con éxito. Recuerde que podrá verificar su constancia o estado a través del portal institucional.</div>`,
+              activo: true
+            },
+            {
+              id: 'MAIL-' + (t.id || 'T') + '-2',
+              tipoEstado: 'Rechazado',
+              remitente: 'cobranzas@uwiener.edu.pe',
+              password: '••••••••',
+              asunto: `CONFIRMACIÓN TRAMITE ${t.nombre.toUpperCase()}`,
+              cc: 'registros@uwiener.edu.pe',
+              contenido: `<div>Estimado estudiante:</div><br><div>Le informamos que su trámite de <b>«${t.nombre}»</b> no ha cumplido con los requisitos y fue <b>RECHAZADO</b>. Ingrese a la plataforma para conocer las observaciones correspondientes.</div>`,
+              activo: true
+            },
+            {
+              id: 'MAIL-' + (t.id || 'T') + '-3',
+              tipoEstado: 'Observado',
+              remitente: 'cobranzas@uwiener.edu.pe',
+              password: '••••••••',
+              asunto: `CONFIRMACIÓN TRAMITE ${t.nombre.toUpperCase()}`,
+              cc: 'registros@uwiener.edu.pe',
+              contenido: `<div>Estimado estudiante:</div><br><div>Su trámite de <b>«${t.nombre}»</b> cuenta con observaciones pendientes. Por favor ingrese a su intranet para regularizar la documentación requerida dentro del plazo.</div>`,
+              activo: true
+            }
+          ];
+          dirty = true;
+        }
+        if (!t.correoConfig) {
+          t.correoConfig = {
+            remitente: t.correos[0].remitente,
+            asunto: t.correos[0].asunto,
+            mensaje: t.correos[0].contenido
+          };
+          dirty = true;
+        }
+      });
+    }
+
+    // Normalizar requisitos existentes
+    if (s.requisitos) {
+      s.requisitos.forEach((r, idx) => {
+        if (!r.codigo) { r.codigo = r.id; dirty = true; }
+        if (!r.fechaRegistro) { r.fechaRegistro = '2026-06-' + String(10 + idx).padStart(2, '0'); dirty = true; }
+        if (r.formato === 'PDF o JPG' || r.formato === 'ZIP o PDF') { r.formato = 'PDF'; dirty = true; }
+        if (r.formato === 'JPG o PNG') { r.formato = 'JPG'; dirty = true; }
+        if (!r.formato && r.requiereAdjunto) { r.formato = 'PDF'; dirty = true; }
+      });
+    }
+
     if (dirty) save(s);
     return s;
   }
@@ -438,6 +708,8 @@
     areas() { return load().areas || []; },
     requisitos() { return load().requisitos || []; },
     conceptos() { return load().conceptos || []; },
+    sedesCatalogo() { return load().sedesCatalogo || []; },
+    colaboradores() { return load().colaboradores || []; },
     getTramite(id) { return load().tramites.find(t => t.id === id); },
     getUsuario(id) { return load().usuarios.find(u => u.id === id); },
     getArea(id) { return (load().areas || []).find(a => a.id === id); },
