@@ -74,6 +74,159 @@
         }
       ],
 
+      // ---- Áreas responsables del flujo de atención ----
+      areas: [
+        {
+          id: 'A-001',
+          nombre: 'Dirección de Bienestar Universitario',
+          observacion: 'Gestión de servicios de salud, becas, deporte y acompañamiento estudiantil.',
+          activo: true,
+          fechaRegistro: '2026-06-10',
+          sedes: ['Sede Lima Centro - Av. Arequipa'],
+          responsables: [
+            { id: 'RESP-01', usuarioId: 'U-ADM-1', nombre: 'Carlos Mendoza Ríos', email: 'c.mendoza@uwiener.edu.pe', cargo: 'Responsable', activo: true }
+          ]
+        },
+        {
+          id: 'A-002',
+          nombre: 'Jefatura de Responsabilidad Social',
+          observacion: 'Supervisión de actividades de extensión comunitaria y voluntariado.',
+          activo: true,
+          fechaRegistro: '2026-06-10',
+          sedes: ['Sede Lima Centro - Av. Arequipa'],
+          responsables: [
+            { id: 'RESP-02', usuarioId: 'U-ADM-2', nombre: 'Lucía Paredes Soto', email: 'l.paredes@uwiener.edu.pe', cargo: 'Coordinador', activo: true }
+          ]
+        },
+        {
+          id: 'A-003',
+          nombre: 'Registros Académicos',
+          observacion: 'Emisión de documentos oficiales, actas, convalidaciones y constancias.',
+          activo: true,
+          fechaRegistro: '2026-02-19',
+          sedes: ['Sede Lima Centro - Av. Arequipa'],
+          responsables: [
+            { id: 'RESP-03', usuarioId: 'U-ADM-1', nombre: 'Carlos Mendoza Ríos', email: 'c.mendoza@uwiener.edu.pe', cargo: 'Responsable', activo: true }
+          ]
+        },
+        {
+          id: 'A-004',
+          nombre: 'Representante de Unidades Académicas',
+          observacion: 'Validación de planes de estudio, directores de escuela y coordinadores.',
+          activo: true,
+          fechaRegistro: '2026-08-25',
+          sedes: ['Sede Lima Centro - Av. Arequipa'],
+          responsables: []
+        },
+        {
+          id: 'A-005',
+          nombre: 'Retención y Fidelización',
+          observacion: 'Evaluación de beneficios socioeconómicos, becas y continuidad.',
+          activo: true,
+          fechaRegistro: '2026-06-10',
+          sedes: ['Sede Lima Centro - Av. Arequipa'],
+          responsables: [
+            { id: 'RESP-04', usuarioId: 'U-ADM-3', nombre: 'Giancarlo Santa María', email: 'g.santamaria@uwiener.edu.pe', cargo: 'Responsable', activo: true }
+          ]
+        },
+        {
+          id: 'A-006',
+          nombre: 'Soluciones Financieras',
+          observacion: 'Validación de estado de cuenta, no adeudo, pasarela y aplicaciones de descuento.',
+          activo: true,
+          fechaRegistro: '2026-07-25',
+          sedes: ['Sede Lima Centro - Av. Arequipa'],
+          responsables: []
+        },
+        {
+          id: 'A-007',
+          nombre: 'Grados y Títulos',
+          observacion: 'Expedición de certificados integrales, constancias de egreso y títulos profesionales.',
+          activo: true,
+          fechaRegistro: '2026-05-15',
+          sedes: ['Sede Lima Centro - Av. Arequipa'],
+          responsables: [
+            { id: 'RESP-05', usuarioId: 'U-ADM-2', nombre: 'Lucía Paredes Soto', email: 'l.paredes@uwiener.edu.pe', cargo: 'Responsable', activo: true }
+          ]
+        }
+      ],
+
+      // ---- Catálogo maestro de requisitos ----
+      requisitos: [
+        {
+          id: 'REQ-001',
+          codigo: 'REQ-001',
+          titulo: 'Certificado de voluntariado',
+          observacion: 'Constancia de horas de voluntariado emitida por la institución correspondiente.',
+          requiereAdjunto: true,
+          adjuntoNombre: 'Certificado_Voluntariado',
+          formato: 'PDF',
+          activo: true,
+          fechaRegistro: '2026-06-10'
+        },
+        {
+          id: 'REQ-002',
+          codigo: 'REQ-002',
+          titulo: 'DNI del paciente / solicitante',
+          observacion: 'Debe ser nítido. Copia legible de ambas caras del documento de identidad.',
+          requiereAdjunto: true,
+          adjuntoNombre: 'DNI_Solicitante',
+          formato: 'PDF o JPG',
+          activo: true,
+          fechaRegistro: '2026-06-12'
+        },
+        {
+          id: 'REQ-003',
+          codigo: 'REQ-003',
+          titulo: 'Fotografía formal fondo blanco',
+          observacion: 'Fotografía tamaño carné en fondo blanco, vestimenta formal sin accesorios.',
+          requiereAdjunto: true,
+          adjuntoNombre: 'Foto_Carne',
+          formato: 'JPG o PNG',
+          activo: true,
+          fechaRegistro: '2026-06-15'
+        },
+        {
+          id: 'REQ-004',
+          codigo: 'REQ-004',
+          titulo: 'Declaración jurada de no adeudo',
+          observacion: 'Acreditación de solvencia y regularización financiera ante tesorería.',
+          requiereAdjunto: false,
+          adjuntoNombre: '',
+          formato: '',
+          activo: true,
+          fechaRegistro: '2026-06-18'
+        },
+        {
+          id: 'REQ-005',
+          codigo: 'REQ-005',
+          titulo: 'Constancia de prácticas preprofesionales',
+          observacion: 'Documento acreditativo validado por la dirección de escuela.',
+          requiereAdjunto: true,
+          adjuntoNombre: 'Constancia_Practicas',
+          formato: 'PDF',
+          activo: true,
+          fechaRegistro: '2026-06-20'
+        }
+      ],
+
+      // ---- Catálogo de Conceptos de Caja / Facturación ----
+      conceptos: [
+        { codigo: '01010025', servicio: 'CONSTANCIA DE MATRÍCULA', monto: 25.00, obs: 'Caja regular' },
+        { codigo: '01010040', servicio: 'CONSTANCIA DE TERCIO SUPERIOR', monto: 40.00, obs: 'Académico' },
+        { codigo: '01010120', servicio: 'CERTIFICADO DE ESTUDIOS', monto: 120.00, obs: 'Por ciclo o global' },
+        { codigo: '01010035', servicio: 'CARNÉ UNIVERSITARIO (DUPLICADO)', monto: 35.00, obs: 'Trámite SUNEDU' },
+        { codigo: '51040115', servicio: 'ACTA DE SUSTENTACION DE TESIS', monto: 260.00, obs: 'US$ 70 aprox' },
+        { codigo: '68010122', servicio: 'ACTUALIZACION EN NUTRICION CLINICA', monto: 0.00, obs: 'Informativo' },
+        { codigo: '03030104', servicio: 'ADECUACION CURRICULAR - PREGRADO', monto: 153.00, obs: 'Fact. General' },
+        { codigo: '03070322', servicio: 'ADECUACION CURRICULAR - SEGUNDA ESPECIALIDAD', monto: 155.00, obs: 'Fact. Público General' },
+        { codigo: '51040402', servicio: 'ADECUACIÓN POSGRADO', monto: 120.00, obs: '' },
+        { codigo: '08060120', servicio: 'ADECUACIÓN POSGRADO PRESENCIAL', monto: 120.00, obs: '' },
+        { codigo: '07020111', servicio: 'ADMINISTRACIÓN DE LA CARRERA LABORAL', monto: 600.00, obs: '' },
+        { codigo: '51020103', servicio: 'ADMISIÓN DOCTORADO', monto: 190.00, obs: 'US$ 50.47' },
+        { codigo: '00000000', servicio: 'BECA IMPULSA 30% / COSTO CERO', monto: 0.00, obs: 'Trámite sin costo' }
+      ],
+
       // ---- Usuarios del sistema ----
       usuarios: [
         {
@@ -94,6 +247,11 @@
         {
           id: 'U-ADM-2', rol: 'administrativo', nombre: 'Lucía Paredes Soto', codigo: 'ADM-0102',
           email: 'l.paredes@uwiener.edu.pe', dni: '41223678', estado: 'inactivo', area: 'Grados y Títulos',
+          permisos: ['tramites', 'solicitudes']
+        },
+        {
+          id: 'U-ADM-3', rol: 'administrativo', nombre: 'Giancarlo Santa María Calderón', codigo: 'ADM-0115',
+          email: 'g.santamaria@uwiener.edu.pe', dni: '45678901', estado: 'activo', area: 'Retención y Fidelización',
           permisos: ['tramites', 'solicitudes']
         }
       ],
@@ -180,8 +338,65 @@
 
   function load() {
     let raw = localStorage.getItem(KEY);
-    if (!raw) { const s = seed(); localStorage.setItem(KEY, JSON.stringify(s)); return s; }
-    try { return JSON.parse(raw); } catch (e) { const s = seed(); localStorage.setItem(KEY, JSON.stringify(s)); return s; }
+    let s;
+    if (!raw) { s = seed(); localStorage.setItem(KEY, JSON.stringify(s)); return s; }
+    try { s = JSON.parse(raw); } catch (e) { s = seed(); localStorage.setItem(KEY, JSON.stringify(s)); return s; }
+    
+    // Auto-migración si faltan áreas, requisitos o conceptos en el almacenamiento existente
+    let dirty = false;
+    const defaults = seed();
+    if (!s.areas || !Array.isArray(s.areas) || s.areas.length === 0) {
+      s.areas = defaults.areas;
+      dirty = true;
+    }
+    if (!s.requisitos || !Array.isArray(s.requisitos) || s.requisitos.length === 0) {
+      s.requisitos = defaults.requisitos;
+      dirty = true;
+    }
+    if (!s.conceptos || !Array.isArray(s.conceptos)) {
+      s.conceptos = defaults.conceptos;
+      dirty = true;
+    }
+    // Asegurar compatibilidad en trámites existentes
+    if (s.tramites) {
+      s.tramites.forEach((t, idx) => {
+        if (!t.codigo) t.codigo = t.id;
+        if (t.tipoActivacion === undefined) t.tipoActivacion = 'Permanente';
+        if (t.tiempoVigenciaHrs === undefined) t.tiempoVigenciaHrs = 72;
+        if (t.plazoRecojoDias === undefined) t.plazoRecojoDias = t.diasEntrega || 3;
+        if (t.envioCorreo === undefined) t.envioCorreo = true;
+        if (!t.fechaRegistro) t.fechaRegistro = '2026-06-' + String(10 + idx).padStart(2, '0');
+        if (!t.requisitos) {
+          t.requisitos = t.requiereAdjunto ? [
+            { id: 'REQ-002', titulo: 'DNI del paciente / solicitante', adjuntarArchivo: true, formato: 'PDF o JPG', activo: true, orden: 1 }
+          ] : [];
+        }
+        if (!t.proceso || t.proceso.length === 0) {
+          t.proceso = [
+            { id: 'P-1', orden: 1, area: t.area || 'Registros Académicos', descripcion: 'Revisión y validación de expediente', observacion: 'Verificar datos académicos', duracionDias: t.diasEntrega || 2, activo: true }
+          ];
+          if (t.area && t.area !== 'Soluciones Financieras') {
+            t.proceso.push({
+              id: 'P-2', orden: 2, area: 'Soluciones Financieras', descripcion: 'Validación de derechos de trámite y comprobante', observacion: 'Caja central', duracionDias: 1, activo: true
+            });
+          }
+        }
+        if (!t.cronogramas) {
+          t.cronogramas = [
+            { id: 'CR-01', grado: 'Pregrado', modalidad: 'Presencial', facultad: 'Todas', carrera: 'Todas', periodo: '2026-II', fechaInicio: '2026-07-01', fechaFin: '2026-12-31', activo: true }
+          ];
+        }
+        if (!t.correoConfig) {
+          t.correoConfig = {
+            remitente: 'tramites@uwiener.edu.pe',
+            asunto: `Actualización de solicitud: ${t.nombre}`,
+            mensaje: `Estimado(a) estudiante, tu trámite de «${t.nombre}» ha cambiado de estado y continúa su flujo institucional.`
+          };
+        }
+      });
+    }
+    if (dirty) save(s);
+    return s;
   }
   function save(db) { localStorage.setItem(KEY, JSON.stringify(db)); }
 
@@ -220,8 +435,13 @@
     tramites() { return load().tramites; },
     solicitudes() { return load().solicitudes; },
     usuarios() { return load().usuarios; },
+    areas() { return load().areas || []; },
+    requisitos() { return load().requisitos || []; },
+    conceptos() { return load().conceptos || []; },
     getTramite(id) { return load().tramites.find(t => t.id === id); },
     getUsuario(id) { return load().usuarios.find(u => u.id === id); },
+    getArea(id) { return (load().areas || []).find(a => a.id === id); },
+    getRequisito(id) { return (load().requisitos || []).find(r => r.id === id || r.codigo === id); },
     upsertTramite(t) {
       const db = load();
       const i = db.tramites.findIndex(x => x.id === t.id);
@@ -229,6 +449,22 @@
       save(db); return t;
     },
     deleteTramite(id) { const db = load(); db.tramites = db.tramites.filter(t => t.id !== id); save(db); },
+    upsertArea(a) {
+      const db = load();
+      if (!db.areas) db.areas = [];
+      const i = db.areas.findIndex(x => x.id === a.id);
+      if (i >= 0) db.areas[i] = a; else { a.id = 'A-' + String(db.areas.length + 1).padStart(3, '0'); db.areas.push(a); }
+      save(db); return a;
+    },
+    deleteArea(id) { const db = load(); db.areas = (db.areas || []).filter(a => a.id !== id); save(db); },
+    upsertRequisito(r) {
+      const db = load();
+      if (!db.requisitos) db.requisitos = [];
+      const i = db.requisitos.findIndex(x => x.id === r.id);
+      if (i >= 0) db.requisitos[i] = r; else { r.id = 'REQ-' + String(db.requisitos.length + 1).padStart(3, '0'); r.codigo = r.id; db.requisitos.push(r); }
+      save(db); return r;
+    },
+    deleteRequisito(id) { const db = load(); db.requisitos = (db.requisitos || []).filter(r => r.id !== id); save(db); },
     upsertUsuario(u) {
       const db = load();
       const i = db.usuarios.findIndex(x => x.id === u.id);

@@ -3,9 +3,217 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Trámites · Wiener Admin</title>
+  <title>Configuración de Trámites · Wiener Admin</title>
   <link href="https://fonts.googleapis.com/css2?family=Lato:wght@400;700;900&family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="../css/styles.css">
+  <style>
+    /* Tabs de navegación estilo Wiener */
+    .tabs-header {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 22px;
+      border-bottom: 2px solid var(--border-soft);
+      padding-bottom: 4px;
+    }
+    .tab-nav-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 18px;
+      border-radius: 10px 10px 0 0;
+      border: none;
+      background: transparent;
+      color: var(--text-muted);
+      font-family: 'Lato', sans-serif;
+      font-size: 14.5px;
+      font-weight: 700;
+      cursor: pointer;
+      position: relative;
+      transition: all 0.2s ease;
+    }
+    .tab-nav-btn:hover {
+      color: var(--brand);
+      background: var(--surface-2);
+    }
+    .tab-nav-btn.active {
+      color: var(--brand-dark);
+      background: var(--surface);
+      border-bottom: 3px solid var(--brand);
+      margin-bottom: -6px;
+    }
+    .tab-nav-btn .count-badge {
+      font-size: 11px;
+      font-weight: 700;
+      padding: 2px 8px;
+      border-radius: 12px;
+      background: var(--surface-2);
+      color: var(--text-soft);
+    }
+    .tab-nav-btn.active .count-badge {
+      background: var(--brand-tint);
+      color: var(--brand-dark);
+    }
+
+    /* Barra de filtros y búsqueda */
+    .filter-card {
+      background: var(--surface);
+      border: 1px solid var(--border-soft);
+      border-radius: var(--radius-sm);
+      padding: 14px 18px;
+      margin-bottom: 18px;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 14px;
+      box-shadow: var(--shadow);
+    }
+    .filter-group {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+    .filter-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 13.5px;
+      color: var(--text-soft);
+      font-weight: 500;
+    }
+    .filter-input {
+      padding: 8px 12px;
+      font-size: 13.5px;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      background: #FFF;
+      outline: none;
+      min-width: 220px;
+    }
+    .filter-select {
+      padding: 8px 12px;
+      font-size: 13.5px;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      background: #FFF;
+      outline: none;
+    }
+
+    /* Mini etiquetas y badges */
+    .concept-tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      background: #F1F5F9;
+      border: 1px solid #CBD5E1;
+      border-radius: 6px;
+      padding: 2px 7px;
+      font-size: 11px;
+      color: #334155;
+      font-family: monospace;
+    }
+    .flow-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      font-size: 11.5px;
+      color: var(--brand-dark);
+      background: var(--brand-soft);
+      border: 1px solid #BFE6E9;
+      padding: 3px 8px;
+      border-radius: 12px;
+      font-weight: 600;
+    }
+    .action-btn-group {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      flex-wrap: wrap;
+    }
+    .btn-icon-action {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      padding: 5px 9px;
+      font-size: 12px;
+      border-radius: 6px;
+      border: 1px solid var(--border);
+      background: #FFF;
+      color: var(--text-soft);
+      cursor: pointer;
+      font-weight: 600;
+      transition: all 0.15s ease;
+    }
+    .btn-icon-action:hover {
+      background: var(--surface-2);
+      border-color: var(--brand);
+      color: var(--brand-dark);
+    }
+    .btn-icon-action.highlight {
+      background: var(--brand-soft);
+      border-color: var(--brand);
+      color: var(--brand-dark);
+    }
+    .avatar-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: #FFF;
+      border: 1px solid var(--border-soft);
+      border-radius: 16px;
+      padding: 3px 9px 3px 4px;
+      font-size: 12px;
+      margin: 2px 4px 2px 0;
+    }
+    .avatar-mini {
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      background: var(--brand);
+      color: #FFF;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 9.5px;
+      font-weight: 700;
+    }
+
+    /* Tablas modales */
+    .modal-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+      margin-top: 10px;
+    }
+    .modal-table th {
+      background: var(--surface-2);
+      padding: 9px 12px;
+      text-align: left;
+      font-weight: 700;
+      color: var(--text-soft);
+      border-bottom: 2px solid var(--border);
+    }
+    .modal-table td {
+      padding: 8px 12px;
+      border-bottom: 1px solid var(--border-soft);
+      vertical-align: middle;
+    }
+    .modal-table tr:hover td {
+      background: #FAFAFA;
+    }
+    .institution-banner {
+      background: linear-gradient(90deg, #F0FAFA 0%, #FFFFFF 100%);
+      border: 1px solid #BFE6E9;
+      border-radius: 10px;
+      padding: 10px 16px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 18px;
+    }
+  </style>
 </head>
 <body>
   <script src="../js/data.js"></script>
@@ -14,214 +222,1437 @@
   <script>
     const ctx = APP.renderShell('tramites');
     const CICLOS = [1,2,3,4,5,6,7,8,9,10];
-    let DRAFT = null; // trámite en edición (para la vista previa de plantilla)
+    let ACTIVE_TAB = 'tramites'; // 'tramites' | 'areas' | 'requisitos'
+    let SEARCH_QUERY = '';
+    let FILTER_ESTADO = 'todos';
+    let FILTER_ACTIVACION = 'todos';
+    let DRAFT = null;
 
+    // =========================================================================
+    // RENDER PRINCIPAL
+    // =========================================================================
     function render() {
       const ts = DB.tramites();
-      const rows = ts.map(t => `
-        <tr>
-          <td><span class="mono muted">${t.id}</span></td>
-          <td><span class="strong">${t.nombre}</span><br><span class="muted">${DB.audienciaTexto(t.audiencia).join(' · ')}</span></td>
-          <td><span class="tag teal">${t.tipo}</span><br><span class="muted">modelo: ${t.modelo}</span></td>
-          <td>${APP.money(t.costo)}</td>
-          <td><span class="pill ${t.pagoMomento === 'antes' ? 'info' : 'warn'}">${t.pagoMomento === 'antes' ? 'Antes' : 'Después'}</span></td>
-          <td>${t.activo ? '<span class="pill ok">Activo</span>' : '<span class="pill gray">Inactivo</span>'}</td>
-          <td class="row-actions">
-            ${DOC.getPlantilla(t).generaDocumento ? `<button class="btn btn-sm" title="Vista previa del documento" onclick="DOC.abrir(DB.getTramite('${t.id}'),null,null)">Documento</button>` : ''}
-            <button class="btn btn-sm" onclick="editar('${t.id}')">Editar</button>
-            <button class="btn btn-sm btn-danger" onclick="eliminar('${t.id}')">Eliminar</button>
-          </td>
-        </tr>`).join('');
+      const areas = DB.areas();
+      const reqs = DB.requisitos();
 
       ctx.mount.innerHTML = `
-        <div class="page-head">
-          <div><h1>Trámites</h1><p>Crea y configura los trámites, sus costos, modelos y a qué alumnos se muestran.</p></div>
-          <button class="btn btn-primary" onclick="editar(null)">+ Nuevo trámite</button>
+        <div class="page-head" style="margin-bottom:14px">
+          <div>
+            <h1>Configuración de Trámites</h1>
+            <p>Administración modular: Áreas de atención y responsables, catálogo de requisitos y parametrización de trámites.</p>
+          </div>
+          <div style="display:flex;align-items:center;gap:10px">
+            <span class="pill ok">Institución Activa</span>
+          </div>
         </div>
-        <div class="table-wrap">
-          <table class="data">
-            <thead><tr><th>Código</th><th>Trámite / Audiencia</th><th>Tipo</th><th>Costo</th><th>Pago</th><th>Estado</th><th></th></tr></thead>
-            <tbody>${rows}</tbody>
-          </table>
+
+        <div class="institution-banner">
+          <div style="display:flex;align-items:center;gap:12px">
+            <span style="font-size:20px">🏛️</span>
+            <div>
+              <b style="font-size:13.5px;color:var(--brand-dark)">Universidad Privada Norbert Wiener S.A.</b>
+              <div style="font-size:11.5px;color:var(--text-muted)">RUC 20342926114 · Sede Central Lima Centro · Configuración General de Intranet</div>
+            </div>
+          </div>
+          <select class="select" style="max-width:280px;font-size:13px;padding:6px 12px">
+            <option selected>Universidad Privada Norbert Wiener S.A.</option>
+            <option disabled>Instituto Carrión (Próximamente)</option>
+          </select>
+        </div>
+
+        <!-- TABS DE NAVEGACIÓN -->
+        <div class="tabs-header">
+          <button class="tab-nav-btn ${ACTIVE_TAB === 'tramites' ? 'active' : ''}" onclick="setTab('tramites')">
+            📋 Trámites <span class="count-badge">${ts.length}</span>
+          </button>
+          <button class="tab-nav-btn ${ACTIVE_TAB === 'areas' ? 'active' : ''}" onclick="setTab('areas')">
+            🏢 Áreas y Responsables <span class="count-badge">${areas.length}</span>
+          </button>
+          <button class="tab-nav-btn ${ACTIVE_TAB === 'requisitos' ? 'active' : ''}" onclick="setTab('requisitos')">
+            📎 Catálogo de Requisitos <span class="count-badge">${reqs.length}</span>
+          </button>
+        </div>
+
+        <div id="tab-content">
+          ${renderTabContent()}
         </div>
       `;
     }
 
-    function editar(id) {
+    function setTab(tab) {
+      ACTIVE_TAB = tab;
+      SEARCH_QUERY = '';
+      FILTER_ESTADO = 'todos';
+      FILTER_ACTIVACION = 'todos';
+      render();
+    }
+
+    function renderTabContent() {
+      if (ACTIVE_TAB === 'tramites') return renderTramitesTab();
+      if (ACTIVE_TAB === 'areas') return renderAreasTab();
+      if (ACTIVE_TAB === 'requisitos') return renderRequisitosTab();
+      return '';
+    }
+
+    // =========================================================================
+    // SECCIÓN 1: TRÁMITES
+    // =========================================================================
+    function renderTramitesTab() {
+      let ts = DB.tramites();
+      if (SEARCH_QUERY) {
+        const q = SEARCH_QUERY.toLowerCase();
+        ts = ts.filter(t => (t.nombre && t.nombre.toLowerCase().includes(q)) || (t.id && t.id.toLowerCase().includes(q)) || (t.area && t.area.toLowerCase().includes(q)));
+      }
+      if (FILTER_ESTADO !== 'todos') {
+        const act = FILTER_ESTADO === 'activo';
+        ts = ts.filter(t => Boolean(t.activo) === act);
+      }
+      if (FILTER_ACTIVACION !== 'todos') {
+        ts = ts.filter(t => (t.tipoActivacion || 'Permanente') === FILTER_ACTIVACION);
+      }
+
+      const rows = ts.map((t, idx) => {
+        const reqCount = (t.requisitos || []).length;
+        const pasosCount = (t.proceso || []).length;
+        const cronogCount = (t.cronogramas || []).length;
+        const esCronograma = (t.tipoActivacion || 'Permanente') === 'Cronograma';
+
+        return `
+          <tr>
+            <td><span class="mono muted">${idx + 1}</span></td>
+            <td>
+              <span class="mono" style="font-size:11px;color:var(--brand-dark);font-weight:700">${t.id}</span><br>
+              <span class="strong" style="font-size:14px">${t.nombre}</span>
+              ${t.conceptoCodigo ? `<br><span class="concept-tag" title="Concepto de Facturación">🏷️ ${t.conceptoCodigo}</span>` : ''}
+            </td>
+            <td>
+              <div style="font-size:12.5px;color:var(--text-soft);max-width:280px;line-height:1.3">
+                ${t.descripcion ? (t.descripcion.length > 75 ? t.descripcion.slice(0, 75) + '...' : t.descripcion) : '<span class="muted">-</span>'}
+              </div>
+              <div style="margin-top:4px;display:flex;gap:6px;flex-wrap:wrap">
+                <span class="tag teal" style="font-size:11px">${t.area || 'Registros Académicos'}</span>
+                <span class="tag" style="font-size:11px">Pago: ${t.pagoMomento === 'antes' ? 'Previo' : 'Posterior'}</span>
+              </div>
+            </td>
+            <td><b style="font-size:13.5px;color:var(--brand-dark)">${APP.money(t.costo || 0)}</b></td>
+            <td>
+              <span style="font-size:12px;display:block">⏳ Vigencia: <b>${t.tiempoVigenciaHrs || 72}h</b></span>
+              <span style="font-size:12px;display:block;color:var(--text-muted)">📦 Recojo: <b>${t.plazoRecojoDias || 3} días</b></span>
+            </td>
+            <td>
+              ${esCronograma
+                ? `<span class="pill info" title="${cronogCount} rangos configurados">Cronograma (${cronogCount})</span>`
+                : `<span class="pill ok">Permanente</span>`}
+            </td>
+            <td>${t.activo ? '<span class="pill ok">Activo</span>' : '<span class="pill gray">Inactivo</span>'}</td>
+            <td>
+              <div class="action-btn-group">
+                <button class="btn-icon-action" title="Editar datos del trámite y concepto" onclick="editarTramite('${t.id}')">✏️ Editar</button>
+                <button class="btn-icon-action highlight" title="Configurar requisitos y flujo de áreas del trámite" onclick="editarProcesoTramite('${t.id}')">⚙️ Proceso (${pasosCount})</button>
+                <button class="btn-icon-action" title="Gestionar cronograma de habilitación" onclick="gestionarCronograma('${t.id}')">📅 Cronog.</button>
+                <button class="btn-icon-action" title="Plantilla de correo de notificación" onclick="configurarCorreo('${t.id}')">✉️ Correo</button>
+                ${DOC.getPlantilla(t).generaDocumento ? `<button class="btn-icon-action" title="Vista previa del documento legal" onclick="DOC.abrir(DB.getTramite('${t.id}'),null,null)">📄 Doc</button>` : ''}
+                <button class="btn-icon-action" style="color:var(--err-fg)" title="Eliminar trámite" onclick="eliminarTramite('${t.id}')">🗑️</button>
+              </div>
+            </td>
+          </tr>
+        `;
+      }).join('');
+
+      return `
+        <div class="filter-card">
+          <div class="filter-group">
+            <div class="filter-item">
+              <span>Palabra:</span>
+              <input class="filter-input" id="search-tramite-kw" placeholder="Buscar por título, código..." value="${SEARCH_QUERY}" onkeyup="if(event.key==='Enter') buscarTramite()">
+            </div>
+            <div class="filter-item">
+              <span>Estado:</span>
+              <select class="filter-select" id="filter-tramite-estado" onchange="buscarTramite()">
+                <option value="todos" ${FILTER_ESTADO === 'todos' ? 'selected' : ''}>Todos</option>
+                <option value="activo" ${FILTER_ESTADO === 'activo' ? 'selected' : ''}>Activo</option>
+                <option value="inactivo" ${FILTER_ESTADO === 'inactivo' ? 'selected' : ''}>Inactivo</option>
+              </select>
+            </div>
+            <div class="filter-item">
+              <span>Activación:</span>
+              <select class="filter-select" id="filter-tramite-act" onchange="buscarTramite()">
+                <option value="todos" ${FILTER_ACTIVACION === 'todos' ? 'selected' : ''}>Todos</option>
+                <option value="Permanente" ${FILTER_ACTIVACION === 'Permanente' ? 'selected' : ''}>Permanente</option>
+                <option value="Cronograma" ${FILTER_ACTIVACION === 'Cronograma' ? 'selected' : ''}>Cronograma</option>
+              </select>
+            </div>
+            <button class="btn btn-sm" onclick="buscarTramite()">Buscar</button>
+          </div>
+          <button class="btn btn-primary" onclick="editarTramite(null)">+ Nuevo Trámite</button>
+        </div>
+
+        <div class="table-wrap">
+          <table class="data">
+            <thead>
+              <tr>
+                <th style="width:40px">N°</th>
+                <th>Código / Trámite</th>
+                <th>Descripción y Área</th>
+                <th>Costo</th>
+                <th>Vigencia / Recojo</th>
+                <th>Activación</th>
+                <th>Estado</th>
+                <th style="min-width:280px">Acciones</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${rows.length ? rows : `<tr><td colspan="8" style="text-align:center;padding:30px;color:var(--text-muted)">No se encontraron trámites con los filtros aplicados.</td></tr>`}
+            </tbody>
+          </table>
+        </div>
+        <div style="margin-top:10px;font-size:12.5px;color:var(--text-muted)">${ts.length} trámite(s) registrado(s)</div>
+      `;
+    }
+
+    function buscarTramite() {
+      SEARCH_QUERY = document.getElementById('search-tramite-kw') ? document.getElementById('search-tramite-kw').value.trim() : '';
+      FILTER_ESTADO = document.getElementById('filter-tramite-estado') ? document.getElementById('filter-tramite-estado').value : 'todos';
+      FILTER_ACTIVACION = document.getElementById('filter-tramite-act') ? document.getElementById('filter-tramite-act').value : 'todos';
+      render();
+    }
+
+    // =========================================================================
+    // SECCIÓN 2: ÁREAS Y RESPONSABLES
+    // =========================================================================
+    function renderAreasTab() {
+      let areas = DB.areas();
+      if (SEARCH_QUERY) {
+        const q = SEARCH_QUERY.toLowerCase();
+        areas = areas.filter(a => a.nombre.toLowerCase().includes(q) || (a.observacion && a.observacion.toLowerCase().includes(q)));
+      }
+      if (FILTER_ESTADO !== 'todos') {
+        const act = FILTER_ESTADO === 'activo';
+        areas = areas.filter(a => Boolean(a.activo) === act);
+      }
+
+      const rows = areas.map((a, idx) => {
+        const sedesTags = (a.sedes || ['Sede Lima Centro']).map(s => `<span class="tag" style="font-size:11px">📍 ${s}</span>`).join(' ');
+        const respList = (a.responsables || []).map(r => `
+          <span class="avatar-chip" title="${r.email} · Rol: ${r.cargo}">
+            <span class="avatar-mini">${r.nombre ? r.nombre.slice(0,1) : 'U'}</span>
+            <span>${r.nombre}</span>
+            <span class="tag teal" style="font-size:10px;padding:1px 5px">${r.cargo}</span>
+          </span>
+        `).join('') || `<span class="muted" style="font-size:12px">Sin responsables asignados</span>`;
+
+        return `
+          <tr>
+            <td><span class="mono muted">${idx + 1}</span></td>
+            <td>
+              <span class="strong" style="font-size:14px">${a.nombre}</span>
+              <div style="font-size:11px;color:var(--text-muted)">ID: ${a.id}</div>
+            </td>
+            <td><span style="font-size:12.5px;color:var(--text-soft)">${a.observacion || '-'}</span></td>
+            <td>${sedesTags}</td>
+            <td><div style="max-width:320px">${respList}</div></td>
+            <td>${a.activo ? '<span class="pill ok">Activo</span>' : '<span class="pill gray">Inactivo</span>'}</td>
+            <td><span class="muted" style="font-size:12px">${a.fechaRegistro || '2026-06-10'}</span></td>
+            <td>
+              <div class="action-btn-group">
+                <button class="btn-icon-action" title="Editar nombre y datos del área" onclick="editarArea('${a.id}')">✏️ Editar</button>
+                <button class="btn-icon-action" title="Gestionar sedes del área" onclick="gestionarSedesArea('${a.id}')">🏛️ Sedes</button>
+                <button class="btn-icon-action highlight" title="Asignar responsables del área (uno a varios)" onclick="gestionarResponsablesArea('${a.id}')">👤 Responsables (${(a.responsables || []).length})</button>
+                <button class="btn-icon-action" style="color:var(--err-fg)" title="Eliminar área" onclick="eliminarArea('${a.id}')">🗑️</button>
+              </div>
+            </td>
+          </tr>
+        `;
+      }).join('');
+
+      return `
+        <div class="filter-card">
+          <div class="filter-group">
+            <div class="filter-item">
+              <span>Palabra:</span>
+              <input class="filter-input" id="search-area-kw" placeholder="Buscar área..." value="${SEARCH_QUERY}" onkeyup="if(event.key==='Enter') buscarArea()">
+            </div>
+            <div class="filter-item">
+              <span>Estado:</span>
+              <select class="filter-select" id="filter-area-estado" onchange="buscarArea()">
+                <option value="todos" ${FILTER_ESTADO === 'todos' ? 'selected' : ''}>Todos</option>
+                <option value="activo" ${FILTER_ESTADO === 'activo' ? 'selected' : ''}>Activo</option>
+                <option value="inactivo" ${FILTER_ESTADO === 'inactivo' ? 'selected' : ''}>Inactivo</option>
+              </select>
+            </div>
+            <button class="btn btn-sm" onclick="buscarArea()">Buscar</button>
+          </div>
+          <button class="btn btn-primary" onclick="editarArea(null)">+ Nueva Área</button>
+        </div>
+
+        <div class="table-wrap">
+          <table class="data">
+            <thead>
+              <tr>
+                <th style="width:40px">N°</th>
+                <th>Área / Descripción</th>
+                <th>Observación</th>
+                <th>Sedes</th>
+                <th>Responsables Asignados</th>
+                <th>Estado</th>
+                <th>Fecha Reg.</th>
+                <th>Acciones</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${rows.length ? rows : `<tr><td colspan="8" style="text-align:center;padding:30px;color:var(--text-muted)">No se encontraron áreas.</td></tr>`}
+            </tbody>
+          </table>
+        </div>
+        <div style="margin-top:10px;font-size:12.5px;color:var(--text-muted)">${areas.length} área(s) registrada(s)</div>
+      `;
+    }
+
+    function buscarArea() {
+      SEARCH_QUERY = document.getElementById('search-area-kw') ? document.getElementById('search-area-kw').value.trim() : '';
+      FILTER_ESTADO = document.getElementById('filter-area-estado') ? document.getElementById('filter-area-estado').value : 'todos';
+      render();
+    }
+
+    // =========================================================================
+    // SECCIÓN 3: REQUISITOS (Catálogo Maestro)
+    // =========================================================================
+    function renderRequisitosTab() {
+      let reqs = DB.requisitos();
+      if (SEARCH_QUERY) {
+        const q = SEARCH_QUERY.toLowerCase();
+        reqs = reqs.filter(r => r.titulo.toLowerCase().includes(q) || (r.observacion && r.observacion.toLowerCase().includes(q)));
+      }
+      if (FILTER_ESTADO !== 'todos') {
+        const act = FILTER_ESTADO === 'activo';
+        reqs = reqs.filter(r => Boolean(r.activo) === act);
+      }
+
+      const rows = reqs.map((r, idx) => `
+        <tr>
+          <td><span class="mono muted">${idx + 1}</span></td>
+          <td>
+            <span class="mono" style="font-size:11px;color:var(--brand-dark);font-weight:700">${r.codigo || r.id}</span><br>
+            <span class="strong" style="font-size:14px">${r.titulo}</span>
+          </td>
+          <td><span style="font-size:12.5px;color:var(--text-soft)">${r.observacion || '-'}</span></td>
+          <td>
+            ${r.requiereAdjunto
+              ? `<span class="flow-badge">📎 ${r.adjuntoNombre || 'Archivo'} · ${r.formato || 'PDF'}</span>`
+              : `<span class="muted" style="font-size:12px">No requiere archivo</span>`}
+          </td>
+          <td>${r.activo ? '<span class="pill ok">Activo</span>' : '<span class="pill gray">Inactivo</span>'}</td>
+          <td><span class="muted" style="font-size:12px">${r.fechaRegistro || '2026-06-10'}</span></td>
+          <td>
+            <div class="action-btn-group">
+              <button class="btn-icon-action" title="Editar requisito" onclick="editarRequisito('${r.id}')">✏️ Editar</button>
+              <button class="btn-icon-action" style="color:var(--err-fg)" title="Eliminar requisito" onclick="eliminarRequisito('${r.id}')">🗑️</button>
+            </div>
+          </td>
+        </tr>
+      `).join('');
+
+      return `
+        <div class="filter-card">
+          <div class="filter-group">
+            <div class="filter-item">
+              <span>Palabra:</span>
+              <input class="filter-input" id="search-req-kw" placeholder="Buscar requisito..." value="${SEARCH_QUERY}" onkeyup="if(event.key==='Enter') buscarRequisito()">
+            </div>
+            <div class="filter-item">
+              <span>Estado:</span>
+              <select class="filter-select" id="filter-req-estado" onchange="buscarRequisito()">
+                <option value="todos" ${FILTER_ESTADO === 'todos' ? 'selected' : ''}>Todos</option>
+                <option value="activo" ${FILTER_ESTADO === 'activo' ? 'selected' : ''}>Activo</option>
+                <option value="inactivo" ${FILTER_ESTADO === 'inactivo' ? 'selected' : ''}>Inactivo</option>
+              </select>
+            </div>
+            <button class="btn btn-sm" onclick="buscarRequisito()">Buscar</button>
+          </div>
+          <button class="btn btn-primary" onclick="editarRequisito(null)">+ Nuevo Requisito</button>
+        </div>
+
+        <div class="table-wrap">
+          <table class="data">
+            <thead>
+              <tr>
+                <th style="width:40px">N°</th>
+                <th>Código / Título</th>
+                <th>Observación</th>
+                <th>Adjuntar Archivo</th>
+                <th>Estado</th>
+                <th>Fecha Reg.</th>
+                <th>Acciones</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${rows.length ? rows : `<tr><td colspan="7" style="text-align:center;padding:30px;color:var(--text-muted)">No se encontraron requisitos.</td></tr>`}
+            </tbody>
+          </table>
+        </div>
+        <div style="margin-top:10px;font-size:12.5px;color:var(--text-muted)">${reqs.length} requisito(s) registrado(s)</div>
+      `;
+    }
+
+    function buscarRequisito() {
+      SEARCH_QUERY = document.getElementById('search-req-kw') ? document.getElementById('search-req-kw').value.trim() : '';
+      FILTER_ESTADO = document.getElementById('filter-req-estado') ? document.getElementById('filter-req-estado').value : 'todos';
+      render();
+    }
+
+    // =========================================================================
+    // MODAL: REGISTRAR / EDITAR TRÁMITE (Capturas 3 y 4)
+    // =========================================================================
+    function editarTramite(id) {
       const t = id ? JSON.parse(JSON.stringify(DB.getTramite(id))) : {
-        id: null, nombre: '', tipo: 'Constancia', modelo: 'constancia', descripcion: '', costo: 0,
-        pagoMomento: 'antes', requiereAprobacion: true, diasEntrega: 3, activo: true, area: 'Registros Académicos',
-        requiereAdjunto: false, adjuntoIndicacion: '',
-        audiencia: { niveles: ['pregrado'], ciclos: [], minCreditos: 0, tercioSuperior: false, quintoSuperior: false, promedioMin: 0 }
+        id: null, codigo: 'T-00' + (DB.tramites().length + 1), nombre: '', tipo: 'Constancia', modelo: 'constancia',
+        descripcion: '', conceptoCodigo: '', conceptoServicio: '', costo: 0,
+        tiempoVigenciaHrs: 72, plazoRecojoDias: 3, observacion: '',
+        tipoActivacion: 'Permanente', envioCorreo: true, activo: true, area: 'Registros Académicos',
+        pagoMomento: 'antes', requiereAprobacion: true, diasEntrega: 3,
+        audiencia: { niveles: ['pregrado'], ciclos: [], minCreditos: 0, tercioSuperior: false, quintoSuperior: false, promedioMin: 0 },
+        requisitos: [], proceso: [], cronogramas: []
       };
       DRAFT = t;
-      const a = t.audiencia;
+      const areas = DB.areas();
+      const a = t.audiencia || { niveles: ['pregrado'], ciclos: [], minCreditos: 0 };
       const pl = DOC.getPlantilla(t);
-      const opt = (arr, v) => arr.map(x => `<option ${x === v ? 'selected' : ''}>${x}</option>`).join('');
-      const cicloChips = CICLOS.map(c => `<label class="chip-check ${a.ciclos.includes(c) ? 'checked' : ''}"><input type="checkbox" data-ciclo="${c}" ${a.ciclos.includes(c) ? 'checked' : ''} onchange="this.closest('.chip-check').classList.toggle('checked',this.checked)">${c}° ciclo</label>`).join('');
+      const cicloChips = CICLOS.map(c => `<label class="chip-check ${a.ciclos && a.ciclos.includes(c) ? 'checked' : ''}"><input type="checkbox" data-ciclo="${c}" ${a.ciclos && a.ciclos.includes(c) ? 'checked' : ''} onchange="this.closest('.chip-check').classList.toggle('checked',this.checked)">${c}° ciclo</label>`).join('');
 
       APP.openModal(`
-        <div class="modal-head"><h3>${id ? 'Editar trámite' : 'Nuevo trámite'}</h3><button class="modal-close" onclick="APP.closeModal()">×</button></div>
-        <div class="modal-body">
-          <div class="section-label">Datos generales</div>
+        <div class="modal-head">
+          <div>
+            <h3>${id ? 'Editar Trámite' : 'Registrar Nuevo Trámite'}</h3>
+            <div style="font-size:12px;color:var(--text-muted)">Institución: Universidad Privada Norbert Wiener S.A.</div>
+          </div>
+          <button class="modal-close" onclick="APP.closeModal()">×</button>
+        </div>
+        <div class="modal-body" style="max-height:80vh;overflow-y:auto">
+          
           <div class="form-grid">
-            <div class="field full"><label>Nombre del trámite *</label><input class="input" id="f-nombre" value="${t.nombre}" placeholder="Ej. Constancia de Matrícula"></div>
-            <div class="field"><label>Tipo</label><select class="select" id="f-tipo">${opt(DB.TIPOS, t.tipo)}</select></div>
-            <div class="field"><label>Modelo / plantilla</label><select class="select" id="f-modelo">${opt(DB.MODELOS, t.modelo)}</select></div>
-            <div class="field"><label>Costo (S/)</label><input class="input" id="f-costo" type="number" min="0" step="0.5" value="${t.costo}"></div>
-            <div class="field"><label>Días de entrega (hábiles)</label><input class="input" id="f-dias" type="number" min="0" value="${t.diasEntrega}"></div>
-            <div class="field full"><label>Área responsable</label><input class="input" id="f-area" value="${t.area}"></div>
-            <div class="field full"><label>Descripción</label><textarea class="input" id="f-desc">${t.descripcion}</textarea></div>
-          </div>
-
-          <hr class="divider">
-          <div class="section-label">Modalidad de pago</div>
-          <div class="radio-cards">
-            <label class="radio-card ${t.pagoMomento === 'antes' ? 'checked' : ''}" onclick="pickRadio(this,'pago')">
-              <input type="radio" name="pago" value="antes" ${t.pagoMomento === 'antes' ? 'checked' : ''}>
-              <b>💳 Pago antes</b><span>El alumno paga al solicitar (Niubiz)</span></label>
-            <label class="radio-card ${t.pagoMomento === 'despues' ? 'checked' : ''}" onclick="pickRadio(this,'pago')">
-              <input type="radio" name="pago" value="despues" ${t.pagoMomento === 'despues' ? 'checked' : ''}>
-              <b>🧾 Pago después</b><span>Paga una vez aprobado el trámite</span></label>
-          </div>
-
-          <hr class="divider">
-          <div class="section-label">¿A quién se muestra este trámite? (audiencia)</div>
-          <div class="field full" style="margin-bottom:16px">
-            <label>Nivel académico</label>
-            <div class="chip-row">
-              <label class="chip-check ${a.niveles.includes('pregrado') ? 'checked' : ''}"><input type="checkbox" id="n-pre" ${a.niveles.includes('pregrado') ? 'checked' : ''} onchange="this.closest('.chip-check').classList.toggle('checked',this.checked)">Pregrado</label>
-              <label class="chip-check ${a.niveles.includes('postgrado') ? 'checked' : ''}"><input type="checkbox" id="n-post" ${a.niveles.includes('postgrado') ? 'checked' : ''} onchange="this.closest('.chip-check').classList.toggle('checked',this.checked)">Postgrado</label>
+            <div class="field">
+              <label>Código del trámite</label>
+              <input class="input" id="t-codigo" value="${t.codigo || t.id || 'AUTOGENERADO'}" readonly style="background:var(--surface-2)">
+            </div>
+            <div class="field">
+              <label>Institución</label>
+              <input class="input" value="Universidad Privada Norbert Wiener S.A." readonly style="background:var(--surface-2)">
+            </div>
+            <div class="field full">
+              <label>Título del trámite * <span class="hint">(máx. 500 caracteres)</span></label>
+              <input class="input" id="t-titulo" maxlength="500" value="${t.nombre || ''}" placeholder="Ej. BECA IMPULSA 30% o CONSTANCIA DE MATRÍCULA">
+            </div>
+            <div class="field full">
+              <label>Descripción detallada</label>
+              <textarea class="input" id="t-desc" rows="3" placeholder="Detalle informativo para el alumno o área ejecutora...">${t.descripcion || ''}</textarea>
             </div>
           </div>
-          <div class="field full" style="margin-bottom:16px">
-            <label>Ciclos habilitados <span class="hint">(vacío = todos los ciclos)</span></label>
-            <div class="chip-row">${cicloChips}</div>
-          </div>
-          <div class="form-grid">
-            <div class="field"><label>Créditos aprobados mínimos</label><input class="input" id="f-cred" type="number" min="0" value="${a.minCreditos}" placeholder="Ej. 100"></div>
-            <div class="field"><label>Promedio mínimo</label><input class="input" id="f-prom" type="number" min="0" max="20" step="0.1" value="${a.promedioMin}" placeholder="Ej. 14"></div>
-          </div>
-          <div class="chip-row" style="margin-top:16px">
-            <label class="chip-check ${a.tercioSuperior ? 'checked' : ''}"><input type="checkbox" id="f-tercio" ${a.tercioSuperior ? 'checked' : ''} onchange="this.closest('.chip-check').classList.toggle('checked',this.checked)">Solo tercio superior</label>
-            <label class="chip-check ${a.quintoSuperior ? 'checked' : ''}"><input type="checkbox" id="f-quinto" ${a.quintoSuperior ? 'checked' : ''} onchange="this.closest('.chip-check').classList.toggle('checked',this.checked)">Solo quinto superior</label>
+
+          <div style="margin-top:16px;background:var(--surface-2);border:1px solid var(--border);border-radius:10px;padding:14px">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+              <label class="strong" style="font-size:13.5px">Concepto de Caja / Facturación</label>
+              <button class="btn btn-sm btn-primary" type="button" onclick="abrirCatalogoConceptos()">🔍 Seleccionar Concepto...</button>
+            </div>
+            <div class="form-grid">
+              <div class="field">
+                <label>Código Concepto</label>
+                <input class="input" id="t-concepto-cod" value="${t.conceptoCodigo || ''}" placeholder="Ej. 01010025" readonly style="background:#FFF">
+              </div>
+              <div class="field">
+                <label>Servicio / Glosa</label>
+                <input class="input" id="t-concepto-serv" value="${t.conceptoServicio || ''}" placeholder="Ej. CONSTANCIA DE MATRÍCULA" readonly style="background:#FFF">
+              </div>
+              <div class="field">
+                <label>Costo Oficial (S/.) *</label>
+                <input class="input" id="t-costo" type="number" step="0.5" min="0" value="${t.costo || 0}">
+              </div>
+              <div class="field">
+                <label>Tiempo de vigencia (Horas)</label>
+                <input class="input" id="t-vigencia" type="number" min="0" value="${t.tiempoVigenciaHrs || 72}" placeholder="Ej. 72">
+              </div>
+              <div class="field">
+                <label>Plazo Máx. Recojo (Días)</label>
+                <input class="input" id="t-recojo" type="number" min="0" value="${t.plazoRecojoDias || 3}" placeholder="Ej. 3">
+              </div>
+              <div class="field">
+                <label>Área Responsable Principal</label>
+                <select class="select" id="t-area-resp">
+                  ${areas.map(ar => `<option value="${ar.nombre}" ${t.area === ar.nombre ? 'selected' : ''}>${ar.nombre}</option>`).join('')}
+                </select>
+              </div>
+            </div>
           </div>
 
-          <hr class="divider">
-          <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px">
-            <div class="section-label" style="margin:0">Plantilla del documento</div>
-            <button class="btn btn-sm" type="button" onclick="vistaPrevia()">👁 Vista previa</button>
-          </div>
-          <label style="display:flex;align-items:center;gap:10px;font-size:14px;font-weight:600;color:var(--text-soft);margin:14px 0 4px">
-            <span class="switch"><input type="checkbox" id="p-genera" ${pl.generaDocumento ? 'checked' : ''}><span class="slider"></span></span>
-            Genera documento descargable (constancia/certificado)</label>
-          <div class="form-grid" style="margin-top:12px">
-            <div class="field"><label>Emisor</label><input class="input" id="p-emisor" value="${pl.emisor}"></div>
-            <div class="field"><label>Título del documento</label><input class="input" id="p-titulo" value="${pl.titulo}"></div>
-            <div class="field full"><label>Cuerpo
-              <span class="hint">Variables: {nombre} {dni} {codigo} {programa} {nivel} {ciclo} {creditos} {fecha} {periodo}</span></label>
-              <textarea class="input" id="p-cuerpo" style="min-height:120px">${pl.cuerpo}</textarea></div>
-            <div class="field"><label>Firmante</label><input class="input" id="p-firmante" value="${pl.firmante}"></div>
-            <div class="field"><label>Cargo del firmante</label><input class="input" id="p-cargo" value="${pl.cargo}"></div>
+          <div class="form-grid" style="margin-top:16px">
+            <div class="field full">
+              <label>Observación institucional <span class="hint">(máx. 500 caracteres)</span></label>
+              <textarea class="input" id="t-obs" rows="2" maxlength="500">${t.observacion || ''}</textarea>
+            </div>
+            <div class="field">
+              <label>Tipo de Activación</label>
+              <select class="select" id="t-tipo-act">
+                <option value="Permanente" ${t.tipoActivacion === 'Permanente' ? 'selected' : ''}>Permanente</option>
+                <option value="Cronograma" ${t.tipoActivacion === 'Cronograma' ? 'selected' : ''}>Por cronograma</option>
+              </select>
+            </div>
+            <div class="field">
+              <label>Envío de Correo Personalizado</label>
+              <select class="select" id="t-envio-correo">
+                <option value="si" ${t.envioCorreo ? 'selected' : ''}>Sí</option>
+                <option value="no" ${!t.envioCorreo ? 'selected' : ''}>No</option>
+              </select>
+            </div>
+            <div class="field">
+              <label>Momento del Pago</label>
+              <select class="select" id="t-pago-momento">
+                <option value="antes" ${t.pagoMomento === 'antes' ? 'selected' : ''}>Antes (Al solicitar vía Niubiz)</option>
+                <option value="despues" ${t.pagoMomento === 'despues' ? 'selected' : ''}>Después (Tras evaluación)</option>
+              </select>
+            </div>
+            <div class="field">
+              <label>Estado del Trámite</label>
+              <select class="select" id="t-habilitar">
+                <option value="si" ${t.activo ? 'selected' : ''}>Habilitado (Activo)</option>
+                <option value="no" ${!t.activo ? 'selected' : ''}>Deshabilitado (Inactivo)</option>
+              </select>
+            </div>
           </div>
 
-          <hr class="divider">
-          <div class="section-label">Documentos de sustento / Adjuntos</div>
-          <label style="display:flex;align-items:center;gap:10px;font-size:14px;font-weight:600;color:var(--text-soft);margin-bottom:12px">
-            <span class="switch"><input type="checkbox" id="f-req-adjunto" ${t.requiereAdjunto ? 'checked' : ''}><span class="slider"></span></span>
-            Requiere adjuntar documentos / archivos de sustento (PDF o imagen)</label>
-          <div class="field full" style="margin-bottom:16px">
-            <label for="f-adj-ind">Indicación del requisito para el alumno</label>
-            <input class="input" id="f-adj-ind" value="${t.adjuntoIndicacion || ''}" placeholder="Ej. Adjuntar copia de DNI o fotografía tamaño carné con fondo blanco">
-          </div>
+          <!-- SECCIÓN COLAPSABLE: AUDIENCIA Y PLANTILLA -->
+          <details style="margin-top:18px;background:#FFF;border:1px solid var(--border);border-radius:10px;padding:14px">
+            <summary style="font-weight:700;color:var(--brand-dark);cursor:pointer">⚙️ Opciones Avanzadas: Audiencia académica y Modelo de Documento</summary>
+            
+            <div style="margin-top:14px">
+              <div class="section-label">Audiencia Académica (Reglas de Elegibilidad)</div>
+              <div class="chip-row" style="margin-bottom:12px">
+                <label class="chip-check ${a.niveles && a.niveles.includes('pregrado') ? 'checked' : ''}"><input type="checkbox" id="t-aud-pre" ${a.niveles && a.niveles.includes('pregrado') ? 'checked' : ''} onchange="this.closest('.chip-check').classList.toggle('checked',this.checked)">Pregrado</label>
+                <label class="chip-check ${a.niveles && a.niveles.includes('postgrado') ? 'checked' : ''}"><input type="checkbox" id="t-aud-post" ${a.niveles && a.niveles.includes('postgrado') ? 'checked' : ''} onchange="this.closest('.chip-check').classList.toggle('checked',this.checked)">Postgrado</label>
+                <label class="chip-check ${a.tercioSuperior ? 'checked' : ''}"><input type="checkbox" id="t-aud-tercio" ${a.tercioSuperior ? 'checked' : ''} onchange="this.closest('.chip-check').classList.toggle('checked',this.checked)">Solo Tercio Superior</label>
+                <label class="chip-check ${a.quintoSuperior ? 'checked' : ''}"><input type="checkbox" id="t-aud-quinto" ${a.quintoSuperior ? 'checked' : ''} onchange="this.closest('.chip-check').classList.toggle('checked',this.checked)">Solo Quinto Superior</label>
+              </div>
+              <div class="form-grid">
+                <div class="field"><label>Créditos mínimos aprobados</label><input class="input" id="t-aud-cred" type="number" min="0" value="${a.minCreditos || 0}"></div>
+                <div class="field"><label>Promedio ponderado mínimo</label><input class="input" id="t-aud-prom" type="number" min="0" max="20" step="0.1" value="${a.promedioMin || 0}"></div>
+              </div>
+              <div style="margin-top:10px"><label style="font-size:12px;font-weight:600;color:var(--text-soft)">Ciclos habilitados (vacío = todos)</label><div class="chip-row" style="margin-top:6px">${cicloChips}</div></div>
+            </div>
 
-          <hr class="divider">
-          <div style="display:flex;gap:28px;flex-wrap:wrap">
-            <label style="display:flex;align-items:center;gap:10px;font-size:14px;font-weight:600;color:var(--text-soft)">
-              <span class="switch"><input type="checkbox" id="f-aprob" ${t.requiereAprobacion ? 'checked' : ''}><span class="slider"></span></span> Requiere aprobación administrativa</label>
-            <label style="display:flex;align-items:center;gap:10px;font-size:14px;font-weight:600;color:var(--text-soft)">
-              <span class="switch"><input type="checkbox" id="f-activo" ${t.activo ? 'checked' : ''}><span class="slider"></span></span> Trámite activo (visible)</label>
-          </div>
+            <hr class="divider">
+
+            <div style="margin-top:14px">
+              <div class="section-label">Plantilla del Documento Digital</div>
+              <div class="form-grid">
+                <div class="field"><label>Tipo</label><select class="select" id="t-tipo">${DB.TIPOS.map(x => `<option ${x === t.tipo ? 'selected' : ''}>${x}</option>`).join('')}</select></div>
+                <div class="field"><label>Modelo gráfico</label><select class="select" id="t-modelo">${DB.MODELOS.map(x => `<option ${x === t.modelo ? 'selected' : ''}>${x}</option>`).join('')}</select></div>
+                <div class="field"><label>Emisor</label><input class="input" id="p-emisor" value="${pl.emisor}"></div>
+                <div class="field"><label>Título oficial</label><input class="input" id="p-titulo" value="${pl.titulo}"></div>
+                <div class="field full"><label>Cuerpo legal (Variables: {nombre} {dni} {codigo} {programa} {fecha})</label><textarea class="input" id="p-cuerpo" rows="3">${pl.cuerpo}</textarea></div>
+                <div class="field"><label>Firmante</label><input class="input" id="p-firmante" value="${pl.firmante}"></div>
+                <div class="field"><label>Cargo firmante</label><input class="input" id="p-cargo" value="${pl.cargo}"></div>
+              </div>
+            </div>
+          </details>
+
         </div>
         <div class="modal-foot">
-          <button class="btn" onclick="APP.closeModal()">Cancelar</button>
-          <button class="btn btn-primary" onclick="guardar('${id || ''}')">Guardar trámite</button>
+          <button class="btn" onclick="APP.closeModal()">Cerrar</button>
+          <button class="btn btn-primary" onclick="guardarTramite('${id || ''}')">Grabar Trámite</button>
         </div>
       `, { wide: true });
     }
 
-    function leerPlantilla() {
-      return {
-        generaDocumento: document.getElementById('p-genera').checked,
-        emisor: document.getElementById('p-emisor').value.trim(),
-        titulo: document.getElementById('p-titulo').value.trim(),
-        cuerpo: document.getElementById('p-cuerpo').value.trim(),
-        firmante: document.getElementById('p-firmante').value.trim(),
-        cargo: document.getElementById('p-cargo').value.trim()
-      };
+    // Modal selector de conceptos (Captura 4)
+    function abrirCatalogoConceptos() {
+      const concs = DB.conceptos();
+      const rows = concs.map(c => `
+        <tr>
+          <td><button class="btn btn-sm btn-primary" onclick="seleccionarConcepto('${c.codigo}', '${c.servicio.replace(/'/g, "\\'")}', ${c.monto})">+</button></td>
+          <td><span class="mono strong">${c.codigo}</span></td>
+          <td><b>${c.servicio}</b></td>
+          <td><b>${APP.money(c.monto)}</b></td>
+          <td><span class="muted" style="font-size:12px">${c.obs || '-'}</span></td>
+        </tr>
+      `).join('');
+
+      const prevModal = document.getElementById('modal-host').innerHTML;
+
+      // Popup secundario limpio
+      const popup = document.createElement('div');
+      popup.id = 'concept-popup-layer';
+      popup.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.5);display:flex;align-items:center;justify-content:center;z-index:9999;padding:20px;';
+      popup.innerHTML = `
+        <div style="background:#FFF;border-radius:12px;max-width:750px;width:100%;max-height:85vh;display:flex;flex-direction:column;box-shadow:var(--shadow-lg);border:1px solid var(--border)">
+          <div style="padding:16px 20px;border-bottom:1px solid var(--border-soft);display:flex;justify-content:space-between;align-items:center">
+            <h4 style="margin:0;font-size:17px">Catálogo de Conceptos de Caja / Facturación</h4>
+            <button class="btn btn-sm" onclick="cerrarConceptPopup()">×</button>
+          </div>
+          <div style="padding:14px 20px;overflow-y:auto;flex:1">
+            <table class="modal-table">
+              <thead>
+                <tr>
+                  <th style="width:40px">Sel.</th>
+                  <th>Código</th>
+                  <th>Servicio</th>
+                  <th>Monto</th>
+                  <th>Observación</th>
+                </tr>
+              </thead>
+              <tbody>${rows}</tbody>
+            </table>
+          </div>
+          <div style="padding:12px 20px;border-top:1px solid var(--border-soft);display:flex;justify-content:flex-end">
+            <button class="btn btn-sm" onclick="cerrarConceptPopup()">Cerrar</button>
+          </div>
+        </div>
+      `;
+      document.body.appendChild(popup);
     }
 
-    function vistaPrevia() {
-      const temp = Object.assign({}, DRAFT, {
-        nombre: document.getElementById('f-nombre').value || DRAFT.nombre,
-        tipo: document.getElementById('f-tipo').value,
-        modelo: document.getElementById('f-modelo').value,
-        plantilla: leerPlantilla()
-      });
-      DOC.abrir(temp, null, null);
+    function cerrarConceptPopup() {
+      const p = document.getElementById('concept-popup-layer');
+      if (p) p.remove();
     }
 
-    function pickRadio(el, name) {
-      document.querySelectorAll(`.radio-card`).forEach(c => { if (c.querySelector(`input[name="${name}"]`)) c.classList.remove('checked'); });
-      el.classList.add('checked'); el.querySelector('input').checked = true;
+    function seleccionarConcepto(codigo, servicio, monto) {
+      if (document.getElementById('t-concepto-cod')) document.getElementById('t-concepto-cod').value = codigo;
+      if (document.getElementById('t-concepto-serv')) document.getElementById('t-concepto-serv').value = servicio;
+      if (document.getElementById('t-costo')) document.getElementById('t-costo').value = monto;
+      if (document.getElementById('t-titulo') && !document.getElementById('t-titulo').value) {
+        document.getElementById('t-titulo').value = servicio;
+      }
+      cerrarConceptPopup();
+      APP.toast({ icon: '🏷️', title: 'Concepto vinculado', body: `Código ${codigo}: ${servicio} (S/ ${monto})` });
     }
 
-    function guardar(id) {
-      const nombre = document.getElementById('f-nombre').value.trim();
-      if (!nombre) { APP.toast({ icon: '⚠️', title: 'Falta el nombre', body: 'Ingresa el nombre del trámite.' }); return; }
+    function guardarTramite(id) {
+      const nombre = document.getElementById('t-titulo').value.trim();
+      if (!nombre) { APP.toast({ icon: '⚠️', title: 'Falta título', body: 'Ingresa el título o nombre del trámite.' }); return; }
+
       const niveles = [];
-      if (document.getElementById('n-pre').checked) niveles.push('pregrado');
-      if (document.getElementById('n-post').checked) niveles.push('postgrado');
+      if (document.getElementById('t-aud-pre') && document.getElementById('t-aud-pre').checked) niveles.push('pregrado');
+      if (document.getElementById('t-aud-post') && document.getElementById('t-aud-post').checked) niveles.push('postgrado');
       const ciclos = Array.from(document.querySelectorAll('input[data-ciclo]:checked')).map(i => +i.dataset.ciclo);
+
+      const existing = id ? DB.getTramite(id) : null;
 
       const t = {
         id: id || null,
+        codigo: document.getElementById('t-codigo').value,
         nombre,
-        tipo: document.getElementById('f-tipo').value,
-        modelo: document.getElementById('f-modelo').value,
-        descripcion: document.getElementById('f-desc').value.trim(),
-        costo: parseFloat(document.getElementById('f-costo').value) || 0,
-        diasEntrega: parseInt(document.getElementById('f-dias').value) || 0,
-        area: document.getElementById('f-area').value.trim(),
-        pagoMomento: document.querySelector('input[name="pago"]:checked').value,
-        requiereAprobacion: document.getElementById('f-aprob').checked,
-        activo: document.getElementById('f-activo').checked,
-        requiereAdjunto: document.getElementById('f-req-adjunto') ? document.getElementById('f-req-adjunto').checked : false,
-        adjuntoIndicacion: document.getElementById('f-adj-ind') ? document.getElementById('f-adj-ind').value.trim() : '',
+        descripcion: document.getElementById('t-desc').value.trim(),
+        conceptoCodigo: document.getElementById('t-concepto-cod').value.trim(),
+        conceptoServicio: document.getElementById('t-concepto-serv').value.trim(),
+        costo: parseFloat(document.getElementById('t-costo').value) || 0,
+        tiempoVigenciaHrs: parseInt(document.getElementById('t-vigencia').value) || 72,
+        plazoRecojoDias: parseInt(document.getElementById('t-recojo').value) || 3,
+        area: document.getElementById('t-area-resp').value,
+        observacion: document.getElementById('t-obs').value.trim(),
+        tipoActivacion: document.getElementById('t-tipo-act').value,
+        envioCorreo: document.getElementById('t-envio-correo').value === 'si',
+        pagoMomento: document.getElementById('t-pago-momento').value,
+        activo: document.getElementById('t-habilitar').value === 'si',
+        tipo: document.getElementById('t-tipo') ? document.getElementById('t-tipo').value : (existing ? existing.tipo : 'Constancia'),
+        modelo: document.getElementById('t-modelo') ? document.getElementById('t-modelo').value : (existing ? existing.modelo : 'constancia'),
+        diasEntrega: parseInt(document.getElementById('t-recojo').value) || 3,
+        requiereAprobacion: existing ? existing.requiereAprobacion : true,
+        requiereAdjunto: existing ? existing.requiereAdjunto : false,
+        adjuntoIndicacion: existing ? existing.adjuntoIndicacion : '',
+        intenciones: existing ? existing.intenciones : ['todos'],
         audiencia: {
-          niveles,
+          niveles: niveles.length ? niveles : (existing && existing.audiencia ? existing.audiencia.niveles : ['pregrado']),
           ciclos,
-          minCreditos: parseInt(document.getElementById('f-cred').value) || 0,
-          promedioMin: parseFloat(document.getElementById('f-prom').value) || 0,
-          tercioSuperior: document.getElementById('f-tercio').checked,
-          quintoSuperior: document.getElementById('f-quinto').checked
+          minCreditos: document.getElementById('t-aud-cred') ? (parseInt(document.getElementById('t-aud-cred').value) || 0) : 0,
+          promedioMin: document.getElementById('t-aud-prom') ? (parseFloat(document.getElementById('t-aud-prom').value) || 0) : 0,
+          tercioSuperior: document.getElementById('t-aud-tercio') ? document.getElementById('t-aud-tercio').checked : false,
+          quintoSuperior: document.getElementById('t-aud-quinto') ? document.getElementById('t-aud-quinto').checked : false
         },
-        plantilla: leerPlantilla()
+        plantilla: {
+          generaDocumento: existing ? DOC.getPlantilla(existing).generaDocumento : true,
+          emisor: document.getElementById('p-emisor') ? document.getElementById('p-emisor').value.trim() : 'Universidad Privada Norbert Wiener',
+          titulo: document.getElementById('p-titulo') ? document.getElementById('p-titulo').value.trim() : nombre,
+          cuerpo: document.getElementById('p-cuerpo') ? document.getElementById('p-cuerpo').value.trim() : '',
+          firmante: document.getElementById('p-firmante') ? document.getElementById('p-firmante').value.trim() : 'Dirección de Registros Académicos',
+          cargo: document.getElementById('p-cargo') ? document.getElementById('p-cargo').value.trim() : 'Secretario General'
+        },
+        requisitos: existing && existing.requisitos ? existing.requisitos : [],
+        proceso: existing && existing.proceso ? existing.proceso : [
+          { id: 'P-1', orden: 1, area: document.getElementById('t-area-resp').value, descripcion: 'Revisión y validación de expediente', observacion: '', duracionDias: 2, activo: true }
+        ],
+        cronogramas: existing && existing.cronogramas ? existing.cronogramas : [],
+        correoConfig: existing && existing.correoConfig ? existing.correoConfig : {
+          remitente: 'tramites@uwiener.edu.pe',
+          asunto: `Actualización sobre tu trámite: ${nombre}`,
+          mensaje: `Estimado(a) estudiante, tu trámite ${nombre} se encuentra en atención.`
+        }
       };
+
       DB.upsertTramite(t);
       APP.closeModal();
-      APP.toast({ icon: '✅', title: 'Trámite guardado', body: `«${nombre}» se configuró correctamente.` });
+      APP.toast({ icon: '✅', title: 'Trámite Guardado', body: `«${nombre}» se configuró exitosamente.` });
       render();
     }
 
-    function eliminar(id) {
+    function eliminarTramite(id) {
       const t = DB.getTramite(id);
       APP.openModal(`
         <div class="modal-head"><h3>Eliminar trámite</h3><button class="modal-close" onclick="APP.closeModal()">×</button></div>
-        <div class="modal-body">¿Seguro que deseas eliminar <b>${t.nombre}</b>? Esta acción no afecta solicitudes ya realizadas.</div>
-        <div class="modal-foot"><button class="btn" onclick="APP.closeModal()">Cancelar</button>
-          <button class="btn btn-danger" onclick="DB.deleteTramite('${id}');APP.closeModal();APP.toast({icon:'🗑️',title:'Trámite eliminado',body:'Se quitó del catálogo.'});render()">Eliminar</button></div>
+        <div class="modal-body">¿Seguro que deseas eliminar <b>${t.nombre}</b>? Esta acción no afecta las solicitudes históricas.</div>
+        <div class="modal-foot">
+          <button class="btn" onclick="APP.closeModal()">Cancelar</button>
+          <button class="btn btn-danger" onclick="DB.deleteTramite('${id}');APP.closeModal();APP.toast({icon:'🗑️',title:'Eliminado',body:'Trámite quitado del catálogo.'});render()">Eliminar</button>
+        </div>
       `);
+    }
+
+    // =========================================================================
+    // MODAL: EDITAR REQUISITO Y PROCESO DEL TRÁMITE (Captura 5)
+    // =========================================================================
+    function editarProcesoTramite(id) {
+      const t = JSON.parse(JSON.stringify(DB.getTramite(id)));
+      const areas = DB.areas();
+      const allReqs = DB.requisitos();
+
+      if (!t.requisitos) t.requisitos = [];
+      if (!t.proceso) t.proceso = [];
+
+      window._PROCESO_DRAFT = t;
+
+      renderProcesoModalBody();
+    }
+
+    function renderProcesoModalBody() {
+      const t = window._PROCESO_DRAFT;
+      const areas = DB.areas();
+      const allReqs = DB.requisitos();
+
+      // Filas de Requisitos vinculados
+      const reqRows = (t.requisitos || []).map((r, idx) => `
+        <tr>
+          <td><span class="mono muted">${idx + 1}</span></td>
+          <td><b>${r.titulo}</b></td>
+          <td>
+            <select class="select" style="padding:4px 8px;font-size:12px" onchange="window._PROCESO_DRAFT.requisitos[${idx}].adjuntarArchivo = (this.value === 'si')">
+              <option value="si" ${r.adjuntarArchivo ? 'selected' : ''}>Sí</option>
+              <option value="no" ${!r.adjuntarArchivo ? 'selected' : ''}>No</option>
+            </select>
+          </td>
+          <td>
+            <select class="select" style="padding:4px 8px;font-size:12px" onchange="window._PROCESO_DRAFT.requisitos[${idx}].activo = (this.value === 'si')">
+              <option value="si" ${r.activo ? 'selected' : ''}>Sí</option>
+              <option value="no" ${!r.activo ? 'selected' : ''}>No</option>
+            </select>
+          </td>
+          <td>
+            <input class="input" type="number" min="1" value="${r.orden || (idx + 1)}" style="width:60px;padding:4px 6px;text-align:center" onchange="window._PROCESO_DRAFT.requisitos[${idx}].orden = parseInt(this.value)||1">
+          </td>
+          <td>
+            <button class="btn btn-sm btn-danger" style="padding:3px 7px" onclick="quitarRequisitoDeTramite(${idx})">✕</button>
+          </td>
+        </tr>
+      `).join('');
+
+      // Filas de Procesos / Áreas secuenciales
+      const procRows = (t.proceso || []).map((p, idx) => `
+        <tr>
+          <td>
+            <button class="btn btn-sm btn-danger" style="padding:2px 6px" onclick="quitarPasoProceso(${idx})">⛔</button>
+          </td>
+          <td><span class="mono muted">${idx + 1}</span></td>
+          <td>
+            <select class="select" style="font-size:12.5px;padding:5px 8px" onchange="window._PROCESO_DRAFT.proceso[${idx}].area = this.value">
+              ${areas.map(ar => `<option value="${ar.nombre}" ${p.area === ar.nombre ? 'selected' : ''}>${ar.nombre}</option>`).join('')}
+            </select>
+          </td>
+          <td>
+            <textarea class="input" style="font-size:12px;min-height:48px;padding:4px 8px" maxlength="500" placeholder="Ej. Revisa las notas y convalidaciones" onchange="window._PROCESO_DRAFT.proceso[${idx}].descripcion = this.value">${p.descripcion || ''}</textarea>
+          </td>
+          <td>
+            <textarea class="input" style="font-size:12px;min-height:48px;padding:4px 8px" maxlength="500" placeholder="Ej. Observación interna" onchange="window._PROCESO_DRAFT.proceso[${idx}].observacion = this.value">${p.observacion || ''}</textarea>
+          </td>
+          <td>
+            <div style="display:flex;align-items:center;gap:4px">
+              <input class="input" type="number" min="1" value="${p.duracionDias || 2}" style="width:55px;padding:4px 6px;text-align:center" onchange="window._PROCESO_DRAFT.proceso[${idx}].duracionDias = parseInt(this.value)||1">
+              <span style="font-size:11.5px;color:var(--text-muted)">días</span>
+            </div>
+          </td>
+          <td>
+            <select class="select" style="padding:4px 8px;font-size:12px" onchange="window._PROCESO_DRAFT.proceso[${idx}].activo = (this.value === 'si')">
+              <option value="si" ${p.activo ? 'selected' : ''}>Sí</option>
+              <option value="no" ${!p.activo ? 'selected' : ''}>No</option>
+            </select>
+          </td>
+        </tr>
+      `).join('');
+
+      APP.openModal(`
+        <div class="modal-head">
+          <div>
+            <h3>Editar Requisito y Proceso del Trámite</h3>
+            <div style="font-size:12px;color:var(--text-muted)">Trámite: <b>${t.nombre}</b> · Institución: Universidad Privada Norbert Wiener S.A.</div>
+          </div>
+          <button class="modal-close" onclick="APP.closeModal()">×</button>
+        </div>
+        <div class="modal-body" style="max-height:80vh;overflow-y:auto">
+          
+          <!-- BLOQUE REQUISITOS -->
+          <div style="background:#FFF;border:1px solid var(--border-soft);border-radius:10px;padding:16px;margin-bottom:18px">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;flex-wrap:wrap;gap:10px">
+              <div class="section-label" style="margin:0">Requisitos del Trámite</div>
+              <div style="display:flex;gap:8px">
+                <select class="select" id="select-add-req" style="max-width:260px;font-size:12.5px">
+                  <option value="">-- Seleccionar Requisito Maestro --</option>
+                  ${allReqs.map(ar => `<option value="${ar.id}">${ar.titulo}</option>`).join('')}
+                </select>
+                <button class="btn btn-sm btn-primary" onclick="agregarRequisitoATramite()">+ Agregar Requisito</button>
+              </div>
+            </div>
+
+            <table class="modal-table">
+              <thead>
+                <tr>
+                  <th style="width:35px">N°</th>
+                  <th>Descripción del Requisito</th>
+                  <th style="width:110px">Adjuntar Archivo</th>
+                  <th style="width:90px">Activo</th>
+                  <th style="width:80px">Orden</th>
+                  <th style="width:50px"></th>
+                </tr>
+              </thead>
+              <tbody>
+                ${reqRows.length ? reqRows : `<tr><td colspan="6" style="text-align:center;color:var(--text-muted);padding:14px">Este trámite no tiene requisitos configurados aún.</td></tr>`}
+              </tbody>
+            </table>
+          </div>
+
+          <!-- BLOQUE AREA RESPONSABLE PRINCIPAL -->
+          <div style="background:#FFF;border:1px solid var(--border-soft);border-radius:10px;padding:16px;margin-bottom:18px">
+            <div class="section-label" style="margin:0 0 8px 0">Área Responsable Principal</div>
+            <p style="font-size:12.5px;color:var(--text-muted);margin:0 0 10px 0">Área cabecera encargada de coordinar y supervisar el cumplimiento del trámite.</p>
+            <select class="select" id="proc-area-principal" style="max-width:380px" onchange="window._PROCESO_DRAFT.area = this.value">
+              ${areas.map(ar => `<option value="${ar.nombre}" ${t.area === ar.nombre ? 'selected' : ''}>${ar.nombre}</option>`).join('')}
+            </select>
+          </div>
+
+          <!-- BLOQUE FLUJO SECUENCIAL DE PROCESO -->
+          <div style="background:#FFF;border:1px solid var(--border-soft);border-radius:10px;padding:16px">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;flex-wrap:wrap;gap:10px">
+              <div>
+                <div class="section-label" style="margin:0">Proceso / Flujo de Áreas</div>
+                <div style="font-size:12px;color:var(--text-muted)">Define la secuencia de áreas que evaluarán la solicitud hasta la respuesta final.</div>
+              </div>
+              <button class="btn btn-sm btn-primary" onclick="agregarAreaAProceso()">+ Agregar Área al Proceso</button>
+            </div>
+
+            <table class="modal-table">
+              <thead>
+                <tr>
+                  <th style="width:35px"></th>
+                  <th style="width:35px">N°</th>
+                  <th style="min-width:180px">Área</th>
+                  <th>Descripción / Tarea</th>
+                  <th>Observación</th>
+                  <th style="width:110px">Duración</th>
+                  <th style="width:90px">Activo</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${procRows.length ? procRows : `<tr><td colspan="7" style="text-align:center;color:var(--text-muted);padding:14px">No hay áreas configuradas en el proceso secuencial.</td></tr>`}
+              </tbody>
+            </table>
+          </div>
+
+        </div>
+        <div class="modal-foot">
+          <button class="btn" onclick="APP.closeModal()">Cerrar</button>
+          <button class="btn btn-primary" onclick="grabarProcesoYRequisitos()">Grabar Ítems Proceso</button>
+        </div>
+      `, { wide: true });
+    }
+
+    function agregarRequisitoATramite() {
+      const sel = document.getElementById('select-add-req');
+      if (!sel || !sel.value) return;
+      const reqMaster = DB.getRequisito(sel.value);
+      if (!reqMaster) return;
+
+      window._PROCESO_DRAFT.requisitos.push({
+        id: reqMaster.id,
+        titulo: reqMaster.titulo,
+        adjuntarArchivo: reqMaster.requiereAdjunto,
+        activo: true,
+        orden: window._PROCESO_DRAFT.requisitos.length + 1
+      });
+      renderProcesoModalBody();
+      APP.toast({ icon: '📎', title: 'Requisito agregado', body: reqMaster.titulo });
+    }
+
+    function quitarRequisitoDeTramite(idx) {
+      window._PROCESO_DRAFT.requisitos.splice(idx, 1);
+      renderProcesoModalBody();
+    }
+
+    function agregarAreaAProceso() {
+      const areas = DB.areas();
+      const defaultArea = areas[0] ? areas[0].nombre : 'Registros Académicos';
+      window._PROCESO_DRAFT.proceso.push({
+        id: 'P-' + Date.now(),
+        orden: window._PROCESO_DRAFT.proceso.length + 1,
+        area: defaultArea,
+        descripcion: 'Revisión y validación institucional',
+        observacion: '',
+        duracionDias: 2,
+        activo: true
+      });
+      renderProcesoModalBody();
+    }
+
+    function quitarPasoProceso(idx) {
+      window._PROCESO_DRAFT.proceso.splice(idx, 1);
+      renderProcesoModalBody();
+    }
+
+    function grabarProcesoYRequisitos() {
+      const t = window._PROCESO_DRAFT;
+      // Actualizar también si tiene adjunto para compatibilidad con el flujo de alumno
+      t.requiereAdjunto = (t.requisitos || []).some(r => r.adjuntarArchivo && r.activo);
+      if (t.requiereAdjunto && !t.adjuntoIndicacion) {
+        t.adjuntoIndicacion = 'Adjuntar los documentos requeridos en el catálogo oficial.';
+      }
+      DB.upsertTramite(t);
+      APP.closeModal();
+      APP.toast({ icon: '✅', title: 'Flujo actualizado', body: `Requisitos y proceso guardados para «${t.nombre}».` });
+      render();
+    }
+
+    // =========================================================================
+    // MODAL: CRONOGRAMA DE VIGENCIA (Audio 28:00 - 30:00)
+    // =========================================================================
+    function gestionarCronograma(id) {
+      const t = DB.getTramite(id);
+      if (!t.cronogramas) t.cronogramas = [];
+
+      const rows = t.cronogramas.map((c, idx) => `
+        <tr>
+          <td><span class="mono muted">${idx + 1}</span></td>
+          <td><b>${c.grado}</b></td>
+          <td>${c.modalidad}</td>
+          <td>${c.carrera || 'Todas las carreras'}</td>
+          <td><span class="tag teal">${c.periodo || '2026-II'}</span></td>
+          <td>${c.fechaInicio} al ${c.fechaFin}</td>
+          <td>${c.activo ? '<span class="pill ok">Activo</span>' : '<span class="pill gray">Inactivo</span>'}</td>
+          <td><button class="btn btn-sm btn-danger" onclick="eliminarFilaCronograma('${id}', ${idx})">✕</button></td>
+        </tr>
+      `).join('');
+
+      APP.openModal(`
+        <div class="modal-head">
+          <div>
+            <h3>Cronograma de Habilitación: ${t.nombre}</h3>
+            <div style="font-size:12px;color:var(--text-muted)">Define en qué fechas y para qué carreras o grados estará visible este trámite.</div>
+          </div>
+          <button class="modal-close" onclick="APP.closeModal()">×</button>
+        </div>
+        <div class="modal-body">
+          <div style="background:var(--surface-2);border:1px solid var(--border);border-radius:10px;padding:14px;margin-bottom:16px">
+            <div class="section-label" style="margin:0 0 10px 0">Agregar Rango al Cronograma</div>
+            <div class="form-grid">
+              <div class="field">
+                <label>Grado / Nivel</label>
+                <select class="select" id="cr-grado">
+                  <option value="Pregrado">Pregrado</option>
+                  <option value="Postgrado">Postgrado</option>
+                  <option value="Todos">Todos los niveles</option>
+                </select>
+              </div>
+              <div class="field">
+                <label>Modalidad de estudios</label>
+                <select class="select" id="cr-modalidad">
+                  <option value="Presencial">Presencial</option>
+                  <option value="Semipresencial">Semipresencial</option>
+                  <option value="A distancia">A distancia</option>
+                  <option value="Todas">Todas las modalidades</option>
+                </select>
+              </div>
+              <div class="field">
+                <label>Facultad / Carrera</label>
+                <input class="input" id="cr-carrera" placeholder="Ej. Derecho o 'Todas'" value="Todas">
+              </div>
+              <div class="field">
+                <label>Periodo Académico</label>
+                <input class="input" id="cr-periodo" value="2026-II">
+              </div>
+              <div class="field">
+                <label>Fecha de Inicio</label>
+                <input class="input" id="cr-ini" type="date" value="2026-07-01">
+              </div>
+              <div class="field">
+                <label>Fecha de Fin</label>
+                <input class="input" id="cr-fin" type="date" value="2026-12-31">
+              </div>
+            </div>
+            <div style="margin-top:12px;text-align:right">
+              <button class="btn btn-sm btn-primary" onclick="agregarRangoCronograma('${id}')">+ Registrar Rango en Cronograma</button>
+            </div>
+          </div>
+
+          <table class="modal-table">
+            <thead>
+              <tr>
+                <th style="width:35px">N°</th>
+                <th>Grado</th>
+                <th>Modalidad</th>
+                <th>Carrera</th>
+                <th>Periodo</th>
+                <th>Vigencia</th>
+                <th>Estado</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody>
+              ${rows.length ? rows : `<tr><td colspan="8" style="text-align:center;padding:16px;color:var(--text-muted)">No hay rangos de cronograma configurados.</td></tr>`}
+            </tbody>
+          </table>
+        </div>
+        <div class="modal-foot">
+          <button class="btn" onclick="APP.closeModal()">Cerrar</button>
+        </div>
+      `, { wide: true });
+    }
+
+    function agregarRangoCronograma(id) {
+      const t = DB.getTramite(id);
+      if (!t.cronogramas) t.cronogramas = [];
+      t.cronogramas.push({
+        id: 'CR-' + Date.now(),
+        grado: document.getElementById('cr-grado').value,
+        modalidad: document.getElementById('cr-modalidad').value,
+        carrera: document.getElementById('cr-carrera').value.trim() || 'Todas',
+        periodo: document.getElementById('cr-periodo').value.trim() || '2026-II',
+        fechaInicio: document.getElementById('cr-ini').value,
+        fechaFin: document.getElementById('cr-fin').value,
+        activo: true
+      });
+      DB.upsertTramite(t);
+      gestionarCronograma(id);
+      APP.toast({ icon: '📅', title: 'Cronograma actualizado', body: 'Rango agregado correctamente.' });
+    }
+
+    function eliminarFilaCronograma(id, idx) {
+      const t = DB.getTramite(id);
+      t.cronogramas.splice(idx, 1);
+      DB.upsertTramite(t);
+      gestionarCronograma(id);
+    }
+
+    // =========================================================================
+    // MODAL: CORREO PERSONALIZADO (Audio 30:30)
+    // =========================================================================
+    function configurarCorreo(id) {
+      const t = DB.getTramite(id);
+      const c = t.correoConfig || {
+        remitente: 'tramites@uwiener.edu.pe',
+        asunto: `Actualización de trámite: ${t.nombre}`,
+        mensaje: `Estimado(a) estudiante, tu trámite ${t.nombre} ha recibido una actualización de estado institucional.`
+      };
+
+      APP.openModal(`
+        <div class="modal-head">
+          <div>
+            <h3>Plantilla de Correo de Notificación: ${t.nombre}</h3>
+            <div style="font-size:12px;color:var(--text-muted)">Plantilla automática disparada al emitirse o aprobarse la solicitud.</div>
+          </div>
+          <button class="modal-close" onclick="APP.closeModal()">×</button>
+        </div>
+        <div class="modal-body">
+          <div class="form-grid">
+            <div class="field">
+              <label>Remitente institucional</label>
+              <input class="input" id="mail-from" value="${c.remitente}">
+            </div>
+            <div class="field full">
+              <label>Asunto del correo</label>
+              <input class="input" id="mail-subject" value="${c.asunto}">
+            </div>
+            <div class="field full">
+              <label>Cuerpo del correo institucional</label>
+              <textarea class="input" id="mail-body" rows="6">${c.mensaje}</textarea>
+            </div>
+          </div>
+        </div>
+        <div class="modal-foot">
+          <button class="btn" onclick="APP.closeModal()">Cerrar</button>
+          <button class="btn btn-primary" onclick="guardarCorreoConfig('${id}')">Grabar Plantilla de Correo</button>
+        </div>
+      `);
+    }
+
+    function guardarCorreoConfig(id) {
+      const t = DB.getTramite(id);
+      t.correoConfig = {
+        remitente: document.getElementById('mail-from').value.trim(),
+        asunto: document.getElementById('mail-subject').value.trim(),
+        mensaje: document.getElementById('mail-body').value.trim()
+      };
+      DB.upsertTramite(t);
+      APP.closeModal();
+      APP.toast({ icon: '✉️', title: 'Correo guardado', body: 'Plantilla de notificación institucional actualizada.' });
+    }
+
+    // =========================================================================
+    // MODAL: REGISTRAR / EDITAR REQUISITO (Captura 2)
+    // =========================================================================
+    function editarRequisito(id) {
+      const r = id ? DB.getRequisito(id) : {
+        id: null, codigo: 'REQ-00' + (DB.requisitos().length + 1), titulo: '', observacion: '',
+        requiereAdjunto: true, adjuntoNombre: '', formato: 'PDF', activo: true
+      };
+
+      APP.openModal(`
+        <div class="modal-head">
+          <div>
+            <h3>${id ? 'Editar Requisito' : 'Registrar Requisito'}</h3>
+            <div style="font-size:12px;color:var(--text-muted)">Institución: Universidad Privada Norbert Wiener S.A.</div>
+          </div>
+          <button class="modal-close" onclick="APP.closeModal()">×</button>
+        </div>
+        <div class="modal-body">
+          <div class="form-grid">
+            <div class="field">
+              <label>Código:</label>
+              <input class="input" id="req-cod" value="${r.codigo || r.id || 'AUTOGENERADO'}" readonly style="background:var(--surface-2)">
+            </div>
+            <div class="field">
+              <label>Institución:</label>
+              <input class="input" value="Universidad Privada Norbert Wiener S.A." readonly style="background:var(--surface-2)">
+            </div>
+            <div class="field full">
+              <label>Título / Descripción del requisito * <span class="hint">(máx. 500 caracteres)</span></label>
+              <textarea class="input" id="req-titulo" rows="2" maxlength="500" placeholder="Ej. Certificado de voluntariado">${r.titulo || ''}</textarea>
+            </div>
+            <div class="field full">
+              <label>Observación e indicaciones <span class="hint">(máx. 1000 caracteres)</span></label>
+              <textarea class="input" id="req-obs" rows="3" maxlength="1000" placeholder="Ej. Debe ser nítido por ambas caras en documento original...">${r.observacion || ''}</textarea>
+            </div>
+          </div>
+
+          <div style="margin-top:14px;background:var(--surface-2);border:1px solid var(--border);border-radius:10px;padding:14px">
+            <label style="display:flex;align-items:center;gap:10px;font-size:13.5px;font-weight:600;color:var(--text-soft);margin-bottom:10px">
+              <input type="checkbox" id="req-chk-adj" ${r.requiereAdjunto ? 'checked' : ''} onchange="document.getElementById('adj-fields').style.display = this.checked ? 'grid' : 'none'">
+              Si desea que se adjunte un archivo para este requisito: darle check, ingresar el nombre y seleccionar el formato del archivo.
+            </label>
+            <div class="form-grid" id="adj-fields" style="display:${r.requiereAdjunto ? 'grid' : 'none'}">
+              <div class="field">
+                <label>Nombre del Archivo Adjunto <span class="hint">(máx. 50 caracteres)</span></label>
+                <input class="input" id="req-adj-nom" maxlength="50" value="${r.adjuntoNombre || ''}" placeholder="Ej. DNI_Solicitante o Foto">
+              </div>
+              <div class="field">
+                <label>Formato admitido</label>
+                <select class="select" id="req-adj-fmt">
+                  <option value="PDF" ${r.formato === 'PDF' ? 'selected' : ''}>PDF (.pdf)</option>
+                  <option value="PDF o JPG" ${r.formato === 'PDF o JPG' ? 'selected' : ''}>PDF o JPG</option>
+                  <option value="JPG o PNG" ${r.formato === 'JPG o PNG' ? 'selected' : ''}>JPG o PNG (Imagen)</option>
+                  <option value="ZIP o PDF" ${r.formato === 'ZIP o PDF' ? 'selected' : ''}>ZIP o PDF</option>
+                </select>
+              </div>
+            </div>
+          </div>
+
+          <div class="form-grid" style="margin-top:14px">
+            <div class="field">
+              <label>Habilitar</label>
+              <select class="select" id="req-habilitar">
+                <option value="si" ${r.activo ? 'selected' : ''}>Sí</option>
+                <option value="no" ${!r.activo ? 'selected' : ''}>No</option>
+              </select>
+            </div>
+          </div>
+        </div>
+        <div class="modal-foot">
+          <button class="btn" onclick="APP.closeModal()">Cerrar</button>
+          <button class="btn btn-primary" onclick="guardarRequisito('${id || ''}')">Grabar Requisito</button>
+        </div>
+      `);
+    }
+
+    function guardarRequisito(id) {
+      const titulo = document.getElementById('req-titulo').value.trim();
+      if (!titulo) { APP.toast({ icon: '⚠️', title: 'Falta título', body: 'Ingresa la descripción del requisito.' }); return; }
+
+      const r = {
+        id: id || null,
+        codigo: document.getElementById('req-cod').value,
+        titulo,
+        observacion: document.getElementById('req-obs').value.trim(),
+        requiereAdjunto: document.getElementById('req-chk-adj').checked,
+        adjuntoNombre: document.getElementById('req-adj-nom').value.trim(),
+        formato: document.getElementById('req-adj-fmt').value,
+        activo: document.getElementById('req-habilitar').value === 'si',
+        fechaRegistro: new Date().toISOString().slice(0, 10)
+      };
+
+      DB.upsertRequisito(r);
+      APP.closeModal();
+      APP.toast({ icon: '✅', title: 'Requisito Guardado', body: `«${titulo}» registrado en el catálogo.` });
+      render();
+    }
+
+    function eliminarRequisito(id) {
+      const r = DB.getRequisito(id);
+      APP.openModal(`
+        <div class="modal-head"><h3>Eliminar Requisito</h3><button class="modal-close" onclick="APP.closeModal()">×</button></div>
+        <div class="modal-body">¿Seguro que deseas eliminar el requisito maestro <b>${r.titulo}</b>?</div>
+        <div class="modal-foot">
+          <button class="btn" onclick="APP.closeModal()">Cancelar</button>
+          <button class="btn btn-danger" onclick="DB.deleteRequisito('${id}');APP.closeModal();APP.toast({icon:'🗑️',title:'Eliminado',body:'Requisito eliminado del catálogo.'});render()">Eliminar</button>
+        </div>
+      `);
+    }
+
+    // =========================================================================
+    // MODAL: REGISTRAR / EDITAR ÁREA
+    // =========================================================================
+    function editarArea(id) {
+      const a = id ? DB.getArea(id) : {
+        id: null, nombre: '', observacion: '', activo: true,
+        sedes: ['Sede Lima Centro - Av. Arequipa'], responsables: []
+      };
+
+      APP.openModal(`
+        <div class="modal-head">
+          <div>
+            <h3>${id ? 'Editar Área' : 'Registrar Nueva Área'}</h3>
+            <div style="font-size:12px;color:var(--text-muted)">Institución: Universidad Privada Norbert Wiener S.A.</div>
+          </div>
+          <button class="modal-close" onclick="APP.closeModal()">×</button>
+        </div>
+        <div class="modal-body">
+          <div class="form-grid">
+            <div class="field full">
+              <label>Nombre / Descripción del Área *</label>
+              <input class="input" id="area-nom" value="${a.nombre || ''}" placeholder="Ej. Dirección de Bienestar Universitario">
+            </div>
+            <div class="field full">
+              <label>Observación institucional</label>
+              <textarea class="input" id="area-obs" rows="3" placeholder="Funciones y alcance del área en los trámites...">${a.observacion || ''}</textarea>
+            </div>
+            <div class="field">
+              <label>Habilitar</label>
+              <select class="select" id="area-habilitar">
+                <option value="si" ${a.activo ? 'selected' : ''}>Sí</option>
+                <option value="no" ${!a.activo ? 'selected' : ''}>No</option>
+              </select>
+            </div>
+          </div>
+        </div>
+        <div class="modal-foot">
+          <button class="btn" onclick="APP.closeModal()">Cerrar</button>
+          <button class="btn btn-primary" onclick="guardarArea('${id || ''}')">Grabar Área</button>
+        </div>
+      `);
+    }
+
+    function guardarArea(id) {
+      const nombre = document.getElementById('area-nom').value.trim();
+      if (!nombre) { APP.toast({ icon: '⚠️', title: 'Falta nombre', body: 'Ingresa el nombre del área.' }); return; }
+
+      const existing = id ? DB.getArea(id) : null;
+      const a = {
+        id: id || null,
+        nombre,
+        observacion: document.getElementById('area-obs').value.trim(),
+        activo: document.getElementById('area-habilitar').value === 'si',
+        sedes: existing && existing.sedes ? existing.sedes : ['Sede Lima Centro - Av. Arequipa'],
+        responsables: existing && existing.responsables ? existing.responsables : [],
+        fechaRegistro: existing ? existing.fechaRegistro : new Date().toISOString().slice(0, 10)
+      };
+
+      DB.upsertArea(a);
+      APP.closeModal();
+      APP.toast({ icon: '🏢', title: 'Área Guardada', body: `«${nombre}» registrada con éxito.` });
+      render();
+    }
+
+    function eliminarArea(id) {
+      const a = DB.getArea(id);
+      APP.openModal(`
+        <div class="modal-head"><h3>Eliminar Área</h3><button class="modal-close" onclick="APP.closeModal()">×</button></div>
+        <div class="modal-body">¿Seguro que deseas eliminar el área <b>${a.nombre}</b>?</div>
+        <div class="modal-foot">
+          <button class="btn" onclick="APP.closeModal()">Cancelar</button>
+          <button class="btn btn-danger" onclick="DB.deleteArea('${id}');APP.closeModal();APP.toast({icon:'🗑️',title:'Eliminado',body:'Área eliminada.'});render()">Eliminar</button>
+        </div>
+      `);
+    }
+
+    // Modal Sedes del Área (Audio 15:00)
+    function gestionarSedesArea(id) {
+      const a = DB.getArea(id);
+      const SEDES_DISPONIBLES = [
+        'Sede Lima Centro - Av. Arequipa',
+        'Sede Miraflores - Jr. Larrabure',
+        'Sede San Juan de Lurigancho'
+      ];
+
+      const checkList = SEDES_DISPONIBLES.map(s => {
+        const isChecked = (a.sedes || []).includes(s);
+        return `
+          <label style="display:flex;align-items:center;gap:10px;padding:8px 12px;background:var(--surface-2);border-radius:8px;margin-bottom:8px;cursor:pointer">
+            <input type="checkbox" data-sede="${s}" ${isChecked ? 'checked' : ''}>
+            <span style="font-size:13.5px;font-weight:600">${s}</span>
+          </label>
+        `;
+      }).join('');
+
+      APP.openModal(`
+        <div class="modal-head">
+          <div>
+            <h3>Sedes del Área: ${a.nombre}</h3>
+            <div style="font-size:12px;color:var(--text-muted)">Asigna las sedes donde opera o tiene ventanilla esta área.</div>
+          </div>
+          <button class="modal-close" onclick="APP.closeModal()">×</button>
+        </div>
+        <div class="modal-body">
+          <div style="margin-bottom:12px">${checkList}</div>
+        </div>
+        <div class="modal-foot">
+          <button class="btn" onclick="APP.closeModal()">Cerrar</button>
+          <button class="btn btn-primary" onclick="guardarSedesArea('${id}')">Grabar Sedes</button>
+        </div>
+      `);
+    }
+
+    function guardarSedesArea(id) {
+      const a = DB.getArea(id);
+      const checks = Array.from(document.querySelectorAll('input[data-sede]:checked')).map(c => c.dataset.sede);
+      a.sedes = checks.length ? checks : ['Sede Lima Centro - Av. Arequipa'];
+      DB.upsertArea(a);
+      APP.closeModal();
+      APP.toast({ icon: '📍', title: 'Sedes actualizadas', body: `Sedes asignadas para ${a.nombre}.` });
+      render();
+    }
+
+    // Modal Responsables del Área: Uno a Varios con roles (Audio 15:47 - 17:55)
+    function gestionarResponsablesArea(id) {
+      const a = DB.getArea(id);
+      const usuarios = DB.usuarios().filter(u => u.rol === 'administrativo');
+      if (!a.responsables) a.responsables = [];
+
+      const rows = a.responsables.map((r, idx) => `
+        <tr>
+          <td><span class="mono muted">${idx + 1}</span></td>
+          <td>
+            <div style="display:flex;align-items:center;gap:8px">
+              <span class="avatar-mini">${r.nombre ? r.nombre.slice(0,1) : 'U'}</span>
+              <div>
+                <b>${r.nombre}</b><br>
+                <span class="muted" style="font-size:11px">${r.email}</span>
+              </div>
+            </div>
+          </td>
+          <td>
+            <span class="tag teal" style="font-weight:700">${r.cargo}</span>
+            <div style="font-size:10px;color:var(--text-muted)">
+              ${r.cargo === 'Responsable' ? 'Permisos totales' : (r.cargo === 'Coordinador' ? 'Ver y registrar' : 'Solo reportes')}
+            </div>
+          </td>
+          <td>${r.activo ? '<span class="pill ok">Activo</span>' : '<span class="pill gray">Inactivo</span>'}</td>
+          <td>
+            <button class="btn btn-sm btn-danger" onclick="quitarResponsableDeArea('${id}', ${idx})">✕ Quitar</button>
+          </td>
+        </tr>
+      `).join('');
+
+      APP.openModal(`
+        <div class="modal-head">
+          <div>
+            <h3>Responsables del Área: ${a.nombre}</h3>
+            <div style="font-size:12px;color:var(--text-muted)">Asignación uno a varios: Responsable (permisos completos), Coordinador o Reporteador.</div>
+          </div>
+          <button class="modal-close" onclick="APP.closeModal()">×</button>
+        </div>
+        <div class="modal-body" style="max-height:80vh;overflow-y:auto">
+          
+          <div style="background:var(--surface-2);border:1px solid var(--border);border-radius:10px;padding:14px;margin-bottom:16px">
+            <div class="section-label" style="margin:0 0 10px 0">Asignar Nuevo Responsable</div>
+            <div class="form-grid">
+              <div class="field">
+                <label>Seleccionar Administrativo *</label>
+                <select class="select" id="new-resp-user">
+                  ${usuarios.map(u => `<option value="${u.id}">${u.nombre} (${u.codigo} · ${u.area || 'Admin'})</option>`).join('')}
+                </select>
+              </div>
+              <div class="field">
+                <label>Cargo / Rol en el Área *</label>
+                <select class="select" id="new-resp-cargo">
+                  <option value="Responsable">Responsable (Permisos completos y firma)</option>
+                  <option value="Coordinador">Coordinador (Ver trámites y registrar)</option>
+                  <option value="Reporteador">Reporteador (Solo visualización de reportes)</option>
+                </select>
+              </div>
+            </div>
+            <div style="margin-top:12px;text-align:right">
+              <button class="btn btn-sm btn-primary" onclick="agregarResponsableAArea('${id}')">+ Asignar Responsable</button>
+            </div>
+          </div>
+
+          <table class="modal-table">
+            <thead>
+              <tr>
+                <th style="width:35px">N°</th>
+                <th>Usuario</th>
+                <th>Cargo / Nivel</th>
+                <th>Estado</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody>
+              ${rows.length ? rows : `<tr><td colspan="5" style="text-align:center;padding:18px;color:var(--text-muted)">No hay responsables asignados a esta área.</td></tr>`}
+            </tbody>
+          </table>
+
+        </div>
+        <div class="modal-foot">
+          <button class="btn" onclick="APP.closeModal()">Cerrar</button>
+        </div>
+      `, { wide: true });
+    }
+
+    function agregarResponsableAArea(id) {
+      const a = DB.getArea(id);
+      const userId = document.getElementById('new-resp-user').value;
+      const cargo = document.getElementById('new-resp-cargo').value;
+      const user = DB.getUsuario(userId);
+      if (!user) return;
+
+      if (!a.responsables) a.responsables = [];
+      // Evitar duplicados del mismo usuario
+      const exists = a.responsables.find(r => r.usuarioId === userId);
+      if (exists) {
+        exists.cargo = cargo;
+        exists.activo = true;
+      } else {
+        a.responsables.push({
+          id: 'RESP-' + Date.now(),
+          usuarioId: user.id,
+          nombre: user.nombre,
+          email: user.email,
+          cargo,
+          activo: true
+        });
+      }
+
+      DB.upsertArea(a);
+      gestionarResponsablesArea(id);
+      APP.toast({ icon: '👤', title: 'Responsable asignado', body: `${user.nombre} asignado como ${cargo}.` });
+    }
+
+    function quitarResponsableDeArea(id, idx) {
+      const a = DB.getArea(id);
+      a.responsables.splice(idx, 1);
+      DB.upsertArea(a);
+      gestionarResponsablesArea(id);
+      APP.toast({ icon: '🗑️', title: 'Responsable retirado', body: 'Se actualizó la lista del área.' });
     }
 
     render();
