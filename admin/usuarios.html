@@ -13,7 +13,7 @@
   <script>
     const ctx = APP.renderShell('usuarios');
     let tab = 'todos';
-    const PERMS = [['tramites','Trámites'],['solicitudes','Solicitudes'],['flujos','Flujos'],['usuarios','Usuarios'],['seguridad','Seguridad']];
+    const PERMS = [['tramites','Trámites'],['solicitudes','Solicitudes'],['flujos','Flujos'],['procesar','Procesar'],['reportes','Reportes'],['usuarios','Usuarios'],['seguridad','Seguridad']];
 
     function setTab(t, el){ tab=t; document.querySelectorAll('.tab').forEach(x=>x.classList.remove('active')); el.classList.add('active'); render(); }
 
@@ -28,9 +28,11 @@
           <td>${u.rol === 'alumno' ? '<span class="pill info">Alumno</span>' : '<span class="pill purple">Administrativo</span>'}</td>
           <td class="muted">${u.rol === 'alumno' ? (u.perfil.programa + ' · Ciclo ' + u.perfil.ciclo) : (u.area || '-')}</td>
           <td>${u.estado === 'activo' ? '<span class="pill ok">Activo</span>' : '<span class="pill gray">Inactivo</span>'}</td>
-          <td class="row-actions">
-            <button class="btn btn-sm" onclick="editar('${u.id}')">Editar</button>
-            <button class="btn btn-sm" onclick="toggle('${u.id}')">${u.estado === 'activo' ? 'Desactivar' : 'Activar'}</button>
+          <td style="text-align:right;white-space:nowrap">
+            <div class="row-actions">
+              <button class="btn btn-sm" onclick="editar('${u.id}')">Editar</button>
+              <button class="btn btn-sm" onclick="toggle('${u.id}')">${u.estado === 'activo' ? 'Desactivar' : 'Activar'}</button>
+            </div>
           </td>
         </tr>`).join('');
 
@@ -49,7 +51,7 @@
           <div class="tab ${tab==='administrativo'?'active':''}" onclick="setTab('administrativo',this)">Administrativos</div>
         </div>
         <div class="table-wrap"><table class="data">
-          <thead><tr><th>Usuario</th><th>Código</th><th>Rol</th><th>Programa / Área</th><th>Estado</th><th></th></tr></thead>
+          <thead><tr><th>Usuario</th><th>Código</th><th>Rol</th><th>Programa / Área</th><th>Estado</th><th style="text-align:right;min-width:170px">Acciones</th></tr></thead>
           <tbody>${rows}</tbody></table></div>
       `;
     }

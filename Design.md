@@ -2,7 +2,8 @@
 
 ## 1. Tipografía
 - **Títulos y Encabezados**: `Lato`, sans-serif (Weights: 400, 700, 900)
-- **Cuerpo de texto e inputs**: `Roboto`, sans-serif (Weights: 400, 500, 700)
+- **Cuerpo de texto, inputs y cabeceras de tablas**: `Roboto`, sans-serif (Weights: 400, 500, 700)
+- **Cabeceras de tablas de datos (`th`)**: `Roboto`, sans-serif, 11.5px, Weight 700, uppercase, letter-spacing: 0.04em.
 
 ## 2. Paleta de Colores
 
@@ -41,10 +42,14 @@ Se usan para identificar la modalidad de un curso, con un border-radius tipo pil
 
 ## 4. Botones
 - **Radius general**: `6px`
-- **Padding general**: `12px 24px`
-- `.btn-primary`: Fondo `#0F848F`, Texto `#FFFFFF`
-- `.btn-black`: Fondo `#222222`, Texto `#FFFFFF`
-- `.btn-outline`: Borde `#C6CFD7`, Fondo transparente, Texto `#0F848F`
+- **Padding general**: `12px 24px` (versión compacta `.btn-sm`: `6px 12px` / font-size: `13px`)
+- **Jerarquía y Usos**:
+  - `.btn-primary` (Acción principal / emisión final): Fondo `#0F848F`, Texto `#FFFFFF`, Borde `#0F848F`. Hover: `#0b6770`.
+  - `.btn-secondary` (Acciones intermedias operativas como 'Procede y Grabar' o 'Grabar Mensaje'): Fondo pizarra oscuro `#1E293B`, Texto `#FFFFFF`, Borde `#1E293B`. Hover: `#334155`.
+  - `.btn-warning-pay` (Generación de obligación de pago): Fondo amarillo/ámbar `#F59E0B`, Texto negro `#111827`, Borde `#D97706`, peso 700. Incluye icono SVG al inicio y texto limpio sin caracteres especiales adicionales.
+  - `.btn-black`: Fondo `#222222`, Texto `#FFFFFF`
+  - `.btn-outline`: Borde `#C6CFD7`, Fondo transparente, Texto `#0F848F`
+  - `.btn-danger`: Fondo `#D32F2F`, Texto `#FFFFFF` (desestimar / cancelar)
 
 ## 5. Espaciado y Estructura
 - **Contenedor Principal (`.main-content`, `.main-container`)**: `max-width: 1082px` (o similar según vista), margin auto.
@@ -81,3 +86,70 @@ Aplicados a celdas clave (como `.vence`):
 - **Estructura**: `display: flex` separando el contexto (izquierda) de las acciones (derecha).
 - **Contexto**: Un ícono SVG (`40x40px`) junto al bloque de textos (`h1` de 24px y `p` descriptivo de 16px).
 - **Acciones**: Botones de utilidades o estado en la parte derecha (ej. Botón Imprimir, Botón Descargar), usando layout secundario o outline. Borde inferior demarcado por un divisor `.header-divider`.
+
+## 11. Formularios y Filtros (Alineación y Dimensiones)
+- **Altura estándar uniforme (40px)**: Todos los controles interactivos de una fila de filtros o formulario (inputs de texto, selectores de fecha `input[type="date"]`, selects nativos y botones de dropdown personalizados `.custom-select-trigger`) deben tener exactamente la misma altura: `height: 40px; min-height: 40px; box-sizing: border-box;`.
+- **Alineación vertical y márgenes**:
+  - Ningún control ni contenedor envolvente (`.select-wrap`, `.custom-select-wrap`) debe poseer márgenes verticales desfasados (`margin: 0 !important`).
+  - Las etiquetas (`label`) deben tener dimensiones homogéneas (`height: 16px; line-height: 16px; margin: 0 0 6px 0; display: block;`), asegurando que todos los controles de una misma fila comiencen exactamente en la misma línea vertical (`top`).
+- **Estilos visuales**:
+  - Borde: `1px solid #C6CFD7` (`var(--border)`).
+  - Radio de curvatura: `6px` (`border-radius: 6px`).
+  - Tipografía interna: `Roboto, sans-serif`, `13.5px`, color `#222222`.
+  - Fondo: `#FFFFFF`.
+  - Padding horizontal: `12px` (inputs de texto y fecha) / `14px` (selects).
+- **Efecto Focus corporativo Wiener**:
+  - Borde: `#0F848F` (`var(--brand)`).
+  - Anillo de enfoque: `box-shadow: 0 0 0 3px rgba(15, 132, 143, 0.16); outline: none;`.
+- **Centrado de Iconos**:
+  - La flecha del selector y el icono del selector de fecha deben estar centrados al `50%` vertical de la caja de 40px.
+
+## 12. Componente Desplegable Personalizado (Custom Select Dropdown)
+- **Propósito**: Eliminar el popup nativo del sistema operativo (Aqua en macOS / clásico en Windows) que ignora estilos CSS, tipografías y bordes, garantizando una interfaz web consistente en cualquier plataforma.
+- **Trigger**:
+  - Elemento `.custom-select-trigger` con `height: 40px; box-sizing: border-box;`.
+  - Indicador de flecha con rotación: en estado cerrado `transform: translateY(-70%) rotate(45deg);`, en estado abierto `.is-open` rota a `transform: translateY(-30%) rotate(225deg) scale(1.15);`.
+- **Retorno inmediato de animación**:
+  - Al hacer clic en cualquier opción, el menú se cierra **inmediatamente** (`wrap.classList.remove('is-open')`) y la flecha regresa fluidamente a su estado inicial (`rotate(45deg)`). No debe depender del evento `blur` ni requerir clic fuera.
+  - Al hacer clic fuera o presionar la tecla `Escape`, se cierra y la flecha retorna instantáneamente.
+- **Menú Flotante (`.custom-select-menu`)**:
+  - Fondo blanco `#FFFFFF`, borde `#D6DFE6`, radio `6px` a `8px`.
+  - Sombra flotante pronunciada: `box-shadow: 0 10px 25px -4px rgba(15, 23, 42, 0.14), 0 4px 8px -2px rgba(15, 23, 42, 0.06);`.
+  - Altura máxima: `max-height: 250px; overflow-y: auto;` con scrollbar delgada (`6px`) en gris suave `#CBD5E1`.
+  - Ancho dinámico: `min-width: 100%; width: max-content; max-width: min(520px, 90vw);`. Si se encuentra próximo al borde derecho de la pantalla, se alinea a la derecha (`right: 0; left: auto`).
+- **Estados de las Opciones (`.custom-select-item`)**:
+  - **Hover / Foco**: Fondo suave `#EDF9F8`, texto verde oscuro `#0b6770` (`var(--brand-dark)`), font-weight `600`.
+  - **Activo / Seleccionado**: Fondo `#E6F4F5` (`var(--brand-soft)`), texto `#0b6770`, font-weight `700`, con ícono checkmark `✓` a la derecha.
+
+## 13. Tablas de Gestión y Vistas Administrativas (`.vt-table`)
+- **Cabeceras (`th`)**: Tipografía `Roboto, sans-serif`, `11.5px`, peso `700`, mayúsculas, `letter-spacing: 0.04em`, color suave `#5B6E80`, fondo `#E4E8EC`.
+- **Prioridad de ancho y scroll horizontal**:
+  - La tabla debe mostrarse completa como prioridad en pantallas estándar. El ancho máximo sugerido del contenedor es `max-width: 1400px` centrado.
+  - El scroll horizontal (`.vt-table-wrapper { overflow-x: auto; }`) solo debe activarse si la pantalla se reduce (móvil o tablet) y no entran los datos completos sin comprimirse.
+- **Estandarización de Columnas**:
+  - **Sede**: Texto plano sin borde ni fondo, con `white-space: nowrap` para evitar saltos de línea innecesarios.
+  - **Trámite**: Nombre limpio del trámite sin redundancias.
+  - **Estado y Activo**: Badges tipo pill limpios, sin el punto o círculo previo (`::before { display: none !important; }`).
+  - **Pago**: Formato binario claro (`✓ Sí` con fondo verde `#E6F6ED` / `✕ No` con fondo ámbar `#FFF3F0`).
+  - **Acciones**: Botón conciso etiquetado como `'Detalle'` (evitar textos largos como 'Ver detalle').
+- **Paginación Integrada**:
+  - Situada en la cabecera o pie de tabla junto al contador de registros.
+  - Botones **Anterior** y **Siguiente** con flechas vectoriales SVG (`stroke-width: 2.5`).
+  - Botones de número de página compactos (`height: 30px; min-width: 30px; border-radius: 6px;`).
+  - Página activa en color Teal `#0F848F` con texto blanco.
+
+## 14. Estandarización de Cabeceras de Página (`.page-head`)
+- **Estructura Estándar**:
+  ```html
+  <div class="page-head">
+    <div>
+      <h1>Título de la Sección</h1>
+      <p>Descripción clara y concisa de la función del módulo.</p>
+    </div>
+    <!-- Botones de acción principales opcionales a la derecha -->
+  </div>
+  ```
+- **Especificaciones**:
+  - `h1`: Tipografía `Lato, sans-serif`, `24px` (o `20px` en mobile), peso `700` (evitar `font-weight: 900` para mantener consistencia con los demás módulos administrativos), margen inferior `4px`.
+  - `p`: Tipografía `Roboto`/sistema, `14px`, color `#5B6E80` (`var(--text-muted)`).
+  - No añadir estilos en línea que compacten o alteren el espaciado vertical entre el título y la descripción (`margin: 0` indebido en `<p>`), permitiendo una transición visual homogénea al navegar entre secciones del sistema.

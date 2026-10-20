@@ -1,0 +1,564 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Reportes · Wiener Admin</title>
+  <link href="https://fonts.googleapis.com/css2?family=Lato:wght@400;700;900&family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../css/styles.css">
+  <style>
+    /* Estilos complementarios para la vista de reportes */
+    .catalog-tag {
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      padding: 3px 8px;
+      border-radius: 4px;
+      background: #E2E8F0;
+      color: #334155;
+    }
+    .report-card-active {
+      border: 2px solid var(--brand) !important;
+      background: #F0FDFA !important;
+    }
+  </style>
+</head>
+<body>
+  <script src="../js/data.js"></script>
+  <script src="../js/shell.js"></script>
+  <script>
+    const ctx = APP.renderShell('reportes');
+
+    // Estado global de la vista
+    let currentInst = 'Wiener';
+    let currentReportKey = 'cambio-presencial'; // Inicia preseleccionado como en la captura
+    let filtroDesde = '2026-01-01';
+    let filtroHasta = '2026-10-01';
+    let filtroTexto = '';
+    let paginaActual = 1;
+    let registrosPorPagina = 12;
+    let showCatalog = false;
+
+    // ==========================================================================
+    // ARQUITECTURA MODULAR DE REPORTES (REPORTES_CONFIG)
+    // Permite incorporar reportes específicos futuros agregando un simple objeto.
+    // ==========================================================================
+    const REPORTES_CONFIG = {
+      'cambio-presencial': {
+        id: 'cambio-presencial',
+        titulo: 'Lista de Alumnos que solicitaron tramite de Cambio Presencial.',
+        categoria: 'Modalidad de Estudios',
+        area: 'Registros Académicos',
+        descripcion: 'Estudiantes de modalidades a distancia o semipresenciales que solicitaron traslado formal al régimen presencial regular.',
+        formato: 'Excel / CSV',
+        totalMuestra: 70
+      },
+      'cambio-semipresencial': {
+        id: 'cambio-semipresencial',
+        titulo: 'Lista de Alumnos que solicitaron tramite de Cambio Semipresencialidad.',
+        categoria: 'Modalidad de Estudios',
+        area: 'Registros Académicos',
+        descripcion: 'Estudiantes que solicitaron adecuar su matrícula al régimen semipresencial para compatibilizar estudios con actividad laboral.',
+        formato: 'Excel / CSV',
+        totalMuestra: 48
+      },
+      'convenio': {
+        id: 'convenio',
+        titulo: 'Lista de alumnos que solicitaron los tramites de convenio.',
+        categoria: 'Convenios y Becas',
+        area: 'Retención y Fidelización',
+        descripcion: 'Padrón de estudiantes que tramitaron solicitudes con beneficios de convenios interinstitucionales (PNP, FF.AA., Minsa, Magisterio).',
+        formato: 'Excel / CSV',
+        totalMuestra: 36
+      },
+      'encuesta-delegados': {
+        id: 'encuesta-delegados',
+        titulo: 'Lista de encuesta delegados.',
+        categoria: 'Representación Estudiantil',
+        area: 'Coordinación y Bienestar',
+        descripcion: 'Seguimiento de estudiantes delegados de aula que completaron encuestas de calidad de servicio y representación académica.',
+        formato: 'Excel / CSV',
+        totalMuestra: 24
+      }
+    };
+
+    // ==========================================================================
+    // DATA MOCK DETALLADA PARA LOS REPORTES ESPECÍFICOS
+    // Incluye exactamente las columnas y registros visibles de la captura de producción.
+    // ==========================================================================
+    const DATA_REPORTES = {
+      'cambio-presencial': [
+        { nro: 1, ticket: '2026.1', codigo: '2022201877', alumno: 'URCIA QUINTANILLA MELANY MASSIEL', carrera: 'INGENIERÍA INDUSTRIAL Y DE GESTIÓN EMPRESARIAL', estado: 'APROBADO', fecha: '02/01/2026', hora: '10:12:28 PM', matricula: 'Matriculado', modalidad: 'SEMIPRESENCIAL', condicion: 'PROMOVIDO' },
+        { nro: 2, ticket: '2026.2', codigo: '2017200226', alumno: 'ROBLES SANTOS PABLO DAVID', carrera: 'INGENIERÍA DE SISTEMAS E INFORMÁTICA', estado: 'APROBADO', fecha: '05/01/2026', hora: '12:51:27 PM', matricula: 'Matriculado', modalidad: 'PRESENCIAL', condicion: 'PROMOVIDO' },
+        { nro: 3, ticket: '2026.6', codigo: '2023102304', alumno: 'DIAZ FLORES BRUNO REYNALDO', carrera: 'INGENIERÍA INDUSTRIAL Y DE GESTIÓN EMPRESARIAL', estado: 'APROBADO', fecha: '06/01/2026', hora: '06:28:08 PM', matricula: 'Matriculado', modalidad: 'PRESENCIAL', condicion: 'PROMOVIDO' },
+        { nro: 4, ticket: '2026.7', codigo: '2023200323', alumno: 'GALINDO CABEZAS MARTHA ANGELINA', carrera: 'DERECHO Y CIENCIA POLÍTICA', estado: 'SOLICITADO', fecha: '07/01/2026', hora: '05:18:50 PM', matricula: 'Matriculado', modalidad: 'SEMIPRESENCIAL', condicion: 'PROMOVIDO' },
+        { nro: 5, ticket: '2026.8', codigo: '2024200909', alumno: 'BERNAL GARCIA CRISTHIAN JOSE', carrera: 'CONTABILIDAD Y AUDITORÍA', estado: 'APROBADO', fecha: '09/01/2026', hora: '01:02:29 PM', matricula: 'Matriculado', modalidad: 'PRESENCIAL', condicion: 'REINCORPORADO' },
+        { nro: 6, ticket: '2026.9', codigo: '2024200859', alumno: 'BERNAL GARCIA XIMENA ALEJANDRA', carrera: 'DERECHO Y CIENCIA POLÍTICA', estado: 'APROBADO', fecha: '09/01/2026', hora: '01:12:46 PM', matricula: 'Matriculado', modalidad: 'PRESENCIAL', condicion: 'REINCORPORADO' },
+        { nro: 7, ticket: '2026.14', codigo: '2017101118', alumno: 'PAQUIRACHI CUYA ELIZABETH', carrera: 'OBSTETRICIA', estado: 'APROBADO', fecha: '12/01/2026', hora: '12:49:54 PM', matricula: 'Matriculado', modalidad: 'PRESENCIAL', condicion: 'REINCORPORADO' },
+        { nro: 8, ticket: '2026.18', codigo: '2025103472', alumno: 'VERA AVILA EDUARDO ALEXANDER', carrera: 'ADMINISTRACIÓN Y MARKETING', estado: 'APROBADO', fecha: '14/01/2026', hora: '07:15:59 PM', matricula: 'Matriculado', modalidad: 'SEMIPRESENCIAL', condicion: 'PROMOVIDO' },
+        { nro: 9, ticket: '2026.19', codigo: '2023200649', alumno: 'TRIGOZO ARROYO MARTHA LOICIT', carrera: 'ADMINISTRACIÓN Y DIRECCIÓN DE EMPRESAS', estado: 'APROBADO', fecha: '15/01/2026', hora: '08:26:16 AM', matricula: 'Matriculado', modalidad: 'PRESENCIAL', condicion: 'PROMOVIDO' },
+        { nro: 10, ticket: '2026.2643', codigo: '2023106018', alumno: 'LANDA OLIVA ALINA ROSMERY', carrera: 'CONTABILIDAD Y AUDITORÍA', estado: 'APROBADO', fecha: '21/01/2026', hora: '04:37:41 PM', matricula: 'Matriculado', modalidad: 'PRESENCIAL', condicion: 'REINCORPORADO' },
+        { nro: 11, ticket: '2026.2644', codigo: '2020102119', alumno: 'AGUIRRE YAÑEZ HATZEL JADIEL', carrera: 'ADMINISTRACIÓN Y DIRECCIÓN DE EMPRESAS', estado: 'APROBADO', fecha: '23/01/2026', hora: '11:20:38 AM', matricula: 'Matriculado', modalidad: 'PRESENCIAL', condicion: 'PROMOVIDO' },
+        { nro: 12, ticket: '2026.2645', codigo: '2019100828', alumno: 'DE LA CRUZ QUISPE PAMELA JOHANA', carrera: 'CONTABILIDAD Y AUDITORÍA', estado: 'APROBADO', fecha: '24/01/2026', hora: '10:20:17 PM', matricula: 'Matriculado', modalidad: 'PRESENCIAL', condicion: 'PROMOVIDO' },
+        { nro: 13, ticket: '2026.2650', codigo: '2021100345', alumno: 'QUISPE QUISPE MARIA FERNANDA', carrera: 'INGENIERÍA DE SISTEMAS E INFORMÁTICA', estado: 'APROBADO', fecha: '25/01/2026', hora: '09:14:02 AM', matricula: 'Matriculado', modalidad: 'SEMIPRESENCIAL', condicion: 'PROMOVIDO' },
+        { nro: 14, ticket: '2026.2652', codigo: '2023101192', alumno: 'SANCHEZ MEDINA JORGE LUIS', carrera: 'PSICOLOGÍA', estado: 'APROBADO', fecha: '26/01/2026', hora: '03:45:11 PM', matricula: 'Matriculado', modalidad: 'SEMIPRESENCIAL', condicion: 'PROMOVIDO' },
+        { nro: 15, ticket: '2026.2655', codigo: '2022204510', alumno: 'CORDOVA ROJAS KATERIN SOFIA', carrera: 'ENFERMERÍA', estado: 'SOLICITADO', fecha: '28/01/2026', hora: '11:05:44 AM', matricula: 'Matriculado', modalidad: 'SEMIPRESENCIAL', condicion: 'REINCORPORADO' },
+        { nro: 16, ticket: '2026.2660', codigo: '2024103321', alumno: 'MENDOZA BUSTAMANTE RODRIGO', carrera: 'MEDICINA HUMANA', estado: 'APROBADO', fecha: '30/01/2026', hora: '04:12:30 PM', matricula: 'Matriculado', modalidad: 'PRESENCIAL', condicion: 'PROMOVIDO' },
+        { nro: 17, ticket: '2026.2664', codigo: '2020201419', alumno: 'VILLANUEVA PAREDES LUIS ENRIQUE', carrera: 'DERECHO Y CIENCIA POLÍTICA', estado: 'APROBADO', fecha: '01/02/2026', hora: '08:33:12 AM', matricula: 'Matriculado', modalidad: 'PRESENCIAL', condicion: 'PROMOVIDO' },
+        { nro: 18, ticket: '2026.2668', codigo: '2023105541', alumno: 'FLORES ALARCON CYNTHIA PAOLA', carrera: 'ADMINISTRACIÓN Y MARKETING', estado: 'APROBADO', fecha: '03/02/2026', hora: '02:22:45 PM', matricula: 'Matriculado', modalidad: 'SEMIPRESENCIAL', condicion: 'REINCORPORADO' },
+        { nro: 19, ticket: '2026.2671', codigo: '2021200918', alumno: 'ZAPATA GUERRERO MARCO ANTONIO', carrera: 'INGENIERÍA INDUSTRIAL', estado: 'SOLICITADO', fecha: '05/02/2026', hora: '06:18:29 PM', matricula: 'Matriculado', modalidad: 'SEMIPRESENCIAL', condicion: 'PROMOVIDO' },
+        { nro: 20, ticket: '2026.2675', codigo: '2024201103', alumno: 'RUIZ CARBAJAL VALERIA LUCIA', carrera: 'ODONTOLOGÍA', estado: 'APROBADO', fecha: '08/02/2026', hora: '10:50:18 AM', matricula: 'Matriculado', modalidad: 'PRESENCIAL', condicion: 'PROMOVIDO' }
+      ],
+      'cambio-semipresencial': [
+        { nro: 1, ticket: '2026.101', codigo: '2023104412', alumno: 'ESPINOZA REYES MANUEL DARIO', carrera: 'ADMINISTRACIÓN DE NEGOCIOS', estado: 'APROBADO', fecha: '03/01/2026', hora: '09:20:11 AM', matricula: 'Matriculado', modalidad: 'PRESENCIAL', condicion: 'PROMOVIDO' },
+        { nro: 2, ticket: '2026.105', codigo: '2022201980', alumno: 'CASTILLO HUAMAN VALERIA INES', carrera: 'CONTABILIDAD Y FINANZAS', estado: 'APROBADO', fecha: '06/01/2026', hora: '11:45:00 AM', matricula: 'Matriculado', modalidad: 'PRESENCIAL', condicion: 'PROMOVIDO' },
+        { nro: 3, ticket: '2026.108', codigo: '2021105432', alumno: 'ALVAREZ PINTO GERARDO JAVIER', carrera: 'INGENIERÍA DE SISTEMAS', estado: 'SOLICITADO', fecha: '10/01/2026', hora: '04:15:32 PM', matricula: 'Matriculado', modalidad: 'PRESENCIAL', condicion: 'REINCORPORADO' },
+        { nro: 4, ticket: '2026.112', codigo: '2024100877', alumno: 'TAYLOR GOMEZ SHIRLEY CARLA', carrera: 'DERECHO', estado: 'APROBADO', fecha: '14/01/2026', hora: '06:30:19 PM', matricula: 'Matriculado', modalidad: 'PRESENCIAL', condicion: 'PROMOVIDO' },
+        { nro: 5, ticket: '2026.118', codigo: '2020203319', alumno: 'GUZMAN MEJIA PEDRO PABLO', carrera: 'MARKETING Y GESTIÓN COMERCIAL', estado: 'APROBADO', fecha: '18/01/2026', hora: '02:08:44 PM', matricula: 'Matriculado', modalidad: 'PRESENCIAL', condicion: 'PROMOVIDO' }
+      ],
+      'convenio': [
+        { nro: 1, ticket: '2026.301', codigo: '2023108821', alumno: 'SALINAS CHAVEZ LUIS FERNANDO', carrera: 'DERECHO Y CIENCIA POLÍTICA', estado: 'APROBADO', fecha: '04/01/2026', hora: '10:05:12 AM', matricula: 'Matriculado', modalidad: 'PRESENCIAL', condicion: 'PROMOVIDO' },
+        { nro: 2, ticket: '2026.304', codigo: '2022106634', alumno: 'MAMANI QUISPE CARMEN ROSA', carrera: 'ENFERMERÍA', estado: 'APROBADO', fecha: '07/01/2026', hora: '01:40:22 PM', matricula: 'Matriculado', modalidad: 'SEMIPRESENCIAL', condicion: 'PROMOVIDO' },
+        { nro: 3, ticket: '2026.309', codigo: '2021204490', alumno: 'CACERES SOTO JHON EDGAR', carrera: 'ADMINISTRACIÓN PÚBLICA', estado: 'APROBADO', fecha: '12/01/2026', hora: '05:12:08 PM', matricula: 'Matriculado', modalidad: 'SEMIPRESENCIAL', condicion: 'REINCORPORADO' },
+        { nro: 4, ticket: '2026.315', codigo: '2024102911', alumno: 'PAREDES DIAZ MILAGROS DEL PILAR', carrera: 'PSICOLOGÍA', estado: 'SOLICITADO', fecha: '16/01/2026', hora: '08:50:33 AM', matricula: 'Matriculado', modalidad: 'PRESENCIAL', condicion: 'PROMOVIDO' }
+      ],
+      'encuesta-delegados': [
+        { nro: 1, ticket: '2026.501', codigo: '2021100345', alumno: 'QUISPE QUISPE MARIA FERNANDA', carrera: 'INGENIERÍA DE SISTEMAS E INFORMÁTICA', estado: 'APROBADO', fecha: '05/01/2026', hora: '09:12:00 AM', matricula: 'Matriculado', modalidad: 'PRESENCIAL', condicion: 'PROMOVIDO' },
+        { nro: 2, ticket: '2026.503', codigo: '2022201900', alumno: 'VARGAS ROJAS CARLOS ENRIQUE', carrera: 'ADMINISTRACIÓN Y NEGOCIOS', estado: 'APROBADO', fecha: '08/01/2026', hora: '11:30:45 AM', matricula: 'Matriculado', modalidad: 'PRESENCIAL', condicion: 'PROMOVIDO' },
+        { nro: 3, ticket: '2026.508', codigo: '2023107823', alumno: 'LUNA OVIEDO DIANA PATRICIA', carrera: 'OBSTETRICIA', estado: 'APROBADO', fecha: '14/01/2026', hora: '03:22:15 PM', matricula: 'Matriculado', modalidad: 'SEMIPRESENCIAL', condicion: 'PROMOVIDO' }
+      ]
+    };
+
+    // Genera registros complementarios para alcanzar exactamente los 70 mostrados en la captura
+    (function completarRegistros() {
+      const carreras = [
+        'INGENIERÍA INDUSTRIAL Y DE GESTIÓN EMPRESARIAL', 'INGENIERÍA DE SISTEMAS E INFORMÁTICA',
+        'DERECHO Y CIENCIA POLÍTICA', 'CONTABILIDAD Y AUDITORÍA', 'OBSTETRICIA', 'ADMINISTRACIÓN Y MARKETING',
+        'ADMINISTRACIÓN Y DIRECCIÓN DE EMPRESAS', 'PSICOLOGÍA', 'ENFERMERÍA', 'ODONTOLOGÍA', 'MEDICINA HUMANA'
+      ];
+      const apellidos = ['GARCIA', 'RODRIGUEZ', 'MARTINEZ', 'LOPEZ', 'SANCHEZ', 'PEREZ', 'GOMEZ', 'FLORES', 'DIAZ', 'VASQUEZ', 'CASTRO', 'ROMERO', 'SUAREZ', 'HERRERA', 'MEDINA', 'AGUILAR', 'RAMOS'];
+      const nombres = ['JUAN CARLOS', 'ANA LUCIA', 'MIGUEL ANGEL', 'KAREN SOFIA', 'DIEGO ALEXANDER', 'VALERIA PAOLA', 'CRISTIAN JAVIER', 'MARIA ISABEL', 'JORGE LUIS', 'ANDREA NICOLE'];
+      
+      const list = DATA_REPORTES['cambio-presencial'];
+      let currentLen = list.length;
+      for (let i = currentLen + 1; i <= 70; i++) {
+        const ap1 = apellidos[i % apellidos.length];
+        const ap2 = apellidos[(i + 3) % apellidos.length];
+        const nom = nombres[i % nombres.length];
+        const car = carreras[i % carreras.length];
+        const dia = String(Math.min(28, (i % 25) + 1)).padStart(2, '0');
+        const mes = String(Math.floor(i / 15) + 1).padStart(2, '0');
+        list.push({
+          nro: i,
+          ticket: '2026.' + (2680 + i),
+          codigo: '202' + (i % 5) + '10' + String(1000 + i),
+          alumno: ap1 + ' ' + ap2 + ' ' + nom,
+          carrera: car,
+          estado: (i % 7 === 0) ? 'SOLICITADO' : 'APROBADO',
+          fecha: `${dia}/${mes}/2026`,
+          hora: `${String((i % 12) + 1).padStart(2, '0')}:${String((i * 7) % 60).padStart(2, '0')}:15 ${(i % 2 === 0 ? 'PM' : 'AM')}`,
+          matricula: 'Matriculado',
+          modalidad: (i % 3 === 0) ? 'SEMIPRESENCIAL' : 'PRESENCIAL',
+          condicion: (i % 4 === 0) ? 'REINCORPORADO' : 'PROMOVIDO'
+        });
+      }
+    })();
+
+    function limpiarFiltrosReportes() {
+      currentReportKey = 'cambio-presencial';
+      filtroDesde = '2026-01-01';
+      filtroHasta = '2026-10-01';
+      filtroTexto = '';
+      paginaActual = 1;
+      render();
+      APP.toast({ icon: '🔄', title: 'Filtros restablecidos', body: 'Valores de consulta restablecidos por defecto.' });
+    }
+
+    function toggleCatalog() {
+      showCatalog = !showCatalog;
+      render();
+    }
+
+    function seleccionarReporteDesdeCard(key) {
+      currentReportKey = key;
+      showCatalog = false;
+      paginaActual = 1;
+      render();
+      APP.toast({
+        icon: '📋',
+        title: 'Reporte cargado',
+        body: REPORTES_CONFIG[key].titulo
+      });
+    }
+
+    function cambiarInstitucion(val) {
+      currentInst = val;
+      paginaActual = 1;
+      render();
+      APP.toast({
+        icon: '🏛️',
+        title: 'Institución seleccionada',
+        body: (val === 'Wiener' ? 'Universidad Norbert Wiener' : 'Instituto Carrión')
+      });
+    }
+
+    function cambiarPagina(p) {
+      paginaActual = p;
+      render();
+    }
+
+    function exportarExcelCSV() {
+      if (!currentReportKey) {
+        APP.toast({ icon: '⚠️', title: 'Sin reporte', body: 'Selecciona un reporte institucional primero.' });
+        return;
+      }
+      const rep = REPORTES_CONFIG[currentReportKey];
+      const rows = DATA_REPORTES[currentReportKey] || [];
+      const headers = ['N°', 'Ticket', 'Código Alumno', 'Nombres y Apellidos', 'Carrera', 'Estado', 'Fecha Registro', 'Hora Registro', 'Estado Matrícula', 'Modalidad Estudios', 'Condición'];
+      
+      const csvRows = rows.map(r => [
+        r.nro,
+        `"${r.ticket}"`,
+        `"${r.codigo}"`,
+        `"${r.alumno}"`,
+        `"${r.carrera}"`,
+        `"${r.estado}"`,
+        `"${r.fecha}"`,
+        `"${r.hora}"`,
+        `"${r.matricula}"`,
+        `"${r.modalidad}"`,
+        `"${r.condicion}"`
+      ].join(','));
+
+      const csvContent = '\uFEFF' + [headers.join(','), ...csvRows].join('\r\n');
+      const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.setAttribute('href', url);
+      link.setAttribute('download', `reporte_${currentReportKey}_${filtroDesde}_a_${filtroHasta}.csv`);
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
+
+      APP.toast({
+        icon: '📥',
+        title: 'Exportación completada',
+        body: `Se descargó el archivo con ${rows.length} registros.`
+      });
+    }
+
+    function renderCatalogCards() {
+      const cards = Object.values(REPORTES_CONFIG).map(r => {
+        const isActive = currentReportKey === r.id;
+        return `
+          <div class="report-card ${isActive ? 'report-card-active' : ''}" style="margin:0">
+            <div>
+              <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px">
+                <span class="catalog-tag">${r.categoria}</span>
+                <span style="font-size:11.5px;color:var(--text-muted)">${r.area}</span>
+              </div>
+              <h3 style="font-size:15px;font-weight:700;color:var(--text);margin:0 0 6px 0;line-height:1.35">${r.titulo}</h3>
+              <p style="font-size:12.5px;color:var(--text-muted);line-height:1.45;margin:0 0 10px 0">${r.descripcion}</p>
+              <div style="font-size:12px;color:var(--text-soft)">
+                <span>Formato: <b>${r.formato}</b></span> · <span><b>${r.totalMuestra}</b> registros aprox.</span>
+              </div>
+            </div>
+            <div style="margin-top:14px;display:flex;gap:8px">
+              <button class="btn btn-primary btn-sm" style="flex:1" onclick="seleccionarReporteDesdeCard('${r.id}')">
+                ${isActive ? '✓ Reporte en pantalla' : 'Consultar este reporte'}
+              </button>
+            </div>
+          </div>
+        `;
+      }).join('');
+
+      return `
+        <div class="catalog-drawer ${(!showCatalog && currentReportKey) ? 'hidden' : ''}">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
+            <div>
+              <h3 style="font-family:'Lato',sans-serif;font-size:16px;font-weight:700;color:var(--text);margin:0">
+                Catálogo de Reportes Institucionales Disponibles
+              </h3>
+              <p style="font-size:13px;color:var(--text-muted);margin:2px 0 0 0">
+                Haz clic en <b>'Consultar este reporte'</b> para cargar automáticamente los filtros y visualizar los datos en la tabla.
+              </p>
+            </div>
+            ${currentReportKey ? `
+              <button class="btn btn-outline btn-sm" onclick="toggleCatalog()">
+                ✕ Ocultar catálogo
+              </button>
+            ` : ''}
+          </div>
+          <div class="reports-grid" style="margin-top:0">
+            ${cards}
+          </div>
+        </div>
+      `;
+    }
+
+    function renderPagination(curr, total) {
+      if (total <= 1) return '';
+      let btns = '';
+      for (let p = 1; p <= total; p++) {
+        if (total > 7) {
+          if (p > 1 && p < curr - 1 && p === 2) { btns += '<span style="padding:0 4px;color:var(--text-muted)">...</span>'; continue; }
+          if (p > 1 && p < curr - 1) continue;
+          if (p < total && p > curr + 1 && p === total - 1) { btns += '<span style="padding:0 4px;color:var(--text-muted)">...</span>'; continue; }
+          if (p < total && p > curr + 1) continue;
+        }
+        btns += `<button class="vt-page-btn ${p === curr ? 'active' : ''}" onclick="cambiarPagina(${p})">${p}</button>`;
+      }
+
+      return `
+        <div class="vt-pagination">
+          <button class="vt-page-btn" ${curr <= 1 ? 'disabled' : ''} onclick="cambiarPagina(${curr - 1})" title="Página anterior">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"></polyline></svg>
+            <span>Anterior</span>
+          </button>
+          ${btns}
+          <button class="vt-page-btn" ${curr >= total ? 'disabled' : ''} onclick="cambiarPagina(${curr + 1})" title="Página siguiente">
+            <span>Siguiente</span>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>
+          </button>
+        </div>
+      `;
+    }
+
+    function render() {
+      const activeReport = REPORTES_CONFIG[currentReportKey];
+      const rawRows = (currentReportKey && DATA_REPORTES[currentReportKey]) || [];
+
+      // Filtro de texto rápido dentro de la tabla
+      const filteredRows = rawRows.filter(r => {
+        if (!filtroTexto) return true;
+        const q = filtroTexto.toLowerCase();
+        return (
+          r.ticket.toLowerCase().includes(q) ||
+          r.codigo.toLowerCase().includes(q) ||
+          r.alumno.toLowerCase().includes(q) ||
+          r.carrera.toLowerCase().includes(q)
+        );
+      });
+
+      const totalRegistros = filteredRows.length;
+      const totalPaginas = Math.ceil(totalRegistros / registrosPorPagina) || 1;
+      const startIdx = (paginaActual - 1) * registrosPorPagina;
+      const endIdx = startIdx + registrosPorPagina;
+      const paginatedRows = filteredRows.slice(startIdx, endIdx);
+
+      // Renderizado de filas de la tabla
+      const rowsHtml = paginatedRows.map(r => {
+        // Tag de modalidad según Section 3 de Design.md
+        let modCls = 'presencial';
+        if (r.modalidad.toUpperCase().includes('SEMI')) modCls = 'semipresencial';
+        else if (r.modalidad.toUpperCase().includes('VIRTUAL') || r.modalidad.toUpperCase().includes('DISTANCIA')) modCls = 'distancia';
+
+        // Tag de condición
+        let condCls = 'regular';
+        if (r.condicion.toUpperCase().includes('PROMOV')) condCls = 'promovido';
+        else if (r.condicion.toUpperCase().includes('REINCORP')) condCls = 'reincorporado';
+
+        // Badge de estado
+        let estadoBadge = `<span class="pill ok no-dot">${r.estado}</span>`;
+        if (r.estado.toUpperCase().includes('SOLIC')) estadoBadge = `<span class="pill info no-dot">${r.estado}</span>`;
+        else if (r.estado.toUpperCase().includes('OBSERV')) estadoBadge = `<span class="pill warn no-dot">${r.estado}</span>`;
+
+        return `
+          <tr>
+            <td style="text-align:center;font-weight:600;color:var(--text-muted)">${r.nro}</td>
+            <td><span class="vt-ticket-badge">${r.ticket}</span></td>
+            <td><span class="mono" style="font-weight:600;font-size:12.5px">${r.codigo}</span></td>
+            <td><span style="font-weight:700;color:var(--text)">${r.alumno}</span></td>
+            <td><span style="font-size:12px;font-weight:500;color:var(--text-soft)">${r.carrera}</span></td>
+            <td style="text-align:center">${estadoBadge}</td>
+            <td style="white-space:nowrap;font-size:12px;color:var(--text)">${r.fecha}</td>
+            <td style="white-space:nowrap;font-size:12px;color:var(--text-muted)">${r.hora}</td>
+            <td style="text-align:center"><span style="font-size:12.5px">${r.matricula}</span></td>
+            <td style="text-align:center"><span class="modality-pill ${modCls}">${r.modalidad}</span></td>
+            <td style="text-align:center"><span class="condicion-pill ${condCls}">${r.condicion}</span></td>
+          </tr>
+        `;
+      }).join('');
+
+      ctx.mount.innerHTML = `
+        <div class="procesar-container">
+          <!-- Encabezado de página estandarizado -->
+          <div class="page-head">
+            <div>
+              <h1>Reportes</h1>
+              <p>Generación y descarga de padrones y reportes operativos a solicitud de las áreas académicas.</p>
+            </div>
+            <div style="display:flex;gap:10px;align-items:center">
+              <button class="btn btn-outline" onclick="toggleCatalog()">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M4 6H2v14c0 1.1.9 2 2 2h14v-2H4V6zm16-4H8c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm0 14H8V4h12v12z"/></svg>
+                <span>${showCatalog ? 'Ocultar catálogo' : 'Explorar catálogo de reportes'}</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- Selector Institucional Contextual -->
+          <div class="vt-top-meta">
+            <div class="vt-inst-selector">
+              <span style="font-weight:700;color:var(--brand-dark)">Institución:</span>
+              <div class="select-wrap" style="width:auto;min-width:320px;margin:0">
+                <select id="sel-inst-reportes" onchange="cambiarInstitucion(this.value)">
+                  <option value="Wiener" ${currentInst === 'Wiener' ? 'selected' : ''}>Universidad Privada Norbert Wiener S.A.</option>
+                  <option value="Carrion" ${currentInst === 'Carrion' ? 'selected' : ''}>I.E.S. Particular Daniel Alcides Carrión</option>
+                </select>
+              </div>
+              <span class="vt-role-badge">Perfil: Administrador</span>
+            </div>
+            <div class="vt-clock">
+              <span>🕒 Fecha/Hora del sistema: </span><b>${APP.nowStamp()}</b>
+            </div>
+          </div>
+
+          <!-- FILTROS: Barra exacta a producción con estilo Wiener Design -->
+          <div class="reportes-filter-card">
+            <div class="reportes-filter-banner">
+              <div class="reportes-banner-title">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M10 18h4v-2h-4v2zM3 6v2h18V6H3zm3 7h12v-2H6v2z"/></svg>
+                <span>FILTROS:</span>
+              </div>
+              <span style="font-size:12px;opacity:0.9">Selecciona el reporte institucional y las fechas de consulta</span>
+            </div>
+
+            <div class="reportes-filter-body">
+              <div class="reportes-filter-row">
+                
+                <!-- Selector de Reporte -->
+                <div class="reportes-field reportes-field-select">
+                  <label for="f-reporte">Reporte:</label>
+                  <div class="select-wrap">
+                    <select id="f-reporte" onchange="currentReportKey=this.value;paginaActual=1;render()">
+                      <option value="" ${!currentReportKey ? 'selected' : ''}>--- Seleccione ---</option>
+                      ${Object.values(REPORTES_CONFIG).map(r => `
+                        <option value="${r.id}" ${currentReportKey === r.id ? 'selected' : ''}>${r.titulo}</option>
+                      `).join('')}
+                    </select>
+                  </div>
+                </div>
+
+                <!-- Fecha Desde -->
+                <div class="reportes-field reportes-field-date">
+                  <label for="f-desde">Desde:</label>
+                  <input type="date" id="f-desde" value="${filtroDesde}" onchange="filtroDesde=this.value;paginaActual=1">
+                </div>
+
+                <!-- Fecha Hasta -->
+                <div class="reportes-field reportes-field-date">
+                  <label for="f-hasta">Hasta:</label>
+                  <input type="date" id="f-hasta" value="${filtroHasta}" onchange="filtroHasta=this.value;paginaActual=1">
+                </div>
+
+                <!-- Botones Buscar y Exportar -->
+                <div class="reportes-btn-group">
+                  <button class="btn btn-primary" onclick="paginaActual=1;render()" title="Ejecutar búsqueda">
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg>
+                    Buscar
+                  </button>
+
+                  ${currentReportKey ? `
+                    <button class="btn btn-primary" style="background:#0F848F" onclick="exportarExcelCSV()" title="Exportar resultados a formato Excel / CSV">
+                      <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/></svg>
+                      Exportar
+                    </button>
+                  ` : ''}
+                </div>
+
+              </div>
+            </div>
+          </div>
+
+          <!-- Catálogo Colapsable de Reportes (Opción 1 Híbrida) -->
+          ${renderCatalogCards()}
+
+          <!-- Tabla de Resultados (Mostrada al filtrar o tener un reporte seleccionado) -->
+          ${currentReportKey ? `
+            <div class="vt-table-card">
+              <!-- Barra superior con contador exacto de producción -->
+              <div class="vt-table-top">
+                <div class="vt-counter-text">
+                  <span style="font-size:16px;font-weight:700;color:var(--brand-dark)"><b>${totalRegistros}</b> Registro(s)</span>
+                  <span style="font-size:12.5px;color:var(--text-muted);margin-left:8px">
+                    · Mostrando página <b>${paginaActual}</b> de <b>${totalPaginas}</b>
+                    (${startIdx + 1} - ${Math.min(endIdx, totalRegistros)})
+                  </span>
+                </div>
+
+                <div style="display:flex;align-items:center;gap:14px">
+                  <!-- Buscador rápido en tabla -->
+                  <div style="position:relative">
+                    <input type="text" placeholder="Filtrar por alumno o ticket..." value="${filtroTexto}" oninput="filtroTexto=this.value;paginaActual=1;render()"
+                      style="height:34px;padding:0 10px;font-size:12.5px;border:1px solid var(--border);border-radius:6px;width:230px">
+                  </div>
+                  ${renderPagination(paginaActual, totalPaginas)}
+                </div>
+              </div>
+
+              <!-- Contenedor con scroll horizontal para 11 columnas -->
+              <div class="vt-table-wrapper">
+                <table class="vt-table">
+                  <thead>
+                    <tr>
+                      <th style="width:40px;text-align:center">N°</th>
+                      <th>Ticket</th>
+                      <th>Código Alumno</th>
+                      <th>Nombres y Apellidos</th>
+                      <th>Carrera</th>
+                      <th style="text-align:center">Estado</th>
+                      <th>Fecha Registro</th>
+                      <th>Hora Registro</th>
+                      <th style="text-align:center">Estado Matrícula</th>
+                      <th style="text-align:center">Modalidad Estudios</th>
+                      <th style="text-align:center">Condición</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    ${rowsHtml || `
+                      <tr>
+                        <td colspan="11" style="text-align:center;padding:48px 20px;color:var(--text-muted)">
+                          <div style="font-size:32px;margin-bottom:8px">🔍</div>
+                          <div style="font-weight:700;font-size:15px;color:var(--text)">No se encontraron registros en el rango seleccionado</div>
+                          <div style="font-size:13px;margin-top:4px">Intenta ajustando el rango de fechas o limpiando el filtro de texto.</div>
+                        </td>
+                      </tr>
+                    `}
+                  </tbody>
+                </table>
+              </div>
+
+              <!-- Pie de tabla con paginación inferior -->
+              <div style="display:flex;justify-content:space-between;align-items:center;padding:12px 20px;background:#F8FAFC;border-top:1px solid var(--border-soft)">
+                <span style="font-size:12px;color:var(--text-muted)">
+                  Reporte: <b>${activeReport ? activeReport.titulo : '-'}</b>
+                </span>
+                ${renderPagination(paginaActual, totalPaginas)}
+              </div>
+            </div>
+          ` : `
+            <div style="text-align:center;padding:60px 20px;background:#FFFFFF;border:1px solid var(--border);border-radius:12px">
+              <div style="font-size:48px;margin-bottom:12px">📋</div>
+              <h3 style="font-size:18px;color:var(--text);margin:0 0 8px 0">Selecciona un reporte institucional en los filtros</h3>
+              <p style="font-size:13.5px;color:var(--text-muted);max-width:500px;margin:0 auto 16px auto">
+                Elige un reporte del menú desplegable superior o explora las fichas técnicas del catálogo para generar y descargar los padrones en Excel / CSV.
+              </p>
+              <button class="btn btn-outline" onclick="toggleCatalog()">
+                Ver catálogo completo de reportes
+              </button>
+            </div>
+          `}
+        </div>
+      `;
+
+      // Inicializa los desplegables personalizados Wiener
+      if (APP && APP.initCustomSelects) {
+        APP.initCustomSelects(ctx.mount);
+      }
+    }
+
+    render();
+  </script>
+</body>
+</html>

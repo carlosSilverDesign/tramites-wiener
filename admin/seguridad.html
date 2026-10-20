@@ -19,10 +19,10 @@
     let tab = 'roles';
     function setTab(t, el){ tab=t; document.querySelectorAll('.tab').forEach(x=>x.classList.remove('active')); el.classList.add('active'); paint(); }
 
-    const MODULOS = ['Solicitar trámite','Estado de trámites','Revisar solicitudes','Flujos','Trámites','Usuarios','Seguridad'];
+    const MODULOS = ['Solicitar trámite','Estado de trámites','Revisar solicitudes','Flujos','Procesar','Reportes','Trámites','Usuarios','Seguridad'];
     const MATRIX = {
-      'Alumno':         [true,true,false,false,false,false,false],
-      'Administrativo': [false,false,true,true,true,true,true]
+      'Alumno':         [true,true,false,false,false,false,false,false,false],
+      'Administrativo': [false,false,true,true,true,true,true,true,true]
     };
     const AUDIT = [
       ['2026-06-22 09:20','c.mendoza','Aprobó solicitud S-2026-0181','192.168.10.24'],

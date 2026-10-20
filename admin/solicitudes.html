@@ -29,6 +29,14 @@
     let filtroDesde = '2026-09-01';
     let filtroHasta = APP.todayISO();
 
+    // Carga de parámetros URL (por ejemplo desde Procesar o enlaces externos)
+    try {
+      const urlParams = new URLSearchParams(window.location.search);
+      if (urlParams.get('institucion')) filtroInstitucion = urlParams.get('institucion');
+      if (urlParams.get('estado')) filtroEstado = urlParams.get('estado');
+      if (urlParams.get('ticket')) filtroTicket = urlParams.get('ticket');
+    } catch (e) {}
+
     // Paginación
     let paginaActual = 1;
     const registrosPorPagina = 8;
@@ -66,10 +74,19 @@
       filtroTramite = 'Todos';
       filtroEstado = 'Todos';
       filtroActivo = 'Todos';
-      filtroDesde = '';
+      filtroDesde = '2026-09-01';
       filtroHasta = APP.todayISO();
       paginaActual = 1;
-      render();
+
+      // Limpiar parámetros en la URL para evitar que persistan en recargas
+      try {
+        if (window.history && window.history.replaceState) {
+          window.history.replaceState({}, document.title, window.location.pathname);
+        }
+      } catch (e) {}
+
+      render(true);
+      APP.toast({ icon: '🔄', title: 'Filtros restablecidos', body: 'Mostrando todos los registros sin filtros.' });
     }
 
     function setTabRapido(tab) {
@@ -83,25 +100,28 @@
       render();
     }
 
-    function render() {
+    function render(fromReset) {
       if (!ctx || !ctx.mount) return;
-      // Sincronizar inputs si ya existen en el DOM
-      const elTicket = document.getElementById('f-ticket');
-      if (elTicket) filtroTicket = elTicket.value;
-      const elDni = document.getElementById('f-dni');
-      if (elDni) filtroDni = elDni.value;
-      const elAlumno = document.getElementById('f-alumno');
-      if (elAlumno) filtroAlumno = elAlumno.value;
-      const elTramite = document.getElementById('f-tramite');
-      if (elTramite) filtroTramite = elTramite.value;
-      const elEstado = document.getElementById('f-estado');
-      if (elEstado) filtroEstado = elEstado.value;
-      const elActivo = document.getElementById('f-activo');
-      if (elActivo) filtroActivo = elActivo.value;
-      const elDesde = document.getElementById('f-desde');
-      if (elDesde) filtroDesde = elDesde.value;
-      const elHasta = document.getElementById('f-hasta');
-      if (elHasta) filtroHasta = elHasta.value;
+
+      if (!fromReset) {
+        // Sincronizar inputs si ya existen en el DOM
+        const elTicket = document.getElementById('f-ticket');
+        if (elTicket) filtroTicket = elTicket.value;
+        const elDni = document.getElementById('f-dni');
+        if (elDni) filtroDni = elDni.value;
+        const elAlumno = document.getElementById('f-alumno');
+        if (elAlumno) filtroAlumno = elAlumno.value;
+        const elTramite = document.getElementById('f-tramite');
+        if (elTramite) filtroTramite = elTramite.value;
+        const elEstado = document.getElementById('f-estado');
+        if (elEstado) filtroEstado = elEstado.value;
+        const elActivo = document.getElementById('f-activo');
+        if (elActivo) filtroActivo = elActivo.value;
+        const elDesde = document.getElementById('f-desde');
+        if (elDesde) filtroDesde = elDesde.value;
+        const elHasta = document.getElementById('f-hasta');
+        if (elHasta) filtroHasta = elHasta.value;
+      }
 
       const all = DB.solicitudes();
 
@@ -322,7 +342,7 @@
               <button class="btn btn-outline" onclick="resetFilters()">
                 Limpiar filtros
               </button>
-              <button class="btn btn-primary" onclick="paginaActual=1;render()">
+              <button class="btn btn-black" onclick="paginaActual=1;render()">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg>
                 Buscar
               </button>

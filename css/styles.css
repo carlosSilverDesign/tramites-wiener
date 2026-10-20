@@ -293,10 +293,17 @@ a {
 }
 
 .content {
-  padding: 28px;
-  max-width: 1180px;
+  padding: 28px 32px;
+  max-width: 1400px;
   width: 100%;
   margin: 0 auto;
+  box-sizing: border-box;
+}
+
+@media (min-width: 1600px) {
+  .content {
+    max-width: 1540px;
+  }
 }
 
 /* Encabezado de página */
@@ -638,6 +645,16 @@ table.data tbody tr:hover {
   background: #FbFdFe;
 }
 
+table.data tfoot tr {
+  background: #F8FAFC;
+  border-top: 2px solid var(--border);
+}
+
+table.data tfoot td {
+  padding: 16px 18px;
+  vertical-align: middle;
+}
+
 table.data .strong {
   font-weight: 600;
   color: var(--text);
@@ -649,9 +666,16 @@ table.data .muted {
 }
 
 .row-actions {
-  display: flex;
+  display: inline-flex;
   gap: 8px;
   justify-content: flex-end;
+  align-items: center;
+}
+
+td.row-actions {
+  display: table-cell !important;
+  text-align: right;
+  vertical-align: middle;
 }
 
 /* Formularios */
@@ -2493,22 +2517,39 @@ textarea.input {
   line-height: 38px !important;
 }
 
-.vt-filter-grid .vt-field input[type="date"] {
-  padding: 0 10px 0 12px !important;
+.vt-filter-grid .vt-field input[type="date"],
+.reportes-field input[type="date"],
+input[type="date"] {
+  padding: 0 12px !important;
   line-height: 38px !important;
   display: flex !important;
   align-items: center !important;
+  justify-content: space-between !important;
+  box-sizing: border-box !important;
 }
 
-.vt-filter-grid .vt-field input[type="date"]::-webkit-calendar-picker-indicator {
+.vt-filter-grid .vt-field input[type="date"]::-webkit-datetime-edit,
+.reportes-field input[type="date"]::-webkit-datetime-edit,
+input[type="date"]::-webkit-datetime-edit {
+  flex: 1 1 auto !important;
+  padding: 0 !important;
+  margin: 0 !important;
+}
+
+.vt-filter-grid .vt-field input[type="date"]::-webkit-calendar-picker-indicator,
+.reportes-field input[type="date"]::-webkit-calendar-picker-indicator,
+input[type="date"]::-webkit-calendar-picker-indicator {
   cursor: pointer;
   opacity: 0.65;
   transition: opacity 0.15s;
-  padding: 0;
-  margin: 0;
+  padding: 3px;
+  margin: 0 0 0 auto !important;
+  flex-shrink: 0;
 }
 
-.vt-filter-grid .vt-field input[type="date"]::-webkit-calendar-picker-indicator:hover {
+.vt-filter-grid .vt-field input[type="date"]::-webkit-calendar-picker-indicator:hover,
+.reportes-field input[type="date"]::-webkit-calendar-picker-indicator:hover,
+input[type="date"]::-webkit-calendar-picker-indicator:hover {
   opacity: 1;
 }
 
@@ -3186,3 +3227,380 @@ textarea.input {
     margin: 14mm;
   }
 }
+
+/* ==========================================================================
+   VISTA PROCESAR — Estadísticas y Gráfico de Trámites Vigentes
+   ========================================================================== */
+.procesar-container {
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+.procesar-main-card {
+  background: #ffffff;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+  margin-top: 20px;
+}
+
+.procesar-banner-head {
+  background: linear-gradient(135deg, #0F848F 0%, #0b6770 100%);
+  color: #ffffff;
+  padding: 16px 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.procesar-banner-title {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-family: 'Lato', sans-serif;
+  font-size: 16px;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+}
+
+.procesar-banner-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.procesar-body-grid {
+  display: grid;
+  grid-template-columns: 1.15fr 0.85fr;
+  gap: 28px;
+  padding: 24px;
+}
+
+@media (max-width: 1080px) {
+  .procesar-body-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.procesar-table-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.procesar-chart-panel {
+  background: #F8FAFC;
+  border: 1px solid var(--border-soft);
+  border-radius: 12px;
+  padding: 20px 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.procesar-chart-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.procesar-chart-title {
+  font-family: 'Lato', sans-serif;
+  font-size: 17px;
+  font-weight: 700;
+  color: var(--text);
+  margin: 0;
+}
+
+.pie-chart-wrapper {
+  position: relative;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 12px 0;
+}
+
+.pie-chart-svg {
+  width: 100%;
+  max-width: 320px;
+  height: auto;
+  overflow: visible;
+  filter: drop-shadow(0 4px 10px rgba(0, 0, 0, 0.06));
+}
+
+.pie-slice {
+  transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.2s ease, filter 0.2s ease;
+  transform-origin: 180px 180px;
+  cursor: pointer;
+}
+
+.pie-slice:hover, .pie-slice.highlighted {
+  transform: scale(1.04);
+  filter: brightness(1.08) drop-shadow(0 6px 12px rgba(0, 0, 0, 0.15));
+  opacity: 1 !important;
+}
+
+.pie-legend-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.pie-legend-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 12px;
+  background: #ffffff;
+  border: 1px solid var(--border-soft);
+  border-radius: 8px;
+  font-size: 13px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.pie-legend-item:hover, .pie-legend-item.active {
+  border-color: var(--brand);
+  background: #F0FDFA;
+  transform: translateX(3px);
+}
+
+.pie-legend-left {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.pie-legend-dot {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.pie-legend-right {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.pie-legend-count {
+  font-family: 'Roboto', monospace;
+  font-weight: 700;
+  color: var(--text);
+}
+
+.pie-legend-percent {
+  font-size: 12px;
+  font-weight: 700;
+  padding: 2px 7px;
+  border-radius: 12px;
+  background: #EEF2F6;
+  color: var(--text-soft);
+}
+
+.procesar-status-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  display: inline-block;
+  margin-right: 8px;
+  vertical-align: middle;
+}
+
+.procesar-table tbody tr.row-highlight {
+  background: #F0FDFA !important;
+}
+
+/* ==========================================================================
+   VISTA REPORTES — Centro de Reportes Institucionales (Híbrido)
+   ========================================================================== */
+.reportes-filter-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.04);
+  margin-bottom: 24px;
+}
+
+.reportes-filter-banner {
+  background: linear-gradient(135deg, #4A6B82 0%, #3B5A70 100%);
+  color: #FFFFFF;
+  padding: 12px 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.reportes-banner-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-family: 'Lato', sans-serif;
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.reportes-filter-body {
+  padding: 18px 20px;
+}
+
+.reportes-filter-row {
+  display: flex;
+  align-items: flex-end;
+  gap: 14px;
+  flex-wrap: wrap;
+}
+
+.reportes-field {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  margin: 0;
+}
+
+.reportes-field label {
+  height: 16px;
+  line-height: 16px;
+  margin: 0 0 6px 0;
+  display: block;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text);
+}
+
+.reportes-field input[type="date"],
+.reportes-field input[type="text"] {
+  height: 40px;
+  min-height: 40px;
+  box-sizing: border-box;
+  padding: 0 12px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-xs);
+  font-family: 'Roboto', sans-serif;
+  font-size: 13.5px;
+  color: var(--text);
+  background: #FFFFFF;
+  transition: all 0.2s ease;
+}
+
+.reportes-field input:focus {
+  border-color: var(--brand);
+  box-shadow: 0 0 0 3px rgba(15, 132, 143, 0.16);
+  outline: none;
+}
+
+.reportes-field-select {
+  flex: 1 1 360px;
+  min-width: 280px;
+}
+
+.reportes-field-date {
+  flex: 0 1 150px;
+  min-width: 140px;
+}
+
+.reportes-btn-group {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: auto;
+}
+
+.reportes-btn-group .btn {
+  height: 40px;
+  min-height: 40px;
+  box-sizing: border-box;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  font-weight: 600;
+  padding: 0 20px;
+}
+
+/* Modalidad tags según Section 3 de Design.md */
+.modality-pill {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 3px 10px;
+  border-radius: 16px;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  white-space: nowrap;
+}
+
+.modality-pill.presencial {
+  background: #0F848F;
+  color: #FFFFFF;
+}
+
+.modality-pill.semipresencial {
+  background: #0284C7;
+  color: #FFFFFF;
+}
+
+.modality-pill.distancia {
+  background: #EA580C;
+  color: #FFFFFF;
+}
+
+/* Condición tags */
+.condicion-pill {
+  display: inline-flex;
+  align-items: center;
+  padding: 3px 9px;
+  border-radius: 6px;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+  white-space: nowrap;
+}
+
+.condicion-pill.promovido {
+  background: #E6F6ED;
+  color: #166534;
+  border: 1px solid #BBF7D0;
+}
+
+.condicion-pill.reincorporado {
+  background: #F3E8FF;
+  color: #6B21A8;
+  border: 1px solid #E9D5FF;
+}
+
+.condicion-pill.regular {
+  background: #F1F5F9;
+  color: #334155;
+  border: 1px solid #CBD5E1;
+}
+
+/* Catálogo colapsable */
+.catalog-drawer {
+  background: #F8FAFC;
+  border: 1px dashed var(--border);
+  border-radius: 12px;
+  padding: 22px 24px;
+  margin-bottom: 24px;
+  transition: all 0.3s ease;
+}
+
+.catalog-drawer.hidden {
+  display: none;
+}
+

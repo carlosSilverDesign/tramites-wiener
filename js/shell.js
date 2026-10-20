@@ -17,6 +17,8 @@
     flujos: 'M4 4h6v4H4V4zm10 12h6v4h-6v-4zM7 8v4a2 2 0 0 0 2 2h3M4 16h6v4H4v-4z',
     usuarios: 'M16 11a4 4 0 1 0-4-4 4 4 0 0 0 4 4zm-8 0a4 4 0 1 0-4-4 4 4 0 0 0 4 4zm0 2c-2.7 0-8 1.3-8 4v3h10v-3c0-1 .4-1.9 1-2.6C9.6 13.1 8.5 13 8 13zm8 0c-.3 0-.7 0-1.1.1A5.6 5.6 0 0 1 18 17v3h6v-3c0-2.7-5.3-4-8-4z',
     seguridad: 'M12 1 3 5v6c0 5.5 3.8 10.7 9 12 5.2-1.3 9-6.5 9-12V5l-9-4zm0 10.9h7c-.5 4.1-3.3 7.8-7 8.9V12H5V6.3l7-3.1V12z',
+    procesar: 'M11 2v20c-5.07-.5-9-4.79-9-10s3.93-9.5 9-10zm2.03 0v8.99H22c-.47-4.74-4.24-8.52-8.97-8.99zm0 11.01V22c4.74-.47 8.5-4.25 8.97-8.99h-8.97z',
+    reportes: 'M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zM9 17H7v-7h2v7zm4 0h-2V7h2v10zm4 0h-2v-4h2v4z',
     config: 'M12 8a4 4 0 1 0 0 8 4 4 0 0 0 0-8zm8.4 4 1.8 1.4-1.8 3.1-2.2-.7a6.9 6.9 0 0 1-1.5.9l-.3 2.3h-3.6l-.3-2.3c-.5-.2-1-.5-1.5-.9l-2.2.7-1.8-3.1L4.6 12l-.2-.9.2-1.1L2.8 8.6l1.8-3.1 2.2.7c.5-.4 1-.7 1.5-.9l.3-2.3h3.6l.3 2.3c.5.2 1 .5 1.5.9l2.2-.7 1.8 3.1L20.6 12z'
   };
 
@@ -34,6 +36,12 @@
         group: 'Operación', items: [
           { id: 'solicitudes', label: 'Vista de trámites', href: 'admin/solicitudes.html', icon: 'revisar', badge: 'pendientes' },
           { id: 'flujos', label: 'Flujos de trámites', href: 'admin/flujos.html', icon: 'flujos' }
+        ]
+      },
+      {
+        group: 'Reportes y Estadísticas', items: [
+          { id: 'procesar', label: 'Procesar', href: 'admin/procesar.html', icon: 'procesar' },
+          { id: 'reportes', label: 'Reportes', href: 'admin/reportes.html', icon: 'reportes' }
         ]
       },
       {
