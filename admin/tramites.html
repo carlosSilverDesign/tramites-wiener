@@ -838,11 +838,13 @@
             </div>
             <div class="filter-item">
               <span>Estado:</span>
-              <select class="filter-select" id="filter-tramite-estado" onchange="buscarTramite()">
-                <option value="todos" ${FILTER_ESTADO === 'todos' ? 'selected' : ''}>Todos</option>
-                <option value="activo" ${FILTER_ESTADO === 'activo' ? 'selected' : ''}>Activo</option>
-                <option value="inactivo" ${FILTER_ESTADO === 'inactivo' ? 'selected' : ''}>Inactivo</option>
-              </select>
+              <div class="select-wrap inline" style="margin:0;width:120px">
+                <select class="filter-select" id="filter-tramite-estado" onchange="buscarTramite()">
+                  <option value="todos" ${FILTER_ESTADO === 'todos' ? 'selected' : ''}>Todos</option>
+                  <option value="activo" ${FILTER_ESTADO === 'activo' ? 'selected' : ''}>Activo</option>
+                  <option value="inactivo" ${FILTER_ESTADO === 'inactivo' ? 'selected' : ''}>Inactivo</option>
+                </select>
+              </div>
             </div>
             <button class="btn btn-search-bar" onclick="buscarTramite()">${SVG_ICONS.search} <span>Buscar</span></button>
           </div>
@@ -943,11 +945,13 @@
             </div>
             <div class="filter-item">
               <span>Estado:</span>
-              <select class="filter-select" id="filter-area-estado" onchange="buscarArea()">
-                <option value="todos" ${FILTER_ESTADO === 'todos' ? 'selected' : ''}>Todos</option>
-                <option value="activo" ${FILTER_ESTADO === 'activo' ? 'selected' : ''}>Activo</option>
-                <option value="inactivo" ${FILTER_ESTADO === 'inactivo' ? 'selected' : ''}>Inactivo</option>
-              </select>
+              <div class="select-wrap inline" style="margin:0;width:120px">
+                <select class="filter-select" id="filter-area-estado" onchange="buscarArea()">
+                  <option value="todos" ${FILTER_ESTADO === 'todos' ? 'selected' : ''}>Todos</option>
+                  <option value="activo" ${FILTER_ESTADO === 'activo' ? 'selected' : ''}>Activo</option>
+                  <option value="inactivo" ${FILTER_ESTADO === 'inactivo' ? 'selected' : ''}>Inactivo</option>
+                </select>
+              </div>
             </div>
             <button class="btn btn-search-bar" onclick="buscarArea()">${SVG_ICONS.search} <span>Buscar</span></button>
           </div>
@@ -1045,11 +1049,13 @@
             </div>
             <div class="filter-item">
               <span>Estado:</span>
-              <select class="filter-select" id="filter-req-estado" onchange="buscarRequisito()">
-                <option value="todos" ${FILTER_ESTADO === 'todos' ? 'selected' : ''}>Todos</option>
-                <option value="activo" ${FILTER_ESTADO === 'activo' ? 'selected' : ''}>Activo</option>
-                <option value="inactivo" ${FILTER_ESTADO === 'inactivo' ? 'selected' : ''}>Inactivo</option>
-              </select>
+              <div class="select-wrap inline" style="margin:0;width:120px">
+                <select class="filter-select" id="filter-req-estado" onchange="buscarRequisito()">
+                  <option value="todos" ${FILTER_ESTADO === 'todos' ? 'selected' : ''}>Todos</option>
+                  <option value="activo" ${FILTER_ESTADO === 'activo' ? 'selected' : ''}>Activo</option>
+                  <option value="inactivo" ${FILTER_ESTADO === 'inactivo' ? 'selected' : ''}>Inactivo</option>
+                </select>
+              </div>
             </div>
             <button class="btn btn-search-bar" onclick="buscarRequisito()">${SVG_ICONS.search} <span>Buscar</span></button>
           </div>
@@ -1186,24 +1192,30 @@
 
             <div class="field">
               <label>Tipo de Activación:</label>
-              <select class="select" id="t-tipo-act">
-                <option value="Permanente" ${t.tipoActivacion === 'Permanente' ? 'selected' : ''}>Permanente</option>
-                <option value="Cronograma" ${t.tipoActivacion === 'Cronograma' ? 'selected' : ''}>Cronograma</option>
-              </select>
+              <div class="select-wrap">
+                <select class="select" id="t-tipo-act">
+                  <option value="Permanente" ${t.tipoActivacion === 'Permanente' ? 'selected' : ''}>Permanente</option>
+                  <option value="Cronograma" ${t.tipoActivacion === 'Cronograma' ? 'selected' : ''}>Cronograma</option>
+                </select>
+              </div>
             </div>
             <div class="field">
               <label>Envio Correo Personalizado:</label>
-              <select class="select" id="t-envio-correo">
-                <option value="no" ${!t.envioCorreo ? 'selected' : ''}>No</option>
-                <option value="si" ${t.envioCorreo ? 'selected' : ''}>Si</option>
-              </select>
+              <div class="select-wrap">
+                <select class="select" id="t-envio-correo">
+                  <option value="no" ${!t.envioCorreo ? 'selected' : ''}>No</option>
+                  <option value="si" ${t.envioCorreo ? 'selected' : ''}>Si</option>
+                </select>
+              </div>
             </div>
             <div class="field">
               <label>Habilitar:</label>
-              <select class="select" id="t-habilitar">
-                <option value="si" ${t.activo ? 'selected' : ''}>Si</option>
-                <option value="no" ${!t.activo ? 'selected' : ''}>No</option>
-              </select>
+              <div class="select-wrap">
+                <select class="select" id="t-habilitar">
+                  <option value="si" ${t.activo ? 'selected' : ''}>Si</option>
+                  <option value="no" ${!t.activo ? 'selected' : ''}>No</option>
+                </select>
+              </div>
             </div>
           </div>
 
@@ -1589,10 +1601,12 @@
           <div style="background:#FFF;border:1px solid var(--border-soft);border-radius:10px;padding:16px;margin-bottom:18px">
             <div class="field" style="max-width:440px;margin:0">
               <label style="font-size:13.5px;font-weight:700;color:var(--text);display:block;margin-bottom:6px">Área Responsable Principal:</label>
-              <select class="select" id="proc-area-principal" style="width:100%" onchange="window._PROCESO_DRAFT.area = this.value">
-                <option value="">-- Seleccione Área Responsable --</option>
-                ${areas.map(ar => `<option value="${ar.nombre}" ${t.area === ar.nombre ? 'selected' : ''}>${ar.nombre}</option>`).join('')}
-              </select>
+              <div class="select-wrap">
+                <select class="select" id="proc-area-principal" style="width:100%" onchange="window._PROCESO_DRAFT.area = this.value">
+                  <option value="">-- Seleccione Área Responsable --</option>
+                  ${areas.map(ar => `<option value="${ar.nombre}" ${t.area === ar.nombre ? 'selected' : ''}>${ar.nombre}</option>`).join('')}
+                </select>
+              </div>
             </div>
           </div>
 

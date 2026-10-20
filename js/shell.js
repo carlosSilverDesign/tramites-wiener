@@ -32,7 +32,7 @@
     administrativo: [
       {
         group: 'Operación', items: [
-          { id: 'solicitudes', label: 'Revisar solicitudes', href: 'admin/solicitudes.html', icon: 'revisar', badge: 'pendientes' },
+          { id: 'solicitudes', label: 'Vista de trámites', href: 'admin/solicitudes.html', icon: 'revisar', badge: 'pendientes' },
           { id: 'flujos', label: 'Flujos de trámites', href: 'admin/flujos.html', icon: 'flujos' }
         ]
       },
@@ -165,7 +165,12 @@
 
   // -------- Toast / simulación de correo --------
   function toast({ title, body, icon: ic = '🔔', timeout = 5200 }) {
-    const host = document.getElementById('toast-host');
+    let host = document.getElementById('toast-host');
+    if (!host) {
+      host = document.createElement('div');
+      host.id = 'toast-host';
+      document.body.appendChild(host);
+    }
     const el = document.createElement('div');
     el.className = 'toast mail';
     el.innerHTML = `<div class="t-title">${ic} ${title}</div><div class="t-body">${body}</div>`;
@@ -188,13 +193,22 @@
 
   function openModal(html, opts = {}) {
     _lastActiveElement = document.activeElement;
-    const host = document.getElementById('modal-host');
-    host.innerHTML = `<div class="modal-overlay open" id="ov" role="dialog" aria-modal="true"><div class="modal ${opts.wide ? 'wide' : ''}">${html}</div></div>`;
+    let host = document.getElementById('modal-host');
+    if (!host) {
+      host = document.createElement('div');
+      host.id = 'modal-host';
+      document.body.appendChild(host);
+    }
+    const cls = [opts.extraWide ? 'extra-wide' : (opts.wide ? 'wide' : ''), opts.className || ''].filter(Boolean).join(' ');
+    host.innerHTML = `<div class="modal-overlay open" id="ov" role="dialog" aria-modal="true"><div class="modal ${cls}">${html}</div></div>`;
     const ov = document.getElementById('ov');
     const modal = ov.querySelector('.modal');
 
     // Click en overlay exterior para cerrar
     ov.addEventListener('click', e => { if (e.target === ov && !opts.locked) closeModal(); });
+
+    // Inicializar selects personalizados si existen en el modal
+    setTimeout(() => initCustomSelects(modal), 0);
 
     // Focus trap y tecla Escape
     const focusableSelector = 'button:not([disabled]), [href], input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])';
@@ -362,9 +376,230 @@
     return `<span class="pill ${map[estado] || 'gray'}">${iconMap[estado] || ''}${estado}</span>`;
   }
 
+  // -------- Custom Select Dropdown System (Wiener Look & Feel) --------
+  function initCustomSelects(root) {
+    const container = root || document;
+    const selectWraps = container.querySelectorAll('.select-wrap');
+    selectWraps.forEach(wrap => {
+      const sel = wrap.querySelector('select');
+      if (!sel) return;
+
+      // Remove existing custom select elements if re-initializing
+      const oldTrigger = wrap.querySelector('.custom-select-trigger');
+      const oldMenu = wrap.querySelector('.custom-select-menu');
+      if (oldTrigger) oldTrigger.remove();
+      if (oldMenu) oldMenu.remove();
+
+      wrap.classList.add('custom-select-wrap');
+
+      // Visually hide native select while keeping it in DOM for forms/state
+      sel.style.position = 'absolute';
+      sel.style.opacity = '0';
+      sel.style.pointerEvents = 'none';
+      sel.style.width = '1px';
+      sel.style.height = '1px';
+      sel.style.margin = '-1px';
+      sel.style.clip = 'rect(0,0,0,0)';
+      sel.setAttribute('tabindex', '-1');
+
+      // Build trigger
+      const trigger = document.createElement('div');
+      trigger.className = 'custom-select-trigger';
+      trigger.setAttribute('tabindex', sel.disabled ? '-1' : '0');
+      trigger.setAttribute('role', 'combobox');
+      trigger.setAttribute('aria-expanded', 'false');
+      if (sel.disabled) trigger.classList.add('is-disabled');
+
+      const labelSpan = document.createElement('span');
+      labelSpan.className = 'custom-select-label';
+
+      const arrowSpan = document.createElement('span');
+      arrowSpan.className = 'custom-select-arrow';
+
+      trigger.appendChild(labelSpan);
+      trigger.appendChild(arrowSpan);
+
+      // Build menu
+      const menu = document.createElement('div');
+      menu.className = 'custom-select-menu';
+      menu.setAttribute('role', 'listbox');
+
+      function updateTriggerLabel() {
+        const curOpt = sel.options[sel.selectedIndex];
+        labelSpan.textContent = curOpt ? curOpt.text : '';
+      }
+
+      function populateMenu() {
+        menu.innerHTML = '';
+        const selectedIndex = sel.selectedIndex >= 0 ? sel.selectedIndex : 0;
+        Array.from(sel.options).forEach((opt, idx) => {
+          const item = document.createElement('div');
+          item.className = 'custom-select-item' + (idx === selectedIndex ? ' is-selected' : '');
+          item.setAttribute('role', 'option');
+          item.setAttribute('data-value', opt.value);
+          if (opt.disabled) item.classList.add('is-disabled');
+
+          const textSpan = document.createElement('span');
+          textSpan.textContent = opt.text;
+          item.appendChild(textSpan);
+
+          if (idx === selectedIndex) {
+            const check = document.createElement('span');
+            check.className = 'custom-select-check';
+            check.textContent = '✓';
+            item.appendChild(check);
+          }
+
+          item.addEventListener('click', (e) => {
+            e.stopPropagation();
+            if (opt.disabled) return;
+            selectOption(opt.value, opt.text);
+          });
+
+          menu.appendChild(item);
+        });
+      }
+
+      function openMenu() {
+        if (sel.disabled) return;
+        // Close other open custom selects
+        document.querySelectorAll('.custom-select-wrap.is-open').forEach(other => {
+          if (other !== wrap) {
+            other.classList.remove('is-open');
+            const otherTrig = other.querySelector('.custom-select-trigger');
+            if (otherTrig) otherTrig.setAttribute('aria-expanded', 'false');
+          }
+        });
+
+        wrap.classList.add('is-open');
+        trigger.setAttribute('aria-expanded', 'true');
+
+        // Dynamically align right if near edge or in modal header
+        const rect = wrap.getBoundingClientRect();
+        if (rect.right + 120 > window.innerWidth || wrap.closest('.vt-modal-top-controls')) {
+          menu.style.left = 'auto';
+          menu.style.right = '0';
+        } else {
+          menu.style.left = '0';
+          menu.style.right = 'auto';
+        }
+
+        const selItem = menu.querySelector('.custom-select-item.is-selected');
+        if (selItem) {
+          selItem.scrollIntoView({ block: 'nearest' });
+        }
+      }
+
+      function closeMenu() {
+        wrap.classList.remove('is-open');
+        trigger.setAttribute('aria-expanded', 'false');
+      }
+
+      function selectOption(val, text) {
+        sel.value = val;
+        labelSpan.textContent = text;
+
+        menu.querySelectorAll('.custom-select-item').forEach(it => {
+          const isMatch = it.getAttribute('data-value') === String(val);
+          it.classList.toggle('is-selected', isMatch);
+          let check = it.querySelector('.custom-select-check');
+          if (isMatch && !check) {
+            check = document.createElement('span');
+            check.className = 'custom-select-check';
+            check.textContent = '✓';
+            it.appendChild(check);
+          } else if (!isMatch && check) {
+            check.remove();
+          }
+        });
+
+        // Close menu immediately so the arrow rotates back immediately
+        closeMenu();
+        trigger.blur();
+
+        // Dispatch change & input events on native select
+        sel.dispatchEvent(new Event('change', { bubbles: true }));
+        sel.dispatchEvent(new Event('input', { bubbles: true }));
+      }
+
+      trigger.addEventListener('click', (e) => {
+        e.stopPropagation();
+        if (wrap.classList.contains('is-open')) closeMenu();
+        else openMenu();
+      });
+
+      trigger.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          if (wrap.classList.contains('is-open')) closeMenu();
+          else openMenu();
+        } else if (e.key === 'Escape') {
+          if (wrap.classList.contains('is-open')) {
+            e.preventDefault();
+            e.stopPropagation();
+            closeMenu();
+          }
+        } else if (e.key === 'ArrowDown') {
+          e.preventDefault();
+          if (!wrap.classList.contains('is-open')) openMenu();
+          else {
+            const items = Array.from(menu.querySelectorAll('.custom-select-item:not(.is-disabled)'));
+            const curIdx = items.findIndex(it => it.classList.contains('is-selected'));
+            if (curIdx < items.length - 1) {
+              const nextItem = items[curIdx + 1];
+              selectOption(nextItem.getAttribute('data-value'), nextItem.querySelector('span').textContent);
+              openMenu();
+            }
+          }
+        } else if (e.key === 'ArrowUp') {
+          e.preventDefault();
+          if (!wrap.classList.contains('is-open')) openMenu();
+          else {
+            const items = Array.from(menu.querySelectorAll('.custom-select-item:not(.is-disabled)'));
+            const curIdx = items.findIndex(it => it.classList.contains('is-selected'));
+            if (curIdx > 0) {
+              const prevItem = items[curIdx - 1];
+              selectOption(prevItem.getAttribute('data-value'), prevItem.querySelector('span').textContent);
+              openMenu();
+            }
+          }
+        }
+      });
+
+      updateTriggerLabel();
+      populateMenu();
+
+      wrap.appendChild(trigger);
+      wrap.appendChild(menu);
+    });
+  }
+
+  // Global document click & Escape listeners for custom selects
+  if (typeof document !== 'undefined') {
+    document.addEventListener('click', (e) => {
+      if (!e.target.closest('.custom-select-wrap')) {
+        document.querySelectorAll('.custom-select-wrap.is-open').forEach(wrap => {
+          wrap.classList.remove('is-open');
+          const trigger = wrap.querySelector('.custom-select-trigger');
+          if (trigger) trigger.setAttribute('aria-expanded', 'false');
+        });
+      }
+    });
+
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') {
+        document.querySelectorAll('.custom-select-wrap.is-open').forEach(wrap => {
+          wrap.classList.remove('is-open');
+          const trigger = wrap.querySelector('.custom-select-trigger');
+          if (trigger) trigger.setAttribute('aria-expanded', 'false');
+        });
+      }
+    });
+  }
+
   window.APP = {
     BASE, getSession, setSession, logout, renderShell, toggleNav, icon, ICONS,
-    toast, sendMail, openModal, closeModal,
+    toast, sendMail, openModal, closeModal, initCustomSelects,
     niubizCheckout, _nbMask, _nbExp,
     money, initials, todayISO, nowStamp, calcSLA, pillFor
   };

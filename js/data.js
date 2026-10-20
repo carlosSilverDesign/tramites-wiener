@@ -409,80 +409,680 @@
         }
       ],
 
-      // ---- Solicitudes realizadas por alumnos ----
+      // ---- Solicitudes realizadas por alumnos (Catálogo Vista de Trámites) ----
       solicitudes: [
         {
-          id: 'S-2026-0188', tramiteId: 'T-001', tramiteNombre: 'Constancia de Matrícula',
-          alumnoId: 'U-ALU-1', alumnoNombre: 'María Fernanda Quispe', alumnoCodigo: '2021100345',
-          fecha: '2026-06-22', estado: 'En revisión', costo: 25.00,
-          pago: { estado: 'pagado', metodo: 'Niubiz · Visa ****4821', monto: 25.00, fecha: '2026-06-22', operacion: 'NB-90381245' },
-          pagoMomento: 'antes', area: 'Registros Académicos',
-          observacion: 'En cola de verificación documental.', motivo: 'Trámite bancario',
-          adjunto: null,
+          id: '2026.43532',
+          ticket: '2026.43532',
+          sedeCodigo: '7808',
+          sede: '7808 - Av. Petit Thouars Nº 397 Lima',
+          institucion: 'I.E.S. Particular Daniel Alcides Carrión',
+          tramiteId: 'T-008',
+          tramiteNombre: 'Certificado de Formación Continua (S1)',
+          carrera: 'DRENAJE LINFÁTICO',
+          periodo: '2026-2',
+          seccion: '4DL12',
+          alumnoId: 'C03AE04204',
+          alumnoCodigo: 'C03AE04204',
+          alumnoNombre: 'RAYME ORE, Karina Anali',
+          alumnoDni: '42579879',
+          alumnoEmail: 'karyray8@gmail.com',
+          alumnoTelefono: '977812174',
+          alumnoCelular: '977812174',
+          estado: 'Solicitado',
+          activo: true,
+          fecha: '2026-09-25',
+          fechaHora: '2026-09-25 10:15:20 PM',
+          costo: 150.00,
+          conceptoCodigo: '33020109',
+          pago: {
+            estado: 'pendiente',
+            obligacionGenerada: false,
+            monto: 150.00,
+            carrera: 'Drenaje Linfático',
+            nroDocumento: '-',
+            fechaPago: null,
+            fechaObligacion: null
+          },
+          detalle: 'Solicito la expedición de mi certificado de formación continua del módulo de drenaje linfático.',
+          requisitos: [
+            {
+              id: 'REQ-01',
+              orden: 1,
+              titulo: 'Fotografía, tamaño pasaporte, papel mate, fondo blanco, con la indumentaria de la especialidad o vestimenta formal, ángulo frontal/normal, no selfi, no lentes, no gorra, no piercing.',
+              archivo: 'FOTO.jpg',
+              tipoArchivo: 'JPG',
+              cumple: false,
+              especificacion: 'Tamaño: máximo 1MB, Tipo: JPG, Nombre: FOTO.jpg'
+            },
+            {
+              id: 'REQ-02',
+              orden: 2,
+              titulo: 'Documento de Identidad Vigente',
+              archivo: 'DNI.pdf',
+              tipoArchivo: 'PDF',
+              cumple: false,
+              especificacion: 'Tamaño: máximo 2MB, Tipo: PDF, Nombre: DNI.pdf'
+            }
+          ],
+          proceso: [
+            { orden: 1, area: 'Registros Académicos', plazoHoras: 48, diasRetraso: 0, observacionInterna: '', estado: 'Pendiente', fechaAtencion: null }
+          ],
+          mensajeSolicitante: '',
           historial: [
-            { estado: 'Pendiente de pago', fecha: '2026-06-22 09:14', nota: 'Solicitud creada por el alumno' },
-            { estado: 'En revisión', fecha: '2026-06-22 09:20', nota: 'Pago confirmado vía Niubiz' }
+            { estado: 'Solicitado', fecha: '2026-09-25 10:15', nota: 'Solicitud registrada por el alumno' }
           ]
         },
         {
-          id: 'S-2026-0181', tramiteId: 'T-003', tramiteNombre: 'Certificado de Estudios',
-          alumnoId: 'U-ALU-2', alumnoNombre: 'José Antonio Ramos', alumnoCodigo: '2019054420',
-          fecha: '2026-06-20', estado: 'Aprobado', costo: 120.00,
-          pago: { estado: 'pagado', metodo: 'Niubiz · Mastercard ****1190', monto: 120.00, fecha: '2026-06-20', operacion: 'NB-90377112' },
-          pagoMomento: 'antes', area: 'Grados y Títulos',
-          observacion: 'Aprobado. Documento en proceso de emisión oficial.', motivo: 'Postulación laboral',
-          adjunto: 'dni_jramos.pdf',
+          id: '2026.43531',
+          ticket: '2026.43531',
+          sedeCodigo: '7808',
+          sede: '7808 - Av. Petit Thouars Nº 397 Lima',
+          institucion: 'I.E.S. Particular Daniel Alcides Carrión',
+          tramiteId: 'T-008',
+          tramiteNombre: 'Certificado de Formación Continua (S1)',
+          carrera: 'PODOLOGÍA CLÍNICA Y ESTÉTICA AVANZADA',
+          periodo: '2026-2',
+          seccion: '6ME42',
+          alumnoId: 'C03AE04204',
+          alumnoCodigo: 'C03AE04204',
+          alumnoNombre: 'RAYME ORE, Karina Anali',
+          alumnoDni: '42579879',
+          alumnoEmail: 'karyray8@gmail.com',
+          alumnoTelefono: '977812174',
+          alumnoCelular: '977812174',
+          estado: 'Solicitado',
+          activo: true,
+          fecha: '2026-09-25',
+          fechaHora: '2026-09-25 10:03:27 PM',
+          costo: 150.00,
+          conceptoCodigo: '33020109',
+          pago: {
+            estado: 'pendiente',
+            obligacionGenerada: false,
+            monto: 150.00,
+            carrera: 'Podología Clínica Y Estética Avanzada',
+            nroDocumento: '-',
+            fechaPago: null,
+            fechaObligacion: null
+          },
+          detalle: 'Requiere validación de módulos de estética avanzada para convalidación profesional.',
+          requisitos: [
+            {
+              id: 'REQ-01',
+              orden: 1,
+              titulo: 'Fotografía, tamaño pasaporte, papel mate, fondo blanco, con la indumentaria de la especialidad o vestimenta formal, ángulo frontal/normal, no selfi, no lentes, no gorra, no piercing.',
+              archivo: 'FOTO.jpg',
+              tipoArchivo: 'JPG',
+              cumple: false,
+              especificacion: 'Tamaño: máximo 1MB, Tipo: JPG, Nombre: FOTO.jpg'
+            },
+            {
+              id: 'REQ-02',
+              orden: 2,
+              titulo: 'Documento de Identidad Vigente',
+              archivo: 'DNI.pdf',
+              tipoArchivo: 'PDF',
+              cumple: false,
+              especificacion: 'Tamaño: máximo 2MB, Tipo: PDF, Nombre: DNI.pdf'
+            }
+          ],
+          proceso: [
+            { orden: 1, area: 'Registros Académicos', plazoHoras: 48, diasRetraso: 0, observacionInterna: '', estado: 'Pendiente', fechaAtencion: null }
+          ],
+          mensajeSolicitante: '',
           historial: [
-            { estado: 'Pendiente de pago', fecha: '2026-06-20 11:02', nota: 'Solicitud creada' },
-            { estado: 'En revisión', fecha: '2026-06-20 11:10', nota: 'Pago confirmado vía Niubiz' },
-            { estado: 'Aprobado', fecha: '2026-06-21 16:40', nota: 'Validado por C. Mendoza' }
+            { estado: 'Solicitado', fecha: '2026-09-25 10:03', nota: 'Solicitud registrada por el alumno' }
           ]
         },
         {
-          id: 'S-2026-0175', tramiteId: 'T-002', tramiteNombre: 'Constancia de Tercio Superior',
-          alumnoId: 'U-ALU-1', alumnoNombre: 'María Fernanda Quispe', alumnoCodigo: '2021100345',
-          fecha: '2026-06-18', estado: 'Emitido', costo: 40.00,
-          pago: { estado: 'pagado', metodo: 'Niubiz · Visa ****4821', monto: 40.00, fecha: '2026-06-18', operacion: 'NB-90370045' },
-          pagoMomento: 'antes', area: 'Registros Académicos',
-          observacion: 'Documento disponible para descarga.', motivo: 'Beca de estudios',
-          adjunto: null,
+          id: '2026.43530',
+          ticket: '2026.43530',
+          sedeCodigo: '7818',
+          sede: '7818 - Av. Arequipa 440 Lima',
+          institucion: 'I.E.S. Particular Daniel Alcides Carrión',
+          tramiteId: 'T-007',
+          tramiteNombre: 'Diploma de Egresado Malla Licenciamiento',
+          carrera: 'NUTRICIÓN Y DIETÉTICA',
+          periodo: '2026-1',
+          seccion: '8ND01',
+          alumnoId: 'C22AN02246',
+          alumnoCodigo: 'C22AN02246',
+          alumnoNombre: 'CALDERON ESPINAL, Junior Cesar',
+          alumnoDni: '70291845',
+          alumnoEmail: 'junior.calderon@carrion.edu.pe',
+          alumnoTelefono: '984512390',
+          alumnoCelular: '984512390',
+          estado: 'Solicitado',
+          activo: true,
+          fecha: '2026-09-25',
+          fechaHora: '2026-09-25 09:45:10 PM',
+          costo: 350.00,
+          conceptoCodigo: '33020115',
+          pago: {
+            estado: 'pendiente',
+            obligacionGenerada: false,
+            monto: 350.00,
+            carrera: 'Nutrición y Dietética',
+            nroDocumento: '-',
+            fechaPago: null,
+            fechaObligacion: null
+          },
+          detalle: 'Diploma de egresado para trámite de colegiatura y prácticas avanzadas.',
+          requisitos: [
+            {
+              id: 'REQ-02',
+              orden: 1,
+              titulo: 'Documento de Identidad Vigente',
+              archivo: 'DNI_CALDERON.pdf',
+              tipoArchivo: 'PDF',
+              cumple: true,
+              especificacion: 'Formato PDF'
+            },
+            {
+              id: 'REQ-03',
+              orden: 2,
+              titulo: 'Constancia de no adeudo bibliográfico',
+              archivo: 'NO_ADEUDO.pdf',
+              tipoArchivo: 'PDF',
+              cumple: false,
+              especificacion: 'Formato PDF'
+            }
+          ],
+          proceso: [
+            { orden: 1, area: 'Registros Académicos', plazoHoras: 48, diasRetraso: 0, observacionInterna: '', estado: 'Pendiente', fechaAtencion: null },
+            { orden: 2, area: 'Grados y Títulos', plazoHoras: 72, diasRetraso: 0, observacionInterna: '', estado: 'Pendiente', fechaAtencion: null }
+          ],
+          mensajeSolicitante: '',
           historial: [
-            { estado: 'Pendiente de pago', fecha: '2026-06-18 08:30', nota: 'Solicitud creada' },
-            { estado: 'En revisión', fecha: '2026-06-18 08:35', nota: 'Pago confirmado vía Niubiz' },
-            { estado: 'Aprobado', fecha: '2026-06-18 14:00', nota: 'Validado por C. Mendoza' },
-            { estado: 'Emitido', fecha: '2026-06-19 10:15', nota: 'Documento emitido y notificado con firma digital' }
+            { estado: 'Solicitado', fecha: '2026-09-25 09:45', nota: 'Solicitud registrada por el alumno' }
           ]
         },
         {
-          id: 'S-2026-0168', tramiteId: 'T-007', tramiteNombre: 'Carné Universitario (Duplicado)',
-          alumnoId: 'U-ALU-1', alumnoNombre: 'María Fernanda Quispe', alumnoCodigo: '2021100345',
-          fecha: '2026-06-15', estado: 'Observado', costo: 35.00,
-          pago: { estado: 'pagado', metodo: 'Niubiz · Visa ****4821', monto: 35.00, fecha: '2026-06-15', operacion: 'NB-90365011' },
-          pagoMomento: 'antes', area: 'Bienestar Universitario',
-          observacion: 'La fotografía adjunta no cuenta con el fondo blanco reglamentario. Favor de adjuntar una foto formal actualizada con fondo blanco.',
-          motivo: 'Duplicado por pérdida',
-          requiereSubsanacion: true,
-          horasRestantesSubsanacion: 48,
-          adjunto: 'foto_dni_antigua.jpg',
+          id: '2026.43529',
+          ticket: '2026.43529',
+          sedeCodigo: '7818',
+          sede: '7818 - Av. Arequipa 440 Lima',
+          institucion: 'I.E.S. Particular Daniel Alcides Carrión',
+          tramiteId: 'T-008',
+          tramiteNombre: 'Grado de Bachiller Técnico',
+          carrera: 'FARMACIA TÉCNICA',
+          periodo: '2026-2',
+          seccion: '6FT12',
+          alumnoId: 'C23BB08206',
+          alumnoCodigo: 'C23BB08206',
+          alumnoNombre: 'ADRIANZEN PEÑA, Lidia',
+          alumnoDni: '46891234',
+          alumnoEmail: 'lidia.adrianzen@carrion.edu.pe',
+          alumnoTelefono: '912345678',
+          alumnoCelular: '912345678',
+          estado: 'Solicitado',
+          activo: true,
+          fecha: '2026-09-25',
+          fechaHora: '2026-09-25 09:12:00 PM',
+          costo: 600.00,
+          conceptoCodigo: '33020112',
+          pago: {
+            estado: 'pendiente',
+            obligacionGenerada: false,
+            monto: 600.00,
+            carrera: 'Farmacia Técnica',
+            nroDocumento: '-',
+            fechaPago: null,
+            fechaObligacion: null
+          },
+          detalle: 'Expediente de bachiller técnico convalidado.',
+          requisitos: [
+            {
+              id: 'REQ-01',
+              orden: 1,
+              titulo: 'Fotografía formal fondo blanco',
+              archivo: 'FOTO_LIDIA.jpg',
+              tipoArchivo: 'JPG',
+              cumple: true,
+              especificacion: 'Fondo blanco'
+            }
+          ],
+          proceso: [
+            { orden: 1, area: 'Grados y Títulos', plazoHoras: 48, diasRetraso: 0, observacionInterna: '', estado: 'Pendiente', fechaAtencion: null }
+          ],
+          mensajeSolicitante: '',
           historial: [
-            { estado: 'Pendiente de pago', fecha: '2026-06-15 10:10', nota: 'Solicitud creada por el alumno' },
-            { estado: 'En revisión', fecha: '2026-06-15 10:15', nota: 'Pago confirmado vía Niubiz' },
-            { estado: 'Observado', fecha: '2026-06-16 11:30', nota: 'Observación por Bienestar Universitario: Foto no cumple con fondo blanco reglamentario. Se otorgan 48 horas para subsanar.' }
+            { estado: 'Solicitado', fecha: '2026-09-25 09:12', nota: 'Solicitud registrada por el alumno' }
           ]
         },
         {
-          id: 'S-2026-0155', tramiteId: 'T-004', tramiteNombre: 'Constancia de Quinto Superior',
-          alumnoId: 'U-ALU-1', alumnoNombre: 'María Fernanda Quispe', alumnoCodigo: '2021100345',
-          fecha: '2026-06-10', estado: 'Rechazado', costo: 45.00,
-          pago: { estado: 'pagado', metodo: 'Niubiz · Visa ****4821', monto: 45.00, fecha: '2026-06-10', operacion: 'NB-90355099' },
-          pagoMomento: 'antes', area: 'Registros Académicos',
-          motivo: 'Postulación a pasantía internacional',
-          observacion: 'Solicitud no procedente: Según el cuadro oficial de méritos 2026-I, el estudiante cuenta con condición de Tercio Superior, no alcanzando el percentil requerido para Quinto Superior (mínimo promedio 17.00, promedio actual: 16.20).',
-          adjunto: null,
+          id: '2026.43528',
+          ticket: '2026.43528',
+          sedeCodigo: '7818',
+          sede: '7818 - Av. Arequipa 440 Lima',
+          institucion: 'I.E.S. Particular Daniel Alcides Carrión',
+          tramiteId: 'T-009',
+          tramiteNombre: 'Título Profesional Técnico (MALLA LICENCIAMIENTO)',
+          carrera: 'ENFERMERÍA TÉCNICA',
+          periodo: '2026-2',
+          seccion: '6ET31',
+          alumnoId: 'C23AE02615',
+          alumnoCodigo: 'C23AE02615',
+          alumnoNombre: 'LARA FABIAN, Jenifer',
+          alumnoDni: '74128956',
+          alumnoEmail: 'jennifer.lara@carrion.edu.pe',
+          alumnoTelefono: '945671234',
+          alumnoCelular: '945671234',
+          estado: 'Solicitado',
+          activo: true,
+          fecha: '2026-09-25',
+          fechaHora: '2026-09-25 08:30:00 PM',
+          costo: 900.00,
+          conceptoCodigo: '33020109',
+          pago: {
+            estado: 'pendiente',
+            obligacionGenerada: true,
+            monto: 900.00,
+            carrera: 'Enfermería Técnica',
+            nroDocumento: '-',
+            fechaPago: null,
+            fechaObligacion: '2026-09-25 08:35:00'
+          },
+          detalle: 'Trámite de titulación profesional técnica.',
+          requisitos: [
+            {
+              id: 'REQ-01',
+              orden: 1,
+              titulo: 'Grado de bachiller (ambos lados)',
+              archivo: 'BACHILLER_LARA.pdf',
+              tipoArchivo: 'PDF',
+              cumple: true,
+              especificacion: 'Documento escaneado nítido'
+            },
+            {
+              id: 'REQ-02',
+              orden: 2,
+              titulo: 'Foto con la indumentaria de la especialidad con fondo blanco (nítida y vigente)',
+              archivo: 'FOTO_TITULO.jpg',
+              tipoArchivo: 'JPG',
+              cumple: true,
+              especificacion: 'Tamaño pasaporte'
+            },
+            {
+              id: 'REQ-03',
+              orden: 3,
+              titulo: 'Información Laboral',
+              archivo: 'CONSTANCIA_LABORAL.pdf',
+              tipoArchivo: 'PDF',
+              cumple: true,
+              especificacion: 'Constancia de prácticas'
+            },
+            {
+              id: 'REQ-04',
+              orden: 4,
+              titulo: 'Declaración Jurada para Título Malla Licenciamiento (descargar, completar con firma igual que el DNI y adjuntar)',
+              archivo: 'DJ_TITULO.pdf',
+              tipoArchivo: 'PDF',
+              cumple: true,
+              especificacion: 'Formato institucional firmado'
+            }
+          ],
+          proceso: [
+            {
+              orden: 1,
+              area: 'Dirección Académica',
+              plazoHoras: 48,
+              diasRetraso: 0,
+              observacionInterna: 'Pendiente de pago previo para iniciar atención',
+              estado: 'Pendiente',
+              fechaAtencion: null
+            }
+          ],
+          mensajeSolicitante: 'Una vez aprobada la solicitud, deberá realizar el pago en BCP, BBVA, Interbank o Scotiabank dentro del plazo máximo de 3 días. Puede realizar su pago en los bancos autorizados y yape, opción Trámites académicos con su código de alumno en mayúscula, pasos en el siguiente link: https://www.youtube.com/watch?v=CE2ZASixxYk',
           historial: [
-            { estado: 'Pendiente de pago', fecha: '2026-06-10 14:20', nota: 'Solicitud registrada por el alumno' },
-            { estado: 'En revisión', fecha: '2026-06-10 14:25', nota: 'Pago confirmado vía Niubiz (Op. NB-90355099)' },
-            { estado: 'Rechazado', fecha: '2026-06-11 11:45', nota: 'Desestimado por Registros Académicos (Lic. Carlos Mendoza): No alcanza el percentil de Quinto Superior. Se iniciará trámite de devolución económica si corresponde.' }
+            { estado: 'Solicitado', fecha: '2026-09-25 08:30', nota: 'Solicitud registrada por el alumno' },
+            { estado: 'Solicitado', fecha: '2026-09-25 08:35', nota: 'Obligación de pago de S/ 900 generada' }
+          ]
+        },
+        {
+          id: '2026.43527',
+          ticket: '2026.43527',
+          sedeCodigo: '7818',
+          sede: '7818 - Av. Arequipa 440 Lima',
+          institucion: 'I.E.S. Particular Daniel Alcides Carrión',
+          tramiteId: 'T-008',
+          tramiteNombre: 'Grado de Bachiller Técnico',
+          carrera: 'FARMACIA TÉCNICA',
+          periodo: '2026-2',
+          seccion: '6FT12',
+          alumnoId: 'C23BB08206',
+          alumnoCodigo: 'C23BB08206',
+          alumnoNombre: 'ADRIANZEN PEÑA, Lidia',
+          alumnoDni: '46891234',
+          alumnoEmail: 'lidia.adrianzen@carrion.edu.pe',
+          alumnoTelefono: '912345678',
+          alumnoCelular: '912345678',
+          estado: 'Cancelar',
+          activo: false,
+          fecha: '2026-09-25',
+          fechaHora: '2026-09-25 07:15:00 PM',
+          costo: 450.00,
+          conceptoCodigo: '33020112',
+          pago: {
+            estado: 'pendiente',
+            obligacionGenerada: false,
+            monto: 450.00,
+            carrera: 'Farmacia Técnica',
+            nroDocumento: '-',
+            fechaPago: null
+          },
+          detalle: 'Cancelado por el alumno.',
+          requisitos: [],
+          proceso: [],
+          mensajeSolicitante: 'Trámite cancelado a solicitud del estudiante.',
+          historial: [
+            { estado: 'Solicitado', fecha: '2026-09-25 07:00', nota: 'Solicitud registrada' },
+            { estado: 'Cancelar', fecha: '2026-09-25 07:15', nota: 'Cancelado por el estudiante' }
+          ]
+        },
+        {
+          id: '2026.43526',
+          ticket: '2026.43526',
+          sedeCodigo: '7818',
+          sede: '7818 - Av. Arequipa 440 Lima',
+          institucion: 'I.E.S. Particular Daniel Alcides Carrión',
+          tramiteId: 'T-007',
+          tramiteNombre: 'Diploma de Egresado Malla Licenciamiento',
+          carrera: 'FARMACIA TÉCNICA',
+          periodo: '2026-1',
+          seccion: '6FT01',
+          alumnoId: 'C22AF02736',
+          alumnoCodigo: 'C22AF02736',
+          alumnoNombre: 'LEON REY, Marcelo Francesco',
+          alumnoDni: '71928341',
+          alumnoEmail: 'marcelo.leon@carrion.edu.pe',
+          alumnoTelefono: '984127890',
+          alumnoCelular: '984127890',
+          estado: 'Solicitado',
+          activo: true,
+          fecha: '2026-09-25',
+          fechaHora: '2026-09-25 06:40:00 PM',
+          costo: 350.00,
+          conceptoCodigo: '33020115',
+          pago: {
+            estado: 'pendiente',
+            obligacionGenerada: false,
+            monto: 350.00,
+            carrera: 'Farmacia Técnica',
+            nroDocumento: '-',
+            fechaPago: null
+          },
+          detalle: 'Egresado de la carrera técnica de farmacia.',
+          requisitos: [
+            { id: 'REQ-02', orden: 1, titulo: 'Documento de Identidad Vigente', archivo: 'DNI_LEON.pdf', tipoArchivo: 'PDF', cumple: true, especificacion: 'Formato PDF' }
+          ],
+          proceso: [
+            { orden: 1, area: 'Registros Académicos', plazoHoras: 48, diasRetraso: 0, observacionInterna: '', estado: 'Pendiente', fechaAtencion: null }
+          ],
+          mensajeSolicitante: '',
+          historial: [
+            { estado: 'Solicitado', fecha: '2026-09-25 06:40', nota: 'Solicitud registrada por el alumno' }
+          ]
+        },
+        {
+          id: '2026.43525',
+          ticket: '2026.43525',
+          sedeCodigo: '7808',
+          sede: '7808 - Av. Petit Thouars Nº 397 Lima',
+          institucion: 'I.E.S. Particular Daniel Alcides Carrión',
+          tramiteId: 'T-008',
+          tramiteNombre: 'Certificado de Formación Continua (S1)',
+          carrera: 'PODOLOGÍA CLÍNICA Y ESTÉTICA - F1',
+          periodo: '2026-2',
+          seccion: '4PC02',
+          alumnoId: 'C24S103156',
+          alumnoCodigo: 'C24S103156',
+          alumnoNombre: 'VASQUEZ CHUQUI, Naomi',
+          alumnoDni: '73948512',
+          alumnoEmail: 'naomi.vasquez@carrion.edu.pe',
+          alumnoTelefono: '934567123',
+          alumnoCelular: '934567123',
+          estado: 'Solicitado',
+          activo: true,
+          fecha: '2026-09-25',
+          fechaHora: '2026-09-25 05:22:00 PM',
+          costo: 150.00,
+          conceptoCodigo: '33020109',
+          pago: {
+            estado: 'pendiente',
+            obligacionGenerada: false,
+            monto: 150.00,
+            carrera: 'Podología Clínica y Estética',
+            nroDocumento: '-',
+            fechaPago: null
+          },
+          detalle: 'Certificado modular formativo.',
+          requisitos: [
+            { id: 'REQ-01', orden: 1, titulo: 'Fotografía formal fondo blanco', archivo: 'FOTO_VASQUEZ.jpg', tipoArchivo: 'JPG', cumple: false, especificacion: 'Fondo blanco' }
+          ],
+          proceso: [
+            { orden: 1, area: 'Registros Académicos', plazoHoras: 48, diasRetraso: 0, observacionInterna: '', estado: 'Pendiente', fechaAtencion: null }
+          ],
+          mensajeSolicitante: '',
+          historial: [
+            { estado: 'Solicitado', fecha: '2026-09-25 05:22', nota: 'Solicitud registrada' }
+          ]
+        },
+        {
+          id: '2026.43524',
+          ticket: '2026.43524',
+          sedeCodigo: '7808',
+          sede: '7808 - Av. Petit Thouars Nº 397 Lima',
+          institucion: 'I.E.S. Particular Daniel Alcides Carrión',
+          tramiteId: 'T-006',
+          tramiteNombre: 'Constancia de Estudios',
+          carrera: 'TÉCNICA EN FISIOTERAPIA Y REHABILITACIÓN',
+          periodo: '2026-2',
+          seccion: '2FR01',
+          alumnoId: 'C26BR08408',
+          alumnoCodigo: 'C26BR08408',
+          alumnoNombre: 'CUBAS DIAZ, Luselina',
+          alumnoDni: '74829103',
+          alumnoEmail: 'luselina.cubas@carrion.edu.pe',
+          alumnoTelefono: '981234567',
+          alumnoCelular: '981234567',
+          estado: 'Solicitado',
+          activo: true,
+          fecha: '2026-09-25',
+          fechaHora: '2026-09-25 04:10:00 PM',
+          costo: 50.00,
+          conceptoCodigo: '33020101',
+          pago: {
+            estado: 'pendiente',
+            obligacionGenerada: false,
+            monto: 50.00,
+            carrera: 'Fisioterapia y Rehabilitación',
+            nroDocumento: '-',
+            fechaPago: null
+          },
+          detalle: 'Constancia para presentación de seguro estudiantil.',
+          requisitos: [],
+          proceso: [
+            { orden: 1, area: 'Registros Académicos', plazoHoras: 48, diasRetraso: 0, observacionInterna: '', estado: 'Pendiente', fechaAtencion: null }
+          ],
+          mensajeSolicitante: '',
+          historial: [
+            { estado: 'Solicitado', fecha: '2026-09-25 04:10', nota: 'Solicitud registrada' }
+          ]
+        },
+        {
+          id: '2026.43515',
+          ticket: '2026.43515',
+          sedeCodigo: '7803-2',
+          sede: '7803-2 - Jr. Larrabure y Unanue 110 Santa Beatriz, Lima',
+          institucion: 'Universidad Norbert Wiener',
+          tramiteId: 'T-009',
+          tramiteNombre: 'Título Profesional Técnico (MALLA LICENCIAMIENTO)',
+          carrera: 'ENFERMERÍA TÉCNICA',
+          periodo: '2026-1',
+          seccion: '6ET01',
+          alumnoId: 'C22AE01192',
+          alumnoCodigo: 'C22AE01192',
+          alumnoNombre: 'HUAMAN PAREDES, Rosa María',
+          alumnoDni: '72341908',
+          alumnoEmail: 'rosa.huaman@uwiener.edu.pe',
+          alumnoTelefono: '987654321',
+          alumnoCelular: '987654321',
+          estado: 'Aprobado',
+          activo: true,
+          fecha: '2026-09-20',
+          fechaHora: '2026-09-20 04:47:00 PM',
+          costo: 900.00,
+          conceptoCodigo: '33020109',
+          pago: {
+            estado: 'pagado',
+            obligacionGenerada: true,
+            monto: 900.00,
+            carrera: 'Enfermería Técnica',
+            nroDocumento: 'REC-2026-094182',
+            fechaPago: '2026-09-20 16:48:15',
+            fechaObligacion: '2026-09-20 16:47:00'
+          },
+          detalle: 'Expediente completo validado para expedición de diploma de título.',
+          requisitos: [
+            {
+              id: 'REQ-01',
+              orden: 1,
+              titulo: 'Grado de bachiller (ambos lados)',
+              archivo: 'BACHILLER_HUAMAN.pdf',
+              tipoArchivo: 'PDF',
+              cumple: true,
+              especificacion: 'Documento escaneado nítido'
+            },
+            {
+              id: 'REQ-02',
+              orden: 2,
+              titulo: 'Foto con indumentaria reglamentaria',
+              archivo: 'FOTO_ROSA.jpg',
+              tipoArchivo: 'JPG',
+              cumple: true,
+              especificacion: 'Fondo blanco'
+            }
+          ],
+          proceso: [
+            {
+              orden: 1,
+              area: 'Grados y Títulos',
+              plazoHoras: 48,
+              diasRetraso: 0,
+              observacionInterna: 'Atendido conforme. Expediente validado y carpetilla completa.',
+              estado: 'Atendido',
+              fechaAtencion: '2026-09-21 11:20 AM'
+            },
+            {
+              orden: 2,
+              area: 'Dirección Académica',
+              plazoHoras: 48,
+              diasRetraso: 0,
+              observacionInterna: 'Procede emisión de título profesional técnico.',
+              estado: 'Procede',
+              fechaAtencion: '2026-09-22 09:15 AM'
+            }
+          ],
+          mensajeSolicitante: 'Estimada estudiante, su trámite ha procedido satisfactoriamente. Se le notificará la fecha de entrega de diploma oficial.',
+          historial: [
+            { estado: 'Solicitado', fecha: '2026-09-20 16:47', nota: 'Solicitud registrada por el alumno' },
+            { estado: 'Solicitado', fecha: '2026-09-20 16:48', nota: 'Pago confirmado S/ 900 (REC-2026-094182)' },
+            { estado: 'En proceso', fecha: '2026-09-21 11:20', nota: 'Grados y Títulos: Atendido' },
+            { estado: 'Aprobado', fecha: '2026-09-22 09:15', nota: 'Dirección Académica: Procede' }
+          ]
+        },
+        {
+          id: '2026.43510',
+          ticket: '2026.43510',
+          sedeCodigo: '7803-2',
+          sede: '7803-2 - Jr. Larrabure y Unanue 110 Santa Beatriz, Lima',
+          institucion: 'Universidad Norbert Wiener',
+          tramiteId: 'T-001',
+          tramiteNombre: 'BECA IMPULSA 30%',
+          carrera: 'INGENIERÍA DE SISTEMAS E INFORMÁTICA',
+          periodo: '2026-2',
+          seccion: '8SI01',
+          alumnoId: 'U-ALU-1',
+          alumnoCodigo: '2021100345',
+          alumnoNombre: 'María Fernanda Quispe',
+          alumnoDni: '75481920',
+          alumnoEmail: '2021100345@uwiener.edu.pe',
+          alumnoTelefono: '984512390',
+          alumnoCelular: '984512390',
+          estado: 'En revisión',
+          activo: true,
+          fecha: '2026-09-18',
+          fechaHora: '2026-09-18 10:20:00 AM',
+          costo: 0.00,
+          conceptoCodigo: '00000000',
+          pago: {
+            estado: 'pagado',
+            obligacionGenerada: true,
+            monto: 0.00,
+            carrera: 'Ingeniería de Sistemas e Informática',
+            nroDocumento: 'COSTO CERO',
+            fechaPago: '2026-09-18 10:20:00'
+          },
+          detalle: 'Solicitud de beca institucional por excelencia académica en tercio superior.',
+          requisitos: [
+            { id: 'REQ-01', orden: 1, titulo: 'Certificado de voluntariado', archivo: 'CERT_VOLUNTARIADO.pdf', tipoArchivo: 'PDF', cumple: true, especificacion: 'Formato PDF' },
+            { id: 'REQ-02', orden: 2, titulo: 'DNI del solicitante', archivo: 'DNI_QUISPE.pdf', tipoArchivo: 'PDF', cumple: true, especificacion: 'Formato PDF' }
+          ],
+          proceso: [
+            { orden: 1, area: 'Registros Académicos', plazoHoras: 48, diasRetraso: 0, observacionInterna: 'Récord de notas validado: promedio ponderado 16.80.', estado: 'Atendido', fechaAtencion: '2026-09-19 14:00' },
+            { orden: 2, area: 'Retención y Fidelización', plazoHoras: 72, diasRetraso: 0, observacionInterna: 'Evaluación socioeconómica en curso.', estado: 'Pendiente', fechaAtencion: null }
+          ],
+          mensajeSolicitante: 'Estimada María Fernanda, tu expediente de Beca Impulsa está siendo evaluado por Retención y Fidelización.',
+          historial: [
+            { estado: 'Solicitado', fecha: '2026-09-18 10:20', nota: 'Solicitud registrada por el alumno' },
+            { estado: 'En revisión', fecha: '2026-09-19 14:00', nota: 'Registros Académicos: Validación de notas conforme' }
+          ]
+        },
+        {
+          id: '2026.43490',
+          ticket: '2026.43490',
+          sedeCodigo: '7803-1',
+          sede: '7803-1 - Av. Arequipa 440 Lima Centro',
+          institucion: 'Universidad Norbert Wiener',
+          tramiteId: 'T-007',
+          tramiteNombre: 'Constancia de Tercio Superior',
+          carrera: 'ADMINISTRACIÓN Y DIRECCIÓN DE EMPRESAS',
+          periodo: '2026-1',
+          seccion: '7AD02',
+          alumnoId: 'U-ALU-2',
+          alumnoCodigo: '2019054420',
+          alumnoNombre: 'José Antonio Ramos',
+          alumnoDni: '71290456',
+          alumnoEmail: '2019054420@uwiener.edu.pe',
+          alumnoTelefono: '912345678',
+          alumnoCelular: '912345678',
+          estado: 'Emitido',
+          activo: true,
+          fecha: '2026-09-15',
+          fechaHora: '2026-09-15 08:30:00 AM',
+          costo: 40.00,
+          conceptoCodigo: '01010040',
+          pago: {
+            estado: 'pagado',
+            obligacionGenerada: true,
+            monto: 40.00,
+            carrera: 'Administración y Dirección de Empresas',
+            nroDocumento: 'NB-90370045',
+            fechaPago: '2026-09-15 08:35:10'
+          },
+          detalle: 'Constancia oficial para trámite de prácticas preprofesionales en entidad financiera.',
+          requisitos: [],
+          proceso: [
+            { orden: 1, area: 'Registros Académicos', plazoHoras: 24, diasRetraso: 0, observacionInterna: 'Verificado cuadro de méritos. Tercio superior confirmado.', estado: 'Atendido', fechaAtencion: '2026-09-15 11:00' },
+            { orden: 2, area: 'Dirección Académica', plazoHoras: 24, diasRetraso: 0, observacionInterna: 'Firma digital aplicada. Constancia emitida.', estado: 'Procede', fechaAtencion: '2026-09-15 14:20' }
+          ],
+          mensajeSolicitante: 'Tu constancia de tercio superior ya se encuentra disponible para su descarga en la intranet con firma digital válida.',
+          historial: [
+            { estado: 'Solicitado', fecha: '2026-09-15 08:30', nota: 'Solicitud registrada' },
+            { estado: 'Solicitado', fecha: '2026-09-15 08:35', nota: 'Pago confirmado vía Niubiz (NB-90370045)' },
+            { estado: 'Emitido', fecha: '2026-09-15 14:20', nota: 'Documento emitido con firma digital' }
           ]
         }
       ]
@@ -665,6 +1265,32 @@
       });
     }
 
+    // Normalizar solicitudes existentes (actualización a esquema Vista de Trámites)
+    if (!s.solicitudes || s.solicitudes.length < 8 || !s.solicitudes.some(x => x.ticket)) {
+      s.solicitudes = defaults.solicitudes;
+      dirty = true;
+    } else {
+      s.solicitudes.forEach((sol, idx) => {
+        if (!sol.ticket) { sol.ticket = sol.id || ('2026.' + (43530 - idx)); dirty = true; }
+        if (!sol.sedeCodigo) { sol.sedeCodigo = sol.sede ? sol.sede.slice(0, 4) : '7803'; dirty = true; }
+        if (!sol.sede) { sol.sede = '7803-2 - Jr. Larrabure y Unanue 110 Santa Beatriz, Lima'; dirty = true; }
+        if (!sol.institucion) {
+          sol.institucion = (sol.carrera && sol.carrera.toUpperCase().includes('TÉCNIC')) ? 'I.E.S. Particular Daniel Alcides Carrión' : 'Universidad Norbert Wiener';
+          dirty = true;
+        }
+        if (sol.activo === undefined) { sol.activo = sol.estado !== 'Cancelar'; dirty = true; }
+        if (!sol.pago) {
+          sol.pago = { estado: 'pendiente', obligacionGenerada: false, monto: sol.costo || 0, carrera: sol.carrera || '', nroDocumento: '-', fechaPago: null };
+          dirty = true;
+        }
+        if (sol.pago.obligacionGenerada === undefined) { sol.pago.obligacionGenerada = sol.pago.estado === 'pagado'; dirty = true; }
+        if (!Array.isArray(sol.requisitos)) { sol.requisitos = []; dirty = true; }
+        if (!Array.isArray(sol.proceso)) { sol.proceso = []; dirty = true; }
+        if (sol.mensajeSolicitante === undefined) { sol.mensajeSolicitante = sol.observacion || ''; dirty = true; }
+        if (!sol.fechaHora) { sol.fechaHora = sol.fecha + ' 10:00:00 AM'; dirty = true; }
+      });
+    }
+
     if (dirty) save(s);
     return s;
   }
@@ -745,7 +1371,131 @@
     },
     addSolicitud(s) { const db = load(); db.solicitudes.unshift(s); save(db); return s; },
     updateSolicitud(s) { const db = load(); const i = db.solicitudes.findIndex(x => x.id === s.id); if (i >= 0) db.solicitudes[i] = s; save(db); return s; },
-    getSolicitud(id) { return load().solicitudes.find(s => s.id === id); },
+    getSolicitud(idOrTicket) { return load().solicitudes.find(s => s.id === idOrTicket || s.ticket === idOrTicket); },
+    generarObligacionPago(idOrTicket) {
+      const db = load();
+      const s = db.solicitudes.find(x => x.id === idOrTicket || x.ticket === idOrTicket);
+      if (!s) return null;
+      if (!s.pago) s.pago = { estado: 'pendiente', monto: s.costo };
+      s.pago.obligacionGenerada = true;
+      const now = new Date();
+      s.pago.fechaObligacion = now.toISOString().slice(0, 10) + ' ' + now.toTimeString().slice(0, 5);
+      if (!s.historial) s.historial = [];
+      s.historial.push({
+        estado: s.estado,
+        fecha: s.pago.fechaObligacion,
+        nota: 'Obligación de pago generada por el administrativo (Monto: S/ ' + Number(s.pago.monto || s.costo).toFixed(2) + ')'
+      });
+      save(db);
+      return s;
+    },
+    simularPagoSolicitud(idOrTicket) {
+      const db = load();
+      const s = db.solicitudes.find(x => x.id === idOrTicket || x.ticket === idOrTicket);
+      if (!s) return null;
+      if (!s.pago) s.pago = { monto: s.costo };
+      s.pago.estado = 'pagado';
+      s.pago.obligacionGenerada = true;
+      const now = new Date();
+      s.pago.fechaPago = now.toISOString().slice(0, 10) + ' ' + now.toTimeString().slice(0, 8);
+      s.pago.nroDocumento = 'REC-' + new Date().getFullYear() + '-' + Math.floor(100000 + Math.random() * 900000);
+      if (!s.historial) s.historial = [];
+      s.historial.push({
+        estado: s.estado,
+        fecha: s.pago.fechaPago,
+        nota: 'Pago confirmado en caja / pasarela (Doc: ' + s.pago.nroDocumento + ')'
+      });
+      save(db);
+      return s;
+    },
+    cambiarArchivoRequisito(idOrTicket, reqId, nuevoNombreArchivo) {
+      const db = load();
+      const s = db.solicitudes.find(x => x.id === idOrTicket || x.ticket === idOrTicket);
+      if (!s) return null;
+      if (!s.historial) s.historial = [];
+      const r = (s.requisitos || []).find(x => x.id === reqId);
+      if (r) {
+        const anterior = r.archivo;
+        r.archivo = nuevoNombreArchivo;
+        const now = new Date();
+        const fechaStr = now.toISOString().slice(0, 10) + ' ' + now.toTimeString().slice(0, 5);
+        s.historial.push({
+          estado: s.estado,
+          fecha: fechaStr,
+          nota: `Archivo de requisito «${(r.titulo || '').slice(0, 30)}» actualizado de [${anterior}] a [${nuevoNombreArchivo}] por el administrativo`
+        });
+        save(db);
+      }
+      return s;
+    },
+    toggleCumpleRequisito(idOrTicket, reqId, cumple) {
+      const db = load();
+      const s = db.solicitudes.find(x => x.id === idOrTicket || x.ticket === idOrTicket);
+      if (!s) return null;
+      const r = (s.requisitos || []).find(x => x.id === reqId);
+      if (r) {
+        r.cumple = cumple;
+        save(db);
+      }
+      return s;
+    },
+    grabarMensajeSolicitante(idOrTicket, mensaje) {
+      const db = load();
+      const s = db.solicitudes.find(x => x.id === idOrTicket || x.ticket === idOrTicket);
+      if (!s) return null;
+      s.mensajeSolicitante = mensaje;
+      if (!s.historial) s.historial = [];
+      const now = new Date();
+      const fechaStr = now.toISOString().slice(0, 10) + ' ' + now.toTimeString().slice(0, 5);
+      s.historial.push({
+        estado: s.estado,
+        fecha: fechaStr,
+        nota: 'Mensaje institucional grabado para el estudiante'
+      });
+      save(db);
+      return s;
+    },
+    actualizarEstadoSolicitud(idOrTicket, nuevoEstado, activo) {
+      const db = load();
+      const s = db.solicitudes.find(x => x.id === idOrTicket || x.ticket === idOrTicket);
+      if (!s) return null;
+      s.estado = nuevoEstado;
+      if (activo !== undefined) s.activo = activo;
+      if (!s.historial) s.historial = [];
+      const now = new Date();
+      const fechaStr = now.toISOString().slice(0, 10) + ' ' + now.toTimeString().slice(0, 5);
+      s.historial.push({
+        estado: s.estado,
+        fecha: fechaStr,
+        nota: 'Estado actualizado a «' + nuevoEstado + '» (Activo: ' + (s.activo ? 'Sí' : 'No') + ')'
+      });
+      save(db);
+      return s;
+    },
+    avanzarEtapaProceso(idOrTicket, ordenEtapa, observacionInterna) {
+      const db = load();
+      const s = db.solicitudes.find(x => x.id === idOrTicket || x.ticket === idOrTicket);
+      if (!s) return null;
+      const step = (s.proceso || []).find(p => p.orden === ordenEtapa);
+      if (step) {
+        step.estado = 'Procede';
+        if (observacionInterna !== undefined) step.observacionInterna = observacionInterna;
+        const now = new Date();
+        step.fechaAtencion = now.toISOString().slice(0, 10) + ' ' + now.toTimeString().slice(0, 5);
+        const todasAtendidas = s.proceso.every(p => p.estado === 'Atendido' || p.estado === 'Procede');
+        if (todasAtendidas) {
+          s.estado = 'Aprobado';
+        }
+        if (!s.historial) s.historial = [];
+        s.historial.push({
+          estado: s.estado,
+          fecha: step.fechaAtencion,
+          nota: `Etapa ${ordenEtapa} (${step.area}) atendida: Procede. Obs: ${observacionInterna || 'Conforme'}`
+        });
+        save(db);
+      }
+      return s;
+    },
     subsanarSolicitud(id, { nota, adjuntoNombre }) {
       const db = load();
       const s = db.solicitudes.find(x => x.id === id);

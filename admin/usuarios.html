@@ -63,9 +63,9 @@
         <div class="modal-body">
           <div class="form-grid">
             <div class="field full"><label>Nombre completo *</label><input class="input" id="u-nombre" value="${u.nombre}"></div>
-            <div class="field"><label>Rol</label><select class="select" id="u-rol" ${id?'disabled':''}>
+            <div class="field"><label>Rol</label><div class="select-wrap"><select class="select" id="u-rol" ${id?'disabled':''}>
               <option value="administrativo" ${!isAlumno?'selected':''}>Administrativo</option>
-              <option value="alumno" ${isAlumno?'selected':''}>Alumno</option></select></div>
+              <option value="alumno" ${isAlumno?'selected':''}>Alumno</option></select></div></div>
             <div class="field"><label>Código</label><input class="input" id="u-cod" value="${u.codigo}"></div>
             <div class="field"><label>Correo institucional</label><input class="input" id="u-email" value="${u.email}"></div>
             <div class="field"><label>DNI</label><input class="input" id="u-dni" value="${u.dni||''}"></div>
