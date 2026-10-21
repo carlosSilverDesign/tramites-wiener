@@ -100,6 +100,40 @@
       outline: none;
     }
 
+    /* Custom select look & feel en barra de filtros */
+    .filter-card .select-wrap.inline,
+    .filter-card .custom-select-wrap {
+      width: 135px !important;
+      margin: 0 !important;
+      display: inline-block !important;
+      vertical-align: middle !important;
+    }
+    .filter-card .custom-select-trigger {
+      height: 38px !important;
+      min-height: 38px !important;
+      max-height: 38px !important;
+      border-radius: 8px !important;
+      padding: 0 32px 0 12px !important;
+      display: flex !important;
+      align-items: center !important;
+      background: #FFFFFF !important;
+      font-size: 13.5px !important;
+      border: 1px solid var(--border) !important;
+      box-sizing: border-box !important;
+    }
+    .filter-card .custom-select-label {
+      line-height: 36px !important;
+      font-size: 13.5px !important;
+    }
+    .filter-card .custom-select-arrow {
+      right: 12px !important;
+    }
+    .filter-card .custom-select-menu {
+      min-width: 135px !important;
+      z-index: 200 !important;
+      border-radius: 8px !important;
+    }
+
     /* Mini etiquetas y badges */
     .concept-tag {
       display: inline-flex;
@@ -747,6 +781,10 @@
           ${renderTabContent()}
         </div>
       `;
+
+      if (APP && APP.initCustomSelects) {
+        APP.initCustomSelects(ctx.mount);
+      }
     }
 
     function setTab(tab) {
@@ -838,7 +876,7 @@
             </div>
             <div class="filter-item">
               <span>Estado:</span>
-              <div class="select-wrap inline" style="margin:0;width:120px">
+              <div class="select-wrap inline" style="margin:0;width:135px">
                 <select class="filter-select" id="filter-tramite-estado" onchange="buscarTramite()">
                   <option value="todos" ${FILTER_ESTADO === 'todos' ? 'selected' : ''}>Todos</option>
                   <option value="activo" ${FILTER_ESTADO === 'activo' ? 'selected' : ''}>Activo</option>
@@ -945,7 +983,7 @@
             </div>
             <div class="filter-item">
               <span>Estado:</span>
-              <div class="select-wrap inline" style="margin:0;width:120px">
+              <div class="select-wrap inline" style="margin:0;width:135px">
                 <select class="filter-select" id="filter-area-estado" onchange="buscarArea()">
                   <option value="todos" ${FILTER_ESTADO === 'todos' ? 'selected' : ''}>Todos</option>
                   <option value="activo" ${FILTER_ESTADO === 'activo' ? 'selected' : ''}>Activo</option>
@@ -1049,7 +1087,7 @@
             </div>
             <div class="filter-item">
               <span>Estado:</span>
-              <div class="select-wrap inline" style="margin:0;width:120px">
+              <div class="select-wrap inline" style="margin:0;width:135px">
                 <select class="filter-select" id="filter-req-estado" onchange="buscarRequisito()">
                   <option value="todos" ${FILTER_ESTADO === 'todos' ? 'selected' : ''}>Todos</option>
                   <option value="activo" ${FILTER_ESTADO === 'activo' ? 'selected' : ''}>Activo</option>

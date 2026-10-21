@@ -1,5 +1,5 @@
 /* ==========================================================================
-   SHELL — navegación, sesión, helpers de UI compartidos
+   SHELL - navegación, sesión, helpers de UI compartidos
    ========================================================================== */
 (function () {
   const SKEY = 'tw_session';
@@ -369,17 +369,22 @@
 
   function pillFor(estado) {
     const map = {
+      'Solicitado': 'info',
       'Pendiente de pago': 'warn',
       'En revisión': 'info',
       'Observado': 'warn',
       'Aprobado': 'ok',
       'Rechazado': 'err',
-      'Emitido': 'purple'
+      'Emitido': 'purple',
+      'Cancelar': 'err',
+      'Cancelado': 'err'
     };
     const iconMap = {
       'Observado': '⚠️ ',
       'Emitido': '✓ ',
-      'Rechazado': '✕ '
+      'Rechazado': '✕ ',
+      'Cancelar': '✕ ',
+      'Cancelado': '✕ '
     };
     return `<span class="pill ${map[estado] || 'gray'}">${iconMap[estado] || ''}${estado}</span>`;
   }

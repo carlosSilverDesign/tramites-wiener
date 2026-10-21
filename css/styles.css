@@ -1,5 +1,5 @@
 /* ==========================================================================
-   SISTEMA DE TRÁMITES — Universidad Norbert Wiener
+   SISTEMA DE TRÁMITES - Universidad Norbert Wiener
    Design system derivado del Skeleton de Asistencias (mismas fuentes y colores)
    ========================================================================== */
 
@@ -1482,7 +1482,7 @@ textarea.input {
 }
 
 /* ==========================================================================
-   DOCUMENTO (constancia / certificado) — vista previa dentro del modal
+   DOCUMENTO (constancia / certificado) - vista previa dentro del modal
    Serif justificado por tratarse de un documento oficial/publicación.
    ========================================================================== */
 .doc-preview-body {
@@ -2004,7 +2004,7 @@ textarea.input {
 }
 
 /* ==========================================================================
-   VISTA DE TRÁMITES — Look & Feel adaptado a Design.md (Universidad Norbert Wiener)
+   VISTA DE TRÁMITES - Look & Feel adaptado a Design.md (Universidad Norbert Wiener)
    ========================================================================== */
 .vt-container {
   max-width: 1400px;
@@ -2102,19 +2102,21 @@ textarea.input {
   z-index: 3;
 }
 
-/* Rotación activa / focus: la flecha rota 180° fluidamente */
+/* Hover & focus: resaltar color de la flecha sin rotarla estáticamente para evitar flechas invertidas pegadas */
 .select-wrap:focus-within::after,
 .select-wrap:has(select:focus)::after,
 .field:has(> select:focus)::after,
-.filter-item:has(> select:focus)::after {
-  border-color: var(--brand);
-  transform: translateY(-30%) rotate(225deg) scale(1.15);
-}
-
+.filter-item:has(> select:focus)::after,
 .select-wrap:hover::after,
 .field:has(> select:hover)::after,
 .filter-item:has(> select:hover)::after {
   border-color: var(--brand);
+}
+
+/* Rotación momentánea durante el click activo (:active) */
+.select-wrap:active::after,
+.field:has(> select:active)::after {
+  transform: translateY(-30%) rotate(225deg) scale(1.15);
 }
 
 /* ==========================================================================
@@ -2519,38 +2521,56 @@ textarea.input {
 
 .vt-filter-grid .vt-field input[type="date"],
 .reportes-field input[type="date"],
+.filter-card input[type="date"],
+.field input[type="date"],
 input[type="date"] {
-  padding: 0 12px !important;
-  line-height: 38px !important;
-  display: flex !important;
-  align-items: center !important;
-  justify-content: space-between !important;
+  position: relative !important;
   box-sizing: border-box !important;
+  padding: 0 36px 0 12px !important;
+  line-height: 38px !important;
+  font-family: 'Roboto', sans-serif !important;
+  font-size: 13.5px !important;
+  color: var(--text) !important;
+  background-color: #FFFFFF !important;
+  display: block !important;
 }
 
 .vt-filter-grid .vt-field input[type="date"]::-webkit-datetime-edit,
 .reportes-field input[type="date"]::-webkit-datetime-edit,
+.filter-card input[type="date"]::-webkit-datetime-edit,
+.field input[type="date"]::-webkit-datetime-edit,
 input[type="date"]::-webkit-datetime-edit {
-  flex: 1 1 auto !important;
   padding: 0 !important;
   margin: 0 !important;
+  line-height: 38px !important;
 }
 
+/* Icono de fecha permanentemente alineado a la derecha, idéntico a las flechas de los select */
 .vt-filter-grid .vt-field input[type="date"]::-webkit-calendar-picker-indicator,
 .reportes-field input[type="date"]::-webkit-calendar-picker-indicator,
+.filter-card input[type="date"]::-webkit-calendar-picker-indicator,
+.field input[type="date"]::-webkit-calendar-picker-indicator,
 input[type="date"]::-webkit-calendar-picker-indicator {
-  cursor: pointer;
-  opacity: 0.65;
-  transition: opacity 0.15s;
-  padding: 3px;
-  margin: 0 0 0 auto !important;
-  flex-shrink: 0;
+  position: absolute !important;
+  right: 12px !important;
+  top: 50% !important;
+  transform: translateY(-50%) !important;
+  cursor: pointer !important;
+  opacity: 0.65 !important;
+  transition: opacity 0.15s ease !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  width: 18px !important;
+  height: 18px !important;
+  z-index: 2 !important;
 }
 
 .vt-filter-grid .vt-field input[type="date"]::-webkit-calendar-picker-indicator:hover,
 .reportes-field input[type="date"]::-webkit-calendar-picker-indicator:hover,
+.filter-card input[type="date"]::-webkit-calendar-picker-indicator:hover,
+.field input[type="date"]::-webkit-calendar-picker-indicator:hover,
 input[type="date"]::-webkit-calendar-picker-indicator:hover {
-  opacity: 1;
+  opacity: 1 !important;
 }
 
 .vt-filter-grid .vt-field .custom-select-trigger {
@@ -2777,7 +2797,7 @@ input[type="date"]::-webkit-calendar-picker-indicator:hover {
 }
 
 /* ==========================================================================
-   MODAL DETALLE DE TRÁMITE — Replanteo completo adaptado a Design.md
+   MODAL DETALLE DE TRÁMITE - Replanteo completo adaptado a Design.md
    ========================================================================== */
 .vt-modal-header {
   padding: 20px 24px;
@@ -3180,7 +3200,7 @@ input[type="date"]::-webkit-calendar-picker-indicator:hover {
 }
 
 /* ==========================================================================
-   IMPRESIÓN — imprime solo el documento oficial abierto en el modal
+   IMPRESIÓN - imprime solo el documento oficial abierto en el modal
    ========================================================================== */
 @media print {
 
@@ -3229,7 +3249,7 @@ input[type="date"]::-webkit-calendar-picker-indicator:hover {
 }
 
 /* ==========================================================================
-   VISTA PROCESAR — Estadísticas y Gráfico de Trámites Vigentes
+   VISTA PROCESAR - Estadísticas y Gráfico de Trámites Vigentes
    ========================================================================== */
 .procesar-container {
   max-width: 1400px;
@@ -3419,7 +3439,7 @@ input[type="date"]::-webkit-calendar-picker-indicator:hover {
 }
 
 /* ==========================================================================
-   VISTA REPORTES — Centro de Reportes Institucionales (Híbrido)
+   VISTA REPORTES - Centro de Reportes Institucionales (Híbrido)
    ========================================================================== */
 .reportes-filter-card {
   background: var(--surface);
@@ -3480,12 +3500,24 @@ input[type="date"]::-webkit-calendar-picker-indicator:hover {
   color: var(--text);
 }
 
-.reportes-field input[type="date"],
 .reportes-field input[type="text"] {
   height: 40px;
   min-height: 40px;
   box-sizing: border-box;
   padding: 0 12px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-xs);
+  font-family: 'Roboto', sans-serif;
+  font-size: 13.5px;
+  color: var(--text);
+  background: #FFFFFF;
+  transition: all 0.2s ease;
+}
+
+.reportes-field input[type="date"] {
+  height: 40px;
+  min-height: 40px;
+  box-sizing: border-box;
   border: 1px solid var(--border);
   border-radius: var(--radius-xs);
   font-family: 'Roboto', sans-serif;

@@ -156,14 +156,17 @@
         if (s.estado === 'Emitido') {
           cls = 'done';
           dotContent = '✓';
-        } else if (s.estado === 'Rechazado') {
-          if (st.id === 'solicitud' || (st.id === 'pago' && s.pago.estado === 'pagado')) {
-            cls = 'done';
-            dotContent = '✓';
-          } else if (st.id === 'revision') {
+        } else if (s.estado === 'Rechazado' || s.estado === 'Cancelar' || s.estado === 'Cancelado') {
+          if (st.id === 'solicitud') {
             cls = 'err';
             dotContent = '✕';
-            subText = 'Rechazado';
+            subText = s.estado === 'Rechazado' ? 'Rechazado' : 'Cancelado';
+          }
+        } else if (s.estado === 'Solicitado') {
+          if (st.id === 'solicitud') {
+            cls = 'current';
+            dotContent = '1';
+            subText = 'Registrado';
           }
         } else if (s.estado === 'Observado') {
           if (st.id === 'solicitud' || (st.id === 'pago' && s.pago.estado === 'pagado')) {
@@ -228,19 +231,26 @@
     function render() {
       const allMine = DB.solicitudes().filter(s => s.alumnoId === me.id);
 
+      // Priorizar el trámite en estado 'Solicitado' para que siempre aparezca primero en la lista
+      allMine.sort((a, b) => {
+        if (a.estado === 'Solicitado' && b.estado !== 'Solicitado') return -1;
+        if (b.estado === 'Solicitado' && a.estado !== 'Solicitado') return 1;
+        return (b.fecha || '').localeCompare(a.fecha || '');
+      });
+
       const counts = {
         todos: allMine.length,
-        proceso: allMine.filter(s => ['Pendiente de pago', 'En revisión'].includes(s.estado)).length,
+        proceso: allMine.filter(s => ['Solicitado', 'Pendiente de pago', 'En revisión'].includes(s.estado)).length,
         observados: allMine.filter(s => s.estado === 'Observado').length,
         emitidos: allMine.filter(s => s.estado === 'Emitido').length,
-        rechazados: allMine.filter(s => s.estado === 'Rechazado').length
+        rechazados: allMine.filter(s => ['Rechazado', 'Cancelar', 'Cancelado'].includes(s.estado)).length
       };
 
       let filtradas = allMine.filter(s => {
-        if (filtroEstado === 'proceso') return ['Pendiente de pago', 'En revisión'].includes(s.estado);
+        if (filtroEstado === 'proceso') return ['Solicitado', 'Pendiente de pago', 'En revisión'].includes(s.estado);
         if (filtroEstado === 'observados') return s.estado === 'Observado';
         if (filtroEstado === 'emitidos') return s.estado === 'Emitido';
-        if (filtroEstado === 'rechazados') return s.estado === 'Rechazado';
+        if (filtroEstado === 'rechazados') return ['Rechazado', 'Cancelar', 'Cancelado'].includes(s.estado);
         return true;
       });
 
@@ -253,11 +263,13 @@
       const cardsHtml = filtradas.map(s => {
         const esObservado = s.estado === 'Observado';
         const esRechazado = s.estado === 'Rechazado';
+        const esCancelado = s.estado === 'Cancelar' || s.estado === 'Cancelado';
+        const esSolicitado = s.estado === 'Solicitado';
         const pagoPendiente = (s.estado === 'Aprobado' || s.estado === 'Pendiente de pago') && s.pago.estado !== 'pagado';
         const esEmitido = s.estado === 'Emitido';
 
         return `
-          <div class="tracking-card ${esObservado ? 'is-observado' : esRechazado ? 'is-rechazado' : ''}">
+          <div class="tracking-card ${esObservado ? 'is-observado' : esRechazado || esCancelado ? 'is-rechazado' : ''}">
             <div class="tracking-head">
               <div class="tracking-title-wrap">
                 <div class="tracking-super-line">
@@ -281,6 +293,11 @@
               <div style="display:flex;flex-direction:column;align-items:flex-end;gap:10px">
                 <div>${APP.pillFor(s.estado)}</div>
                 <div class="row-actions">
+                  ${esSolicitado ? `
+                    <button class="btn btn-danger btn-sm" onclick="confirmarCancelacion('${s.id}')" title="Cancelar esta solicitud">
+                      Cancelar
+                    </button>
+                  ` : ''}
                   ${pagoPendiente ? `<button class="btn btn-primary btn-sm" onclick="pagar('${s.id}')">💳 Pagar ahora</button>` : ''}
                   ${esEmitido ? `<button class="btn btn-primary btn-sm" onclick="verDoc('${s.id}')">📄 Ver documento oficial</button>` : ''}
                   <button class="btn btn-sm" onclick="detalle('${s.id}')">Ver expediente</button>
@@ -306,7 +323,13 @@
                 </button>
               </div>` : ''}
 
-            ${esRechazado ? `
+            ${esCancelado ? `
+              <div class="alert err" style="margin-top:16px;font-size:13px;display:flex;flex-direction:column;gap:6px">
+                <div><b>✕ Solicitud cancelada por el alumno:</b> ${s.observacion || 'El trámite fue dado de baja a petición del titular.'}</div>
+                <div style="font-size:12px;opacity:.9">
+                  ℹ️ Este trámite ha finalizado por desistimiento. Si necesitas realizar este trámite nuevamente, puedes generar una nueva solicitud desde el portal.
+                </div>
+              </div>` : esRechazado ? `
               <div class="alert err" style="margin-top:16px;font-size:13px;display:flex;flex-direction:column;gap:6px">
                 <div><b>✕ Solicitud desestimada por ${s.area}:</b> ${s.observacion}</div>
                 <div style="font-size:12px;opacity:.9">
@@ -557,6 +580,84 @@
       const alumno = DB.getUsuario(s.alumnoId);
       const t = DB.getTramite(s.tramiteId) || { nombre: s.tramiteNombre, tipo: 'Constancia', modelo: 'constancia' };
       DOC.preview(t, alumno, s);
+    }
+
+    // =========================================================================
+    // MODAL DE CONFIRMACIÓN DE CANCELACIÓN (Solo disponible en estado 'Solicitado')
+    // =========================================================================
+    function confirmarCancelacion(id) {
+      const s = DB.getSolicitud(id);
+      if (!s) return;
+
+      APP.openModal(`
+        <div class="modal-head" style="border-bottom:1px solid #FEE2E2">
+          <div style="display:flex;align-items:center;gap:12px">
+            <div style="width:38px;height:38px;border-radius:50%;background:#FEE2E2;color:#DC2626;display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0">
+              ⚠️
+            </div>
+            <div>
+              <h3 style="color:#991B1B;margin:0;font-size:17.5px">Confirmar cancelación de solicitud</h3>
+              <p style="margin:2px 0 0 0;font-size:12.5px;color:var(--text-soft)">Expediente N° <b>${s.id}</b> · ${s.tramiteNombre}</p>
+            </div>
+          </div>
+          <button class="modal-close" aria-label="Cerrar modal" onclick="APP.closeModal()">×</button>
+        </div>
+        <div class="modal-body" style="padding:20px 24px">
+          <div style="background:#FFF5F5;border:1px solid #FED7D7;border-left:4px solid #DC2626;border-radius:8px;padding:14px 16px;margin-bottom:18px">
+            <p style="margin:0 0 8px 0;font-size:14px;color:#742A2A;line-height:1.45;font-weight:600">
+              ¿Estás seguro de que deseas cancelar la solicitud de «${s.tramiteNombre}»?
+            </p>
+            <div style="font-size:12.5px;color:#9B2C2C;line-height:1.45">
+              ● Esta acción dará de baja tu trámite de forma inmediata y definitiva.<br>
+              ● Si requieres este trámite más adelante, deberás generar una nueva solicitud.<br>
+              ● Se registrará el motivo de cancelación en la trazabilidad del expediente.
+            </div>
+          </div>
+
+          <div class="field" style="margin:0">
+            <label style="font-size:13px;font-weight:700;color:var(--text);margin-bottom:6px;display:block">
+              Motivo de cancelación (opcional):
+            </label>
+            <input class="input" id="cancel-motivo-input" placeholder="Ej. Ya no requiero el trámite / Error al seleccionar el tipo de documento" style="font-size:13px;width:100%">
+          </div>
+        </div>
+        <div class="modal-foot" style="background:#F8FAFC;border-top:1px solid var(--border-soft);display:flex;justify-content:flex-end;gap:10px;padding:14px 24px">
+          <button class="btn btn-ghost" onclick="APP.closeModal()">No, mantener solicitud</button>
+          <button class="btn btn-danger" id="btn-confirmar-cancelar" onclick="ejecutarCancelacion('${s.id}')">
+            Sí, cancelar solicitud
+          </button>
+        </div>
+      `);
+    }
+
+    function ejecutarCancelacion(id) {
+      const s = DB.getSolicitud(id);
+      if (!s) return;
+
+      const motivoInput = document.getElementById('cancel-motivo-input');
+      const motivoTxt = (motivoInput && motivoInput.value.trim()) || 'Cancelado a solicitud del estudiante';
+
+      s.estado = 'Cancelar';
+      s.activo = false;
+      s.observacion = `Solicitud cancelada por el alumno: ${motivoTxt}.`;
+      if (!Array.isArray(s.historial)) s.historial = [];
+      s.historial.push({
+        estado: 'Cancelar',
+        fecha: APP.nowStamp ? APP.nowStamp() : (new Date().toLocaleString('es-PE')),
+        nota: `Cancelación confirmada por el estudiante (${me.nombre}): ${motivoTxt}`
+      });
+
+      DB.updateSolicitud(s);
+
+      APP.closeModal();
+
+      APP.toast({
+        icon: '🗑️',
+        title: 'Solicitud cancelada',
+        body: `La solicitud ${s.id} (${s.tramiteNombre}) ha sido cancelada exitosamente.`
+      });
+
+      render();
     }
 
     render();

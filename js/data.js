@@ -1,5 +1,5 @@
 /* ==========================================================================
-   CAPA DE DATOS (mock) — persistida en localStorage
+   CAPA DE DATOS (mock) - persistida en localStorage
    En producción esto se reemplaza por llamadas al backend (Node/Express).
    ========================================================================== */
 (function () {
@@ -994,6 +994,56 @@
           ]
         },
         {
+          id: '2026.43540',
+          ticket: '2026.43540',
+          sedeCodigo: '7803-2',
+          sede: '7803-2 - Jr. Larrabure y Unanue 110 Santa Beatriz, Lima',
+          institucion: 'Universidad Norbert Wiener',
+          tramiteId: 'T-004',
+          tramiteNombre: 'Constancia de Matrícula',
+          carrera: 'INGENIERÍA DE SISTEMAS E INFORMÁTICA',
+          periodo: '2026-2',
+          seccion: '8SI01',
+          alumnoId: 'U-ALU-1',
+          alumnoCodigo: '2021100345',
+          alumnoNombre: 'María Fernanda Quispe',
+          alumnoDni: '72845109',
+          alumnoEmail: '2021100345@uwiener.edu.pe',
+          alumnoTelefono: '984512390',
+          alumnoCelular: '984512390',
+          estado: 'Solicitado',
+          activo: true,
+          fecha: '2026-10-18',
+          fechaHora: '2026-10-18 09:30:00 AM',
+          costo: 25.00,
+          conceptoCodigo: '01010025',
+          pago: {
+            estado: 'pendiente',
+            obligacionGenerada: true,
+            monto: 25.00,
+            carrera: 'Ingeniería de Sistemas e Informática',
+            nroDocumento: 'NB-PENDIENTE',
+            fechaPago: null
+          },
+          detalle: 'Constancia oficial de matrícula para trámite administrativo y seguro médico.',
+          requisitos: [],
+          proceso: [
+            {
+              orden: 1,
+              area: 'Registros Académicos',
+              plazoHoras: 24,
+              diasRetraso: 0,
+              observacionInterna: 'Solicitud recién recibida en cola.',
+              estado: 'Pendiente',
+              fechaAtencion: null
+            }
+          ],
+          mensajeSolicitante: 'Tu solicitud ha sido registrada exitosamente y se encuentra en estado Solicitado a la espera de inicio de trámite.',
+          historial: [
+            { estado: 'Solicitado', fecha: '2026-10-18 09:30', nota: 'Solicitud registrada por el alumno' }
+          ]
+        },
+        {
           id: '2026.43510',
           ticket: '2026.43510',
           sedeCodigo: '7803-2',
@@ -1051,11 +1101,11 @@
           carrera: 'ADMINISTRACIÓN Y DIRECCIÓN DE EMPRESAS',
           periodo: '2026-1',
           seccion: '7AD02',
-          alumnoId: 'U-ALU-2',
-          alumnoCodigo: '2019054420',
-          alumnoNombre: 'José Antonio Ramos',
-          alumnoDni: '71290456',
-          alumnoEmail: '2019054420@uwiener.edu.pe',
+          alumnoId: 'U-ALU-1',
+          alumnoCodigo: '2021100345',
+          alumnoNombre: 'María Fernanda Quispe',
+          alumnoDni: '72845109',
+          alumnoEmail: '2021100345@uwiener.edu.pe',
           alumnoTelefono: '912345678',
           alumnoCelular: '912345678',
           estado: 'Emitido',
@@ -1289,6 +1339,73 @@
         if (sol.mensajeSolicitante === undefined) { sol.mensajeSolicitante = sol.observacion || ''; dirty = true; }
         if (!sol.fechaHora) { sol.fechaHora = sol.fecha + ' 10:00:00 AM'; dirty = true; }
       });
+
+      // Asegurar que el trámite 'Solicitado' para María Fernanda Quispe exista en solicitudes
+      const tieneSolicitadoAlu1 = s.solicitudes.some(sol => sol.alumnoId === 'U-ALU-1' && (sol.estado === 'Solicitado' || sol.id === '2026.43540'));
+      if (!tieneSolicitadoAlu1) {
+        const tramiteSolicitado = defaults.solicitudes.find(sol => sol.id === '2026.43540') || {
+          id: '2026.43540',
+          ticket: '2026.43540',
+          sedeCodigo: '7803-2',
+          sede: '7803-2 - Jr. Larrabure y Unanue 110 Santa Beatriz, Lima',
+          institucion: 'Universidad Norbert Wiener',
+          tramiteId: 'T-004',
+          tramiteNombre: 'Constancia de Matrícula',
+          carrera: 'INGENIERÍA DE SISTEMAS E INFORMÁTICA',
+          periodo: '2026-2',
+          seccion: '8SI01',
+          alumnoId: 'U-ALU-1',
+          alumnoCodigo: '2021100345',
+          alumnoNombre: 'María Fernanda Quispe',
+          alumnoDni: '72845109',
+          alumnoEmail: '2021100345@uwiener.edu.pe',
+          alumnoTelefono: '984512390',
+          alumnoCelular: '984512390',
+          estado: 'Solicitado',
+          activo: true,
+          fecha: '2026-10-18',
+          fechaHora: '2026-10-18 09:30:00 AM',
+          costo: 25.00,
+          conceptoCodigo: '01010025',
+          pago: {
+            estado: 'pendiente',
+            obligacionGenerada: true,
+            monto: 25.00,
+            carrera: 'Ingeniería de Sistemas e Informática',
+            nroDocumento: 'NB-PENDIENTE',
+            fechaPago: null
+          },
+          detalle: 'Constancia oficial de matrícula para trámite administrativo y seguro médico.',
+          requisitos: [],
+          proceso: [
+            {
+              orden: 1,
+              area: 'Registros Académicos',
+              plazoHoras: 24,
+              diasRetraso: 0,
+              observacionInterna: 'Solicitud recién recibida en cola.',
+              estado: 'Pendiente',
+              fechaAtencion: null
+            }
+          ],
+          mensajeSolicitante: 'Tu solicitud ha sido registrada exitosamente y se encuentra en estado Solicitado a la espera de inicio de trámite.',
+          historial: [
+            { estado: 'Solicitado', fecha: '2026-10-18 09:30', nota: 'Solicitud registrada por el alumno' }
+          ]
+        };
+        s.solicitudes.unshift(tramiteSolicitado);
+        dirty = true;
+      }
+
+      // Asegurar que 2026.43490 pertenezca a U-ALU-1 para completar los 3 trámites
+      const solTercio = s.solicitudes.find(sol => sol.id === '2026.43490');
+      if (solTercio && solTercio.alumnoId !== 'U-ALU-1') {
+        solTercio.alumnoId = 'U-ALU-1';
+        solTercio.alumnoCodigo = '2021100345';
+        solTercio.alumnoNombre = 'María Fernanda Quispe';
+        solTercio.alumnoEmail = '2021100345@uwiener.edu.pe';
+        dirty = true;
+      }
     }
 
     if (dirty) save(s);
