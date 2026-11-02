@@ -19,6 +19,8 @@
     seguridad: 'M12 1 3 5v6c0 5.5 3.8 10.7 9 12 5.2-1.3 9-6.5 9-12V5l-9-4zm0 10.9h7c-.5 4.1-3.3 7.8-7 8.9V12H5V6.3l7-3.1V12z',
     procesar: 'M11 2v20c-5.07-.5-9-4.79-9-10s3.93-9.5 9-10zm2.03 0v8.99H22c-.47-4.74-4.24-8.52-8.97-8.99zm0 11.01V22c4.74-.47 8.5-4.25 8.97-8.99h-8.97z',
     reportes: 'M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zM9 17H7v-7h2v7zm4 0h-2V7h2v10zm4 0h-2v-4h2v4z',
+    catalogo: 'M4 6H2v14c0 1.1.9 2 2 2h14v-2H4V6zm16-4H8c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm0 14H8V4h12v12z',
+    registrar: 'M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-2 10h-4v4h-2v-4H7v-2h4V7h2v4h4v2z',
     config: 'M12 8a4 4 0 1 0 0 8 4 4 0 0 0 0-8zm8.4 4 1.8 1.4-1.8 3.1-2.2-.7a6.9 6.9 0 0 1-1.5.9l-.3 2.3h-3.6l-.3-2.3c-.5-.2-1-.5-1.5-.9l-2.2.7-1.8-3.1L4.6 12l-.2-.9.2-1.1L2.8 8.6l1.8-3.1 2.2.7c.5-.4 1-.7 1.5-.9l.3-2.3h3.6l.3 2.3c.5.2 1 .5 1.5.9l2.2-.7 1.8 3.1L20.6 12z'
   };
 
@@ -32,6 +34,12 @@
       }
     ],
     administrativo: [
+      {
+        group: 'Atención al Estudiante', items: [
+          { id: 'catalogo', label: 'Catálogo de trámites', href: 'admin/catalogo.html', icon: 'catalogo' },
+          { id: 'registrar', label: 'Registrar', href: 'admin/registrar.html', icon: 'registrar' }
+        ]
+      },
       {
         group: 'Operación', items: [
           { id: 'solicitudes', label: 'Vista de trámites', href: 'admin/solicitudes.html', icon: 'revisar', badge: 'pendientes' },
@@ -74,9 +82,11 @@
     const pendientes = DB.solicitudes().filter(x => x.estado === 'En revisión' || x.estado === 'Pendiente de pago').length;
     const groups = NAV[s.rol] || [];
     let nav = '';
+    let activeLabel = activeId || '';
     groups.forEach(g => {
       nav += `<div class="nav-group-title">${g.group}</div>`;
       g.items.forEach(it => {
+        if (it.id === activeId) activeLabel = it.label;
         const badge = (it.badge === 'pendientes' && pendientes) ? `<span class="badge-count">${pendientes}</span>` : '';
         nav += `<a class="nav-item ${it.id === activeId ? 'active' : ''}" href="${BASE}${it.href}">${icon(it.icon)}<span>${it.label}</span>${badge}</a>`;
       });
@@ -133,7 +143,7 @@
               <button class="menu-toggle" aria-label="Menú" onclick="APP.toggleNav()">
                 <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
               </button>
-              <div class="crumbs">Inicio / <b id="crumb-here">${activeId || ''}</b></div>
+              <div class="crumbs">Inicio / <b id="crumb-here">${activeLabel}</b></div>
             </div>
             <div class="topbar-right">
               <div class="user-chip">
@@ -215,8 +225,11 @@
     // Click en overlay exterior para cerrar
     ov.addEventListener('click', e => { if (e.target === ov && !opts.locked) closeModal(); });
 
-    // Inicializar selects personalizados si existen en el modal
-    setTimeout(() => initCustomSelects(modal), 0);
+    // Inicializar selects y datepickers personalizados en el modal
+    setTimeout(() => {
+      initCustomSelects(modal);
+      initDatePickers(modal);
+    }, 10);
 
     // Focus trap y tecla Escape
     const focusableSelector = 'button:not([disabled]), [href], input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])';
@@ -389,231 +402,639 @@
     return `<span class="pill ${map[estado] || 'gray'}">${iconMap[estado] || ''}${estado}</span>`;
   }
 
-  // -------- Custom Select Dropdown System (Wiener Look & Feel) --------
-  function initCustomSelects(root) {
-    const container = root || document;
-    const selectWraps = container.querySelectorAll('.select-wrap');
-    selectWraps.forEach(wrap => {
-      const sel = wrap.querySelector('select');
-      if (!sel) return;
+  // =========================================================================
+  // SISTEMA ESTANDARIZADO DE INPUTS, SELECTS Y DATEPICKERS (Wiener Design System)
+  // =========================================================================
 
-      // Remove existing custom select elements if re-initializing
-      const oldTrigger = wrap.querySelector('.custom-select-trigger');
-      const oldMenu = wrap.querySelector('.custom-select-menu');
-      if (oldTrigger) oldTrigger.remove();
-      if (oldMenu) oldMenu.remove();
+  const MESES_NOMBRES = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'];
 
-      wrap.classList.add('custom-select-wrap');
+  function closeAllDropdowns() {
+    document.querySelectorAll('.custom-select-container.is-open, .custom-select-wrap.is-open').forEach(c => {
+      c.classList.remove('is-open');
+      const trig = c.querySelector('.custom-select-trigger');
+      if (trig) trig.setAttribute('aria-expanded', 'false');
+    });
 
-      // Visually hide native select while keeping it in DOM for forms/state
-      sel.style.position = 'absolute';
-      sel.style.opacity = '0';
-      sel.style.pointerEvents = 'none';
-      sel.style.width = '1px';
-      sel.style.height = '1px';
-      sel.style.margin = '-1px';
-      sel.style.clip = 'rect(0,0,0,0)';
-      sel.setAttribute('tabindex', '-1');
+    document.querySelectorAll('.custom-date-container.is-open').forEach(c => {
+      c.classList.remove('is-open');
+    });
 
-      // Build trigger
-      const trigger = document.createElement('div');
-      trigger.className = 'custom-select-trigger';
-      trigger.setAttribute('tabindex', sel.disabled ? '-1' : '0');
-      trigger.setAttribute('role', 'combobox');
-      trigger.setAttribute('aria-expanded', 'false');
-      if (sel.disabled) trigger.classList.add('is-disabled');
-
-      const labelSpan = document.createElement('span');
-      labelSpan.className = 'custom-select-label';
-
-      const arrowSpan = document.createElement('span');
-      arrowSpan.className = 'custom-select-arrow';
-
-      trigger.appendChild(labelSpan);
-      trigger.appendChild(arrowSpan);
-
-      // Build menu
-      const menu = document.createElement('div');
-      menu.className = 'custom-select-menu';
-      menu.setAttribute('role', 'listbox');
-
-      function updateTriggerLabel() {
-        const curOpt = sel.options[sel.selectedIndex];
-        labelSpan.textContent = curOpt ? curOpt.text : '';
-      }
-
-      function populateMenu() {
-        menu.innerHTML = '';
-        const selectedIndex = sel.selectedIndex >= 0 ? sel.selectedIndex : 0;
-        Array.from(sel.options).forEach((opt, idx) => {
-          const item = document.createElement('div');
-          item.className = 'custom-select-item' + (idx === selectedIndex ? ' is-selected' : '');
-          item.setAttribute('role', 'option');
-          item.setAttribute('data-value', opt.value);
-          if (opt.disabled) item.classList.add('is-disabled');
-
-          const textSpan = document.createElement('span');
-          textSpan.textContent = opt.text;
-          item.appendChild(textSpan);
-
-          if (idx === selectedIndex) {
-            const check = document.createElement('span');
-            check.className = 'custom-select-check';
-            check.textContent = '✓';
-            item.appendChild(check);
-          }
-
-          item.addEventListener('click', (e) => {
-            e.stopPropagation();
-            if (opt.disabled) return;
-            selectOption(opt.value, opt.text);
-          });
-
-          menu.appendChild(item);
-        });
-      }
-
-      function openMenu() {
-        if (sel.disabled) return;
-        // Close other open custom selects
-        document.querySelectorAll('.custom-select-wrap.is-open').forEach(other => {
-          if (other !== wrap) {
-            other.classList.remove('is-open');
-            const otherTrig = other.querySelector('.custom-select-trigger');
-            if (otherTrig) otherTrig.setAttribute('aria-expanded', 'false');
-          }
-        });
-
-        wrap.classList.add('is-open');
-        trigger.setAttribute('aria-expanded', 'true');
-
-        // Dynamically align right if near edge or in modal header
-        const rect = wrap.getBoundingClientRect();
-        if (rect.right + 120 > window.innerWidth || wrap.closest('.vt-modal-top-controls')) {
-          menu.style.left = 'auto';
-          menu.style.right = '0';
-        } else {
-          menu.style.left = '0';
-          menu.style.right = 'auto';
-        }
-
-        const selItem = menu.querySelector('.custom-select-item.is-selected');
-        if (selItem) {
-          selItem.scrollIntoView({ block: 'nearest' });
-        }
-      }
-
-      function closeMenu() {
-        wrap.classList.remove('is-open');
-        trigger.setAttribute('aria-expanded', 'false');
-      }
-
-      function selectOption(val, text) {
-        sel.value = val;
-        labelSpan.textContent = text;
-
-        menu.querySelectorAll('.custom-select-item').forEach(it => {
-          const isMatch = it.getAttribute('data-value') === String(val);
-          it.classList.toggle('is-selected', isMatch);
-          let check = it.querySelector('.custom-select-check');
-          if (isMatch && !check) {
-            check = document.createElement('span');
-            check.className = 'custom-select-check';
-            check.textContent = '✓';
-            it.appendChild(check);
-          } else if (!isMatch && check) {
-            check.remove();
-          }
-        });
-
-        // Close menu immediately so the arrow rotates back immediately
-        closeMenu();
-        trigger.blur();
-
-        // Dispatch change & input events on native select
-        sel.dispatchEvent(new Event('change', { bubbles: true }));
-        sel.dispatchEvent(new Event('input', { bubbles: true }));
-      }
-
-      trigger.addEventListener('click', (e) => {
-        e.stopPropagation();
-        if (wrap.classList.contains('is-open')) closeMenu();
-        else openMenu();
-      });
-
-      trigger.addEventListener('keydown', (e) => {
-        if (e.key === 'Enter' || e.key === ' ') {
-          e.preventDefault();
-          if (wrap.classList.contains('is-open')) closeMenu();
-          else openMenu();
-        } else if (e.key === 'Escape') {
-          if (wrap.classList.contains('is-open')) {
-            e.preventDefault();
-            e.stopPropagation();
-            closeMenu();
-          }
-        } else if (e.key === 'ArrowDown') {
-          e.preventDefault();
-          if (!wrap.classList.contains('is-open')) openMenu();
-          else {
-            const items = Array.from(menu.querySelectorAll('.custom-select-item:not(.is-disabled)'));
-            const curIdx = items.findIndex(it => it.classList.contains('is-selected'));
-            if (curIdx < items.length - 1) {
-              const nextItem = items[curIdx + 1];
-              selectOption(nextItem.getAttribute('data-value'), nextItem.querySelector('span').textContent);
-              openMenu();
-            }
-          }
-        } else if (e.key === 'ArrowUp') {
-          e.preventDefault();
-          if (!wrap.classList.contains('is-open')) openMenu();
-          else {
-            const items = Array.from(menu.querySelectorAll('.custom-select-item:not(.is-disabled)'));
-            const curIdx = items.findIndex(it => it.classList.contains('is-selected'));
-            if (curIdx > 0) {
-              const prevItem = items[curIdx - 1];
-              selectOption(prevItem.getAttribute('data-value'), prevItem.querySelector('span').textContent);
-              openMenu();
-            }
-          }
-        }
-      });
-
-      updateTriggerLabel();
-      populateMenu();
-
-      wrap.appendChild(trigger);
-      wrap.appendChild(menu);
+    document.querySelectorAll('.custom-search-container.is-open').forEach(c => {
+      c.classList.remove('is-open');
     });
   }
 
-  // Global document click & Escape listeners for custom selects
-  if (typeof document !== 'undefined') {
-    document.addEventListener('click', (e) => {
-      if (!e.target.closest('.custom-select-wrap')) {
-        document.querySelectorAll('.custom-select-wrap.is-open').forEach(wrap => {
-          wrap.classList.remove('is-open');
-          const trigger = wrap.querySelector('.custom-select-trigger');
-          if (trigger) trigger.setAttribute('aria-expanded', 'false');
-        });
+  // Helper para formatear fechas a DD/MM/AAAA
+  function formatDDMMYYYY(val) {
+    if (!val) return '';
+    if (typeof val === 'string' && val.includes('/')) return val; // Ya en formato DD/MM/AAAA
+    if (typeof val === 'string' && val.includes('-')) {
+      const parts = val.split('-');
+      if (parts.length === 3) return `${parts[2].padStart(2, '0')}/${parts[1].padStart(2, '0')}/${parts[0]}`;
+    }
+    const d = new Date(val);
+    if (isNaN(d.getTime())) return '';
+    return `${String(d.getDate()).padStart(2, '0')}/${String(d.getMonth() + 1).padStart(2, '0')}/${d.getFullYear()}`;
+  }
+
+  // Helper para convertir DD/MM/AAAA a YYYY-MM-DD (ISO)
+  function formatYYYYMMDD(val) {
+    if (!val) return '';
+    if (typeof val === 'string' && val.includes('-') && val.split('-')[0].length === 4) return val;
+    if (typeof val === 'string' && val.includes('/')) {
+      const p = val.split('/');
+      if (p.length === 3) return `${p[2]}-${p[1].padStart(2, '0')}-${p[0].padStart(2, '0')}`;
+    }
+    return '';
+  }
+
+  // -------- 1. DATEPICKER PERSONALIZADO FLOTANTE --------
+  function initDatePicker(containerOrId, inputOrId, defaultDateStr, onSelect) {
+    const container = typeof containerOrId === 'string' ? document.getElementById(containerOrId) : containerOrId;
+    const input = typeof inputOrId === 'string' ? document.getElementById(inputOrId) : inputOrId;
+    if (!container || !input) return;
+
+    let popup = container.querySelector('.custom-calendar-popup');
+    if (!popup) {
+      popup = document.createElement('div');
+      popup.className = 'custom-calendar-popup';
+      container.appendChild(popup);
+    }
+
+    let initialStr = defaultDateStr || input.value || input.getAttribute('data-iso-value') || '';
+    let curDay = 1, curMonth = 0, curYear = 2026;
+
+    if (initialStr.includes('/')) {
+      const p = initialStr.split('/');
+      curDay = parseInt(p[0], 10) || 1;
+      curMonth = (parseInt(p[1], 10) || 1) - 1;
+      curYear = parseInt(p[2], 10) || 2026;
+    } else if (initialStr.includes('-')) {
+      const p = initialStr.split('-');
+      curYear = parseInt(p[0], 10) || 2026;
+      curMonth = (parseInt(p[1], 10) || 1) - 1;
+      curDay = parseInt(p[2], 10) || 1;
+    } else {
+      const now = new Date();
+      curDay = now.getDate();
+      curMonth = now.getMonth();
+      curYear = now.getFullYear();
+    }
+
+    input.value = `${String(curDay).padStart(2, '0')}/${String(curMonth + 1).padStart(2, '0')}/${curYear}`;
+    const isoVal = `${curYear}-${String(curMonth + 1).padStart(2, '0')}-${String(curDay).padStart(2, '0')}`;
+    input.setAttribute('data-iso-value', isoVal);
+
+    let viewMonth = curMonth;
+    let viewYear = curYear;
+
+    function renderCalendar() {
+      popup.innerHTML = `
+        <div class="cal-header">
+          <span class="cal-month-title">${MESES_NOMBRES[viewMonth]} ${viewYear}</span>
+          <div class="cal-nav-group">
+            <button type="button" class="cal-nav-btn prev-month" aria-label="Mes anterior">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"></polyline></svg>
+            </button>
+            <button type="button" class="cal-nav-btn next-month" aria-label="Mes siguiente">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>
+            </button>
+          </div>
+        </div>
+        <div class="cal-weekdays-grid">
+          <span class="cal-weekday">DO</span>
+          <span class="cal-weekday">LU</span>
+          <span class="cal-weekday">MA</span>
+          <span class="cal-weekday">MI</span>
+          <span class="cal-weekday">JU</span>
+          <span class="cal-weekday">VI</span>
+          <span class="cal-weekday">SÁ</span>
+        </div>
+        <div class="cal-days-grid" id="calDaysGrid_${input.id || Math.random().toString(36).substr(2, 5)}"></div>
+      `;
+
+      const grid = popup.querySelector('.cal-days-grid');
+      const firstDay = new Date(viewYear, viewMonth, 1).getDay();
+      const daysInMonth = new Date(viewYear, viewMonth + 1, 0).getDate();
+      const daysInPrevMonth = new Date(viewYear, viewMonth, 0).getDate();
+
+      // Días previos
+      for (let i = firstDay - 1; i >= 0; i--) {
+        const d = daysInPrevMonth - i;
+        const cell = document.createElement('div');
+        cell.className = 'cal-day-cell other-month';
+        cell.textContent = d;
+        grid.appendChild(cell);
       }
+
+      // Días del mes
+      const today = new Date();
+      for (let day = 1; day <= daysInMonth; day++) {
+        const cell = document.createElement('div');
+        cell.className = 'cal-day-cell';
+        cell.textContent = day;
+
+        if (day === curDay && viewMonth === curMonth && viewYear === curYear) {
+          cell.classList.add('selected');
+        }
+
+        if (day === today.getDate() && viewMonth === today.getMonth() && viewYear === today.getFullYear()) {
+          cell.classList.add('today');
+        }
+
+        cell.addEventListener('click', (e) => {
+          e.stopPropagation();
+          curDay = day;
+          curMonth = viewMonth;
+          curYear = viewYear;
+
+          const dd = String(curDay).padStart(2, '0');
+          const mm = String(curMonth + 1).padStart(2, '0');
+          const displayStr = `${dd}/${mm}/${curYear}`;
+          const newIso = `${curYear}-${mm}-${dd}`;
+
+          input.value = displayStr;
+          input.setAttribute('data-iso-value', newIso);
+          container.classList.remove('is-open');
+
+          input.dispatchEvent(new Event('change', { bubbles: true }));
+          input.dispatchEvent(new Event('input', { bubbles: true }));
+          if (typeof onSelect === 'function') onSelect(newIso, displayStr);
+        });
+
+        grid.appendChild(cell);
+      }
+
+      popup.querySelector('.prev-month').addEventListener('click', (e) => {
+        e.stopPropagation();
+        viewMonth--;
+        if (viewMonth < 0) {
+          viewMonth = 11;
+          viewYear--;
+        }
+        renderCalendar();
+      });
+
+      popup.querySelector('.next-month').addEventListener('click', (e) => {
+        e.stopPropagation();
+        viewMonth++;
+        if (viewMonth > 11) {
+          viewMonth = 0;
+          viewYear++;
+        }
+        renderCalendar();
+      });
+    }
+
+    renderCalendar();
+
+    // Toggle de apertura con posicionamiento inteligente y detección de pantalla
+    const toggleTarget = container.querySelector('.custom-date-trigger') || input;
+    toggleTarget.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const isOpen = container.classList.contains('is-open');
+      closeAllDropdowns();
+
+      if (!isOpen) {
+        const triggerRect = toggleTarget.getBoundingClientRect();
+        const popupHeight = 310;
+        const popupWidth = 285;
+        const viewportSpaceBelow = window.innerHeight - triggerRect.bottom;
+        const viewportSpaceAbove = triggerRect.top;
+
+        // Solo abrir hacia arriba si abajo queda menos de 180px Y arriba hay claramente más espacio que abajo.
+        // En todos los demás casos, abrir siempre hacia abajo (espacioso y natural).
+        const shouldFlipUp = (viewportSpaceBelow < 180 && viewportSpaceAbove > viewportSpaceBelow);
+
+        popup.classList.remove('popup-above', 'popup-below', 'align-right');
+        popup.classList.add(shouldFlipUp ? 'popup-above' : 'popup-below');
+
+        // Posicionamiento flotante fijo para evitar que tarjetas o modales con overflow lo enmascaren
+        popup.style.position = 'fixed';
+        popup.style.zIndex = '999999';
+
+        if (shouldFlipUp) {
+          popup.style.bottom = `${window.innerHeight - triggerRect.top + 4}px`;
+          popup.style.top = 'auto';
+        } else {
+          popup.style.top = `${triggerRect.bottom + 4}px`;
+          popup.style.bottom = 'auto';
+        }
+
+        let leftPos = triggerRect.left;
+        if (leftPos + popupWidth > window.innerWidth - 12) {
+          leftPos = triggerRect.right - popupWidth;
+        }
+        if (leftPos < 12) leftPos = 12;
+        popup.style.left = `${leftPos}px`;
+        popup.style.width = `${popupWidth}px`;
+
+        container.classList.add('is-open');
+      }
+    });
+
+    return {
+      getISO: () => input.getAttribute('data-iso-value') || formatYYYYMMDD(input.value),
+      getDisplay: () => input.value,
+      setDate: (isoOrDisplay) => {
+        initDatePicker(container, input, isoOrDisplay, onSelect);
+      }
+    };
+  }
+
+  // Wrapper automático para inputs de fecha existentes
+  function enhanceDateInput(inputEl, onSelect) {
+    if (!inputEl) return;
+    if (inputEl.getAttribute('data-enhanced-date') === 'true') {
+      const container = inputEl.closest('.custom-date-container');
+      if (container) {
+        const displayInput = container.querySelector('.date-display-input');
+        if (displayInput && inputEl.value) {
+          displayInput.value = formatDDMMYYYY(inputEl.value);
+        }
+      }
+      return;
+    }
+
+    const originalParent = inputEl.parentNode;
+    if (!originalParent) return;
+    const initialVal = inputEl.value;
+
+    const container = document.createElement('div');
+    container.className = 'custom-date-container';
+
+    const trigger = document.createElement('div');
+    trigger.className = 'custom-date-trigger';
+
+    // Input visual
+    const displayInput = document.createElement('input');
+    displayInput.type = 'text';
+    displayInput.className = 'date-display-input';
+    displayInput.readOnly = true;
+    displayInput.id = inputEl.id ? inputEl.id + '_display' : 'date_' + Math.random().toString(36).substr(2, 5);
+
+    // Icono SVG de calendario con margen derecho estricto de 12px
+    const iconSpan = document.createElement('span');
+    iconSpan.className = 'date-calendar-icon';
+    iconSpan.setAttribute('aria-hidden', 'true');
+    iconSpan.innerHTML = `
+      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+        <line x1="16" y1="2" x2="16" y2="6"></line>
+        <line x1="8" y1="2" x2="8" y2="6"></line>
+        <line x1="3" y1="10" x2="21" y2="10"></line>
+      </svg>
+    `;
+
+    trigger.appendChild(displayInput);
+    trigger.appendChild(iconSpan);
+    container.appendChild(trigger);
+
+    // Ocultar input original de forma irreversible para que no se duplique
+    inputEl.style.setProperty('display', 'none', 'important');
+    inputEl.setAttribute('data-enhanced-date', 'true');
+    inputEl.setAttribute('tabindex', '-1');
+    inputEl.setAttribute('aria-hidden', 'true');
+
+    originalParent.insertBefore(container, inputEl);
+    container.appendChild(inputEl);
+
+    initDatePicker(container, displayInput, initialVal, (newIso, displayStr) => {
+      inputEl.value = newIso;
+      inputEl.dispatchEvent(new Event('change', { bubbles: true }));
+      inputEl.dispatchEvent(new Event('input', { bubbles: true }));
+      if (typeof onSelect === 'function') onSelect(newIso, displayStr);
+    });
+  }
+
+  // -------- 2. CUSTOM SELECT CON ROTACIÓN DE FLECHA SVG --------
+  function enhanceSelect(selectEl, onSelectCallback) {
+    if (!selectEl) return null;
+
+    // Si ya fue mejorado previamente, solo sincronizamos sus opciones si cambiaron
+    if (selectEl.getAttribute('data-enhanced-select') === 'true' && selectEl._wienerCustomSelect) {
+      selectEl._wienerCustomSelect.update();
+      return selectEl._wienerCustomSelect;
+    }
+
+    // Contenedor principal: reutilizar o crear nuevo
+    let parent = selectEl.closest('.custom-select-container') || selectEl.closest('.select-wrap');
+    if (!parent) {
+      parent = document.createElement('div');
+      parent.className = 'custom-select-container';
+      if (selectEl.parentNode) {
+        selectEl.parentNode.insertBefore(parent, selectEl);
+        parent.appendChild(selectEl);
+      }
+    } else {
+      parent.classList.add('custom-select-container');
+      parent.classList.remove('select-wrap');
+    }
+
+    // Si ya tiene un trigger previo dentro del parent, removerlo para reconstruir limpio
+    const oldTrigger = parent.querySelector('.custom-select-trigger');
+    const oldMenu = parent.querySelector('.custom-dropdown-menu, .custom-select-menu');
+    if (oldTrigger) oldTrigger.remove();
+    if (oldMenu) oldMenu.remove();
+
+    // Ocultar el select nativo de forma total y accesible
+    selectEl.style.setProperty('display', 'none', 'important');
+    selectEl.setAttribute('data-enhanced-select', 'true');
+    selectEl.setAttribute('tabindex', '-1');
+    selectEl.setAttribute('aria-hidden', 'true');
+
+    // Construir trigger con flecha SVG
+    const trigger = document.createElement('button');
+    trigger.type = 'button';
+    trigger.className = 'custom-select-trigger';
+    trigger.setAttribute('aria-haspopup', 'listbox');
+    trigger.setAttribute('aria-expanded', 'false');
+    if (selectEl.disabled) trigger.disabled = true;
+
+    const labelSpan = document.createElement('span');
+    labelSpan.className = 'custom-select-label';
+
+    const arrowSvg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+    arrowSvg.setAttribute('class', 'custom-select-arrow');
+    arrowSvg.setAttribute('width', '16');
+    arrowSvg.setAttribute('height', '16');
+    arrowSvg.setAttribute('viewBox', '0 0 24 24');
+    arrowSvg.setAttribute('fill', 'none');
+    arrowSvg.setAttribute('stroke', 'currentColor');
+    arrowSvg.setAttribute('stroke-width', '2');
+    arrowSvg.setAttribute('stroke-linecap', 'round');
+    arrowSvg.setAttribute('stroke-linejoin', 'round');
+    arrowSvg.innerHTML = '<polyline points="6 9 12 15 18 9"></polyline>';
+
+    trigger.appendChild(labelSpan);
+    trigger.appendChild(arrowSvg);
+
+    // Menú desplegable
+    const menu = document.createElement('div');
+    menu.className = 'custom-dropdown-menu';
+    menu.setAttribute('role', 'listbox');
+
+    function syncOptions() {
+      menu.innerHTML = '';
+      const selectedIndex = selectEl.selectedIndex >= 0 ? selectEl.selectedIndex : 0;
+      const curOpt = selectEl.options[selectedIndex];
+      labelSpan.textContent = curOpt ? curOpt.text : '--- Seleccione ---';
+      parent.setAttribute('data-current-value', curOpt ? curOpt.value : '');
+
+      Array.from(selectEl.options).forEach((opt, idx) => {
+        const optDiv = document.createElement('div');
+        const isSelected = (idx === selectedIndex);
+        optDiv.className = 'custom-option' + (isSelected ? ' selected' : '');
+        optDiv.setAttribute('data-value', opt.value);
+
+        const spanText = document.createElement('span');
+        spanText.textContent = opt.text;
+        optDiv.appendChild(spanText);
+
+        const checkSvg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+        checkSvg.setAttribute('class', 'option-check');
+        checkSvg.setAttribute('viewBox', '0 0 24 24');
+        checkSvg.setAttribute('width', '16');
+        checkSvg.setAttribute('height', '16');
+        checkSvg.innerHTML = '<polyline points="20 6 9 17 4 12"></polyline>';
+        optDiv.appendChild(checkSvg);
+
+        optDiv.addEventListener('click', (e) => {
+          e.stopPropagation();
+          selectEl.selectedIndex = idx;
+          selectEl.value = opt.value;
+          labelSpan.textContent = opt.text;
+          parent.setAttribute('data-current-value', opt.value);
+
+          menu.querySelectorAll('.custom-option').forEach(o => o.classList.remove('selected'));
+          optDiv.classList.add('selected');
+
+          // Cerrar inmediatamente para rotar la flecha a 0°
+          parent.classList.remove('is-open');
+          trigger.setAttribute('aria-expanded', 'false');
+
+          selectEl.dispatchEvent(new Event('change', { bubbles: true }));
+          selectEl.dispatchEvent(new Event('input', { bubbles: true }));
+          if (typeof onSelectCallback === 'function') onSelectCallback(opt.value, opt.text);
+        });
+
+        menu.appendChild(optDiv);
+      });
+    }
+
+    syncOptions();
+
+    trigger.addEventListener('click', (e) => {
+      e.stopPropagation();
+      if (selectEl.disabled) return;
+      const isOpen = parent.classList.contains('is-open');
+
+      closeAllDropdowns();
+
+      if (!isOpen) {
+        // Detección de pantalla en tiempo real
+        const triggerRect = trigger.getBoundingClientRect();
+        const viewportSpaceBelow = window.innerHeight - triggerRect.bottom;
+        const viewportSpaceAbove = triggerRect.top;
+
+        // Solo abrir hacia arriba si abajo queda muy poco espacio (< 160px) Y arriba hay claramente más espacio.
+        // En todos los demás casos, desplegar siempre hacia abajo.
+        const shouldFlipUp = (viewportSpaceBelow < 160 && viewportSpaceAbove > viewportSpaceBelow);
+
+        menu.classList.remove('dropdown-above', 'dropdown-below', 'align-right');
+        menu.classList.add(shouldFlipUp ? 'dropdown-above' : 'dropdown-below');
+
+        // Posicionamiento flotante fijo para evitar enmascaramiento por overflow:hidden o overflow-y:auto
+        menu.style.position = 'fixed';
+        menu.style.zIndex = '999999';
+
+        // Ancho adaptado al trigger, mínimo 160px
+        const menuWidth = Math.max(triggerRect.width, 160);
+        let leftPos = triggerRect.left;
+        if (leftPos + menuWidth > window.innerWidth - 12) {
+          leftPos = triggerRect.right - menuWidth;
+        }
+        if (leftPos < 12) leftPos = 12;
+        menu.style.left = `${leftPos}px`;
+        menu.style.width = `${menuWidth}px`;
+
+        // Control de altura máxima inteligente: se adapta al espacio visible en pantalla sin provocar scroll innecesario
+        if (shouldFlipUp) {
+          menu.style.bottom = `${window.innerHeight - triggerRect.top + 4}px`;
+          menu.style.top = 'auto';
+          const maxAvailH = Math.min(260, viewportSpaceAbove - 16);
+          menu.style.maxHeight = `${Math.max(100, maxAvailH)}px`;
+        } else {
+          menu.style.top = `${triggerRect.bottom + 4}px`;
+          menu.style.bottom = 'auto';
+          const maxAvailH = Math.min(260, viewportSpaceBelow - 16);
+          menu.style.maxHeight = `${Math.max(100, maxAvailH)}px`;
+        }
+        menu.style.overflowY = 'auto';
+
+        parent.classList.add('is-open');
+        trigger.setAttribute('aria-expanded', 'true');
+      }
+    });
+
+    parent.appendChild(trigger);
+    parent.appendChild(menu);
+
+    const api = {
+      update: syncOptions,
+      getValue: () => selectEl.value,
+      setValue: (val) => {
+        selectEl.value = val;
+        syncOptions();
+      }
+    };
+    selectEl._wienerCustomSelect = api;
+    return api;
+  }
+
+  // Inicializador global para buscar y mejorar todos los selects del contenedor
+  function initCustomSelects(root) {
+    const container = root || document;
+    // 1. Mejorar selects nativos en el contenedor (vistas, modales, etc.)
+    const selects = container.querySelectorAll('select:not([data-native="true"]):not(.swal2-select)');
+    selects.forEach(sel => enhanceSelect(sel));
+
+    // 2. Gestionar contenedores que ya tengan la estructura HTML fija de Referencia-inputs
+    const staticContainers = container.querySelectorAll('.custom-select-container:not(:has(select))');
+    staticContainers.forEach(c => {
+      const trigger = c.querySelector('.custom-select-trigger');
+      const menu = c.querySelector('.custom-dropdown-menu');
+      const label = c.querySelector('.custom-select-label');
+      const options = c.querySelectorAll('.custom-option');
+
+      if (!trigger || !menu) return;
+
+      trigger.onclick = (e) => {
+        e.stopPropagation();
+        const isOpen = c.classList.contains('is-open');
+        closeAllDropdowns();
+
+        if (!isOpen) {
+          const triggerRect = trigger.getBoundingClientRect();
+          const viewportSpaceBelow = window.innerHeight - triggerRect.bottom;
+          const viewportSpaceAbove = triggerRect.top;
+
+          const shouldFlipUp = (viewportSpaceBelow < 160 && viewportSpaceAbove > viewportSpaceBelow);
+
+          menu.classList.remove('dropdown-above', 'dropdown-below', 'align-right');
+          menu.classList.add(shouldFlipUp ? 'dropdown-above' : 'dropdown-below');
+
+          menu.style.position = 'fixed';
+          menu.style.zIndex = '999999';
+
+          const menuWidth = Math.max(triggerRect.width, 160);
+          let leftPos = triggerRect.left;
+          if (leftPos + menuWidth > window.innerWidth - 12) {
+            leftPos = triggerRect.right - menuWidth;
+          }
+          if (leftPos < 12) leftPos = 12;
+          menu.style.left = `${leftPos}px`;
+          menu.style.width = `${menuWidth}px`;
+
+          if (shouldFlipUp) {
+            menu.style.bottom = `${window.innerHeight - triggerRect.top + 4}px`;
+            menu.style.top = 'auto';
+            const maxAvailH = Math.min(260, viewportSpaceAbove - 16);
+            menu.style.maxHeight = `${Math.max(100, maxAvailH)}px`;
+          } else {
+            menu.style.top = `${triggerRect.bottom + 4}px`;
+            menu.style.bottom = 'auto';
+            const maxAvailH = Math.min(260, viewportSpaceBelow - 16);
+            menu.style.maxHeight = `${Math.max(100, maxAvailH)}px`;
+          }
+          menu.style.overflowY = 'auto';
+
+          c.classList.add('is-open');
+          trigger.setAttribute('aria-expanded', 'true');
+        }
+      };
+
+      options.forEach(opt => {
+        opt.onclick = (e) => {
+          e.stopPropagation();
+          options.forEach(o => o.classList.remove('selected'));
+          opt.classList.add('selected');
+
+          const text = opt.querySelector('span') ? opt.querySelector('span').textContent.trim() : opt.textContent.trim();
+          const val = opt.getAttribute('data-value') || text;
+
+          if (label) label.textContent = text;
+          c.setAttribute('data-current-value', val);
+
+          c.classList.remove('is-open');
+          trigger.setAttribute('aria-expanded', 'false');
+
+          c.dispatchEvent(new CustomEvent('custom-change', { detail: { value: val, text: text }, bubbles: true }));
+        };
+      });
+    });
+  }
+
+  // Inicializador global para buscar y mejorar inputs de fecha
+  function initDatePickers(root) {
+    const container = root || document;
+    // 1. Contenedores con estructura fija .custom-date-container
+    const dateContainers = container.querySelectorAll('.custom-date-container');
+    dateContainers.forEach(c => {
+      const input = c.querySelector('.date-display-input, input:not([type="date"])');
+      if (input && !c.querySelector('.custom-calendar-popup')) {
+        initDatePicker(c, input, input.value);
+      }
+    });
+
+    // 2. Inputs de tipo date que no estén mejorados todavía
+    const dateInputs = container.querySelectorAll('input[type="date"]:not([data-enhanced-date="true"])');
+    dateInputs.forEach(inp => enhanceDateInput(inp));
+  }
+
+  // Listeners globales en documento para cerrar menús al hacer click afuera, presionar Escape o redimensionar
+  if (typeof document !== 'undefined') {
+    document.addEventListener('click', () => {
+      closeAllDropdowns();
     });
 
     document.addEventListener('keydown', (e) => {
       if (e.key === 'Escape') {
-        document.querySelectorAll('.custom-select-wrap.is-open').forEach(wrap => {
-          wrap.classList.remove('is-open');
-          const trigger = wrap.querySelector('.custom-select-trigger');
-          if (trigger) trigger.setAttribute('aria-expanded', 'false');
-        });
+        closeAllDropdowns();
       }
+    });
+
+    window.addEventListener('scroll', (e) => {
+      // Si el usuario hace scroll dentro del menú desplegable o calendario mismo para ver más opciones, NO cerrar
+      if (e.target && (
+        (e.target.classList && (
+          e.target.classList.contains('custom-dropdown-menu') ||
+          e.target.classList.contains('custom-calendar-popup') ||
+          e.target.classList.contains('cal-days-grid')
+        )) ||
+        (e.target.closest && (
+          e.target.closest('.custom-dropdown-menu') ||
+          e.target.closest('.custom-calendar-popup')
+        ))
+      )) {
+        return;
+      }
+      closeAllDropdowns();
+    }, true);
+
+    window.addEventListener('resize', () => {
+      closeAllDropdowns();
     });
   }
 
   window.APP = {
     BASE, getSession, setSession, logout, renderShell, toggleNav, icon, ICONS,
-    toast, sendMail, openModal, closeModal, initCustomSelects,
+    toast, sendMail, openModal, closeModal,
+    initCustomSelects, enhanceSelect,
+    initDatePickers, enhanceDateInput, initDatePicker,
+    closeAllDropdowns, formatDDMMYYYY, formatYYYYMMDD,
     niubizCheckout, _nbMask, _nbExp,
     money, initials, todayISO, nowStamp, calcSLA, pillFor
   };
 })();
+

@@ -138,7 +138,8 @@
           pagoMomento: 'antes', requiereAprobacion: true, diasEntrega: 7, area: 'Grados y Títulos',
           requiereAdjunto: true,
           requisitos: [
-            { id: 'REQ-002', titulo: 'DNI del paciente / solicitante', adjuntarArchivo: true, activo: true, orden: 1 }
+            { id: 'REQ-002', titulo: 'Documento de Identidad Vigente (DNI / CE)', condiciones: 'Copia nítida y legible por ambas caras del DNI o Carné de Extranjería vigente en un solo archivo PDF o JPG. Peso máximo: 5 MB.', adjuntarArchivo: true, activo: true, orden: 1 },
+            { id: 'REQ-005', titulo: 'Constancia de no adeudo institucional', condiciones: 'Constancia expedida por Soluciones Financieras o declaración jurada de no adeudo administrativo ni arancelario. Formato PDF, máx. 5 MB.', adjuntarArchivo: true, activo: true, orden: 2 }
           ],
           proceso: [
             { id: 'P-1', orden: 1, area: 'Registros Académicos', descripcion: 'Cierre y consolidación de actas oficiales', observacion: '', duracionDias: 3, activo: true },
@@ -156,7 +157,8 @@
           pagoMomento: 'antes', requiereAprobacion: false, diasEntrega: 10, area: 'Dirección de Bienestar Universitario',
           requiereAdjunto: true,
           requisitos: [
-            { id: 'REQ-003', titulo: 'Fotografía formal fondo blanco', adjuntarArchivo: true, activo: true, orden: 1 }
+            { id: 'REQ-003', titulo: 'Fotografía formal tamaño pasaporte', condiciones: 'Fotografía a color, tamaño pasaporte (35 x 45 mm), fondo blanco liso e iluminación uniforme, vestimenta formal (camisa/blusa), sin lentes oscuros o monturas gruesas, sin gorra ni piercings, ángulo frontal y nítido, tomada en los últimos 3 meses. Formato JPG o PNG (máx. 2 MB).', adjuntarArchivo: true, activo: true, orden: 1 },
+            { id: 'REQ-002', titulo: 'Documento Nacional de Identidad (DNI)', condiciones: 'Copia legible y vigente de ambas caras del DNI o documento de identidad en un solo archivo PDF o JPG. Peso máximo 5 MB.', adjuntarArchivo: true, activo: true, orden: 2 }
           ],
           cronogramas: [],
           audiencia: { niveles: ['pregrado', 'postgrado'], ciclos: [], minCreditos: 0, tercioSuperior: false, quintoSuperior: false, promedioMin: 0 }
@@ -384,18 +386,56 @@
       usuarios: [
         {
           id: 'U-ALU-1', rol: 'alumno', nombre: 'María Fernanda Quispe', codigo: '2021100345',
-          email: 'mf.quispe@uwiener.edu.pe', dni: '72845109', estado: 'activo',
+          email: 'mf.quispe@uwiener.edu.pe', dni: '72845109', telefono: '945112233', celular: '51945112233',
+          institucion: 'Universidad Privada Norbert Wiener',
+          carreras: ['Ingeniería de Sistemas', 'Ingeniería Industrial'],
+          estado: 'activo',
           perfil: { nivel: 'pregrado', programa: 'Ingeniería de Sistemas', ciclo: 8, creditos: 168, tercioSuperior: true, quintoSuperior: false, promedio: 16.2 }
         },
         {
           id: 'U-ADM-1', rol: 'administrativo', nombre: 'Carlos Mendoza Ríos', codigo: 'ADM-0091',
           email: 'c.mendoza@uwiener.edu.pe', dni: '40981233', estado: 'activo', area: 'Registros Académicos',
-          permisos: ['tramites', 'solicitudes', 'flujos', 'usuarios', 'seguridad']
+          permisos: ['tramites', 'solicitudes', 'flujos', 'procesar', 'reportes', 'usuarios', 'seguridad', 'registrar']
         },
         {
           id: 'U-ALU-2', rol: 'alumno', nombre: 'José Antonio Ramos', codigo: '2019054420',
-          email: 'j.ramos@uwiener.edu.pe', dni: '70112458', estado: 'activo',
+          email: 'j.ramos@uwiener.edu.pe', dni: '70112458', telefono: '987654321', celular: '51987654321',
+          institucion: 'Universidad Privada Norbert Wiener',
+          carreras: ['Administración'],
+          estado: 'activo',
           perfil: { nivel: 'pregrado', programa: 'Administración', ciclo: 10, creditos: 210, tercioSuperior: false, quintoSuperior: false, promedio: 13.8 }
+        },
+        {
+          id: 'U-ALU-3', rol: 'alumno', nombre: 'RODRIGUEZ LOPEZ, Camila Fernanda', codigo: '2025101851',
+          email: 'camilarodriguez040607@gmail.com', dni: '70703892', telefono: '976220435', celular: '51970530682',
+          institucion: 'Universidad Privada Norbert Wiener',
+          carreras: ['Administración Y Marketing', 'Negocios Internacionales'],
+          estado: 'activo',
+          perfil: { nivel: 'pregrado', programa: 'Administración Y Marketing', ciclo: 4, creditos: 82, tercioSuperior: false, quintoSuperior: false, promedio: 14.8 }
+        },
+        {
+          id: 'U-ALU-4', rol: 'alumno', nombre: 'RAYME ORE, Karina Anali', codigo: 'C03AE04204',
+          email: 'karyray8@gmail.com', dni: '42579879', telefono: '977812174', celular: '977812174',
+          institucion: 'Instituto de Educación Superior Daniel Alcides Carrión',
+          carreras: ['Drenaje Linfático', 'Podología Clínica y Estética Avanzada'],
+          estado: 'activo',
+          perfil: { nivel: 'pregrado', programa: 'Drenaje Linfático', ciclo: 4, creditos: 72, tercioSuperior: false, quintoSuperior: false, promedio: 15.0 }
+        },
+        {
+          id: 'U-ALU-5', rol: 'alumno', nombre: 'VALVERDE SOTO, Brandon Alexis', codigo: 'C02TF01982',
+          email: 'b.valverde@carrion.edu.pe', dni: '74892110', telefono: '961234567', celular: '51961234567',
+          institucion: 'Instituto de Educación Superior Daniel Alcides Carrión',
+          carreras: ['Enfermería Técnica', 'Farmacia Técnica'],
+          estado: 'activo',
+          perfil: { nivel: 'pregrado', programa: 'Enfermería Técnica', ciclo: 6, creditos: 110, tercioSuperior: true, quintoSuperior: false, promedio: 16.8 }
+        },
+        {
+          id: 'U-ALU-6', rol: 'alumno', nombre: 'SALAZAR CORDOVA, Patricia Elena', codigo: '2023104512',
+          email: 'p.salazar@uwiener.edu.pe', dni: '71239845', telefono: '955443322', celular: '51955443322',
+          institucion: 'Universidad Privada Norbert Wiener',
+          carreras: ['Medicina Humana'],
+          estado: 'activo',
+          perfil: { nivel: 'pregrado', programa: 'Medicina Humana', ciclo: 5, creditos: 118, tercioSuperior: true, quintoSuperior: false, promedio: 16.0 }
         },
         {
           id: 'U-ADM-2', rol: 'administrativo', nombre: 'Lucía Paredes Soto', codigo: 'ADM-0102',
@@ -1408,6 +1448,33 @@
       }
     }
 
+    // Normalizar usuarios y permisos
+    if (!s.usuarios || !Array.isArray(s.usuarios) || s.usuarios.length < 5) {
+      s.usuarios = defaults.usuarios;
+      dirty = true;
+    } else {
+      const uAdm1 = s.usuarios.find(u => u.codigo === 'ADM-0091' || u.id === 'U-ADM-1');
+      if (uAdm1) {
+        if (!uAdm1.permisos) uAdm1.permisos = ['tramites', 'solicitudes'];
+        if (!uAdm1.permisos.includes('registrar')) {
+          uAdm1.permisos.push('registrar');
+          dirty = true;
+        }
+      }
+      defaults.usuarios.forEach(defU => {
+        const exist = s.usuarios.find(u => u.codigo === defU.codigo || u.id === defU.id);
+        if (!exist) {
+          s.usuarios.push(defU);
+          dirty = true;
+        } else if (defU.rol === 'alumno') {
+          if (!exist.carreras && defU.carreras) { exist.carreras = defU.carreras; dirty = true; }
+          if (!exist.telefono && defU.telefono) { exist.telefono = defU.telefono; dirty = true; }
+          if (!exist.celular && defU.celular) { exist.celular = defU.celular; dirty = true; }
+          if (!exist.institucion && defU.institucion) { exist.institucion = defU.institucion; dirty = true; }
+        }
+      });
+    }
+
     if (dirty) save(s);
     return s;
   }
@@ -1448,6 +1515,25 @@
     tramites() { return load().tramites; },
     solicitudes() { return load().solicitudes; },
     usuarios() { return load().usuarios; },
+    buscarAlumnos(query, institucion) {
+      const db = load();
+      const q = (query || '').toLowerCase().trim();
+      const instNorm = (institucion || '').toLowerCase();
+      return (db.usuarios || []).filter(u => {
+        if (u.rol !== 'alumno') return false;
+        if (instNorm && instNorm !== 'todas') {
+          const uInst = (u.institucion || '').toLowerCase();
+          const matchInst = (instNorm.includes('wiener') && (uInst.includes('wiener') || !uInst.includes('carrión') && !uInst.includes('carrion'))) ||
+                            (instNorm.includes('carrión') || instNorm.includes('carrion')) && (uInst.includes('carrión') || uInst.includes('carrion') || (u.carreras && u.carreras.some(c => c.toLowerCase().includes('técnic') || c.toLowerCase().includes('drenaje') || c.toLowerCase().includes('podolog'))));
+          if (!matchInst) return false;
+        }
+        if (!q) return true;
+        const match = (u.codigo || '').toLowerCase().includes(q) ||
+                      (u.nombre || '').toLowerCase().includes(q) ||
+                      (u.dni || '').toLowerCase().includes(q);
+        return match;
+      });
+    },
     areas() { return load().areas || []; },
     requisitos() { return load().requisitos || []; },
     conceptos() { return load().conceptos || []; },

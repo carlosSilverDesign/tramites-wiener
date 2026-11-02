@@ -642,9 +642,9 @@
         </div>
 
         <!-- Buscador e Intenciones -->
-        <div class="catalog-search-card">
-          <div class="search-input-wrap">
-            <span class="search-ico">${SVG_ICONS.search}</span>
+        <div class="catalog-search-card" style="margin-bottom:20px">
+          <div class="input-wrap-icon-left">
+            <span class="input-icon-svg" aria-hidden="true">${SVG_ICONS.search}</span>
             <input id="search-input" placeholder="Buscar trámite por nombre (ej. Matrícula, Certificado, Tercio, Carné...)" oninput="setQ(this.value)">
           </div>
 
@@ -696,14 +696,16 @@
 
           <div class="field full" style="margin-bottom:14px">
             <label for="sol-motivo">Motivo de la solicitud</label>
-            <select class="select" id="sol-motivo">
-              <option value="Trámite bancario" selected>Trámite bancario</option>
-              <option value="Postulación laboral">Postulación laboral</option>
-              <option value="Beca de estudios">Beca de estudios</option>
-              <option value="Trámite migratorio / Visa">Trámite migratorio / Visa</option>
-              <option value="Continuidad de estudios">Continuidad de estudios</option>
-              <option value="Otro">Otro</option>
-            </select>
+            <div class="custom-select-container">
+              <select class="select" id="sol-motivo">
+                <option value="Trámite bancario" selected>Trámite bancario</option>
+                <option value="Postulación laboral">Postulación laboral</option>
+                <option value="Beca de estudios">Beca de estudios</option>
+                <option value="Trámite migratorio / Visa">Trámite migratorio / Visa</option>
+                <option value="Continuidad de estudios">Continuidad de estudios</option>
+                <option value="Otro">Otro</option>
+              </select>
+            </div>
           </div>
 
           <div class="field full" style="margin-bottom:16px">
@@ -744,6 +746,11 @@
           </button>
         </div>
       `, { wide: false });
+
+      if (APP && APP.initCustomSelects) {
+        const m = document.querySelector('.modal');
+        if (m) APP.initCustomSelects(m);
+      }
     }
 
     function handleFileSelect(event) {

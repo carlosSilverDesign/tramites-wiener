@@ -529,9 +529,13 @@
       border-radius: 10px;
       background: #FFFFFF;
       margin-bottom: 14px;
-      overflow: hidden;
+      overflow: visible !important;
       box-shadow: var(--shadow-sm);
       transition: box-shadow 0.2s ease;
+    }
+    .cronog-card-wiener > div:first-child {
+      border-top-left-radius: 9px;
+      border-top-right-radius: 9px;
     }
     .cronog-card-wiener:hover {
       box-shadow: var(--shadow);
@@ -784,6 +788,9 @@
 
       if (APP && APP.initCustomSelects) {
         APP.initCustomSelects(ctx.mount);
+      }
+      if (APP && APP.initDatePickers) {
+        APP.initDatePickers(ctx.mount);
       }
     }
 

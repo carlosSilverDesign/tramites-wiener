@@ -1,0 +1,1401 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Registrar Trámite · Wiener Admin</title>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Lato:wght@400;700;900&family=Roboto:wght@400;500;700&display=swap"
+    rel="stylesheet">
+  <link rel="stylesheet" href="../css/styles.css">
+  <style>
+    /* =========================================================================
+       ESTILOS DEL MÓDULO REGISTRAR TRÁMITE (ADAPTADO AL SISTEMA DE DISEÑO)
+       ========================================================================= */
+
+    /* Cabecera institucional con reloj en vivo */
+    .reg-top-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 14px;
+      margin-bottom: 20px;
+      padding-bottom: 14px;
+      border-bottom: 1px solid var(--border-soft);
+    }
+
+    .reg-live-clock {
+      font-size: 13.5px;
+      font-weight: 600;
+      color: #475569;
+      background: #FFFFFF;
+      border: 1px solid var(--border-soft);
+      padding: 8px 16px;
+      border-radius: 999px;
+      box-shadow: 0 1px 3px rgba(15, 23, 42, 0.04);
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .reg-live-clock .clock-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #10B981;
+      box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.2);
+    }
+
+    /* Selector de institución con nombres completos */
+    .reg-inst-card {
+      background: #FFFFFF;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 20px 24px;
+      margin-bottom: 22px;
+      box-shadow: var(--shadow);
+    }
+
+    .reg-inst-title {
+      font-size: 13px;
+      font-weight: 700;
+      color: #334155;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .reg-inst-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px;
+    }
+
+    @media (max-width: 768px) {
+      .reg-inst-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .reg-inst-option {
+      border: 1.5px solid var(--border-soft);
+      border-radius: 12px;
+      padding: 14px 18px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      transition: all 0.18s ease;
+      background: #FFFFFF;
+    }
+
+    .reg-inst-option:hover {
+      border-color: var(--brand);
+      background: var(--brand-soft);
+    }
+
+    .reg-inst-option.selected {
+      border-color: var(--brand);
+      background: #F0FAFA;
+      box-shadow: 0 2px 8px rgba(15, 132, 143, 0.15);
+    }
+
+    .reg-inst-radio {
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      border: 2px solid #94A3B8;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      transition: all 0.15s ease;
+    }
+
+    .reg-inst-option.selected .reg-inst-radio {
+      border-color: var(--brand);
+    }
+
+    .reg-inst-option.selected .reg-inst-radio::after {
+      content: '';
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: var(--brand);
+    }
+
+    .reg-inst-info b {
+      display: block;
+      font-size: 14.5px;
+      color: #0F172A;
+      margin-bottom: 2px;
+    }
+
+    .reg-inst-info span {
+      font-size: 12px;
+      color: #64748B;
+    }
+
+    /* Caja de búsqueda de alumno */
+    .reg-search-card {
+      background: #FFFFFF;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 22px 24px;
+      margin-bottom: 22px;
+      box-shadow: var(--shadow);
+    }
+
+    .reg-search-row {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+    }
+
+    .reg-search-input-wrap {
+      flex: 1;
+      position: relative;
+    }
+
+    .reg-search-input-wrap input {
+      width: 100%;
+      height: 46px;
+      padding: 8px 16px 8px 44px;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      font-size: 14.5px;
+      color: #0F172A;
+      background: #FFFFFF;
+      transition: all 0.15s ease;
+    }
+
+    .reg-search-input-wrap input:focus {
+      border-color: var(--brand);
+      box-shadow: 0 0 0 3px rgba(15, 132, 143, 0.14);
+      outline: none;
+    }
+
+    .reg-search-input-wrap .search-ico {
+      position: absolute;
+      left: 14px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: #64748B;
+      pointer-events: none;
+    }
+
+    .reg-search-btn {
+      height: 46px;
+      padding: 0 22px;
+      font-size: 14px;
+      font-weight: 600;
+      border-radius: 10px;
+      background: var(--brand);
+      color: #FFFFFF;
+      border: none;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      transition: background 0.15s ease;
+      flex-shrink: 0;
+    }
+
+    .reg-search-btn:hover {
+      background: var(--brand-dark);
+    }
+
+    /* Tabla de resultados de búsqueda */
+    .reg-results-wrap {
+      margin-top: 18px;
+      border: 1px solid var(--border-soft);
+      border-radius: 12px;
+      overflow: hidden;
+    }
+
+    .reg-results-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13.5px;
+    }
+
+    .reg-results-table th {
+      background: #F8FAFC;
+      padding: 12px 16px;
+      text-align: left;
+      font-size: 12px;
+      font-weight: 700;
+      color: #475569;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      border-bottom: 1px solid var(--border-soft);
+    }
+
+    .reg-results-table td {
+      padding: 12px 16px;
+      border-bottom: 1px solid var(--border-soft);
+      color: #1E293B;
+      vertical-align: middle;
+    }
+
+    .reg-results-table tr:last-child td {
+      border-bottom: none;
+    }
+
+    .reg-results-table tr:hover td {
+      background: #F8FAFC;
+    }
+
+    .btn-add-student {
+      background: #0F848F;
+      color: #FFFFFF;
+      border: none;
+      border-radius: 8px;
+      padding: 6px 14px;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      transition: background 0.15s ease;
+    }
+
+    .btn-add-student:hover {
+      background: #0B636B;
+    }
+
+    /* =========================================================================
+       FORMULARIO DE DATOS DEL ALUMNO (ADAPTADO DE LA CAPTURA AL SISTEMA DE DISEÑO)
+       ========================================================================= */
+    .reg-student-form-card {
+      background: #FFFFFF;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 26px 28px;
+      margin-bottom: 24px;
+      box-shadow: var(--shadow);
+    }
+
+    .reg-section-title {
+      font-size: 14.5px;
+      font-weight: 800;
+      color: #1E293B;
+      margin: 0 0 16px 0;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      letter-spacing: -0.01em;
+    }
+
+    .reg-section-title::before {
+      content: '';
+      display: inline-block;
+      width: 4px;
+      height: 16px;
+      background: var(--brand);
+      border-radius: 2px;
+    }
+
+    .reg-form-row {
+      display: flex;
+      gap: 14px;
+      margin-bottom: 14px;
+      align-items: flex-start;
+    }
+
+    .reg-form-field {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .reg-form-field label {
+      font-size: 12.5px;
+      font-weight: 600;
+      color: #475569;
+    }
+
+    .reg-form-input {
+      width: 100%;
+      height: 42px;
+      padding: 8px 14px;
+      border: 1px solid #CBD5E1;
+      border-radius: 8px;
+      font-size: 14px;
+      color: #1E293B;
+      background: #F8FAFC;
+      transition: all 0.15s ease;
+    }
+
+    .reg-form-input[readonly] {
+      background: #F1F5F9;
+      color: #0F172A;
+      font-weight: 500;
+      cursor: default;
+    }
+
+    .reg-form-select {
+      width: 100%;
+      height: 42px;
+      padding: 8px 14px;
+      border: 1.5px solid #90CDF4;
+      border-radius: 8px;
+      font-size: 14px;
+      font-weight: 600;
+      color: #0F172A;
+      background: #FFFFFF;
+      transition: all 0.15s ease;
+      cursor: pointer;
+    }
+
+    .reg-form-select:focus {
+      border-color: #3182CE;
+      box-shadow: 0 0 0 3px rgba(66, 153, 225, 0.16);
+      outline: none;
+    }
+
+    .reg-student-search-inline {
+      display: flex;
+      gap: 10px;
+      align-items: flex-end;
+    }
+
+    .btn-inline-search {
+      height: 42px;
+      padding: 0 18px;
+      border-radius: 8px;
+      border: none;
+      background: var(--brand);
+      color: #FFFFFF;
+      font-size: 13.5px;
+      font-weight: 600;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      flex-shrink: 0;
+      transition: background 0.15s ease;
+    }
+
+    .btn-inline-search:hover {
+      background: var(--brand-dark);
+    }
+
+    /* Caja de resumen del trámite seleccionado */
+    .reg-tram-preview-card {
+      margin-top: 14px;
+      background: #F0FAFA;
+      border: 1px solid #BFE6E9;
+      border-radius: 10px;
+      padding: 16px 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 14px;
+    }
+
+    .reg-tram-preview-info b {
+      font-size: 15px;
+      color: var(--brand-dark);
+      display: block;
+      margin-bottom: 3px;
+    }
+
+    .reg-tram-preview-info span {
+      font-size: 12.5px;
+      color: #334155;
+    }
+
+    /* Botones de acción inferiores */
+    .reg-footer-actions {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 14px;
+      margin-top: 26px;
+      padding-top: 20px;
+      border-top: 1px solid var(--border-soft);
+      flex-wrap: wrap;
+    }
+
+    .btn-nuevo {
+      background: #D97706;
+      color: #FFFFFF;
+      border: none;
+      padding: 10px 24px;
+      font-size: 14px;
+      font-weight: 700;
+      border-radius: 8px;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      box-shadow: 0 2px 4px rgba(217, 119, 6, 0.2);
+      transition: background 0.15s ease, transform 0.15s ease;
+    }
+
+    .btn-nuevo:hover {
+      background: #B45309;
+      transform: translateY(-1px);
+    }
+
+    .btn-salir {
+      background: #DC2626;
+      color: #FFFFFF;
+      border: none;
+      padding: 10px 24px;
+      font-size: 14px;
+      font-weight: 700;
+      border-radius: 8px;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      box-shadow: 0 2px 4px rgba(220, 38, 38, 0.2);
+      transition: background 0.15s ease, transform 0.15s ease;
+    }
+
+    .btn-salir:hover {
+      background: #B91C1C;
+      transform: translateY(-1px);
+    }
+
+    .btn-solicitar-tramite {
+      background: var(--brand);
+      color: #FFFFFF;
+      border: none;
+      padding: 10px 26px;
+      font-size: 14px;
+      font-weight: 700;
+      border-radius: 8px;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      box-shadow: 0 2px 8px rgba(15, 132, 143, 0.25);
+      transition: background 0.15s ease, transform 0.15s ease;
+    }
+
+    .btn-solicitar-tramite:hover {
+      background: var(--brand-dark);
+      transform: translateY(-1px);
+    }
+
+    .btn-solicitar-tramite:disabled {
+      background: #94A3B8;
+      cursor: not-allowed;
+      transform: none;
+      box-shadow: none;
+    }
+
+    /* =========================================================================
+       ESTILOS DEL MODAL DE SOLICITUD ASISTIDA Y CARGA DE MÚLTIPLES ADJUNTOS
+       ========================================================================= */
+    .req-upload-block {
+      background: #FFFFFF;
+      border: 1px solid var(--border-soft);
+      border-radius: 10px;
+      padding: 16px;
+      margin-bottom: 14px;
+      transition: border-color 0.15s ease;
+    }
+
+    .req-upload-block:hover {
+      border-color: #CBD5E1;
+    }
+
+    .req-title-line {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 6px;
+    }
+
+    .req-title-line b {
+      font-size: 13.5px;
+      color: #0F172A;
+    }
+
+    .req-condition-box {
+      background: #FFFBEB;
+      border: 1px solid #FDE68A;
+      border-radius: 8px;
+      padding: 10px 12px;
+      font-size: 12px;
+      color: #92400E;
+      line-height: 1.45;
+      margin-bottom: 10px;
+    }
+
+    .req-condition-box b {
+      color: #78350F;
+    }
+
+    .req-file-dropzone {
+      border: 2px dashed #CBD5E1;
+      border-radius: 8px;
+      padding: 14px;
+      text-align: center;
+      background: #F8FAFC;
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+
+    .req-file-dropzone:hover {
+      border-color: var(--brand);
+      background: #F0FAFA;
+    }
+
+    .req-file-preview {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: #ECFDF5;
+      border: 1px solid #A7F3D0;
+      border-radius: 8px;
+      padding: 10px 14px;
+      margin-top: 8px;
+    }
+
+    .req-file-preview-info {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .req-file-preview-info b {
+      font-size: 13px;
+      color: #065F46;
+      display: block;
+    }
+
+    .req-file-preview-info span {
+      font-size: 11.5px;
+      color: #047857;
+    }
+  </style>
+</head>
+
+<body>
+  <script src="../js/data.js"></script>
+  <script src="../js/shell.js"></script>
+  <script src="../js/doc.js"></script>
+  <script>
+    const ctx = APP.renderShell('registrar');
+    const session = ctx ? ctx.session : null;
+
+    // Constantes institucionales completas
+    const INST_WIENER = 'Universidad Privada Norbert Wiener';
+    const INST_CARRION = 'Instituto de Educación Superior Daniel Alcides Carrión';
+
+    // Estado local de la vista
+    let instSeleccionada = INST_WIENER;
+    let queryBusqueda = '';
+    let alumnoSeleccionado = null;
+    let carreraSeleccionada = '';
+    let tramiteSeleccionadoId = '';
+    let tramitesHabilitados = [];
+
+    // Archivos adjuntos para el modal
+    let MODAL_FILES = {};
+
+    // Comprobar si el administrativo cuenta con permiso para registrar
+    function tienePermisoRegistro() {
+      if (!session) return false;
+      const u = DB.getUsuario(session.id);
+      if (!u) return false;
+      if (u.rol !== 'administrativo') return false;
+      return (u.permisos || []).includes('registrar');
+    }
+
+    // Formateador de fecha/hora en vivo
+    function obtenerFechaHoraTexto() {
+      const dias = ['Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'];
+      const meses = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'];
+      const now = new Date();
+      const diaSemana = dias[now.getDay()];
+      const dia = now.getDate();
+      const mes = meses[now.getMonth()];
+      const anio = now.getFullYear();
+      let horas = now.getHours();
+      const minutos = String(now.getMinutes()).padStart(2, '0');
+      const segundos = String(now.getSeconds()).padStart(2, '0');
+      const ampm = horas >= 12 ? 'pm' : 'am';
+      horas = horas % 12 || 12;
+      const horasStr = String(horas).padStart(2, '0');
+      return `${diaSemana} ${dia} de ${mes} del ${anio}, ${horasStr}:${minutos}:${segundos} ${ampm}`;
+    }
+
+    function iniciarReloj() {
+      setInterval(() => {
+        const el = document.getElementById('live-clock-text');
+        if (el) el.textContent = obtenerFechaHoraTexto();
+      }, 1000);
+    }
+
+    // Cambio de institución
+    function cambiarInstitucion(nombreInst) {
+      instSeleccionada = nombreInst;
+      alumnoSeleccionado = null;
+      carreraSeleccionada = '';
+      tramiteSeleccionadoId = '';
+      queryBusqueda = '';
+      renderizarVista();
+    }
+
+    // Ejecutar búsqueda de alumnos
+    function ejecutarBusqueda() {
+      const input = document.getElementById('search-alumno-input');
+      queryBusqueda = (input ? input.value : '').trim();
+      renderizarResultadosBusqueda();
+    }
+
+    function renderizarResultadosBusqueda() {
+      const contenedor = document.getElementById('search-results-area');
+      if (!contenedor) return;
+
+      if (!queryBusqueda) {
+        contenedor.innerHTML = '';
+        return;
+      }
+
+      const resultados = DB.buscarAlumnos(queryBusqueda, instSeleccionada);
+
+      if (!resultados.length) {
+        contenedor.innerHTML = `
+          <div class="alert warn" style="margin-top:14px;font-size:13.5px">
+            ⚠️ No se encontraron alumnos con el término «<b>${queryBusqueda}</b>» en <b>${instSeleccionada}</b>.
+            Verifica el código, número de DNI o nombres e intenta nuevamente.
+          </div>`;
+        return;
+      }
+
+      contenedor.innerHTML = `
+        <div class="reg-results-wrap">
+          <table class="reg-results-table">
+            <thead>
+              <tr>
+                <th>Código</th>
+                <th>Nombres y Apellidos</th>
+                <th>DNI</th>
+                <th>Institución</th>
+                <th>Carrera(s)</th>
+                <th style="text-align:right">Acción</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${resultados.map(alu => {
+                const carreras = alu.carreras || [alu.perfil ? alu.perfil.programa : 'Carrera regular'];
+                return `
+                  <tr>
+                    <td><b style="font-family:monospace;color:var(--brand)">${alu.codigo}</b></td>
+                    <td><b>${alu.nombre}</b></td>
+                    <td>${alu.dni}</td>
+                    <td><span class="pill gray" style="font-size:11px">${alu.institucion || instSeleccionada}</span></td>
+                    <td>${carreras.join(' · ')}</td>
+                    <td style="text-align:right">
+                      <button class="btn-add-student" onclick="seleccionarAlumno('${alu.id}')">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+                        <span>Agregar</span>
+                      </button>
+                    </td>
+                  </tr>`;
+              }).join('')}
+            </tbody>
+          </table>
+        </div>`;
+    }
+
+    // Seleccionar y setear alumno en pantalla
+    function seleccionarAlumno(aluId) {
+      const alu = DB.getUsuario(aluId);
+      if (!alu) return;
+
+      alumnoSeleccionado = alu;
+      const carreras = alu.carreras && alu.carreras.length ? alu.carreras : [alu.perfil ? alu.perfil.programa : 'Carrera general'];
+      carreraSeleccionada = carreras[0];
+      tramiteSeleccionadoId = '';
+
+      // Ocultar resultados de búsqueda
+      queryBusqueda = '';
+      const contenedor = document.getElementById('search-results-area');
+      if (contenedor) contenedor.innerHTML = '';
+      const input = document.getElementById('search-alumno-input');
+      if (input) input.value = '';
+
+      actualizarTramitesDisponibles();
+      renderizarVista();
+
+      APP.toast({
+        icon: '👤',
+        title: 'Alumno seleccionado',
+        body: `${alu.nombre} (${alu.codigo}) listo para registro de trámite.`
+      });
+    }
+
+    // Actualiza lista de trámites que tiene habilitados el alumno según elegibilidad
+    function actualizarTramitesDisponibles() {
+      if (!alumnoSeleccionado) {
+        tramitesHabilitados = [];
+        return;
+      }
+
+      const all = DB.tramites().filter(t => t.activo);
+      const perfilMock = Object.assign({}, alumnoSeleccionado.perfil || {
+        nivel: 'pregrado',
+        ciclo: 4,
+        creditos: 80,
+        tercioSuperior: false,
+        quintoSuperior: false,
+        promedio: 14.5
+      }, {
+        programa: carreraSeleccionada
+      });
+
+      // Filtra por elegibilidad
+      tramitesHabilitados = all.filter(t => DB.elegible(t, perfilMock));
+      if (!tramitesHabilitados.some(t => t.id === tramiteSeleccionadoId)) {
+        tramiteSeleccionadoId = tramitesHabilitados.length ? tramitesHabilitados[0].id : '';
+      }
+    }
+
+    function cambiarCarrera(carrera) {
+      carreraSeleccionada = carrera;
+      actualizarTramitesDisponibles();
+      renderizarBloqueTramites();
+    }
+
+    function cambiarTramite(tId) {
+      tramiteSeleccionadoId = tId;
+      renderizarPreviewTramite();
+    }
+
+    function limpiarFormulario() {
+      alumnoSeleccionado = null;
+      carreraSeleccionada = '';
+      tramiteSeleccionadoId = '';
+      queryBusqueda = '';
+      renderizarVista();
+    }
+
+    function salirModulo() {
+      location.href = 'solicitudes.html';
+    }
+
+    // =========================================================================
+    // MODAL DE REGISTRO ASISTIDO DEL TRÁMITE
+    // =========================================================================
+    function abrirModalSolicitud() {
+      if (!alumnoSeleccionado || !tramiteSeleccionadoId) {
+        APP.toast({
+          icon: '⚠️',
+          title: 'Selección incompleta',
+          body: 'Debes seleccionar un alumno y un trámite disponible para continuar.'
+        });
+        return;
+      }
+
+      const t = DB.getTramite(tramiteSeleccionadoId);
+      if (!t) return;
+
+      MODAL_FILES = {};
+      const reqs = t.requisitos || [];
+      const slaExacto = APP.calcSLA(t.diasEntrega);
+
+      const requisitosHtml = reqs.length ? reqs.map((r, idx) => `
+        <div class="req-upload-block" id="req-block-${r.id}">
+          <div class="req-title-line">
+            <b>${idx + 1}. ${r.titulo}</b>
+            <span class="pill warn" style="font-size:11px">Obligatorio</span>
+          </div>
+          ${r.condiciones ? `
+            <div class="req-condition-box">
+              📌 <b>Especificaciones requeridas:</b> ${r.condiciones}
+            </div>` : ''}
+          <div class="req-file-dropzone" onclick="document.getElementById('file-input-${r.id}').click()">
+            <input type="file" id="file-input-${r.id}" style="display:none" accept=".pdf,.jpg,.jpeg,.png" onchange="handleModalFileSelect('${r.id}', event)">
+            <div style="font-size:22px;margin-bottom:2px">📎</div>
+            <div style="font-size:12.5px;font-weight:600;color:#0F172A">Haz clic para adjuntar archivo o arrástralo aquí</div>
+            <div style="font-size:11px;color:#64748B">Formatos permitidos: ${r.tipoArchivo || 'PDF, JPG o PNG'} (máx. ${r.tamanoMax || '5 MB'})</div>
+          </div>
+          <div id="req-preview-${r.id}"></div>
+        </div>
+      `).join('') : `
+        <div class="alert info" style="font-size:13px">
+          ✓ Este trámite es 100% digital y no requiere que el alumno presente documentos de sustento previos.
+        </div>`;
+
+      APP.openModal(`
+        <div class="modal-head">
+          <div>
+            <h3>Registrar trámite para alumno</h3>
+            <span style="font-size:12.5px;color:var(--text-muted)">Expediente institucional a nombre del estudiante</span>
+          </div>
+          <button class="modal-close" aria-label="Cerrar modal" onclick="APP.closeModal()">×</button>
+        </div>
+
+        <div class="modal-body" style="max-height:75vh;overflow-y:auto">
+          <!-- Ficha rápida del alumno -->
+          <div style="background:#F8FAFC;border:1px solid #E2E8F0;border-radius:10px;padding:12px 16px;margin-bottom:16px">
+            <div style="font-size:14.5px;font-weight:700;color:#0F172A;margin-bottom:4px">${alumnoSeleccionado.nombre}</div>
+            <div style="font-size:12.5px;color:#475569;display:flex;flex-wrap:wrap;gap:8px">
+              <span>Código: <b>${alumnoSeleccionado.codigo}</b></span>
+              <span>·</span>
+              <span>DNI: <b>${alumnoSeleccionado.dni}</b></span>
+              <span>·</span>
+              <span>Carrera: <b>${carreraSeleccionada}</b></span>
+              <span>·</span>
+              <span>Institución: <b>${instSeleccionada}</b></span>
+            </div>
+          </div>
+
+          <!-- Resumen de costos y plazo -->
+          <dl class="kv" style="margin-bottom:18px">
+            <dt>Trámite</dt><dd><b>${t.nombre}</b></dd>
+            <dt>Costo oficial</dt><dd><b style="color:var(--brand-dark);font-size:16px">${APP.money(t.costo)}</b></dd>
+            <dt>Plazo de atención</dt><dd>${slaExacto} (${t.diasEntrega} días hábiles)</dd>
+            <dt>Área responsable</dt><dd>${t.area || 'Registros Académicos'}</dd>
+          </dl>
+
+          <!-- Formulario administrativo -->
+          <div class="field full" style="margin-bottom:14px">
+            <label for="sol-motivo">Motivo de la solicitud *</label>
+            <select class="select" id="sol-motivo">
+              <option value="Trámite laboral" selected>Trámite laboral</option>
+              <option value="Trámite bancario">Trámite bancario</option>
+              <option value="Beca de estudios">Beca de estudios</option>
+              <option value="Trámite migratorio / Visa">Trámite migratorio / Visa</option>
+              <option value="Continuidad de estudios">Continuidad de estudios</option>
+              <option value="Trámite de Grado y Título">Trámite de Grado y Título</option>
+              <option value="Personal / Otro">Personal / Otro</option>
+            </select>
+          </div>
+
+          <div class="field full" style="margin-bottom:16px">
+            <label for="sol-coment">Observación / Nota administrativa (opcional)</label>
+            <textarea class="input" id="sol-coment" rows="2" placeholder="Notas internas para el área de atención..."></textarea>
+          </div>
+
+          <div class="field full" style="margin-bottom:16px">
+            <label for="sol-pago-modo">Estado de pago del trámite *</label>
+            <select class="select" id="sol-pago-modo" onchange="togglePagoVentanilla(this.value)">
+              ${Number(t.costo) === 0 ? `
+                <option value="exonerado" selected>Exonerado / Trámite costo cero (S/ 0.00)</option>
+              ` : `
+                <option value="caja" selected>Pago ya abonado en caja / banco institucional</option>
+                <option value="pendiente">Pago pendiente en cuenta corriente del alumno</option>
+              `}
+            </select>
+          </div>
+
+          <div id="campo-nro-operacion" class="field full" style="margin-bottom:16px;${Number(t.costo) === 0 ? 'display:none;' : ''}">
+            <label for="sol-nro-recibo">N° de Operación / Recibo de caja</label>
+            <input class="input" id="sol-nro-recibo" placeholder="Ej. REC-2026-88192 o código de operación bancaria" value="REC-2026-${Math.floor(100000 + Math.random() * 900000)}">
+          </div>
+
+          <!-- Sección de requisitos y adjuntos -->
+          <div class="section-label" style="margin-top:18px;margin-bottom:10px">Documentos y adjuntos requeridos</div>
+          ${requisitosHtml}
+        </div>
+
+        <div class="modal-foot">
+          <button class="btn" onclick="APP.closeModal()">Cancelar</button>
+          <button class="btn btn-primary" onclick="confirmarRegistroTramite('${t.id}')">
+            Confirmar y registrar trámite
+          </button>
+        </div>
+      `, { wide: true });
+    }
+
+    function togglePagoVentanilla(val) {
+      const campo = document.getElementById('campo-nro-operacion');
+      if (campo) {
+        campo.style.display = val === 'caja' ? 'block' : 'none';
+      }
+    }
+
+    function handleModalFileSelect(reqId, event) {
+      const file = event.target.files && event.target.files[0];
+      if (!file) return;
+
+      MODAL_FILES[reqId] = file.name;
+      const preview = document.getElementById('req-preview-' + reqId);
+      if (preview) {
+        const sizeMb = (file.size / (1024 * 1024)).toFixed(1);
+        preview.innerHTML = `
+          <div class="req-file-preview">
+            <div class="req-file-preview-info">
+              <span style="font-size:18px">📄</span>
+              <div>
+                <b>${file.name}</b>
+                <span>${sizeMb > 0 ? sizeMb : '0.4'} MB · Documento adjuntado correctamente</span>
+              </div>
+            </div>
+            <button class="btn btn-sm btn-ghost" type="button" style="color:var(--err-fg)" onclick="removeModalFile('${reqId}', event)">✕ Quitar</button>
+          </div>`;
+      }
+    }
+
+    function removeModalFile(reqId, event) {
+      if (event) event.stopPropagation();
+      delete MODAL_FILES[reqId];
+      const input = document.getElementById('file-input-' + reqId);
+      if (input) input.value = '';
+      const preview = document.getElementById('req-preview-' + reqId);
+      if (preview) preview.innerHTML = '';
+    }
+
+    // Confirmación final del trámite en DB
+    function confirmarRegistroTramite(tramiteId) {
+      const t = DB.getTramite(tramiteId);
+      if (!t || !alumnoSeleccionado) return;
+
+      const reqs = t.requisitos || [];
+      // Validar que todos los requisitos tengan archivo
+      for (const r of reqs) {
+        if (!MODAL_FILES[r.id]) {
+          APP.toast({
+            icon: '⚠️',
+            title: 'Falta adjunto obligatorio',
+            body: `Debes adjuntar el documento para «${r.titulo}».`
+          });
+          return;
+        }
+      }
+
+      const motivoEl = document.getElementById('sol-motivo');
+      const motivo = motivoEl ? motivoEl.value : 'Trámite laboral';
+      const comentEl = document.getElementById('sol-coment');
+      const comentario = comentEl ? comentEl.value.trim() : '';
+      const pagoModoEl = document.getElementById('sol-pago-modo');
+      const pagoModo = pagoModoEl ? pagoModoEl.value : 'caja';
+      const reciboEl = document.getElementById('sol-nro-recibo');
+      const nroRecibo = reciboEl ? reciboEl.value.trim() : '';
+
+      const esGratis = Number(t.costo) === 0;
+      const esPagado = pagoModo === 'caja' || esGratis;
+
+      // Generar correlativo de expediente
+      const ticketNum = '2026.' + (43545 + DB.solicitudes().length);
+      const adminNombre = session ? session.nombre : 'Personal Administrativo';
+      const adminCodigo = session ? session.codigo : 'ADM';
+
+      // Estructurar array de requisitos con los archivos reales cargados
+      const requisitosRegistrados = reqs.map((r, idx) => ({
+        id: r.id || ('REQ-0' + (idx + 1)),
+        orden: idx + 1,
+        titulo: r.titulo,
+        condiciones: r.condiciones || '',
+        archivo: MODAL_FILES[r.id] || 'DOCUMENTO.pdf',
+        tipoArchivo: (MODAL_FILES[r.id] && MODAL_FILES[r.id].toUpperCase().endsWith('.JPG')) ? 'JPG' : 'PDF',
+        cumple: true,
+        especificacion: r.condiciones || 'Documento presentado'
+      }));
+
+      const nuevaSolicitud = {
+        id: ticketNum,
+        ticket: ticketNum,
+        sedeCodigo: '7803-2',
+        sede: '7803-2 - Jr. Larrabure y Unanue 110 Santa Beatriz, Lima',
+        institucion: instSeleccionada,
+        tramiteId: t.id,
+        tramiteNombre: t.nombre,
+        carrera: carreraSeleccionada,
+        periodo: '2026-2',
+        seccion: 'REG-ADM',
+        alumnoId: alumnoSeleccionado.id,
+        alumnoCodigo: alumnoSeleccionado.codigo,
+        alumnoNombre: alumnoSeleccionado.nombre,
+        alumnoDni: alumnoSeleccionado.dni,
+        alumnoEmail: alumnoSeleccionado.email,
+        alumnoTelefono: alumnoSeleccionado.telefono || alumnoSeleccionado.celular || '976220435',
+        alumnoCelular: alumnoSeleccionado.celular || alumnoSeleccionado.telefono || '51970530682',
+        estado: 'Solicitado',
+        activo: true,
+        fecha: APP.todayISO(),
+        fechaHora: APP.nowStamp(),
+        costo: t.costo,
+        conceptoCodigo: t.conceptoCodigo || '01010000',
+        pago: {
+          estado: esPagado ? 'pagado' : 'pendiente',
+          obligacionGenerada: true,
+          monto: t.costo,
+          carrera: carreraSeleccionada,
+          nroDocumento: esPagado ? (nroRecibo || 'REC-CAJA-001') : 'NB-PENDIENTE',
+          fechaPago: esPagado ? APP.todayISO() : null
+        },
+        detalle: comentario ? `Trámite registrado por ${adminNombre}. Motivo: ${motivo}. Detalle: ${comentario}` : `Trámite registrado por ${adminNombre}. Motivo: ${motivo}.`,
+        requisitos: requisitosRegistrados,
+        proceso: [
+          {
+            orden: 1,
+            area: t.area || 'Registros Académicos',
+            plazoHoras: (t.diasEntrega || 3) * 24,
+            diasRetraso: 0,
+            observacionInterna: `Trámite ingresado por mesa administrativa (${adminNombre} - ${adminCodigo}).`,
+            estado: 'Pendiente',
+            fechaAtencion: null
+          }
+        ],
+        mensajeSolicitante: `Estimado(a) ${alumnoSeleccionado.nombre}, tu trámite de ${t.nombre} ha sido registrado por la oficina de Registros Académicos.`,
+        historial: [
+          {
+            estado: 'Solicitado',
+            fecha: APP.nowStamp(),
+            nota: `Trámite registrado por el personal administrativo ${adminNombre} (${adminCodigo}) a solicitud del alumno.`
+          }
+        ]
+      };
+
+      if (esPagado && !esGratis) {
+        nuevaSolicitud.historial.push({
+          estado: 'Solicitado',
+          fecha: APP.nowStamp(),
+          nota: `Pago confirmado en caja/banco. Comprobante N°: ${nroRecibo || 'REC-CAJA'}`
+        });
+      }
+
+      DB.addSolicitud(nuevaSolicitud);
+
+      // Envío de correo simulado
+      APP.sendMail({
+        to: alumnoSeleccionado.email,
+        cc: 'mesadepartes@uwiener.edu.pe',
+        subject: `Expediente ${ticketNum} registrado - ${t.nombre}`,
+        lines: [
+          `Estimado(a) <b>${alumnoSeleccionado.nombre}</b>,`,
+          `La administración de <b>${instSeleccionada}</b> ha registrado satisfactoriamente tu trámite de <b>${t.nombre}</b>.`,
+          `N° de Expediente: <b>${ticketNum}</b>.`,
+          `Carrera: <b>${carreraSeleccionada}</b>.`,
+          `Fecha estimada de resolución: <b>${APP.calcSLA(t.diasEntrega)}</b>.`,
+          esPagado ? `Estado de pago: Abonado (${APP.money(t.costo)}).` : `Pago pendiente de regularización: ${APP.money(t.costo)}.`
+        ]
+      });
+
+      APP.closeModal();
+
+      APP.toast({
+        icon: '✅',
+        title: '¡Trámite registrado con éxito!',
+        body: `Expediente ${ticketNum} generado para ${alumnoSeleccionado.nombre}.`
+      });
+
+      // Confirmación modal con opciones de navegación
+      setTimeout(() => {
+        APP.openModal(`
+          <div class="modal-head">
+            <h3>¡Trámite Registrado Exitosamente!</h3>
+            <button class="modal-close" onclick="APP.closeModal()">×</button>
+          </div>
+          <div class="modal-body" style="text-align:center;padding:24px 18px">
+            <div style="font-size:52px;margin-bottom:12px">🎉</div>
+            <h2 style="font-size:22px;color:var(--brand-dark);margin-bottom:6px">Expediente N° ${ticketNum}</h2>
+            <p style="font-size:14.5px;color:#334155;max-width:440px;margin:0 auto 20px auto;line-height:1.5">
+              Se ha generado con éxito la solicitud de <b>${t.nombre}</b> para el alumno <b>${alumnoSeleccionado.nombre}</b> en <b>${instSeleccionada}</b>.
+            </p>
+            <div style="display:flex;justify-content:center;gap:12px;flex-wrap:wrap">
+              <button class="btn btn-ghost" onclick="APP.closeModal();limpiarFormulario();">
+                Registrar otro trámite
+              </button>
+              <a class="btn btn-primary" href="solicitudes.html">
+                Ir a Vista de Trámites
+              </a>
+            </div>
+          </div>
+        `, { wide: false });
+      }, 500);
+    }
+
+    // =========================================================================
+    // RENDERIZADO PRINCIPAL DE LA VISTA
+    // =========================================================================
+    function renderizarPreviewTramite() {
+      const contenedor = document.getElementById('reg-tram-preview-area');
+      const btnSolicitar = document.getElementById('btn-solicitar');
+      if (!contenedor) return;
+
+      if (!tramiteSeleccionadoId) {
+        contenedor.innerHTML = '';
+        if (btnSolicitar) btnSolicitar.disabled = true;
+        return;
+      }
+
+      const t = DB.getTramite(tramiteSeleccionadoId);
+      if (!t) {
+        contenedor.innerHTML = '';
+        if (btnSolicitar) btnSolicitar.disabled = true;
+        return;
+      }
+
+      const reqs = t.requisitos || [];
+      const slaExacto = APP.calcSLA(t.diasEntrega);
+
+      contenedor.innerHTML = `
+        <div class="reg-tram-preview-card">
+          <div class="reg-tram-preview-info">
+            <b>${t.nombre} (${t.tipo})</b>
+            <span>Área gestora: <b>${t.area}</b> · Plazo de entrega: <b>${slaExacto}</b> (${t.diasEntrega} días hábiles) · Modalidad: <b>${t.pagoMomento === 'antes' ? 'Pago al solicitar' : 'Pago tras aprobación'}</b></span>
+            ${t.requiereAdjunto ? `
+              <div style="margin-top:6px;font-size:12px;color:#B45309;font-weight:600">
+                ⚠️ Requiere que se adjunten documentos: ${reqs.map(r => r.titulo).join(', ')}
+              </div>` : `
+              <div style="margin-top:6px;font-size:12px;color:#047857;font-weight:600">
+                ✓ Trámite 100% digital, no requiere adjuntos de sustento.
+              </div>`}
+          </div>
+          <div style="text-align:right">
+            <div style="font-size:22px;font-weight:900;color:var(--brand);font-family:'Lato',sans-serif">${APP.money(t.costo)}</div>
+            <div style="font-size:11px;color:#64748B">Tasa institucional oficial</div>
+          </div>
+        </div>`;
+
+      if (btnSolicitar) btnSolicitar.disabled = false;
+    }
+
+    function renderizarBloqueTramites() {
+      const selectTramites = document.getElementById('sel-tramite');
+      if (!selectTramites) return;
+
+      if (!tramitesHabilitados.length) {
+        selectTramites.innerHTML = `<option value="">-- No tiene Trámites disponibles. --</option>`;
+        selectTramites.disabled = true;
+        tramiteSeleccionadoId = '';
+      } else {
+        selectTramites.disabled = false;
+        selectTramites.innerHTML = tramitesHabilitados.map(t => `
+          <option value="${t.id}" ${t.id === tramiteSeleccionadoId ? 'selected' : ''}>
+            ${t.nombre} · ${APP.money(t.costo)} · (${t.diasEntrega} días hábiles)
+          </option>
+        `).join('');
+        if (!tramiteSeleccionadoId && tramitesHabilitados.length) {
+          tramiteSeleccionadoId = tramitesHabilitados[0].id;
+        }
+      }
+
+      if (APP && APP.enhanceSelect) {
+        APP.enhanceSelect(selectTramites, (newVal) => {
+          cambiarTramite(newVal);
+        });
+      }
+
+      renderizarPreviewTramite();
+    }
+
+    function renderizarVista() {
+      const tienePermiso = tienePermisoRegistro();
+
+      ctx.mount.innerHTML = `
+        <!-- Cabecera de la página con reloj en vivo -->
+        <div class="reg-top-bar">
+          <div>
+            <h1>Registrar trámite</h1>
+            <p>Atención asistida: Búsqueda de alumnos y registro oficial de trámites documentarios por personal administrativo autorizado.</p>
+          </div>
+          <div class="reg-live-clock">
+            <span class="clock-dot"></span>
+            <span id="live-clock-text">${obtenerFechaHoraTexto()}</span>
+          </div>
+        </div>
+
+        ${!tienePermiso ? `
+          <div class="alert warn" style="margin-bottom:24px;padding:20px;font-size:14.5px">
+            <div style="font-size:18px;font-weight:700;margin-bottom:6px">⚠️ Acceso Restringido</div>
+            Tu cuenta administrativa no cuenta con el permiso <b>«Registrar trámites»</b> asignado. Solicita al administrador de seguridad la habilitación de este módulo para gestionar trámites en nombre de estudiantes.
+          </div>
+        ` : ''}
+
+        <div style="${!tienePermiso ? 'opacity:0.4;pointer-events:none' : ''}">
+          <!-- Paso 1: Selección de Institución (con nombres completos) -->
+          <div class="reg-inst-card">
+            <div class="reg-inst-title">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 21h18M3 7v14M21 7v14M6 3h12l3 4H3l3-4zM9 10v4M15 10v4M9 17v4M15 17v4"/></svg>
+              <span>1. Selecciona la Institución Educativa</span>
+            </div>
+            <div class="reg-inst-grid">
+              <div class="reg-inst-option ${instSeleccionada === INST_WIENER ? 'selected' : ''}" onclick="cambiarInstitucion('${INST_WIENER}')">
+                <div class="reg-inst-radio"></div>
+                <div class="reg-inst-info">
+                  <b>${INST_WIENER}</b>
+                  <span>Programas de Pregrado, Posgrado y Segundas Especialidades</span>
+                </div>
+              </div>
+
+              <div class="reg-inst-option ${instSeleccionada === INST_CARRION ? 'selected' : ''}" onclick="cambiarInstitucion('${INST_CARRION}')">
+                <div class="reg-inst-radio"></div>
+                <div class="reg-inst-info">
+                  <b>${INST_CARRION}</b>
+                  <span>Carreras Técnicas y Programas de Formación Continua</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Paso 2: Buscador de alumno (por código, nombres o DNI) -->
+          <div class="reg-search-card">
+            <div class="reg-inst-title">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+              <span>2. Búsqueda de Alumno en ${instSeleccionada}</span>
+            </div>
+            <div class="reg-search-row">
+              <div class="reg-search-input-wrap">
+                <span class="search-ico">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+                </span>
+                <input id="search-alumno-input" placeholder="Buscar alumno por código (ej. 2025101851), DNI o nombres y apellidos..." value="${queryBusqueda}" onkeydown="if(event.key==='Enter') ejecutarBusqueda()">
+              </div>
+              <button class="reg-search-btn" type="button" onclick="ejecutarBusqueda()">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+                <span>Buscar</span>
+              </button>
+            </div>
+
+            <!-- Área de resultados de búsqueda -->
+            <div id="search-results-area"></div>
+          </div>
+
+          <!-- Paso 3: Formulario seteado del alumno (Adaptado con fidelidad al sistema de diseño) -->
+          ${alumnoSeleccionado ? `
+            <div class="reg-student-form-card">
+              <!-- Sección Datos Personales -->
+              <div class="reg-section-title">Datos Personales:</div>
+
+              <!-- Fila 1: Alumnos / Código y Botón Buscar -->
+              <div class="reg-form-row">
+                <div class="reg-form-field" style="max-width:380px">
+                  <label for="f-alumno-cod">Alumnos:</label>
+                  <div class="reg-student-search-inline">
+                    <input class="reg-form-input" id="f-alumno-cod" readonly value="${alumnoSeleccionado.codigo}">
+                    <button class="btn-inline-search" type="button" onclick="document.getElementById('search-alumno-input').focus();">
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+                      <span>Buscar</span>
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Fila 2: Nombres completos -->
+              <div class="reg-form-row">
+                <div class="reg-form-field">
+                  <label for="f-alumno-nom">Nombres:</label>
+                  <input class="reg-form-input" id="f-alumno-nom" readonly value="${alumnoSeleccionado.nombre}">
+                </div>
+              </div>
+
+              <!-- Fila 3: DNI, E-mail y Teléfono -->
+              <div class="reg-form-row">
+                <div class="reg-form-field">
+                  <label for="f-alumno-dni">DNI:</label>
+                  <input class="reg-form-input" id="f-alumno-dni" readonly value="${alumnoSeleccionado.dni}">
+                </div>
+                <div class="reg-form-field" style="flex:1.6">
+                  <label for="f-alumno-email">E-mail:</label>
+                  <input class="reg-form-input" id="f-alumno-email" readonly value="${alumnoSeleccionado.email}">
+                </div>
+                <div class="reg-form-field">
+                  <label for="f-alumno-tel">Teléfono:</label>
+                  <input class="reg-form-input" id="f-alumno-tel" readonly value="${alumnoSeleccionado.telefono || '976220435'}">
+                </div>
+              </div>
+
+              <!-- Fila 4: Celular -->
+              <div class="reg-form-row">
+                <div class="reg-form-field" style="max-width:380px">
+                  <label for="f-alumno-cel">Celular:</label>
+                  <input class="reg-form-input" id="f-alumno-cel" readonly value="${alumnoSeleccionado.celular || '51970530682'}">
+                </div>
+              </div>
+
+              <!-- Fila 5: Select de Carrera (admite múltiples carreras) -->
+              <div class="reg-form-row">
+                <div class="reg-form-field">
+                  <label for="f-alumno-carrera">Carrera:</label>
+                  <div class="custom-select-container">
+                    <select class="reg-form-select" id="f-alumno-carrera" onchange="cambiarCarrera(this.value)">
+                      ${(alumnoSeleccionado.carreras || [carreraSeleccionada]).map(c => `
+                        <option value="${c}" ${c === carreraSeleccionada ? 'selected' : ''}>${c}</option>
+                      `).join('')}
+                    </select>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Sección Trámite(s) Disponible(s) -->
+              <div class="reg-section-title" style="margin-top:28px">Trámite(s) Disponible(s):</div>
+
+              <div class="reg-form-row">
+                <div class="reg-form-field">
+                  <label for="sel-tramite">Tramites:</label>
+                  <div class="custom-select-container">
+                    <select class="reg-form-select" id="sel-tramite" onchange="cambiarTramite(this.value)">
+                      <!-- Se inyecta dinámicamente -->
+                    </select>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Previsualización del trámite seleccionado -->
+              <div id="reg-tram-preview-area"></div>
+
+              <!-- Botones de Acción: Nuevo, Salir y Solicitar Trámite -->
+              <div class="reg-footer-actions">
+                <button class="btn-nuevo" type="button" onclick="limpiarFormulario()">
+                  <span>Nuevo</span>
+                </button>
+                <button class="btn-salir" type="button" onclick="salirModulo()">
+                  <span>Salir</span>
+                </button>
+                <button class="btn-solicitar-tramite" id="btn-solicitar" type="button" onclick="abrirModalSolicitud()">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="12" y1="18" x2="12" y2="12"></line><line x1="9" y1="15" x2="15" y2="15"></line></svg>
+                  <span>Solicitar trámite</span>
+                </button>
+              </div>
+            </div>
+          ` : `
+            <div class="card" style="padding:36px 20px;text-align:center;border:1.5px dashed var(--border)">
+              <div style="font-size:42px;margin-bottom:8px">👥</div>
+              <div style="font-size:16px;font-weight:700;color:#1E293B;margin-bottom:4px">No hay ningún alumno seleccionado</div>
+              <div style="font-size:13.5px;color:#64748B;max-width:440px;margin:0 auto">
+                Utiliza el buscador superior para buscar un alumno por código, nombres o DNI y haz clic en <b>«+ Agregar»</b> para cargar sus datos y trámites disponibles.
+              </div>
+            </div>
+          `}
+        </div>
+      `;
+
+      if (alumnoSeleccionado) {
+        renderizarBloqueTramites();
+      }
+
+      if (APP && APP.initCustomSelects) {
+        APP.initCustomSelects(ctx.mount);
+      }
+    }
+
+    // Exponer globalmente
+    window.cambiarInstitucion = cambiarInstitucion;
+    window.ejecutarBusqueda = ejecutarBusqueda;
+    window.seleccionarAlumno = seleccionarAlumno;
+    window.cambiarCarrera = cambiarCarrera;
+    window.cambiarTramite = cambiarTramite;
+    window.limpiarFormulario = limpiarFormulario;
+    window.salirModulo = salirModulo;
+    window.abrirModalSolicitud = abrirModalSolicitud;
+    window.togglePagoVentanilla = togglePagoVentanilla;
+    window.handleModalFileSelect = handleModalFileSelect;
+    window.removeModalFile = removeModalFile;
+    window.confirmarRegistroTramite = confirmarRegistroTramite;
+
+    iniciarReloj();
+    renderizarVista();
+  </script>
+</body>
+
+</html>
