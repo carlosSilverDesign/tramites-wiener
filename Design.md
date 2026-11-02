@@ -87,41 +87,282 @@ Aplicados a celdas clave (como `.vence`):
 - **Contexto**: Un ícono SVG (`40x40px`) junto al bloque de textos (`h1` de 24px y `p` descriptivo de 16px).
 - **Acciones**: Botones de utilidades o estado en la parte derecha (ej. Botón Imprimir, Botón Descargar), usando layout secundario o outline. Borde inferior demarcado por un divisor `.header-divider`.
 
-## 11. Formularios y Filtros (Alineación y Dimensiones)
-- **Altura estándar uniforme (40px)**: Todos los controles interactivos de una fila de filtros o formulario (inputs de texto, selectores de fecha `input[type="date"]`, selects nativos y botones de dropdown personalizados `.custom-select-trigger`) deben tener exactamente la misma altura: `height: 40px; min-height: 40px; box-sizing: border-box;`.
-- **Alineación vertical y márgenes**:
-  - Ningún control ni contenedor envolvente (`.select-wrap`, `.custom-select-wrap`) debe poseer márgenes verticales desfasados (`margin: 0 !important`).
-  - Las etiquetas (`label`) deben tener dimensiones homogéneas (`height: 16px; line-height: 16px; margin: 0 0 6px 0; display: block;`), asegurando que todos los controles de una misma fila comiencen exactamente en la misma línea vertical (`top`).
-- **Estilos visuales**:
-  - Borde: `1px solid #C6CFD7` (`var(--border)`).
-  - Radio de curvatura: `6px` (`border-radius: 6px`).
-  - Tipografía interna: `Roboto, sans-serif`, `13.5px`, color `#222222`.
+## 11. Formularios, Filtros e Inputs con Iconos Vectoriales SVG (Márgenes Estrictos y Prevención de Colisiones)
+- **Altura estándar uniforme (40px)**: Todos los controles interactivos de formularios y filtros (inputs de texto, selectores de fecha, selects nativos y botones de dropdown personalizados `.custom-select-trigger`) deben tener exactamente la misma altura:
+  ```css
+  height: 40px;
+  min-height: 40px;
+  box-sizing: border-box;
+  ```
+- **Alineación vertical y etiquetas (`label`)**:
+  - Las etiquetas (`label`) deben tener dimensiones homogéneas:
+    ```css
+    height: 16px;
+    line-height: 16px;
+    margin: 0 0 6px 0;
+    display: block;
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: #5B6E80;
+    ```
+  - Todos los controles de una misma fila deben iniciar exactamente en la misma línea vertical (`top`).
+- **Estilos visuales de inputs**:
+  - Borde: `1px solid #CBD5E1` (`var(--border)`).
+  - Radio de curvatura: `8px` (`border-radius: 8px`).
+  - Tipografía interna: `Roboto, sans-serif`, `13.5px`, color `#1E293B`.
   - Fondo: `#FFFFFF`.
-  - Padding horizontal: `12px` (inputs de texto y fecha) / `14px` (selects).
+  - Padding estándar sin icono: `padding: 0 14px;`.
 - **Efecto Focus corporativo Wiener**:
-  - Borde: `#0F848F` (`var(--brand)`).
-  - Anillo de enfoque: `box-shadow: 0 0 0 3px rgba(15, 132, 143, 0.16); outline: none;`.
-- **Centrado de Iconos**:
-  - La flecha del selector y el icono del selector de fecha deben estar centrados al `50%` vertical de la caja de 40px.
+  ```css
+  border-color: #0F848F !important;
+  box-shadow: 0 0 0 3px rgba(15, 132, 143, 0.15) !important;
+  outline: none;
+  ```
+- **Márgenes Estrictos para Inputs con Icono a la Izquierda (`.input-wrap-icon-left`)**:
+  - El icono vectorial SVG (`.input-icon-svg`) se posiciona de forma absoluta:
+    ```css
+    position: absolute;
+    left: 14px !important;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 16px;
+    height: 16px;
+    color: #5B6E80;
+    pointer-events: none;
+    z-index: 2;
+    ```
+  - **Padding obligatorio del input**:
+    ```css
+    padding: 0 14px 0 42px !important;
+    line-height: 38px !important;
+    ```
+  - **Regla de oro de separación**: Los 42px de padding izquierdo resultan de 14px (margen al borde) + 16px (ancho del icono) + 12px (espacio libre de respiración). **Nunca usar `padding: 0 12px` en inputs con icono**, ya que provoca que el texto escrito o el placeholder colisione y se monte sobre el icono.
+- **Inputs con Icono a la Derecha (`.input-wrap-icon-right`)**:
+  - El icono vectorial SVG se posiciona a:
+    ```css
+    position: absolute;
+    right: 12px !important;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 16px;
+    height: 16px;
+    color: #5B6E80;
+    pointer-events: none;
+    ```
+  - Padding obligatorio del input: `padding: 0 38px 0 14px !important;`.
+- **Iconografía en SVG**: Todos los iconos de filtros, inputs y botones deben ser vectores SVG limpios (`stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"`), nunca imágenes rasterizadas ni caracteres emoji o fuentes glifo que puedan desalinearse o presentar artefactos de codificación.
 
-## 12. Componente Desplegable Personalizado (Custom Select Dropdown)
-- **Propósito**: Eliminar el popup nativo del sistema operativo (Aqua en macOS / clásico en Windows) que ignora estilos CSS, tipografías y bordes, garantizando una interfaz web consistente en cualquier plataforma.
-- **Trigger**:
-  - Elemento `.custom-select-trigger` con `height: 40px; box-sizing: border-box;`.
-  - Indicador de flecha con rotación: en estado cerrado `transform: translateY(-70%) rotate(45deg);`, en estado abierto `.is-open` rota a `transform: translateY(-30%) rotate(225deg) scale(1.15);`.
-- **Retorno inmediato de animación**:
-  - Al hacer clic en cualquier opción, el menú se cierra **inmediatamente** (`wrap.classList.remove('is-open')`) y la flecha regresa fluidamente a su estado inicial (`rotate(45deg)`). No debe depender del evento `blur` ni requerir clic fuera.
-  - Al hacer clic fuera o presionar la tecla `Escape`, se cierra y la flecha retorna instantáneamente.
-- **Menú Flotante (`.custom-select-menu`)**:
-  - Fondo blanco `#FFFFFF`, borde `#D6DFE6`, radio `6px` a `8px`.
-  - Sombra flotante pronunciada: `box-shadow: 0 10px 25px -4px rgba(15, 23, 42, 0.14), 0 4px 8px -2px rgba(15, 23, 42, 0.06);`.
-  - Altura máxima: `max-height: 250px; overflow-y: auto;` con scrollbar delgada (`6px`) en gris suave `#CBD5E1`.
-  - Ancho dinámico: `min-width: 100%; width: max-content; max-width: min(520px, 90vw);`. Si se encuentra próximo al borde derecho de la pantalla, se alinea a la derecha (`right: 0; left: auto`).
-- **Estados de las Opciones (`.custom-select-item`)**:
-  - **Hover / Foco**: Fondo suave `#EDF9F8`, texto verde oscuro `#0b6770` (`var(--brand-dark)`), font-weight `600`.
-  - **Activo / Seleccionado**: Fondo `#E6F4F5` (`var(--brand-soft)`), texto `#0b6770`, font-weight `700`, con ícono checkmark `✓` a la derecha.
+## 12. Componente Desplegable Personalizado Wiener (Custom Select Dropdown con Giro SVG 180° y Flotación Fixed)
+- **Propósito**: Eliminar el popup nativo del sistema operativo (Aqua en macOS / clásico en Windows) que ignora estilos CSS, tipografías y bordes, garantizando una interfaz corporativa consistente, fluida y sin recortes en cualquier dispositivo.
+- **Estructura HTML**:
+  ```html
+  <div class="custom-select-container">
+    <select class="form-control" name="filtro_ejemplo" style="display: none;">
+      <option value="">Todos los registros</option>
+      <option value="1">Opción A</option>
+      <option value="2">Opción B</option>
+    </select>
+    <div class="custom-select-trigger" tabindex="0">
+      <span class="custom-select-label">Todos los registros</span>
+      <svg class="custom-select-arrow" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+        <polyline points="6 9 12 15 18 9"></polyline>
+      </svg>
+    </div>
+  </div>
+  ```
+- **Trigger (`.custom-select-trigger`)**:
+  - Altura: `height: 40px; box-sizing: border-box;`.
+  - Padding: `padding: 0 38px 0 14px;` (deja espacio limpio para el icono derecho).
+  - Borde: `1px solid #CBD5E1; border-radius: 8px; background: #FFFFFF; font-size: 13.5px; color: #1E293B; cursor: pointer;`.
+  - Al abrirse (`.is-open`), adquiere el foco corporativo: `border-color: #0F848F !important; box-shadow: 0 0 0 3px rgba(15, 132, 143, 0.15) !important;`.
+- **Flecha con Animación de Giro Vectorial 180° (`.custom-select-arrow`)**:
+  - Icono SVG tipo chevron `<polyline points="6 9 12 15 18 9">`.
+  - Margen respecto al borde: `right: 12px; top: 50%; transform: translateY(-50%) rotate(0deg); pointer-events: none;`.
+  - Transición suave: `transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1), stroke 0.2s ease;`.
+  - Estado abierto (`.is-open .custom-select-arrow`): rota suavemente 180 grados:
+    ```css
+    transform: translateY(-50%) rotate(180deg) !important;
+    stroke: #0F848F !important;
+    ```
+  - **Retorno fluido inmediato**: Al seleccionar una opción, al hacer clic fuera o al presionar `Escape`, la clase `.is-open` se remueve de inmediato y la flecha rota limpiamente de regreso a `0deg`.
+- **Fallback en Selects Nativos**:
+  - Si un select nativo no se transforma en componente personalizado, debe incluir el mismo chevron SVG corporativo vía CSS:
+    ```css
+    background-image: url("data:image/svg+xml,...polyline points='6 9 12 15 18 9'...");
+    background-repeat: no-repeat;
+    background-position: right 12px center !important;
+    padding-right: 38px !important;
+    appearance: none;
+    -webkit-appearance: none;
+    ```
+- **Menú Flotante Fixed (`.custom-dropdown-menu`)**:
+  - Flotación por Viewport: `position: fixed !important; z-index: 999999 !important;`. Se desvincula del contenedor padre para que nunca sea recortado por un modal o tarjeta con `overflow: hidden`.
+  - Fondo blanco `#FFFFFF`, borde `1px solid #D6DFE6`, radio `8px`.
+  - Sombra flotante pronunciada: `box-shadow: 0 12px 30px -4px rgba(15, 23, 42, 0.18), 0 4px 10px -2px rgba(15, 23, 42, 0.08);`.
+  - Altura máxima calculada y scrollbar delgada:
+    ```css
+    max-height: 260px;
+    overflow-y: auto;
+    ```
+    Si el listado de opciones es extenso, la navegación se realiza internamente dentro del menú con scroll fino (`6px`), sin generar scroll en la página ni en el modal.
+- **Estados de las Opciones (`.custom-dropdown-item`)**:
+  - Altura: `36px; padding: 0 14px; font-size: 13.5px; color: #1E293B; cursor: pointer;`.
+  - **Hover**: Fondo verde agua suave `background-color: #E6F3F4;`, color teal `color: #0F848F;`, font-weight `500`.
+  - **Seleccionado (`.is-selected`)**: Fondo `background-color: #F0FAFA;`, color `color: #0F848F;`, font-weight `600;`, con icono checkmark SVG a la derecha.
 
-## 13. Tablas de Gestión y Vistas Administrativas (`.vt-table`)
+## 13. Componente Selector de Fechas Wiener (Custom DatePicker con Calendario Flotante y Anti-Duplicado)
+- **Propósito**: Estandarizar la selección de fechas en toda la intranet con formato latinoamericano visual (`DD/MM/AAAA`), reemplazando el calendario nativo del navegador que genera desfases estéticos y colisiones en modales.
+- **Estructura HTML**:
+  ```html
+  <div class="custom-date-container">
+    <input type="text" class="form-control date-display-input" placeholder="DD/MM/AAAA" readonly>
+    <svg class="custom-date-calendar-icon" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+      <line x1="16" y1="2" x2="16" y2="6"></line>
+      <line x1="8" y1="2" x2="8" y2="6"></line>
+      <line x1="3" y1="10" x2="21" y2="10"></line>
+    </svg>
+    <input type="date" name="fecha_consulta" class="native-date-hidden" data-enhanced-date="true">
+  </div>
+  ```
+- **Input de Visualización (`.date-display-input`)**:
+  - `height: 40px; box-sizing: border-box; border: 1px solid #CBD5E1; border-radius: 8px; background: #FFFFFF; font-size: 13.5px; cursor: pointer;`.
+  - Padding: `padding: 0 38px 0 14px;` (espacio reservado para el icono de calendario).
+  - Formato legible mostrado al usuario: `DD/MM/AAAA` (ej. `01/10/2026`).
+- **Icono de Calendario SVG**:
+  - Posición: `position: absolute; right: 12px; top: 50%; transform: translateY(-50%); width: 16px; height: 16px; color: #5B6E80; pointer-events: none;`.
+  - Nunca debe quedar pegado al borde del input.
+- **Sincronización con Input Nativo y Regla Anti-Duplicado**:
+  - El input nativo almacena el valor estándar ISO (`AAAA-MM-DD`) para compatibilidad total con consultas y envíos.
+  - Al ser procesado por el DatePicker, se le asigna el atributo `data-enhanced-date="true"`.
+  - **Regla CSS estricta de ocultación**:
+    ```css
+    input[data-enhanced-date="true"] {
+      display: none !important;
+      position: absolute !important;
+      width: 0 !important;
+      height: 0 !important;
+      opacity: 0 !important;
+      pointer-events: none !important;
+    }
+    ```
+    Esta regla previene cualquier duplicación visual o inputs repetidos en cascada.
+- **Popup de Calendario Flotante (`.custom-calendar-popup`)**:
+  - Flotación Fixed: `position: fixed !important; z-index: 999999 !important; width: 285px;`.
+  - Fondo blanco, borde `1px solid #D6DFE6`, radio `10px`, sombra `box-shadow: 0 12px 30px -4px rgba(15, 23, 42, 0.18);`.
+  - **Cabecera del Calendario**: Mes y año actual con botones vectoriales de navegación previa/siguiente (`‹` / `›`).
+  - **Días de la Semana**: `DO LU MA MI JU VI SÁ` en tipografía compacta (`11px`, peso `700`, color `#5B6E80`).
+  - **Cuadrícula de Días**: 7 columnas. Días seleccionables con hover circular `#E6F3F4`.
+  - **Día Seleccionado**: Círculo de color teal `#0F848F` con texto blanco de alto contraste.
+  - **Acciones Rápidas**: Enlaces de pie de calendario ("Hoy" para seleccionar la fecha actual y "Borrar" para limpiar el campo).
+  - Al hacer clic en un día, se actualizan el input visual (`DD/MM/AAAA`) y el input nativo (`AAAA-MM-DD`), se dispara el evento `change` y el popup se cierra inmediatamente.
+
+## 14. Detección Inteligente de Pantalla, Flotación Libre y Comportamiento de Cierre
+- **Posicionamiento Basado en Coordenadas Viewport (`getBoundingClientRect`)**:
+  - Tanto `.custom-dropdown-menu` como `.custom-calendar-popup` calculan sus coordenadas `top`, `left`, `width` y espacio disponible en tiempo real al abrirse.
+- **Preferencia de Despliegue Hacia Abajo (Downward Priority)**:
+  - Por defecto, el menú o calendario siempre debe desplegarse hacia abajo para una lectura natural.
+  - **Condición estricta para invertir (Upward Flip)**: Solo se despliega hacia arriba si:
+    1. El espacio libre inferior hacia el borde de la pantalla es menor a 160px (para selects) o 180px (para calendarios), **Y**
+    2. El espacio libre superior hacia arriba es mayor que el espacio inferior.
+    Si hay suficiente espacio abajo (por ejemplo en modales o filas intermedias), siempre desplegará hacia abajo.
+- **Ajuste Dinámico de Altura y Prevención de Scrollbar de Página**:
+  - La altura máxima del menú se calcula dinámicamente:
+    ```javascript
+    const maxMenuHeight = opensUp ? Math.min(260, spaceAbove - 16) : Math.min(260, spaceBelow - 16);
+    menu.style.maxHeight = `${Math.max(120, maxMenuHeight)}px`;
+    ```
+  - Esto garantiza que el desplegado nunca sobrepase el límite inferior ni superior del viewport del usuario, y que nunca obligue al navegador a generar barras de desplazamiento en la ventana principal.
+- **Ajuste Horizontal respecto al Borde de la Pantalla**:
+  - Si el menú se encuentra cerca del borde derecho (`rect.left + menuWidth > window.innerWidth - 12`), se recoloca automáticamente alineándose a la derecha del disparador para evitar desbordamientos horizontales.
+- **Cierre Global Inteligente**:
+  - `closeAllDropdowns()` se ejecuta automáticamente al:
+    - Hacer clic en cualquier lugar fuera del desplegado (`pointerdown`).
+    - Presionar la tecla `Escape`.
+    - Redimensionar la ventana (`resize`).
+    - Hacer scroll en la página o en un modal. **Excepción estricta**: Si el usuario hace scroll dentro del propio `.custom-dropdown-menu` o dentro del `.custom-calendar-popup`, el menú **no se cierra**, permitiendo explorar todas las opciones cómodamente.
+
+## 15. Prevención de Enmascaramiento y Modales de Configuración (Anti-clipping y Auto-hidratación)
+- **Regla Anti-clipping en Tarjetas y Contenedores**:
+  - Las tarjetas que contienen filtros o selects (por ejemplo `.cronog-card-wiener`, `.listado-filters-card` o `.card`) deben tener `overflow: visible !important;`.
+  - Para mantener las esquinas redondeadas en tarjetas con cabecera de color, los radios deben asignarse a la cabecera misma (`border-top-left-radius: 9px; border-top-right-radius: 9px;`) en lugar de aplicar `overflow: hidden` a la tarjeta completa.
+- **Auto-hidratación en Modales Dinámicos**:
+  - Cuando se abre un modal de configuración (como "Editar Cronograma", "Editar Área", "Nuevo Trámite", etc.) mediante `APP.openModal(modalId)` o al renderizarse dinámicamente un formulario, se debe invocar automáticamente la hidratación de componentes:
+    ```javascript
+    APP.openModal = function(modalId) {
+      const modal = document.getElementById(modalId);
+      if (modal) {
+        modal.classList.add('active');
+        // Hidratar automáticamente componentes Wiener en el modal
+        if (typeof window.initCustomSelects === 'function') window.initCustomSelects(modal);
+        if (typeof window.initDatePickers === 'function') window.initDatePickers(modal);
+      }
+    };
+    ```
+  - Esta práctica garantiza que todos los selects tengan sus flechas vectoriales con giro y que todos los campos de fecha posean el DatePicker flotante sin requerir código redundante por cada modal.
+
+## 16. Tarjeta Estandarizada de Filtros Wiener (`.listado-filters-card`) e Iconografía SVG
+- **Estructura Estándar**:
+  ```html
+  <div class="card listado-filters-card">
+    <div class="filter-header-row">
+      <div class="filter-title-col">
+        <svg class="filter-title-icon" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="#0F848F" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"></polygon>
+        </svg>
+        <span class="filter-card-title">Filtros de Búsqueda</span>
+      </div>
+      <div class="filter-card-subtitle">Todos los campos son opcionales</div>
+    </div>
+    
+    <!-- Cuadrícula responsive de inputs y selects (gap: 16px) -->
+    <div class="filter-grid-row">
+      <!-- Campo con icono izquierdo -->
+      <div class="filter-col">
+        <label>Código o Nombres</label>
+        <div class="input-wrap-icon-left">
+          <svg class="input-icon-svg" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+          <input type="text" class="form-control" placeholder="Buscar por código...">
+        </div>
+      </div>
+      
+      <!-- Select personalizado Wiener -->
+      <div class="filter-col">
+        <label>Trámite</label>
+        <div class="custom-select-container">
+          <select class="form-control">
+            <option value="">Todos los trámites</option>
+            <option value="1">Certificado de Estudios</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- DatePicker personalizado Wiener -->
+      <div class="filter-col">
+        <label>Desde</label>
+        <div class="custom-date-container">
+          <input type="date" class="form-control" value="2026-09-01">
+        </div>
+      </div>
+    </div>
+
+    <!-- Barra de acciones inferiores -->
+    <div class="filter-actions-row">
+      <button type="button" class="btn btn-outline" id="btnLimpiarFiltros">
+        <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2"><polyline points="1 4 1 10 7 10"></polyline><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"></path></svg>
+        Limpiar filtros
+      </button>
+      <button type="button" class="btn btn-primary" id="btnBuscar">
+        <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+        Buscar
+      </button>
+    </div>
+  </div>
+  ```
+
+## 17. Tablas de Gestión y Vistas Administrativas (`.vt-table`)
 - **Cabeceras (`th`)**: Tipografía `Roboto, sans-serif`, `11.5px`, peso `700`, mayúsculas, `letter-spacing: 0.04em`, color suave `#5B6E80`, fondo `#E4E8EC`.
 - **Prioridad de ancho y scroll horizontal**:
   - La tabla debe mostrarse completa como prioridad en pantallas estándar. El ancho máximo sugerido del contenedor es `max-width: 1400px` centrado.
@@ -138,7 +379,7 @@ Aplicados a celdas clave (como `.vence`):
   - Botones de número de página compactos (`height: 30px; min-width: 30px; border-radius: 6px;`).
   - Página activa en color Teal `#0F848F` con texto blanco.
 
-## 14. Estandarización de Cabeceras de Página (`.page-head`)
+## 18. Estandarización de Cabeceras de Página (`.page-head`)
 - **Estructura Estándar**:
   ```html
   <div class="page-head">
@@ -153,3 +394,10 @@ Aplicados a celdas clave (como `.vence`):
   - `h1`: Tipografía `Lato, sans-serif`, `24px` (o `20px` en mobile), peso `700` (evitar `font-weight: 900` para mantener consistencia con los demás módulos administrativos), margen inferior `4px`.
   - `p`: Tipografía `Roboto`/sistema, `14px`, color `#5B6E80` (`var(--text-muted)`).
   - No añadir estilos en línea que compacten o alteren el espaciado vertical entre el título y la descripción (`margin: 0` indebido en `<p>`), permitiendo una transición visual homogénea al navegar entre secciones del sistema.
+
+## 19. Reglas de Redacción, Tipografía y Caracteres Especiales (Sin Guiones Largos ni Corrupción)
+- **Cero guiones largos (Em-dashes / En-dashes)**: Nunca utilizar guiones largos (`—` o `–`) en textos visibles para el usuario ni en etiquetas de interfaz; utilizar siempre el guion estándar ASCII `-`.
+- **Integridad de Caracteres UTF-8**: Todo archivo HTML o JS debe guardarse en codificación UTF-8 estricta. Queda terminantemente prohibido el uso de secuencias corruptas o mojibake (ej. `Ãº`, `Â°`, `â`).
+- **Nombres Institucionales Completos**:
+  - Universidad: **Universidad Privada Norbert Wiener S.A.** (o Universidad Norbert Wiener según el contexto).
+  - Instituto: **Instituto de Educación Superior Daniel Alcides Carrión**.
