@@ -239,6 +239,7 @@
       document.body.appendChild(host);
     }
     const cls = [opts.extraWide ? 'extra-wide' : (opts.wide ? 'wide' : ''), opts.className || ''].filter(Boolean).join(' ');
+    document.body.classList.add('modal-open');
     host.innerHTML = `<div class="modal-overlay open" id="ov" role="dialog" aria-modal="true"><div class="modal ${cls}">${html}</div></div>`;
     const ov = document.getElementById('ov');
     const modal = ov.querySelector('.modal');
@@ -298,6 +299,7 @@
       document.removeEventListener('keydown', _trapHandler);
       _trapHandler = null;
     }
+    document.body.classList.remove('modal-open');
     const host = document.getElementById('modal-host');
     if (host) host.innerHTML = '';
     if (_lastActiveElement && typeof _lastActiveElement.focus === 'function') {

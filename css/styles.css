@@ -927,13 +927,19 @@ textarea.input {
   display: flex;
 }
 
+body.modal-open {
+  overflow: hidden;
+}
+
 .modal {
   background: var(--surface);
   border-radius: var(--radius);
   width: 100%;
   max-width: 540px;
   max-height: 90vh;
-  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
   box-shadow: var(--shadow-lg);
   animation: pop .18s ease;
 }
@@ -964,15 +970,43 @@ textarea.input {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  flex-shrink: 0;
+  background: var(--surface);
+  position: relative;
+  z-index: 2;
 }
 
 .modal-head h3 {
   font-size: 18px;
   font-weight: 700;
+  margin: 0;
 }
 
 .modal-body {
   padding: 22px 24px;
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  scrollbar-width: thin;
+  scrollbar-color: #CBD5E1 transparent;
+}
+
+.modal-body::-webkit-scrollbar {
+  width: 6px;
+}
+
+.modal-body::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.modal-body::-webkit-scrollbar-thumb {
+  background-color: #CBD5E1;
+  border-radius: 4px;
+}
+
+.modal-body::-webkit-scrollbar-thumb:hover {
+  background-color: #94A3B8;
 }
 
 .modal-foot {
@@ -981,6 +1015,10 @@ textarea.input {
   display: flex;
   justify-content: flex-end;
   gap: 10px;
+  flex-shrink: 0;
+  background: var(--surface);
+  position: relative;
+  z-index: 2;
 }
 
 .modal-close {
@@ -990,6 +1028,18 @@ textarea.input {
   line-height: 1;
   background: none;
   border: none;
+  padding: 4px;
+  border-radius: 6px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: color .15s ease, background-color .15s ease;
+}
+
+.modal-close:hover {
+  color: var(--text);
+  background: var(--surface-2);
 }
 
 /* Detalle clave/valor */
@@ -4333,3 +4383,26 @@ input[type="date"]::-webkit-calendar-picker-indicator:hover {
 
 
 
+
+@media (max-width: 640px) {
+  .modal-overlay {
+    padding: 10px;
+  }
+  .modal {
+    max-height: calc(100vh - 20px);
+    border-radius: 12px;
+  }
+  .modal-head {
+    padding: 14px 18px;
+  }
+  .modal-head h3 {
+    font-size: 16px;
+  }
+  .modal-body {
+    padding: 16px 18px;
+  }
+  .modal-foot {
+    padding: 12px 18px;
+    gap: 8px;
+  }
+}
