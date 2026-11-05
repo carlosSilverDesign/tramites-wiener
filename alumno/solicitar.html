@@ -491,16 +491,34 @@
       const elegibles = all.filter(t => DB.elegible(t, perfil));
       const noEleg = all.filter(t => t.activo && !DB.elegible(t, perfil));
 
-      // Filtro reactivo por búsqueda y por categoría de intención
-      const specificIntents = ['beca', 'practicas', 'grado', 'carne'];
+      // Filtro reactivo por búsqueda y por categoría de intención (100% robusto con intenciones + palabras clave)
+      const specificIntents = ['beca', 'certificaciones', 'practicas', 'grado', 'carne'];
       let filtrados = elegibles.filter(t => {
-        const matchText = !searchTxt || (t.nombre + ' ' + t.descripcion + ' ' + t.tipo + ' ' + t.area).toLowerCase().includes(searchTxt);
-        const matchIntent = (intencionSel === 'todos')
-          || (intencionSel === 'otros' && (
-            (t.intenciones && (t.intenciones.includes('otros') || t.intenciones.includes('matricula'))) ||
-            (!t.intenciones || !t.intenciones.some(i => specificIntents.includes(i)))
-          ))
-          || (t.intenciones && t.intenciones.includes(intencionSel));
+        const fullTxt = (t.nombre + ' ' + t.descripcion + ' ' + t.tipo + ' ' + t.area).toLowerCase();
+        const matchText = !searchTxt || fullTxt.includes(searchTxt);
+        
+        const tNombre = (t.nombre || '').toLowerCase();
+        const tTipo = (t.tipo || '').toLowerCase();
+        const tArea = (t.area || '').toLowerCase();
+        const tIntenciones = Array.isArray(t.intenciones) ? t.intenciones : [];
+
+        let matchIntent = false;
+        if (intencionSel === 'todos') {
+          matchIntent = true;
+        } else if (intencionSel === 'beca') {
+          matchIntent = tIntenciones.includes('beca') || tNombre.includes('beca') || tNombre.includes('descuento');
+        } else if (intencionSel === 'certificaciones') {
+          matchIntent = tIntenciones.includes('certificaciones') || tTipo === 'certificado' || tNombre.includes('certific');
+        } else if (intencionSel === 'practicas') {
+          matchIntent = tIntenciones.includes('practicas') || tNombre.includes('práctica') || tNombre.includes('tercio') || tNombre.includes('estudios') || tNombre.includes('certific');
+        } else if (intencionSel === 'grado') {
+          matchIntent = tIntenciones.includes('grado') || tArea.includes('grados') || tNombre.includes('grado') || tNombre.includes('egreso') || tNombre.includes('estudios');
+        } else if (intencionSel === 'carne') {
+          matchIntent = tIntenciones.includes('carne') || tTipo.includes('carné') || tTipo.includes('carne') || tNombre.includes('carné') || tNombre.includes('carne');
+        } else if (intencionSel === 'otros') {
+          matchIntent = tIntenciones.includes('otros') || tIntenciones.includes('matricula') || (!tIntenciones.some(i => specificIntents.includes(i)) && !tNombre.includes('beca') && !tNombre.includes('carné') && !tNombre.includes('certific'));
+        }
+
         return matchText && matchIntent;
       });
 
@@ -657,6 +675,7 @@
           <div class="intent-bar">
             <button class="intent-btn active" data-intent="todos" onclick="setIntencion('todos')">Todos</button>
             <button class="intent-btn" data-intent="beca" onclick="setIntencion('beca')">Becas y descuentos</button>
+            <button class="intent-btn" data-intent="certificaciones" onclick="setIntencion('certificaciones')">Certificaciones</button>
             <button class="intent-btn" data-intent="practicas" onclick="setIntencion('practicas')">Prácticas y empleo</button>
             <button class="intent-btn" data-intent="grado" onclick="setIntencion('grado')">Grados y egreso</button>
             <button class="intent-btn" data-intent="carne" onclick="setIntencion('carne')">Carné universitario</button>

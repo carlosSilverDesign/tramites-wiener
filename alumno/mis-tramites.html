@@ -130,22 +130,47 @@
 
     // Generador de Stepper Cronológico Corregido y Accesible
     function renderStepper(s) {
-      const pagoAntes = s.pagoMomento === 'antes';
-      const steps = pagoAntes
-        ? [
-            { id: 'solicitud', label: 'Solicitud' },
-            { id: 'pago', label: 'Pago Niubiz' },
-            { id: 'revision', label: 'En revisión' },
-            { id: 'aprobacion', label: 'Aprobación' },
-            { id: 'emision', label: 'Emisión final' }
-          ]
-        : [
-            { id: 'solicitud', label: 'Solicitud' },
-            { id: 'revision', label: 'En revisión' },
-            { id: 'aprobacion', label: 'Aprobación' },
-            { id: 'pago', label: 'Pago Niubiz' },
-            { id: 'emision', label: 'Emisión final' }
-          ];
+      const t = DB.getTramite(s.tramiteId);
+      const esEmisionInmediata = (t && (t.diasEntrega === 0 || t.requiereAprobacion === false)) ||
+        (s.tramiteId === 'T-010') ||
+        (s.tramiteNombre && s.tramiteNombre.toLowerCase().includes('certificación progresiva')) ||
+        (s.certificacionId);
+
+      const pagoAntes = s.pagoMomento === 'antes' || (t && t.pagoMomento === 'antes');
+
+      // Iconos SVG limpios para los estados del stepper
+      const svgCheck = '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>';
+      const svgErr = '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>';
+      const svgWarn = '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>';
+
+      let steps = [];
+
+      if (esEmisionInmediata) {
+        // Flujo directo automatizado (3 pasos: Validación -> Pago -> Emisión Inmediata)
+        steps = [
+          { id: 'solicitud', label: 'Solicitud y requisitos' },
+          { id: 'pago', label: 'Pago Niubiz' },
+          { id: 'emision', label: 'Emisión digital' }
+        ];
+      } else if (pagoAntes) {
+        // Flujo estándar con pago previo (5 pasos)
+        steps = [
+          { id: 'solicitud', label: 'Solicitud' },
+          { id: 'pago', label: 'Pago Niubiz' },
+          { id: 'revision', label: 'En revisión' },
+          { id: 'aprobacion', label: 'Aprobación' },
+          { id: 'emision', label: 'Emisión final' }
+        ];
+      } else {
+        // Flujo estándar con pago posterior a aprobación (5 pasos)
+        steps = [
+          { id: 'solicitud', label: 'Solicitud' },
+          { id: 'revision', label: 'En revisión' },
+          { id: 'aprobacion', label: 'Aprobación' },
+          { id: 'pago', label: 'Pago Niubiz' },
+          { id: 'emision', label: 'Emisión final' }
+        ];
+      }
 
       // Mapear cada paso con su estado visual exacto
       const stepItems = steps.map((st, i) => {
@@ -155,11 +180,11 @@
 
         if (s.estado === 'Emitido') {
           cls = 'done';
-          dotContent = '✓';
+          dotContent = svgCheck;
         } else if (s.estado === 'Rechazado' || s.estado === 'Cancelar' || s.estado === 'Cancelado') {
           if (st.id === 'solicitud') {
             cls = 'err';
-            dotContent = '✕';
+            dotContent = svgErr;
             subText = s.estado === 'Rechazado' ? 'Rechazado' : 'Cancelado';
           }
         } else if (s.estado === 'Solicitado') {
@@ -171,35 +196,35 @@
         } else if (s.estado === 'Observado') {
           if (st.id === 'solicitud' || (st.id === 'pago' && s.pago.estado === 'pagado')) {
             cls = 'done';
-            dotContent = '✓';
+            dotContent = svgCheck;
           } else if (st.id === 'revision') {
             cls = 'warn';
-            dotContent = '!';
+            dotContent = svgWarn;
             subText = 'Observación';
           }
         } else if (s.estado === 'Aprobado') {
           if (pagoAntes) {
             if (['solicitud', 'pago', 'revision', 'aprobacion'].includes(st.id)) {
-              cls = 'done'; dotContent = '✓';
+              cls = 'done'; dotContent = svgCheck;
             }
           } else {
             if (['solicitud', 'revision', 'aprobacion'].includes(st.id)) {
-              cls = 'done'; dotContent = '✓';
+              cls = 'done'; dotContent = svgCheck;
             }
             if (st.id === 'pago') {
               cls = s.pago.estado === 'pagado' ? 'done' : 'current';
-              dotContent = s.pago.estado === 'pagado' ? '✓' : (i + 1);
+              dotContent = s.pago.estado === 'pagado' ? svgCheck : (i + 1);
             }
           }
         } else if (s.estado === 'En revisión') {
-          if (st.id === 'solicitud' || (st.id === 'pago' && pagoAntes)) {
-            cls = 'done'; dotContent = '✓';
-          } else if (st.id === 'revision') {
+          if (st.id === 'solicitud' || (st.id === 'pago' && (pagoAntes || esEmisionInmediata))) {
+            cls = 'done'; dotContent = svgCheck;
+          } else if (st.id === 'revision' || (st.id === 'emision' && esEmisionInmediata)) {
             cls = 'current';
           }
         } else if (s.estado === 'Pendiente de pago') {
           if (st.id === 'solicitud') {
-            cls = 'done'; dotContent = '✓';
+            cls = 'done'; dotContent = svgCheck;
           } else if (st.id === 'pago') {
             cls = 'current';
           }
@@ -283,10 +308,10 @@
                   <span>Tasa: <b>${APP.money(s.costo)}</b></span>
                   <span class="sep">·</span>
                   <span style="color:${s.pago.estado === 'pagado' ? '#047857' : '#B45309'};font-weight:600">
-                    ${s.pago.estado === 'pagado' ? '✓ Pago confirmado' : '● Pendiente de pago'}
+                    ${s.pago.estado === 'pagado' ? '<span style="display:inline-flex;align-items:center;gap:4px;"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg> Pago confirmado</span>' : '<span style="display:inline-flex;align-items:center;gap:4px;">● Pendiente de pago</span>'}
                   </span>
                   ${s.motivo ? `<span class="sep">·</span><span>Motivo: <i>${s.motivo}</i></span>` : ''}
-                  ${s.adjunto ? `<span class="sep">·</span><span>Adjunto: 📎 ${s.adjunto}</span>` : ''}
+                  ${s.adjunto ? `<span class="sep">·</span><span style="display:inline-flex;align-items:center;gap:4px;"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m21.44 11.05-9.19 9.19a6 6 0 0 1-8.49-8.49l8.57-8.57A4 4 0 1 1 18 8.84l-8.59 8.57a2 2 0 0 1-2.83-2.83l8.49-8.48"></path></svg> Adjunto: ${s.adjunto}</span>` : ''}
                 </div>
               </div>
 
@@ -298,8 +323,8 @@
                       Cancelar
                     </button>
                   ` : ''}
-                  ${pagoPendiente ? `<button class="btn btn-primary btn-sm" onclick="pagar('${s.id}')">💳 Pagar ahora</button>` : ''}
-                  ${esEmitido ? `<button class="btn btn-primary btn-sm" onclick="verDoc('${s.id}')">📄 Ver documento oficial</button>` : ''}
+                  ${pagoPendiente ? `<button class="btn btn-primary btn-sm" onclick="pagar('${s.id}')" style="display:inline-flex;align-items:center;gap:6px;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="20" height="14" x="2" y="5" rx="2"></rect><line x1="2" x2="22" y1="10" y2="10"></line></svg> Pagar ahora</button>` : ''}
+                  ${esEmitido ? `<button class="btn btn-primary btn-sm" onclick="verDoc('${s.id}')" style="display:inline-flex;align-items:center;gap:6px;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line></svg> Ver documento oficial</button>` : ''}
                   <button class="btn btn-sm" onclick="detalle('${s.id}')">Ver expediente</button>
                 </div>
               </div>
@@ -312,32 +337,30 @@
             ${esObservado ? `
               <div class="subsanacion-callout">
                 <div class="subsanacion-text">
-                  <b>⚠️ Atención requerida: Tu solicitud tiene una observación</b>
+                  <b style="display:inline-flex;align-items:center;gap:6px;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#D97706" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg> Atención requerida: Tu solicitud tiene una observación</b>
                   <p>${s.observacion || 'El área responsable requiere que actualices o corrijas un documento de sustento.'}</p>
-                  <div class="subsanacion-pill">
-                    ⏳ 48 horas restantes para subsanar sin reiniciar trámite
-                  </div>
+                  <div class="subsanacion-pill" style="display:inline-flex;align-items:center;gap:5px;"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg> 48 horas restantes para subsanar sin reiniciar trámite</div>
                 </div>
                 <button class="btn btn-sm btn-primary" onclick="abrirSubsanacion('${s.id}')">
-                  ✏️ Subsanar observación ahora <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle;margin-left:2px"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
+                  <span style="display:inline-flex;align-items:center;gap:6px;"><span>Subsanar observación ahora</span><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg></span>
                 </button>
               </div>` : ''}
 
             ${esCancelado ? `
               <div class="alert err" style="margin-top:16px;font-size:13px;display:flex;flex-direction:column;gap:6px">
-                <div><b>✕ Solicitud cancelada por el alumno:</b> ${s.observacion || 'El trámite fue dado de baja a petición del titular.'}</div>
+                <div style="display:flex;align-items:center;gap:6px;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg> <b>Solicitud cancelada por el alumno:</b> ${s.observacion || 'El trámite fue dado de baja a petición del titular.'}</div>
                 <div style="font-size:12px;opacity:.9">
-                  ℹ️ Este trámite ha finalizado por desistimiento. Si necesitas realizar este trámite nuevamente, puedes generar una nueva solicitud desde el portal.
+                  <span style="display:inline-flex;align-items:center;gap:5px;"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg> Este trámite ha finalizado por desistimiento. Si necesitas realizar este trámite nuevamente, puedes generar una nueva solicitud desde el portal.</span>
                 </div>
               </div>` : esRechazado ? `
               <div class="alert err" style="margin-top:16px;font-size:13px;display:flex;flex-direction:column;gap:6px">
-                <div><b>✕ Solicitud desestimada por ${s.area}:</b> ${s.observacion}</div>
+                <div style="display:flex;align-items:center;gap:6px;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg> <b>Solicitud desestimada por ${s.area}:</b> ${s.observacion}</div>
                 <div style="font-size:12px;opacity:.9">
-                  ℹ️ Si requieres apelar la resolución o consultar sobre la devolución de derechos abonados, comunícate con <b>mesadepartes@uwiener.edu.pe</b> indicando tu N° de expediente <b>${s.id}</b>.
+                  <span style="display:inline-flex;align-items:center;gap:5px;"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg> Si requieres apelar la resolución o consultar sobre la devolución de derechos abonados, comunícate con <b>mesadepartes@uwiener.edu.pe</b> indicando tu N° de expediente <b>${s.id}</b>.</span>
                 </div>
               </div>` : s.observacion && !esObservado ? `
               <div class="alert info" style="margin-top:16px;font-size:13px">
-                💬 <b>Detalle del área:</b> ${s.observacion}
+                <span style="display:inline-flex;align-items:center;gap:6px;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#0F848F" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg> <b>Detalle del área:</b> ${s.observacion}</span>
               </div>` : ''}
           </div>`;
       }).join('');
@@ -363,7 +386,7 @@
           </div>
           <div class="stat" style="${counts.observados > 0 ? 'border-left:4px solid #F59E0B;' : ''}">
             <div class="label" style="${counts.observados > 0 ? 'color:#B45309;font-weight:700' : ''}">
-              ${counts.observados > 0 ? '⚠️ Con observación' : 'Observados'}
+              ${counts.observados > 0 ? '<span style="display:inline-flex;align-items:center;gap:4px;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg> Con observación</span>' : 'Observados'}
             </div>
             <div class="value" style="${counts.observados > 0 ? 'color:#B45309' : ''}">${counts.observados}</div>
           </div>
@@ -402,7 +425,7 @@
           ${cardsHtml || `
             <div class="card">
               <div class="empty-state">
-                <div class="ico">📭</div>
+                <div class="ico" style="display:flex;justify-content:center;margin-bottom:12px;color:#94A3B8;"><svg width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M22 12h-6l-2 3h-4l-2-3H2"></path><path d="M5.45 5.11 2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z"></path></svg></div>
                 No tienes solicitudes en esta categoría o no coinciden con la búsqueda.<br>
                 <a class="btn btn-primary" style="margin-top:16px" href="solicitar.html">Solicitar un nuevo trámite</a>
               </div>
@@ -440,7 +463,7 @@
             <label>Adjuntar documento o archivo corregido (PDF o JPG)</label>
             <div class="file-dropzone" id="sub-dropzone" onclick="document.getElementById('sub-file-input').click()">
               <input type="file" id="sub-file-input" accept=".pdf,.jpg,.jpeg,.png" onchange="handleSubFile(event)">
-              <div style="font-size:24px;margin-bottom:4px">📁</div>
+              <div style="display:flex;justify-content:center;margin-bottom:6px;color:#0F848F;"><svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg></div>
               <div style="font-weight:600;font-size:13px">Seleccionar archivo corregido</div>
               <div style="font-size:11.5px;color:var(--text-muted)">PDF, JPG o PNG (máximo 5 MB)</div>
             </div>
@@ -466,10 +489,10 @@
       document.getElementById('sub-file-preview').innerHTML = `
         <div class="file-preview-card">
           <div class="file-meta">
-            <span style="font-size:18px">📄</span>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#0F848F" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline></svg>
             <div class="file-name">${f.name}</div>
           </div>
-          <button class="btn btn-sm btn-ghost" type="button" style="color:var(--err-fg)" onclick="SUB_TEMP.file=null;document.getElementById('sub-file-preview').innerHTML=''">✕</button>
+          <button class="btn btn-sm btn-ghost" type="button" style="color:var(--err-fg);display:inline-flex;align-items:center;" onclick="SUB_TEMP.file=null;document.getElementById('sub-file-preview').innerHTML=''"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></button>
         </div>`;
     }
 
@@ -491,7 +514,7 @@
 
       APP.closeModal();
       APP.toast({
-        icon: '✅',
+        icon: 'ok',
         title: 'Subsanación enviada',
         body: `El expediente ${s.id} fue devuelto a revisión prioritaria.`
       });
@@ -518,7 +541,7 @@
             <dt>Costo</dt><dd><b>${APP.money(s.costo)}</b></dd>
             <dt>Pago</dt><dd>${s.pago.estado === 'pagado' ? s.pago.metodo + ' (Op. ' + s.pago.operacion + ')' : '<span class="pill warn">Pendiente</span>'}</dd>
             <dt>Área responsable</dt><dd>${s.area}</dd>
-            <dt>Archivo adjunto</dt><dd>${s.adjunto ? '📎 ' + s.adjunto : 'Ninguno'}</dd>
+            <dt>Archivo adjunto</dt><dd>${s.adjunto ? '<span style="display:inline-flex;align-items:center;gap:4px;"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m21.44 11.05-9.19 9.19a6 6 0 0 1-8.49-8.49l8.57-8.57A4 4 0 1 1 18 8.84l-8.59 8.57a2 2 0 0 1-2.83-2.83l8.49-8.48"></path></svg> ' + s.adjunto + '</span>' : 'Ninguno'}</dd>
           </dl>
 
           <div class="section-label" style="margin-top:20px">Trazabilidad cronológica del expediente</div>
@@ -629,7 +652,7 @@
       APP.closeModal();
 
       APP.toast({
-        icon: '🗑️',
+        icon: 'trash',
         title: 'Solicitud cancelada',
         body: `La solicitud ${s.id} (${s.tramiteNombre}) ha sido cancelada exitosamente.`
       });

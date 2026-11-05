@@ -20,6 +20,7 @@
           tiempoVigenciaHrs: 48, plazoRecojoDias: 3, observacion: '', tipoActivacion: 'Permanente',
           envioCorreo: true, activo: true, fechaRegistro: '2026-07-19',
           pagoMomento: 'despues', requiereAprobacion: true, diasEntrega: 3, area: 'Retención y Fidelización',
+          intenciones: ["beca"],
           requiereAdjunto: true,
           requisitos: [
             { id: 'REQ-001', titulo: 'Certificado de voluntariado', adjuntarArchivo: true, activo: true, orden: 1 },
@@ -42,6 +43,7 @@
           tiempoVigenciaHrs: 48, plazoRecojoDias: 3, observacion: '', tipoActivacion: 'Permanente',
           envioCorreo: true, activo: true, fechaRegistro: '2026-07-19',
           pagoMomento: 'despues', requiereAprobacion: true, diasEntrega: 3, area: 'Retención y Fidelización',
+          intenciones: ["beca"],
           requiereAdjunto: true,
           requisitos: [
             { id: 'REQ-002', titulo: 'DNI del paciente / solicitante', adjuntarArchivo: true, activo: true, orden: 1 }
@@ -62,6 +64,7 @@
           tiempoVigenciaHrs: 72, plazoRecojoDias: 5, observacion: '', tipoActivacion: 'Cronograma',
           envioCorreo: true, activo: true, fechaRegistro: '2023-03-19',
           pagoMomento: 'despues', requiereAprobacion: true, diasEntrega: 5, area: 'Registros Académicos',
+          intenciones: ["otros","matricula"],
           requiereAdjunto: false,
           proceso: [
             { id: 'P-1', orden: 1, area: 'Registros Académicos', descripcion: 'Validación de plan curricular posgrado', observacion: '', duracionDias: 2, activo: true }
@@ -78,6 +81,7 @@
           tiempoVigenciaHrs: 72, plazoRecojoDias: 5, observacion: '', tipoActivacion: 'Cronograma',
           envioCorreo: true, activo: true, fechaRegistro: '2023-07-18',
           pagoMomento: 'despues', requiereAprobacion: true, diasEntrega: 5, area: 'Registros Académicos',
+          intenciones: ["otros","matricula"],
           requiereAdjunto: false,
           proceso: [
             { id: 'P-1', orden: 1, area: 'Registros Académicos', descripcion: 'Validación de vacantes y convalidación', observacion: '', duracionDias: 3, activo: true }
@@ -94,6 +98,7 @@
           tiempoVigenciaHrs: 72, plazoRecojoDias: 5, observacion: '', tipoActivacion: 'Cronograma',
           envioCorreo: true, activo: true, fechaRegistro: '2023-09-20',
           pagoMomento: 'despues', requiereAprobacion: true, diasEntrega: 5, area: 'Registros Académicos',
+          intenciones: ["otros","matricula"],
           requiereAdjunto: false,
           proceso: [
             { id: 'P-1', orden: 1, area: 'Registros Académicos', descripcion: 'Validación académica', observacion: '', duracionDias: 2, activo: true }
@@ -110,6 +115,7 @@
           tiempoVigenciaHrs: 48, plazoRecojoDias: 2, observacion: 'Emisión con firma digital.', tipoActivacion: 'Permanente',
           envioCorreo: true, activo: true, fechaRegistro: '2022-06-10',
           pagoMomento: 'antes', requiereAprobacion: true, diasEntrega: 2, area: 'Registros Académicos',
+          intenciones: ["otros","matricula","practicas"],
           requiereAdjunto: false,
           proceso: [
             { id: 'P-1', orden: 1, area: 'Registros Académicos', descripcion: 'Validación de matrícula y asignaturas registradas', observacion: '', duracionDias: 1, activo: true },
@@ -125,6 +131,7 @@
           tiempoVigenciaHrs: 72, plazoRecojoDias: 3, observacion: '', tipoActivacion: 'Permanente',
           envioCorreo: true, activo: true, fechaRegistro: '2022-06-10',
           pagoMomento: 'antes', requiereAprobacion: true, diasEntrega: 3, area: 'Registros Académicos',
+          intenciones: ["beca","practicas","otros"],
           requiereAdjunto: false,
           cronogramas: [],
           audiencia: { niveles: ['pregrado'], ciclos: [], minCreditos: 0, tercioSuperior: true, quintoSuperior: false, promedioMin: 0 }
@@ -136,6 +143,7 @@
           tiempoVigenciaHrs: 120, plazoRecojoDias: 7, observacion: 'Requiere DNI legible escaneado.', tipoActivacion: 'Permanente',
           envioCorreo: true, activo: true, fechaRegistro: '2022-05-15',
           pagoMomento: 'antes', requiereAprobacion: true, diasEntrega: 7, area: 'Grados y Títulos',
+          intenciones: ["grado","certificaciones","otros"],
           requiereAdjunto: true,
           requisitos: [
             { id: 'REQ-002', titulo: 'Documento de Identidad Vigente (DNI / CE)', condiciones: 'Copia nítida y legible por ambas caras del DNI o Carné de Extranjería vigente en un solo archivo PDF o JPG. Peso máximo: 5 MB.', adjuntarArchivo: true, activo: true, orden: 1 },
@@ -155,6 +163,7 @@
           tiempoVigenciaHrs: 240, plazoRecojoDias: 10, observacion: 'Trámite SUNEDU', tipoActivacion: 'Permanente',
           envioCorreo: true, activo: true, fechaRegistro: '2022-07-01',
           pagoMomento: 'antes', requiereAprobacion: false, diasEntrega: 10, area: 'Dirección de Bienestar Universitario',
+          intenciones: ["carne"],
           requiereAdjunto: true,
           requisitos: [
             { id: 'REQ-003', titulo: 'Fotografía formal tamaño pasaporte', condiciones: 'Fotografía a color, tamaño pasaporte (35 x 45 mm), fondo blanco liso e iluminación uniforme, vestimenta formal (camisa/blusa), sin lentes oscuros o monturas gruesas, sin gorra ni piercings, ángulo frontal y nítido, tomada en los últimos 3 meses. Formato JPG o PNG (máx. 2 MB).', adjuntarArchivo: true, activo: true, orden: 1 },
@@ -171,6 +180,7 @@
           tipoActivacion: 'Permanente',
           envioCorreo: true, activo: true, fechaRegistro: '2026-08-01',
           pagoMomento: 'antes', requiereAprobacion: false, diasEntrega: 0, area: 'Registros Académicos',
+          intenciones: ["certificaciones","grado","practicas","otros"],
           requiereAdjunto: false,
           intenciones: ['grado', 'otros'],
           requisitos: [],
@@ -1642,6 +1652,36 @@
               }
             });
           }
+        }
+      });
+    }
+
+    // Asegurar intenciones en trámites para filtrado por categorías
+    if (s.tramites) {
+      const defIntenciones = {
+        'T-001': ['beca'],
+        'T-002': ['beca'],
+        'T-003': ['otros', 'matricula'],
+        'T-004': ['otros', 'matricula'],
+        'T-005': ['otros', 'matricula'],
+        'T-006': ['otros', 'matricula', 'practicas'],
+        'T-007': ['beca', 'practicas', 'otros'],
+        'T-008': ['grado', 'certificaciones', 'otros'],
+        'T-009': ['carne'],
+        'T-010': ['certificaciones', 'grado', 'practicas', 'otros']
+      };
+      s.tramites.forEach(t => {
+        if (!t.intenciones || !Array.isArray(t.intenciones) || t.intenciones.length === 0) {
+          t.intenciones = defIntenciones[t.id] || ['otros'];
+          dirty = true;
+        } else if (defIntenciones[t.id]) {
+          // Asegurar que contenga las categorías estándar
+          defIntenciones[t.id].forEach(intent => {
+            if (!t.intenciones.includes(intent)) {
+              t.intenciones.push(intent);
+              dirty = true;
+            }
+          });
         }
       });
     }
