@@ -65,6 +65,7 @@
       fecha: fechaLarga(sol ? sol.fecha : null),
       periodo: '2026 - I',
       tramite: t.nombre,
+      certificacion: (sol && (sol.certificacionTitulo || sol.certificacion)) || (t && t.certificacionTitulo) || 'Tutor STEM Matemática',
       codigoDoc: sol ? sol.id.replace('S-', 'DOC-') : 'DOC-2026-XXXX',
       operacion: sol && sol.pago ? sol.pago.operacion : ''
     };

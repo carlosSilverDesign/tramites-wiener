@@ -42,7 +42,8 @@
     // registrar: 'M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-2 10h-4v4h-2v-4H7v-2h4V7h2v4h4v2z',
     registrar: 'M11,13v3q0,0.43 0.29,0.71T12,17t0.71-0.29Q13,16.43 13,16V13h3q0.43,0 0.71-0.29Q17,12.43 17,12t-0.29-0.71T16,11H13V8q0-0.43-0.29-0.71T12,7T11.29,7.29T11,8v3H8q-0.42,0-0.71,0.29T7,12t0.29,0.71T8,13h3ZM5,21q-0.83,0-1.41-0.59T3,19V5Q3,4.17 3.59,3.59T5,3H19q0.83,0 1.41,0.59T21,5V19q0,0.82-0.59,1.41T19,21H5Zm0-2H19V5H5V19ZM5,5V19V5Z',
 
-    config: 'M12 8a4 4 0 1 0 0 8 4 4 0 0 0 0-8zm8.4 4 1.8 1.4-1.8 3.1-2.2-.7a6.9 6.9 0 0 1-1.5.9l-.3 2.3h-3.6l-.3-2.3c-.5-.2-1-.5-1.5-.9l-2.2.7-1.8-3.1L4.6 12l-.2-.9.2-1.1L2.8 8.6l1.8-3.1 2.2.7c.5-.4 1-.7 1.5-.9l.3-2.3h3.6l.3 2.3c.5.2 1 .5 1.5.9l2.2-.7 1.8 3.1L20.6 12z'
+    config: 'M12 8a4 4 0 1 0 0 8 4 4 0 0 0 0-8zm8.4 4 1.8 1.4-1.8 3.1-2.2-.7a6.9 6.9 0 0 1-1.5.9l-.3 2.3h-3.6l-.3-2.3c-.5-.2-1-.5-1.5-.9l-2.2.7-1.8-3.1L4.6 12l-.2-.9.2-1.1L2.8 8.6l1.8-3.1 2.2.7c.5-.4 1-.7 1.5-.9l.3-2.3h3.6l.3 2.3c.5.2 1 .5 1.5.9l2.2-.7 1.8 3.1L20.6 12z',
+    documentos: 'M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6zm-1 1.5L18.5 9H13V3.5zM6 20V4h5v6h6v10H6zm3-4h6v1.5H9V16zm0-3h6v1.5H9V13zm0-3h3v1.5H9V10z'
   };
 
   const NAV = {
@@ -50,7 +51,8 @@
       {
         group: 'Mis trámites', items: [
           { id: 'solicitar', label: 'Solicitar trámite', href: 'alumno/solicitar.html', icon: 'solicitar' },
-          { id: 'mis-tramites', label: 'Estado de trámites', href: 'alumno/mis-tramites.html', icon: 'estado' }
+          { id: 'mis-tramites', label: 'Estado de trámites', href: 'alumno/mis-tramites.html', icon: 'estado' },
+          { id: 'mis-documentos', label: 'Mis documentos', href: 'alumno/mis-documentos.html', icon: 'documentos' }
         ]
       }
     ],
@@ -88,7 +90,19 @@
   }
 
   // -------- Sesión --------
-  function getSession() { try { return JSON.parse(localStorage.getItem(SKEY)); } catch (e) { return null; } }
+  function getSession() {
+    try {
+      const s = JSON.parse(localStorage.getItem(SKEY));
+      if (s && s.rol === 'alumno' && s.codigo) {
+        const expected = 'a' + s.codigo + '@uwiener.edu.pe';
+        if (s.email !== expected && (s.institucion || '').toLowerCase().includes('wiener')) {
+          s.email = expected;
+          localStorage.setItem(SKEY, JSON.stringify(s));
+        }
+      }
+      return s;
+    } catch (e) { return null; }
+  }
   function setSession(s) { localStorage.setItem(SKEY, JSON.stringify(s)); }
   function logout() { localStorage.removeItem(SKEY); location.href = BASE + 'index.html'; }
 
@@ -202,8 +216,8 @@
     bd.classList.toggle('show', open);
   }
 
-  // -------- Toast / simulación de correo --------
-  function toast({ title, body, icon: ic = '🔔', timeout = 5200 }) {
+  // -------- Toast / simulación de correo con iconos SVG --------
+  function toast({ title, body, icon: ic = 'bell', timeout = 5200 }) {
     let host = document.getElementById('toast-host');
     if (!host) {
       host = document.createElement('div');
@@ -212,7 +226,23 @@
     }
     const el = document.createElement('div');
     el.className = 'toast mail';
-    el.innerHTML = `<div class="t-title">${ic} ${title}</div><div class="t-body">${body}</div>`;
+
+    let iconSvg = '';
+    if (ic === '✉️' || ic === 'mail') {
+      iconSvg = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></svg>';
+    } else if (ic === '📋' || ic === 'copy') {
+      iconSvg = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path><rect x="8" y="2" width="8" height="4" rx="1" ry="1"></rect></svg>';
+    } else if (ic === '⚠️' || ic === 'warn') {
+      iconSvg = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#D97706" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>';
+    } else if (ic === '✅' || ic === 'ok') {
+      iconSvg = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#278B52" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;"><polyline points="20 6 9 17 4 12"></polyline></svg>';
+    } else if (typeof ic === 'string' && ic.startsWith('<svg')) {
+      iconSvg = ic;
+    } else {
+      iconSvg = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>';
+    }
+
+    el.innerHTML = `<div class="t-title" style="display:flex;align-items:center;gap:8px;">${iconSvg} <span>${title}</span></div><div class="t-body">${body}</div>`;
     host.appendChild(el);
     setTimeout(() => { el.style.opacity = '0'; el.style.transition = 'opacity .3s'; setTimeout(() => el.remove(), 300); }, timeout);
   }
@@ -220,9 +250,8 @@
   // Simula el envío de correo al alumno + copia (CC) al administrativo responsable
   function sendMail({ to, cc, subject, lines }) {
     const body = lines.join('<br>');
-    toast({ icon: '✉️', title: 'Correo enviado → ' + to, body: `<b>Asunto:</b> ${subject}<br>${body}` });
-    if (cc) setTimeout(() => toast({ icon: '📋', title: 'Copia (CC) → ' + cc, body: `<b>Asunto:</b> ${subject}` }), 700);
-    // En backend real: POST /api/mail  (nodemailer / API institucional)
+    toast({ icon: 'mail', title: 'Correo enviado → ' + to, body: `<b>Asunto:</b> ${subject}<br>${body}` });
+    if (cc) setTimeout(() => toast({ icon: 'copy', title: 'Copia (CC) → ' + cc, body: `<b>Asunto:</b> ${subject}` }), 700);
     console.log('[MAIL]', { to, cc, subject, lines });
   }
 

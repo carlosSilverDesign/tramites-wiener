@@ -162,10 +162,98 @@
           ],
           cronogramas: [],
           audiencia: { niveles: ['pregrado', 'postgrado'], ciclos: [], minCreditos: 0, tercioSuperior: false, quintoSuperior: false, promedioMin: 0 }
+        },
+        {
+          id: 'T-010', nombre: 'Certificación Progresiva', tipo: 'Certificado', modelo: 'certificado',
+          descripcion: 'Acredita competencias y módulos formativos aprobados durante el avance curricular de tu carrera profesional con notas destacadas (Tutor STEM, Algorítmica, Ofimática, Soporte TI).',
+          costo: 120.00, conceptoCodigo: '01020120', conceptoServicio: 'CERTIFICACIÓN PROGRESIVA - MODULAR',
+          tiempoVigenciaHrs: 48, plazoRecojoDias: 1, observacion: 'Emisión electrónica inmediata tras confirmación de pago y validación de requisitos académicos.',
+          tipoActivacion: 'Permanente',
+          envioCorreo: true, activo: true, fechaRegistro: '2026-08-01',
+          pagoMomento: 'antes', requiereAprobacion: false, diasEntrega: 0, area: 'Registros Académicos',
+          requiereAdjunto: false,
+          intenciones: ['grado', 'otros'],
+          requisitos: [],
+          proceso: [
+            { id: 'P-1', orden: 1, area: 'Registros Académicos', descripcion: 'Validación de cursos aprobados con nota mínima de 14 y verificación de estado financiero sin deuda', observacion: '', duracionDias: 1, activo: true },
+            { id: 'P-2', orden: 2, area: 'Soluciones Financieras', descripcion: 'Confirmación de pago en pasarela Niubiz', observacion: '', duracionDias: 1, activo: true }
+          ],
+          cronogramas: [],
+          audiencia: { niveles: ['pregrado'], ciclos: [], minCreditos: 0, tercioSuperior: false, quintoSuperior: false, promedioMin: 14.0 },
+          plantilla: {
+            generaDocumento: true,
+            emisor: 'Dirección de Registros y Asuntos Académicos',
+            firmante: 'Dr. Augusto Salcedo Vílchez',
+            cargo: 'Secretario General',
+            titulo: 'CERTIFICADO DE COMPETENCIA MODULAR',
+            cuerpo: 'Que, {nombre}, identificado(a) con DNI N° {dni} y código de matrícula {codigo}, estudiante regular del programa de {programa} ({nivel}), ha culminado y aprobado la totalidad de las asignaturas formativas correspondientes a la certificación «{certificacion}» con una calificación mínima aprobatoria de 14.00 y encontrándose al día en sus obligaciones económicas. Se expide la presente CERTIFICACIÓN PROGRESIVA con firma digital para los fines laborales y académicos pertinentes.'
+          }
         }
       ],
 
       // ---- Catálogo de Sedes Institucionales ----
+      // ---- Catálogo de Certificaciones Progresivas ----
+      certificacionesProgresivas: [
+        {
+          id: 'CP-001',
+          codigo: 'CP-STEM-MAT',
+          titulo: 'Tutor STEM Matemática',
+          carrera: 'Ingeniería de Sistemas',
+          area: 'Ciencias e Ingeniería',
+          descripcion: 'Acredita dominio analítico y pedagógico en asignaturas fundamentales de ciencias matemáticas para ingeniería.',
+          cursos: [
+            { nombre: 'Introducción a la matemática para ingeniería', nota: 19, cumple: true },
+            { nombre: 'Matemática para ingenieros I', nota: 20, cumple: true },
+            { nombre: 'Matemática para ingenieros II', nota: 19, cumple: true }
+          ],
+          promedio: 15.0,
+          costo: 120.00
+        },
+        {
+          id: 'CP-002',
+          codigo: 'CP-STEM-ALG',
+          titulo: 'Tutor STEM - Algorítmica',
+          carrera: 'Ingeniería de Sistemas',
+          area: 'Tecnologías de la Información',
+          descripcion: 'Acredita competencias sólidas en lógica computacional, estructura de datos y programación modular.',
+          cursos: [
+            { nombre: 'Algoritmos y Estructura de Datos', nota: 16, cumple: true },
+            { nombre: 'Fundamentos de Programación', nota: 15, cumple: true },
+            { nombre: 'Programación Orientada a Objetos', nota: 16, cumple: true }
+          ],
+          promedio: 15.7,
+          costo: 120.00
+        },
+        {
+          id: 'CP-003',
+          codigo: 'CP-OFI-EXC',
+          titulo: 'Excel Intermedio',
+          carrera: 'Ingeniería de Sistemas',
+          area: 'Herramientas de Productividad',
+          descripcion: 'Acredita destrezas en gestión de hojas de cálculo avanzadas, análisis de datos, tablas dinámicas y reportería.',
+          cursos: [
+            { nombre: 'Herramientas Informáticas', nota: 15, cumple: true },
+            { nombre: 'Ofimática para la Gestión', nota: 14, cumple: true }
+          ],
+          promedio: 14.5,
+          costo: 120.00
+        },
+        {
+          id: 'CP-004',
+          codigo: 'CP-TEC-SOP',
+          titulo: 'Soporte Técnico de Computadoras',
+          carrera: 'Ingeniería de Sistemas',
+          area: 'Infraestructura Tecnológica',
+          descripcion: 'Acredita destrezas técnicas en mantenimiento de hardware, configuración de redes y administración de sistemas operativos.',
+          cursos: [
+            { nombre: 'Arquitectura de Computadoras', nota: 15, cumple: true },
+            { nombre: 'Redes y Conectividad', nota: 14, cumple: true },
+            { nombre: 'Sistemas Operativos', nota: 16, cumple: true }
+          ],
+          promedio: 15.0,
+          costo: 120.00
+        }
+      ],
       sedesCatalogo: [
         '7803-2 --> LOCAL 1 / Jr. Larrabure y Unanue 110 Santa Beatriz, Lima',
         '7803-1 --> LOCAL 2 / Av. Arequipa 440 Lima Centro',
@@ -386,7 +474,7 @@
       usuarios: [
         {
           id: 'U-ALU-1', rol: 'alumno', nombre: 'María Fernanda Quispe', codigo: '2021100345',
-          email: 'mf.quispe@uwiener.edu.pe', dni: '72845109', telefono: '945112233', celular: '51945112233',
+          email: 'a2021100345@uwiener.edu.pe', dni: '72845109', telefono: '945112233', celular: '51945112233',
           institucion: 'Universidad Privada Norbert Wiener',
           carreras: ['Ingeniería de Sistemas', 'Ingeniería Industrial'],
           estado: 'activo',
@@ -399,7 +487,7 @@
         },
         {
           id: 'U-ALU-2', rol: 'alumno', nombre: 'José Antonio Ramos', codigo: '2019054420',
-          email: 'j.ramos@uwiener.edu.pe', dni: '70112458', telefono: '987654321', celular: '51987654321',
+          email: 'a2019054420@uwiener.edu.pe', dni: '70112458', telefono: '987654321', celular: '51987654321',
           institucion: 'Universidad Privada Norbert Wiener',
           carreras: ['Administración'],
           estado: 'activo',
@@ -451,6 +539,55 @@
 
       // ---- Solicitudes realizadas por alumnos (Catálogo Vista de Trámites) ----
       solicitudes: [
+        {
+          id: '2026.43545',
+          ticket: '2026.43545',
+          sedeCodigo: '7803-2',
+          sede: '7803-2 - Jr. Larrabure y Unanue 110 Santa Beatriz, Lima',
+          institucion: 'Universidad Norbert Wiener',
+          tramiteId: 'T-010',
+          tramiteNombre: 'Certificación Progresiva: Excel Intermedio',
+          certificacionId: 'CP-003',
+          certificacionTitulo: 'Excel Intermedio',
+          carrera: 'INGENIERÍA DE SISTEMAS',
+          periodo: '2026-1',
+          seccion: '8SI01',
+          alumnoId: 'U-ALU-1',
+          alumnoCodigo: '2021100345',
+          alumnoNombre: 'María Fernanda Quispe',
+          alumnoDni: '72845109',
+          alumnoEmail: 'a2021100345@uwiener.edu.pe',
+          alumnoTelefono: '945112233',
+          alumnoCelular: '51945112233',
+          estado: 'Emitido',
+          activo: true,
+          fecha: '2026-08-20',
+          fechaHora: '2026-08-20 11:30:00 AM',
+          costo: 120.00,
+          conceptoCodigo: '01020120',
+          pago: {
+            estado: 'pagado',
+            obligacionGenerada: true,
+            monto: 120.00,
+            metodo: 'Tarjeta de Crédito / Débito (Niubiz)',
+            carrera: 'Ingeniería de Sistemas',
+            nroDocumento: 'NB-889104',
+            operacion: 'NB-889104',
+            fechaPago: '2026-08-20'
+          },
+          detalle: 'Certificación progresiva modular de competencias en Excel Intermedio.',
+          requisitos: [],
+          proceso: [
+            { orden: 1, area: 'Registros Académicos', plazoHoras: 24, diasRetraso: 0, observacionInterna: 'Requisitos y notas validadas.', estado: 'Atendido', fechaAtencion: '2026-08-20' }
+          ],
+          mensajeSolicitante: 'Tu Certificación Progresiva ha sido emitida y enviada a tu correo institucional. Ya se encuentra disponible para descarga en Mis documentos.',
+          historial: [
+            { estado: 'Pendiente de pago', fecha: '2026-08-20 11:25', nota: 'Solicitud registrada por el alumno' },
+            { estado: 'En revisión', fecha: '2026-08-20 11:28', nota: 'Pago confirmado vía Niubiz (Op. NB-889104)' },
+            { estado: 'Emitido', fecha: '2026-08-20 11:30', nota: 'Certificado oficial generado con firma digital y enviado a a2021100345@uwiener.edu.pe' }
+          ]
+        },
+
         {
           id: '2026.43532',
           ticket: '2026.43532',
@@ -1048,7 +1185,7 @@
           alumnoCodigo: '2021100345',
           alumnoNombre: 'María Fernanda Quispe',
           alumnoDni: '72845109',
-          alumnoEmail: '2021100345@uwiener.edu.pe',
+          alumnoEmail: 'a2021100345@uwiener.edu.pe',
           alumnoTelefono: '984512390',
           alumnoCelular: '984512390',
           estado: 'Solicitado',
@@ -1098,7 +1235,7 @@
           alumnoCodigo: '2021100345',
           alumnoNombre: 'María Fernanda Quispe',
           alumnoDni: '75481920',
-          alumnoEmail: '2021100345@uwiener.edu.pe',
+          alumnoEmail: 'a2021100345@uwiener.edu.pe',
           alumnoTelefono: '984512390',
           alumnoCelular: '984512390',
           estado: 'En revisión',
@@ -1145,7 +1282,7 @@
           alumnoCodigo: '2021100345',
           alumnoNombre: 'María Fernanda Quispe',
           alumnoDni: '72845109',
-          alumnoEmail: '2021100345@uwiener.edu.pe',
+          alumnoEmail: 'a2021100345@uwiener.edu.pe',
           alumnoTelefono: '912345678',
           alumnoCelular: '912345678',
           estado: 'Emitido',
@@ -1184,7 +1321,7 @@
     let s;
     if (!raw) { s = seed(); localStorage.setItem(KEY, JSON.stringify(s)); return s; }
     try { s = JSON.parse(raw); } catch (e) { s = seed(); localStorage.setItem(KEY, JSON.stringify(s)); return s; }
-    
+
     // Auto-migración si faltan áreas, requisitos o conceptos en el almacenamiento existente
     let dirty = false;
     const defaults = seed();
@@ -1223,7 +1360,7 @@
         } else if (typeof a.sedes[0] === 'string') {
           a.sedes = a.sedes.map((sNom, sIdx) => ({
             id: 'SED-' + (sIdx + 1),
-            nombre: sNom.includes('-->') ? sNom : `7803-${sIdx+1} --> ${sNom}`,
+            nombre: sNom.includes('-->') ? sNom : `7803-${sIdx + 1} --> ${sNom}`,
             activo: true
           }));
           dirty = true;
@@ -1398,7 +1535,7 @@
           alumnoCodigo: '2021100345',
           alumnoNombre: 'María Fernanda Quispe',
           alumnoDni: '72845109',
-          alumnoEmail: '2021100345@uwiener.edu.pe',
+          alumnoEmail: 'a2021100345@uwiener.edu.pe',
           alumnoTelefono: '984512390',
           alumnoCelular: '984512390',
           estado: 'Solicitado',
@@ -1443,7 +1580,7 @@
         solTercio.alumnoId = 'U-ALU-1';
         solTercio.alumnoCodigo = '2021100345';
         solTercio.alumnoNombre = 'María Fernanda Quispe';
-        solTercio.alumnoEmail = '2021100345@uwiener.edu.pe';
+        solTercio.alumnoEmail = 'a2021100345@uwiener.edu.pe';
         dirty = true;
       }
     }
@@ -1473,6 +1610,68 @@
           if (!exist.institucion && defU.institucion) { exist.institucion = defU.institucion; dirty = true; }
         }
       });
+    }
+
+
+    // Migrar correos de alumnos al formato institucional: a{codigo}@uwiener.edu.pe
+    if (s.usuarios) {
+      s.usuarios.forEach(u => {
+        if (u.rol === 'alumno' && u.codigo && (!u.institucion || u.institucion.includes('Wiener'))) {
+          const expectedMail = 'a' + u.codigo + '@uwiener.edu.pe';
+          if (u.email !== expectedMail) {
+            u.email = expectedMail;
+            dirty = true;
+          }
+        }
+      });
+    }
+
+    if (s.solicitudes) {
+      s.solicitudes.forEach(sol => {
+        if (sol.alumnoCodigo === '2021100345' || sol.alumnoId === 'U-ALU-1') {
+          if (sol.alumnoEmail !== 'a2021100345@uwiener.edu.pe') {
+            sol.alumnoEmail = 'a2021100345@uwiener.edu.pe';
+            dirty = true;
+          }
+          if (sol.historial) {
+            sol.historial.forEach(h => {
+              if (h.nota && (h.nota.includes('mf.quispe@uwiener.edu.pe') || h.nota.includes('2021100345@uwiener.edu.pe'))) {
+                h.nota = h.nota.replace(/mf.quispe@uwiener.edu.pe/g, 'a2021100345@uwiener.edu.pe')
+                               .replace(/2021100345@uwiener.edu.pe/g, 'a2021100345@uwiener.edu.pe');
+                dirty = true;
+              }
+            });
+          }
+        }
+      });
+    }
+
+    // Asegurar que el trámite T-010 de Certificación Progresiva esté en s.tramites y con diasEntrega = 0
+    if (s.tramites) {
+      const certT = s.tramites.find(t => t.id === 'T-010' || (t.nombre && t.nombre.toLowerCase().includes('certificación progresiva')));
+      if (!certT) {
+        const seedCertT = seed().tramites.find(t => t.id === 'T-010');
+        if (seedCertT) {
+          s.tramites.push(seedCertT);
+          dirty = true;
+        }
+      } else if (certT.diasEntrega !== 0) {
+        certT.diasEntrega = 0;
+        dirty = true;
+      }
+    }
+    // Asegurar que el catálogo de certificaciones progresivas exista
+    if (!s.certificacionesProgresivas || !Array.isArray(s.certificacionesProgresivas) || s.certificacionesProgresivas.length === 0) {
+      s.certificacionesProgresivas = seed().certificacionesProgresivas;
+      dirty = true;
+    }
+    // Asegurar que la solicitud pre-emitida exista para U-ALU-1
+    if (s.solicitudes && !s.solicitudes.some(sol => sol.certificacionId === 'CP-003' || (sol.tramiteNombre && sol.tramiteNombre.includes('Excel Intermedio')))) {
+      const solExcel = seed().solicitudes.find(sol => sol.id === '2026.43545');
+      if (solExcel) {
+        s.solicitudes.unshift(solExcel);
+        dirty = true;
+      }
     }
 
     if (dirty) save(s);
@@ -1512,6 +1711,30 @@
     load, save, reset() { const s = seed(); save(s); return s; },
     elegible, audienciaTexto,
     // helpers de acceso
+    certificacionesProgresivas(alumnoId) {
+      const db = load();
+      return db.certificacionesProgresivas || [];
+    },
+    getCertificacion(id) {
+      const db = load();
+      return (db.certificacionesProgresivas || []).find(c => c.id === id || c.codigo === id);
+    },
+    certificacionEmitida(alumnoId, certId) {
+      const db = load();
+      return (db.solicitudes || []).find(s => {
+        if (s.alumnoId !== alumnoId && s.alumnoCodigo !== alumnoId) return false;
+        if (s.estado !== 'Emitido') return false;
+        if (s.certificacionId && s.certificacionId === certId) return true;
+        const cert = (db.certificacionesProgresivas || []).find(c => c.id === certId);
+        if (cert && s.tramiteNombre && s.tramiteNombre.includes(cert.titulo)) return true;
+        return false;
+      });
+    },
+    tieneDeuda(usuario) {
+      if (!usuario) return false;
+      const p = usuario.perfil || {};
+      return (p.deuda && p.deuda > 0) || p.tieneDeuda === true;
+    },
     tramites() { return load().tramites; },
     solicitudes() { return load().solicitudes; },
     usuarios() { return load().usuarios; },
@@ -1524,13 +1747,13 @@
         if (instNorm && instNorm !== 'todas') {
           const uInst = (u.institucion || '').toLowerCase();
           const matchInst = (instNorm.includes('wiener') && (uInst.includes('wiener') || !uInst.includes('carrión') && !uInst.includes('carrion'))) ||
-                            (instNorm.includes('carrión') || instNorm.includes('carrion')) && (uInst.includes('carrión') || uInst.includes('carrion') || (u.carreras && u.carreras.some(c => c.toLowerCase().includes('técnic') || c.toLowerCase().includes('drenaje') || c.toLowerCase().includes('podolog'))));
+            (instNorm.includes('carrión') || instNorm.includes('carrion')) && (uInst.includes('carrión') || uInst.includes('carrion') || (u.carreras && u.carreras.some(c => c.toLowerCase().includes('técnic') || c.toLowerCase().includes('drenaje') || c.toLowerCase().includes('podolog'))));
           if (!matchInst) return false;
         }
         if (!q) return true;
         const match = (u.codigo || '').toLowerCase().includes(q) ||
-                      (u.nombre || '').toLowerCase().includes(q) ||
-                      (u.dni || '').toLowerCase().includes(q);
+          (u.nombre || '').toLowerCase().includes(q) ||
+          (u.dni || '').toLowerCase().includes(q);
         return match;
       });
     },

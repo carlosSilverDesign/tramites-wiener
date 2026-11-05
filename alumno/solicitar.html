@@ -523,7 +523,7 @@
             <div class="tram-specs-line">
               <span class="spec-item">
                 <span class="spec-ico">${SVG_ICONS.clock}</span>
-                <span>Entrega estimada: <b>${slaExacto}</b> (${t.diasEntrega} días hábiles)</span>
+                <span>Entrega estimada: ${(t.id === 'T-010' || (t.nombre && t.nombre.toLowerCase().includes('certificación')) || t.diasEntrega === 0) ? '<b>Inmediata</b>' : `<b>${slaExacto}</b> (${t.diasEntrega} días hábiles)`}</span>
               </span>
               ${t.requiereAdjunto ? `
                 <span class="spec-item" style="color:#B45309;font-weight:600">
@@ -581,7 +581,12 @@
       document.getElementById('catalog-grid').innerHTML = cardsHtml || `
         <div class="card" style="grid-column: 1 / -1;">
           <div class="empty-state">
-            <div class="ico">🔍</div>
+            <div class="ico" style="display:flex;align-items:center;justify-content:center;margin-bottom:12px;">
+    <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#94A3B8" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+      <circle cx="11" cy="11" r="8"></circle>
+      <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+    </svg>
+  </div>
             <div style="font-size:15px;font-weight:600;color:#1E293B;margin-bottom:4px">No encontramos trámites con esa búsqueda</div>
             <div style="font-size:13px;color:#64748B;margin-bottom:14px">Prueba buscando otra palabra clave o selecciona otra categoría.</div>
             <button class="btn btn-sm" onclick="setQ('');setIntencion('todos');">Ver todos los trámites</button>
@@ -636,7 +641,7 @@
             </div>
             <div class="kpi-box highlight">
               <span class="kpi-label">Mérito</span>
-              <span class="kpi-val">${perfil.tercioSuperior ? 'Tercio superior' : perfil.quintoSuperior ? 'Quinto superior ✓' : 'Regular'}</span>
+              <span class="kpi-val">${perfil.tercioSuperior ? 'Tercio superior' : perfil.quintoSuperior ? 'Quinto superior' : 'Regular'}</span>
             </div>
           </div>
         </div>
@@ -671,81 +676,267 @@
     // =========================================================================
     let CURRENT_ATTACHMENT = null;
 
+    function renderCertCoursesChecklist(certId) {
+      const cert = DB.getCertificacion(certId);
+      if (!cert || !cert.cursos) return '';
+      return `
+        <div style="background:#F8FAFC;border:1px solid #E2E8F0;border-radius:8px;padding:12px 14px;margin-bottom:14px;">
+          <div style="font-size:11.5px;font-weight:700;color:#64748B;text-transform:uppercase;margin-bottom:8px;letter-spacing:0.03em;">
+            Cursos del módulo formativo (${cert.cursos.length} asignaturas requeridas)
+          </div>
+          <div style="display:flex;flex-direction:column;gap:6px;">
+            ${cert.cursos.map(c => `
+              <div style="display:flex;justify-content:space-between;align-items:center;font-size:12.5px;padding:4px 0;border-bottom:1px solid #EEF2F6;">
+                <span style="color:#1E293B;font-weight:500;">${c.nombre}</span>
+                <span style="display:inline-flex;align-items:center;gap:8px;">
+                  <span style="font-weight:700;color:#0F848F;">Nota: ${c.nota}</span>
+                  <span style="background:#E6F6ED;color:#278B52;padding:2px 8px;border-radius:12px;font-size:11px;font-weight:600;display:inline-flex;align-items:center;gap:4px;">
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                    Cumple requisito
+                  </span>
+                </span>
+              </div>
+            `).join('')}
+          </div>
+        </div>
+      `;
+    }
+
+    window.onCertSelectChange = function(certId) {
+      const previewEl = document.getElementById('cert-courses-preview');
+      const avisoEmitido = document.getElementById('cert-already-emitted-alert');
+      const niubizBox = document.getElementById('cert-niubiz-box');
+      const submitBtn = document.getElementById('btn-solicitar-submit');
+
+      if (!certId) {
+        if (previewEl) { previewEl.style.display = 'none'; previewEl.innerHTML = ''; }
+        if (avisoEmitido) avisoEmitido.style.display = 'none';
+        if (niubizBox) niubizBox.style.display = 'none';
+        if (submitBtn) { submitBtn.disabled = true; submitBtn.style.opacity = '0.5'; submitBtn.innerText = 'Continuar al pago'; }
+        return;
+      }
+
+      // Mostrar cursos del módulo formativo recién al seleccionar
+      if (previewEl) {
+        previewEl.style.display = 'block';
+        previewEl.innerHTML = renderCertCoursesChecklist(certId);
+      }
+
+      const cert = DB.getCertificacion(certId);
+      const isEmitido = cert && DB.certificacionEmitida(me.id, cert.id);
+
+      if (isEmitido) {
+        // Alerta en amarillo/ámbar indicando que ya está emitido
+        if (avisoEmitido) {
+          avisoEmitido.style.display = 'flex';
+        }
+        if (niubizBox) {
+          niubizBox.style.display = 'none';
+        }
+        if (submitBtn) {
+          submitBtn.disabled = false;
+          submitBtn.style.opacity = '1';
+          submitBtn.innerText = 'Ir a Mis documentos';
+          submitBtn.onclick = () => { location.href = 'mis-documentos.html'; };
+        }
+      } else {
+        if (avisoEmitido) {
+          avisoEmitido.style.display = 'none';
+        }
+        if (niubizBox) {
+          niubizBox.style.display = 'flex';
+        }
+        if (submitBtn) {
+          submitBtn.disabled = false;
+          submitBtn.style.opacity = '1';
+          submitBtn.innerText = 'Continuar al pago';
+          submitBtn.onclick = () => { confirmarSolicitud('T-010'); };
+        }
+      }
+    };
+
     function abrirSolicitud(tramiteId) {
       CURRENT_ATTACHMENT = null;
       const t = DB.getTramite(tramiteId);
       if (!t) return;
 
-      const diasTexto = t.diasEntrega === 1 ? '1 día hábil' : `${t.diasEntrega} días hábiles`;
-      const modalidadTexto = t.pagoMomento === 'antes' ? 'Pago al momento de solicitar' : 'Pago posterior a la aprobación';
+      const esCertProgresiva = t.id === 'T-010' || t.nombre.toLowerCase().includes('certificación progresiva');
+      const diasTexto = esCertProgresiva ? 'Inmediato' : (t.diasEntrega === 1 ? '1 día hábil' : `${t.diasEntrega} días hábiles`);
+      const modalidadTexto = t.pagoMomento === 'antes' ? 'Pago en línea con tarjeta vía Niubiz' : 'Pago posterior a la aprobación';
       const modeloTexto = t.modelo || t.plantilla || (t.tipo ? t.tipo.toLowerCase() : 'trámite');
 
-      APP.openModal(`
-        <div class="modal-head">
-          <h3>Solicitar: ${t.nombre}</h3>
-          <button class="modal-close" aria-label="Cerrar modal" onclick="APP.closeModal()">×</button>
-        </div>
+      if (esCertProgresiva) {
+        // Solo certificaciones habilitadas para el alumno
+        const certs = DB.certificacionesProgresivas();
 
-        <div class="modal-body">
-          <dl class="kv" style="margin-bottom:18px">
-            <dt>Tipo</dt><dd>${t.tipo} · modelo «${modeloTexto}»</dd>
-            <dt>Costo</dt><dd><b style="color:var(--text);font-size:15px">${APP.money(t.costo)}</b></dd>
-            <dt>Entrega estimada</dt><dd>${diasTexto}</dd>
-            <dt>Modalidad de pago</dt><dd>${modalidadTexto}</dd>
-          </dl>
+        APP.openModal(`
+          <div class="modal-head">
+            <div style="display:flex;align-items:center;gap:12px">
+              <div style="width:36px;height:36px;border-radius:8px;background:#E0F4F6;color:#0F848F;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                  <polyline points="14 2 14 8 20 8"></polyline>
+                  <polyline points="9 15 11 17 15 13"></polyline>
+                </svg>
+              </div>
+              <div>
+                <span style="font-size:11.5px;font-weight:700;color:#0F848F;text-transform:uppercase;letter-spacing:0.04em;">Registros Académicos · Emisión Digital</span>
+                <h3 style="margin:2px 0 0 0;font-size:19px;font-family:'Lato',sans-serif;color:#0F172A;">Solicitar: Certificación Progresiva</h3>
+              </div>
+            </div>
+            <button class="modal-close" aria-label="Cerrar modal" onclick="APP.closeModal()">×</button>
+          </div>
 
-          <div class="field full" style="margin-bottom:14px">
-            <label for="sol-motivo">Motivo de la solicitud</label>
-            <div class="custom-select-container">
-              <select class="select" id="sol-motivo">
-                <option value="Trámite bancario" selected>Trámite bancario</option>
-                <option value="Postulación laboral">Postulación laboral</option>
-                <option value="Beca de estudios">Beca de estudios</option>
-                <option value="Trámite migratorio / Visa">Trámite migratorio / Visa</option>
-                <option value="Continuidad de estudios">Continuidad de estudios</option>
-                <option value="Otro">Otro</option>
-              </select>
+          <div class="modal-body">
+            <dl class="kv" style="margin-bottom:16px">
+              <dt>Tipo</dt><dd>Certificado Modular Oficial con firma digital</dd>
+              <dt>Costo</dt><dd><b style="color:#0F848F;font-size:16px">${APP.money(t.costo)}</b></dd>
+              <dt>Entrega estimada</dt><dd><b style="color:#0F172A;">Inmediata</b> (al correo y en Mis documentos)</dd>
+              <dt>Modalidad de pago</dt><dd>Pasarela Niubiz (Tarjeta Crédito / Débito)</dd>
+            </dl>
+
+            <div class="field full" style="margin-bottom:14px">
+              <label for="sol-cert-select">Selecciona la Certificación Progresiva a solicitar</label>
+              <div class="custom-select-container">
+                <select class="select" id="sol-cert-select" onchange="onCertSelectChange(this.value)">
+                  <option value="" disabled selected>Selecciona la certificación</option>
+                  ${certs.map(c => `<option value="${c.id}">${c.titulo}</option>`).join('')}
+                </select>
+              </div>
+            </div>
+
+            <!-- Previsualización dinámica de los cursos del módulo (Solo aparece tras seleccionar) -->
+            <div id="cert-courses-preview" style="display:none"></div>
+
+            <!-- Alerta amarilla si el documento ya está emitido -->
+            <div id="cert-already-emitted-alert" class="alert warn" style="display:none;margin-bottom:14px;background:#FFFBEB;border:1px solid #FCD34D;color:#92400E;border-radius:8px;padding:12px 16px;align-items:flex-start;gap:12px;">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#D97706" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;margin-top:1px;">
+                <path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"></path>
+                <line x1="12" y1="9" x2="12" y2="13"></line>
+                <line x1="12" y1="17" x2="12.01" y2="17"></line>
+              </svg>
+              <div style="flex:1;font-size:13px;line-height:1.45;">
+                <b>Esta certificación ya fue emitida anteriormente.</b><br>
+                Ya cuentas con este documento oficial emitido con firma digital. Puedes consultarlo y descargarlo directamente en la sección <a href="mis-documentos.html" style="color:#B45309;font-weight:700;text-decoration:underline;">Mis documentos</a> sin necesidad de realizar un nuevo pago.
+              </div>
+            </div>
+
+            <div class="field full" style="margin-bottom:14px">
+              <label for="sol-motivo">Motivo de la solicitud</label>
+              <div class="custom-select-container">
+                <select class="select" id="sol-motivo">
+                  <option value="Acreditación curricular y competencias" selected>Acreditación curricular y competencias</option>
+                  <option value="Postulación e inserción laboral">Postulación e inserción laboral</option>
+                  <option value="Convocatoria de tutoría / docencia">Convocatoria de tutoría / docencia</option>
+                  <option value="Beca o pasantía profesional">Beca o pasantía profesional</option>
+                  <option value="Trámite bancario / laboral">Trámite bancario / laboral</option>
+                  <option value="Otro">Otro</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="field full" style="margin-bottom:14px">
+              <label for="sol-coment">Comentario u observación (opcional)</label>
+              <textarea class="input" id="sol-coment" rows="2" placeholder="Información adicional relevante..."></textarea>
+            </div>
+
+            <!-- Mensaje Niubiz formateado de forma impecable -->
+            <div id="cert-niubiz-box" class="alert info alert-niubiz-banner" style="display:none;margin-top:14px;background:#F0F9FA;border:1px solid #BCE3E6;border-radius:8px;padding:12px 16px;align-items:center;gap:12px;">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#0F848F" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;">
+                <circle cx="12" cy="12" r="10"></circle>
+                <line x1="12" y1="16" x2="12" y2="12"></line>
+                <line x1="12" y1="8" x2="12.01" y2="8"></line>
+              </svg>
+              <div style="flex:1;color:#1E293B;font-size:13px;line-height:1.5;">
+                Al continuar serás dirigido a la pasarela de pago <strong style="color:#0F848F;">Niubiz</strong> para abonar <strong style="color:#0F848F;">${APP.money(t.costo)}</strong>.
+              </div>
             </div>
           </div>
 
-          <div class="field full" style="margin-bottom:16px">
-            <label for="sol-coment">Comentario (opcional)</label>
-            <textarea class="input" id="sol-coment" rows="3" placeholder="Información adicional para el área responsable..."></textarea>
+          <div class="modal-foot">
+            <button class="btn" onclick="APP.closeModal()">Cancelar</button>
+            <button class="btn btn-primary" id="btn-solicitar-submit" disabled style="opacity:0.5;" onclick="confirmarSolicitud('${t.id}')">
+              Continuar al pago
+            </button>
+          </div>
+        `, { wide: false });
+      } else {
+        // Modal estándar para trámites regulares
+        APP.openModal(`
+          <div class="modal-head">
+            <h3>Solicitar: ${t.nombre}</h3>
+            <button class="modal-close" aria-label="Cerrar modal" onclick="APP.closeModal()">×</button>
           </div>
 
-          ${t.requiereAdjunto ? `
-            <div class="field full" style="margin-bottom:16px">
-              <label>
-                Documento de sustento
-                <span style="color:var(--err-fg);font-weight:700">* (Obligatorio)</span>
-              </label>
-              ${t.adjuntoIndicacion ? `
-                <div class="alert warn" style="margin-bottom:10px;font-size:12.5px">
-                  📌 <b>Indicación del área:</b> ${t.adjuntoIndicacion}
-                </div>` : ''}
-              <div class="file-dropzone" id="dropzone" onclick="document.getElementById('file-input').click()">
-                <input type="file" id="file-input" accept=".pdf,.jpg,.jpeg,.png" onchange="handleFileSelect(event)">
-                <div style="font-size:26px;margin-bottom:4px">📁</div>
-                <div style="font-weight:600;font-size:13px">Haz clic para seleccionar o arrastra tu archivo aquí</div>
-                <div style="font-size:11.5px;color:var(--text-muted);margin-top:2px">Formatos permitidos: PDF, JPG o PNG (máx. 5 MB)</div>
+          <div class="modal-body">
+            <dl class="kv" style="margin-bottom:18px">
+              <dt>Tipo</dt><dd>${t.tipo} · modelo «${modeloTexto}»</dd>
+              <dt>Costo</dt><dd><b style="color:var(--text);font-size:15px">${APP.money(t.costo)}</b></dd>
+              <dt>Entrega estimada</dt><dd>${diasTexto}</dd>
+              <dt>Modalidad de pago</dt><dd>${modalidadTexto}</dd>
+            </dl>
+
+            <div class="field full" style="margin-bottom:14px">
+              <label for="sol-motivo">Motivo de la solicitud</label>
+              <div class="custom-select-container">
+                <select class="select" id="sol-motivo">
+                  <option value="Trámite bancario" selected>Trámite bancario</option>
+                  <option value="Postulación laboral">Postulación laboral</option>
+                  <option value="Beca de estudios">Beca de estudios</option>
+                  <option value="Trámite migratorio / Visa">Trámite migratorio / Visa</option>
+                  <option value="Continuidad de estudios">Continuidad de estudios</option>
+                  <option value="Otro">Otro</option>
+                </select>
               </div>
-              <div id="file-preview-area"></div>
-            </div>` : ''}
+            </div>
 
-          <div class="alert info" style="margin-top:14px;font-size:13px;line-height:1.45">
-            ${t.pagoMomento === 'antes'
-              ? 'Al continuar serás dirigido a la pasarela de pago <b>Niubiz</b> para abonar ' + APP.money(t.costo) + '.'
-              : 'Tu solicitud entrará a revisión por ' + t.area + '. El pago de ' + APP.money(t.costo) + ' se realizará una vez que sea aprobada.'}
+            <div class="field full" style="margin-bottom:16px">
+              <label for="sol-coment">Comentario (opcional)</label>
+              <textarea class="input" id="sol-coment" rows="3" placeholder="Información adicional para el área responsable..."></textarea>
+            </div>
+
+            ${t.requiereAdjunto ? `
+              <div class="field full" style="margin-bottom:16px">
+                <label>
+                  Documento de sustento
+                  <span style="color:var(--err-fg);font-weight:700">* (Obligatorio)</span>
+                </label>
+                ${t.adjuntoIndicacion ? `
+                  <div class="alert warn" style="margin-bottom:10px;font-size:12.5px">
+                    <span style="display:inline-flex;align-items:center;gap:4px;vertical-align:-2px;margin-right:4px;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#0F848F" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg></span><b>Indicación del área:</b> ${t.adjuntoIndicacion}
+                  </div>` : ''}
+                <div class="file-dropzone" id="dropzone" onclick="document.getElementById('file-input').click()">
+                  <input type="file" id="file-input" accept=".pdf,.jpg,.jpeg,.png" onchange="handleFileSelect(event)">
+                  <div style="display:flex;align-items:center;justify-content:center;margin-bottom:6px;color:#0F848F;"><svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg></div>
+                  <div style="font-weight:600;font-size:13px">Haz clic para seleccionar o arrastra tu archivo aquí</div>
+                  <div style="font-size:11.5px;color:var(--text-muted);margin-top:2px">Formatos permitidos: PDF, JPG o PNG (máx. 5 MB)</div>
+                </div>
+                <div id="file-preview-area"></div>
+              </div>` : ''}
+
+            <!-- Mensaje Niubiz formateado de forma limpia con icono y contenedor -->
+            <div class="alert info alert-niubiz-banner" style="margin-top:14px;background:#F0F9FA;border:1px solid #BCE3E6;border-radius:8px;padding:12px 16px;display:flex;align-items:center;gap:12px;">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#0F848F" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;">
+                <circle cx="12" cy="12" r="10"></circle>
+                <line x1="12" y1="16" x2="12" y2="12"></line>
+                <line x1="12" y1="8" x2="12.01" y2="8"></line>
+              </svg>
+              <div style="flex:1;color:#1E293B;font-size:13px;line-height:1.5;">
+                ${t.pagoMomento === 'antes'
+                  ? 'Al continuar serás dirigido a la pasarela de pago <strong style="color:#0F848F;">Niubiz</strong> para abonar <strong style="color:#0F848F;">' + APP.money(t.costo) + '</strong>.'
+                  : 'Tu solicitud entrará a revisión por ' + t.area + '. El pago de <strong style="color:#0F848F;">' + APP.money(t.costo) + '</strong> se realizará una vez que sea aprobada.'}
+              </div>
+            </div>
           </div>
-        </div>
 
-        <div class="modal-foot">
-          <button class="btn" onclick="APP.closeModal()">Cancelar</button>
-          <button class="btn btn-primary" onclick="confirmarSolicitud('${t.id}')">
-            ${t.pagoMomento === 'antes' ? 'Continuar al pago' : 'Enviar solicitud'}
-          </button>
-        </div>
-      `, { wide: false });
+          <div class="modal-foot">
+            <button class="btn" onclick="APP.closeModal()">Cancelar</button>
+            <button class="btn btn-primary" onclick="confirmarSolicitud('${t.id}')">
+              ${t.pagoMomento === 'antes' ? 'Continuar al pago' : 'Enviar solicitud'}
+            </button>
+          </div>
+        `, { wide: false });
+      }
 
       if (APP && APP.initCustomSelects) {
         const m = document.querySelector('.modal');
@@ -763,13 +954,13 @@
         preview.innerHTML = `
           <div class="file-preview-card">
             <div class="file-meta">
-              <span style="font-size:18px">📄</span>
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#0F848F" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline></svg>
               <div>
                 <div class="file-name">${file.name}</div>
                 <div class="file-size">${sizeMb > 0 ? sizeMb : '0.5'} MB · Archivo adjunto listo</div>
               </div>
             </div>
-            <button class="btn btn-sm btn-ghost" type="button" style="color:var(--err-fg)" onclick="removeFile(event)">✕ Quitar</button>
+            <button class="btn btn-sm btn-ghost" type="button" style="color:var(--err-fg);display:inline-flex;align-items:center;gap:4px;" onclick="removeFile(event)"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg> Quitar</button>
           </div>`;
       }
     }
@@ -787,9 +978,11 @@
       const t = DB.getTramite(id);
       if (!t) return;
 
-      if (t.requiereAdjunto && !CURRENT_ATTACHMENT) {
+      const esCertProgresiva = t.id === 'T-010' || t.nombre.toLowerCase().includes('certificación progresiva');
+
+      if (!esCertProgresiva && t.requiereAdjunto && !CURRENT_ATTACHMENT) {
         APP.toast({
-          icon: '⚠️',
+          icon: 'warn',
           title: 'Falta documento de sustento',
           body: t.adjuntoIndicacion || 'Debes adjuntar el archivo solicitado para continuar este trámite.'
         });
@@ -801,42 +994,79 @@
       const comentEl = document.getElementById('sol-coment');
       const comentario = comentEl ? comentEl.value.trim() : '';
 
+      if (esCertProgresiva) {
+        const certSelect = document.getElementById('sol-cert-select');
+        const certId = certSelect ? certSelect.value : '';
+        if (!certId) {
+          APP.toast({
+            icon: 'bell',
+            title: 'Selecciona una certificación',
+            body: 'Debes seleccionar una certificación progresiva antes de continuar al pago.'
+          });
+          return;
+        }
+
+        const cert = DB.getCertificacion(certId) || { id: certId, titulo: 'Tutor STEM Matemática', promedio: 15.0 };
+
+        const yaEmitido = DB.certificacionEmitida(me.id, cert.id);
+        if (yaEmitido) {
+          location.href = 'mis-documentos.html';
+          return;
+        }
+
+        // Simulación de pasarela Niubiz para Certificación Progresiva
+        APP.niubizCheckout({
+          amount: t.costo,
+          concepto: `Certificación Progresiva: ${cert.titulo} - ${me.nombre}`,
+          onSuccess: (pago) => procesarCreacion(t, pago, motivo, comentario, null, cert)
+        });
+        return;
+      }
+
       if (t.pagoMomento === 'antes') {
         APP.niubizCheckout({
           amount: t.costo,
           concepto: `${t.nombre} · ${me.nombre} (${me.codigo})`,
-          onSuccess: (pago) => procesarCreacion(t, pago, motivo, comentario, CURRENT_ATTACHMENT)
+          onSuccess: (pago) => procesarCreacion(t, pago, motivo, comentario, CURRENT_ATTACHMENT, null)
         });
       } else {
-        procesarCreacion(t, null, motivo, comentario, CURRENT_ATTACHMENT);
+        procesarCreacion(t, null, motivo, comentario, CURRENT_ATTACHMENT, null);
       }
     }
 
-    function procesarCreacion(t, pago, motivo, comentario, adjunto) {
+    function procesarCreacion(t, pago, motivo, comentario, adjunto, cert) {
       const num = DB.solicitudes().length + 201;
       const pagado = !!pago;
-      const estado = 'En revisión';
+      const esCertProgresiva = !!cert || t.id === 'T-010' || t.nombre.toLowerCase().includes('certificación progresiva');
+      const estado = (esCertProgresiva && pagado) ? 'Emitido' : 'En revisión';
 
       const s = {
         id: 'S-2026-0' + num,
+        ticket: '2026.' + (43600 + num),
         tramiteId: t.id,
-        tramiteNombre: t.nombre,
+        tramiteNombre: cert ? `Certificación Progresiva: ${cert.titulo}` : t.nombre,
+        certificacionId: cert ? cert.id : null,
+        certificacionTitulo: cert ? cert.titulo : null,
         alumnoId: me.id,
         alumnoNombre: me.nombre,
         alumnoCodigo: me.codigo,
+        alumnoEmail: me.email,
         fecha: APP.todayISO(),
+        fechaHora: APP.todayISO() + ' ' + (new Date().toLocaleTimeString('es-PE')),
         estado,
         costo: t.costo,
         area: t.area,
         pagoMomento: t.pagoMomento,
         motivo: motivo || 'Trámite bancario',
-        observacion: comentario ? 'Comentario del alumno: ' + comentario : '',
+        observacion: esCertProgresiva
+          ? `Certificado oficial generado con firma digital tras confirmación de pago y validación de notas (promedio modular: ${cert ? cert.promedio : '15.0'}).`
+          : (comentario ? 'Comentario del alumno: ' + comentario : ''),
         adjunto: adjunto || null,
         pago: pagado
-          ? { estado: 'pagado', metodo: pago.metodo, monto: pago.monto, fecha: APP.todayISO(), operacion: pago.operacion }
-          : { estado: 'pendiente', metodo: '-', monto: t.costo, fecha: '', operacion: '' },
+          ? { estado: 'pagado', obligacionGenerada: true, metodo: pago.metodo || 'Tarjeta de Crédito / Débito (Niubiz)', monto: pago.monto || t.costo, fecha: APP.todayISO(), operacion: pago.operacion || ('NB-' + Math.floor(100000 + Math.random() * 900000)) }
+          : { estado: 'pendiente', obligacionGenerada: false, metodo: '-', monto: t.costo, fecha: '', operacion: '' },
         historial: [
-          { estado: 'Pendiente de pago', fecha: APP.nowStamp(), nota: 'Solicitud creada con expediente digital' }
+          { estado: 'Pendiente de pago', fecha: APP.nowStamp(), nota: esCertProgresiva ? `Solicitud iniciada para ${cert ? cert.titulo : 'Certificación Progresiva'}` : 'Solicitud creada con expediente digital' }
         ]
       };
 
@@ -844,34 +1074,99 @@
         s.historial.push({
           estado: 'En revisión',
           fecha: APP.nowStamp(),
-          nota: 'Pago confirmado vía ' + pago.metodo + ' (Op. ' + pago.operacion + ')'
+          nota: 'Pago confirmado vía ' + s.pago.metodo + ' (Op. ' + s.pago.operacion + ')'
+        });
+      }
+
+      if (esCertProgresiva && pagado) {
+        s.historial.push({
+          estado: 'Emitido',
+          fecha: APP.nowStamp(),
+          nota: 'Certificado oficial generado con firma digital y remitido a ' + me.email
         });
       }
 
       DB.addSolicitud(s);
 
-      APP.sendMail({
-        to: me.email,
-        cc: 'mesadepartes@uwiener.edu.pe',
-        subject: `Expediente ${s.id} registrado - ${t.nombre}`,
-        lines: [
-          `Hola ${me.nombre}, hemos registrado con éxito tu solicitud de <b>${t.nombre}</b>.`,
-          `N° de Expediente: <b>${s.id}</b>.`,
-          `Fecha estimada de resolución: <b>${APP.calcSLA(t.diasEntrega)}</b>.`,
-          pagado ? `Pago confirmado: ${APP.money(pago.monto)}.` : `Pago de ${APP.money(t.costo)} pendiente de abono tras aprobación.`
-        ]
-      });
+      if (esCertProgresiva && pagado) {
+        // Point 7: Mensaje de confirmación en modal amigable, claro y conciso
+        const primerNombre = (me.nombre || 'estudiante').split(' ')[0];
+        const studentEmail = (me.email && me.email.startsWith('a')) ? me.email : ('a' + (me.codigo || '2021100345') + '@uwiener.edu.pe');
+        const codigoDoc = 'DOC-' + s.id.replace('S-', '');
 
-      APP.closeModal();
-      APP.toast({
-        icon: '✅',
-        title: '¡Solicitud registrada!',
-        body: `Expediente ${s.id} generado. Redirigiendo a mis trámites...`
-      });
+        APP.openModal(`
+          <div class="modal-head" style="border-bottom:none;padding-bottom:4px;">
+            <div style="display:flex;align-items:center;gap:12px">
+              <div style="width:42px;height:42px;border-radius:50%;background:#E6F6ED;color:#278B52;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                  <polyline points="20 6 9 17 4 12"></polyline>
+                </svg>
+              </div>
+              <div>
+                <span style="font-size:11px;font-weight:700;color:#278B52;text-transform:uppercase;letter-spacing:0.04em;">Trámite completado</span>
+                <h3 style="margin:2px 0 0 0;font-size:18.5px;font-family:'Lato',sans-serif;color:#0F172A;">¡Certificación emitida con éxito!</h3>
+              </div>
+            </div>
+            <button class="modal-close" aria-label="Cerrar modal" onclick="location.href='mis-documentos.html'">×</button>
+          </div>
 
-      setTimeout(() => {
-        location.href = 'mis-tramites.html';
-      }, 1200);
+          <div class="modal-body" style="padding-top:12px;">
+            <p style="font-size:13.5px;color:#334155;line-height:1.55;margin:0 0 16px 0;">
+              Hola <b>${primerNombre}</b>, tu <b>Certificación Progresiva: ${cert.titulo}</b> ha sido emitida con firma digital. Te enviamos una copia a tu correo institucional (<b>${studentEmail}</b>) y ya se encuentra disponible para su consulta y descarga en <b>Mis documentos</b>.
+            </p>
+
+            <div style="background:#F8FAFC;border:1px solid #E2E8F0;border-radius:10px;padding:12px 16px;margin-bottom:8px;">
+              <div style="display:flex;justify-content:space-between;align-items:center;font-size:12.5px;padding:4px 0;border-bottom:1px solid #EDF2F6;">
+                <span style="color:#64748B;">Documento:</span>
+                <span style="font-weight:700;color:#0F172A;">${cert.titulo}</span>
+              </div>
+              <div style="display:flex;justify-content:space-between;align-items:center;font-size:12.5px;padding:4px 0;border-bottom:1px solid #EDF2F6;">
+                <span style="color:#64748B;">Código digital:</span>
+                <span style="font-family:monospace;font-weight:700;color:#0F848F;">${codigoDoc}</span>
+              </div>
+              <div style="display:flex;justify-content:space-between;align-items:center;font-size:12.5px;padding:4px 0;">
+                <span style="color:#64748B;">Pago Niubiz:</span>
+                <span style="font-weight:700;color:#278B52;">${APP.money(t.costo)} (Confirmado)</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="modal-foot">
+            <button class="btn btn-ghost" onclick="location.href='mis-documentos.html'">Cerrar</button>
+            <button class="btn btn-primary" onclick="location.href='mis-documentos.html'" style="display:inline-flex;align-items:center;gap:8px;">
+              <span>Ir a Mis documentos</span>
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="5" y1="12" x2="19" y2="12"></line>
+                <polyline points="12 5 19 12 12 19"></polyline>
+              </svg>
+            </button>
+          </div>
+        `, { wide: false });
+      } else {
+        // Flujo regular
+        APP.sendMail({
+          to: me.email,
+          cc: 'mesadepartes@uwiener.edu.pe',
+          subject: `Expediente ${s.id} registrado - ${t.nombre}`,
+          lines: [
+            `Hola ${me.nombre}, hemos registrado con éxito tu solicitud de <b>${t.nombre}</b>.`,
+            `N° de Expediente: <b>${s.id}</b>.`,
+            `Fecha estimada de resolución: <b>${APP.calcSLA(t.diasEntrega)}</b>.`,
+            pagado ? `Pago confirmado: ${APP.money(pago.monto)}.` : `Pago de ${APP.money(t.costo)} pendiente de abono tras aprobación.`
+          ]
+        });
+
+        APP.closeModal();
+        APP.toast({
+          icon: 'ok',
+          title: '¡Solicitud registrada!',
+          body: `Expediente ${s.id} generado. Redirigiendo a mis trámites...`
+        });
+
+        setTimeout(() => {
+          location.href = 'mis-tramites.html';
+        }, 1200);
+      }
     }
 
     // Alias de compatibilidad global

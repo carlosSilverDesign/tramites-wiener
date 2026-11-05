@@ -1,0 +1,564 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mis documentos · Universidad Norbert Wiener</title>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Lato:wght@400;700;900&family=Roboto:wght@400;500;700&display=swap"
+    rel="stylesheet">
+  <link rel="stylesheet" href="../css/styles.css">
+  <style>
+    /* Mis Documentos view specific styling */
+
+    /* =========================================================================
+       BANNER DE REGLAS (SIN AMARILLO - ESTILO WIENER CYAN/TEAL)
+       ========================================================================= */
+    .rules-banner-wiener {
+      background: #F0F9FA;
+      border: 1px solid #BCE3E6;
+      border-radius: 12px;
+      padding: 18px 22px;
+      margin-bottom: 24px;
+      display: flex;
+      align-items: flex-start;
+      gap: 16px;
+      box-shadow: var(--shadow);
+    }
+
+    .rules-banner-icon {
+      width: 38px;
+      height: 38px;
+      border-radius: 10px;
+      background: #0F848F;
+      color: #FFFFFF;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .rules-banner-title {
+      font-family: 'Lato', sans-serif;
+      font-size: 15px;
+      font-weight: 700;
+      color: #0F848F;
+      margin: 0 0 4px 0;
+    }
+
+    .rules-banner-desc {
+      font-size: 13.5px;
+      color: #334155;
+      line-height: 1.5;
+      margin: 0 0 10px 0;
+    }
+
+    .rules-pills-row {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+      font-size: 12.5px;
+    }
+
+    .rules-check-pill {
+      background: #DCFCE7;
+      color: #166534;
+      padding: 4px 12px;
+      border-radius: 8px;
+      font-weight: 600;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      border: 1px solid #BBF7D0;
+    }
+
+    /* =========================================================================
+       PESTAÑAS (TABS)
+       ========================================================================= */
+    .tabs-bar {
+      display: flex;
+      gap: 12px;
+      border-bottom: 1px solid #CBD5E1;
+      padding-bottom: 0;
+      margin-bottom: 22px;
+    }
+
+    .tab-item {
+      padding: 10px 18px;
+      font-size: 14px;
+      font-weight: 600;
+      color: #5B6E80;
+      cursor: pointer;
+      border-bottom: 3px solid transparent;
+      transition: all 0.18s ease;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .tab-item:hover {
+      color: #0F848F;
+    }
+
+    .tab-item.active {
+      color: #0F848F;
+      border-bottom-color: #0F848F;
+    }
+
+    .tab-item .tab-count {
+      font-size: 11.5px;
+      background: #F1F5F9;
+      color: #475569;
+      padding: 2px 8px;
+      border-radius: 999px;
+      font-weight: 700;
+    }
+
+    .tab-item.active .tab-count {
+      background: #E0F4F6;
+      color: #0F848F;
+    }
+
+    /* =========================================================================
+       ACCORDION CURSOS Y CERTIFICADOS
+       ========================================================================= */
+    .courses-table {
+      width: 100%;
+      margin: 16px 0;
+      border-collapse: collapse;
+    }
+
+    .courses-table-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 12px 14px;
+      border-bottom: 1px solid #E2E8F0;
+      border-radius: 8px;
+      transition: background 0.15s ease;
+    }
+
+    .courses-table-row:hover {
+      background: #F8FAFC;
+    }
+
+    .course-title-sub {
+      font-size: 13.5px;
+      font-weight: 600;
+      color: #1E293B;
+    }
+
+    .course-status-side {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .course-grade-badge {
+      font-size: 13px;
+      font-weight: 700;
+      color: #0F848F;
+      background: #F0F9FA;
+      padding: 3px 10px;
+      border-radius: 6px;
+      border: 1px solid #BCE3E6;
+    }
+
+    .course-check-tag {
+      background: #E6F6ED;
+      color: #278B52;
+      padding: 4px 10px;
+      border-radius: 12px;
+      font-size: 11.5px;
+      font-weight: 600;
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    .cert-completion-callout {
+      background: #F0FDF4;
+      border: 1px solid #BBF7D0;
+      border-radius: 10px;
+      padding: 16px 20px;
+      margin-top: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 16px;
+    }
+
+    .cert-completion-text {
+      font-size: 13px;
+      color: #334155;
+      line-height: 1.5;
+      flex: 1;
+      min-width: 260px;
+    }
+
+    .cert-completion-text b {
+      color: #0F172A;
+    }
+
+    /* Tarjetas para otros documentos emitidos */
+    .doc-issued-card {
+      background: #FFFFFF;
+      border: 1px solid #D5DDE5;
+      border-radius: 12px;
+      padding: 20px 24px;
+      margin-bottom: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 16px;
+      box-shadow: var(--shadow);
+      transition: all 0.2s ease;
+    }
+
+    .doc-issued-card:hover {
+      border-color: #0F848F;
+      box-shadow: 0 4px 14px rgba(15, 132, 143, 0.08);
+    }
+
+    .doc-issued-left {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      flex: 1;
+      min-width: 260px;
+    }
+
+    .doc-issued-icon {
+      width: 44px;
+      height: 44px;
+      border-radius: 10px;
+      background: #E6F6ED;
+      color: #278B52;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .doc-issued-details h3 {
+      font-family: 'Lato', sans-serif;
+      font-size: 16.5px;
+      font-weight: 700;
+      color: #0F172A;
+      margin: 0 0 3px 0;
+    }
+
+    .doc-issued-meta {
+      font-size: 12.5px;
+      color: #64748B;
+      display: flex;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .empty-state-box {
+      text-align: center;
+      padding: 48px 24px;
+      background: #FFFFFF;
+      border: 1px dashed #CBD5E1;
+      border-radius: 12px;
+      color: #64748B;
+      margin: 20px 0;
+    }
+  </style>
+</head>
+
+<body>
+  <script src="../js/data.js"></script>
+  <script src="../js/shell.js"></script>
+  <script src="../js/doc.js"></script>
+  <script>
+    const ctx = APP.renderShell('mis-documentos');
+    if (!ctx) throw new Error('Auth required');
+
+    const me = ctx.session;
+    const perfil = me.perfil || {};
+    let activeTab = 'certificaciones'; // 'certificaciones' | 'todos'
+    let openAccordions = {};
+
+    function toggleAccordion(id) {
+      openAccordions[id] = !openAccordions[id];
+      renderView();
+    }
+
+    function setTab(tab) {
+      activeTab = tab;
+      renderView();
+    }
+
+    function descargarCertificado(solId) {
+      const s = DB.getSolicitud(solId);
+      if (!s) return;
+      const alumno = DB.getUsuario(s.alumnoId);
+      const t = DB.getTramite(s.tramiteId) || {
+        nombre: s.tramiteNombre,
+        tipo: 'Certificado',
+        modelo: 'certificado'
+      };
+      DOC.preview(t, alumno, s);
+    }
+
+    function renderView() {
+      const allCerts = DB.certificacionesProgresivas();
+      // Point 4: El alumno sólo debe ver los Certificados que solicitó, no los que le faltan solicitar
+      const certsSolicitadas = allCerts.filter(c => DB.certificacionEmitida(me.id, c.id));
+
+      // Inicializar el primer acordeón abierto por defecto si no hay interacción previa
+      if (certsSolicitadas.length > 0 && Object.keys(openAccordions).length === 0) {
+        openAccordions[certsSolicitadas[0].id] = true;
+      }
+
+      const allMine = DB.solicitudes().filter(s => (s.alumnoId === me.id || s.alumnoCodigo === me.codigo) && s.estado === 'Emitido');
+
+      ctx.mount.innerHTML = `
+        <!-- Cabecera consistente con las otras secciones (.page-head sin icono) -->
+        <div class="page-head">
+          <div>
+            <h1>Mis documentos</h1>
+            <p>Historial y descarga de certificaciones progresivas, constancias y documentos oficiales emitidos con firma digital.</p>
+          </div>
+          <a class="btn btn-primary" href="solicitar.html">+ Solicitar nuevo trámite</a>
+        </div>
+
+        <!-- Point 5: Aviso de reglas sin tag 'Transparencia Académica' (Siempre visible - NO AMARILLO) -->
+        <div class="rules-banner-wiener">
+          <div class="rules-banner-icon">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
+          </div>
+          <div style="flex:1;">
+            <div class="rules-banner-title">
+              Requisitos para Certificaciones Progresivas
+            </div>
+            <div class="rules-banner-desc">
+              Debes alcanzar la <b>nota mínima de 14 en todos los cursos correspondientes</b> del módulo formativo para obtener el certificado y <b>no contar con deuda pendiente</b> en pensiones o aranceles universitarios.
+            </div>
+            <div class="rules-pills-row">
+              <span class="rules-check-pill">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                Regla 1: Nota mínima 14 cumplida (Tu promedio ponderado: <b>${perfil.promedio || '16.20'}</b>)
+              </span>
+              <span class="rules-check-pill">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                Regla 2: Sin deuda (Estado financiero al día · <b>S/ 0.00</b> de deuda)
+              </span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Pestañas de navegación (Sin buscador, Point 6) -->
+        <div class="tabs-bar">
+          <div class="tab-item ${activeTab === 'certificaciones' ? 'active' : ''}" onclick="setTab('certificaciones')">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+              <polyline points="14 2 14 8 20 8"></polyline>
+            </svg>
+            Certificaciones progresivas <span class="tab-count">${certsSolicitadas.length}</span>
+          </div>
+          <div class="tab-item ${activeTab === 'todos' ? 'active' : ''}" onclick="setTab('todos')">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path>
+            </svg>
+            Todos los documentos emitidos <span class="tab-count">${allMine.length}</span>
+          </div>
+        </div>
+
+        <!-- Contenedor Principal de Vistas -->
+        <div id="docs-content-area">
+          ${activeTab === 'certificaciones' ? renderCertificacionesTab(certsSolicitadas) : renderTodosDocsTab(allMine)}
+        </div>
+      `;
+    }
+
+    function renderCertificacionesTab(certs) {
+      if (!certs || certs.length === 0) {
+        return `
+          <div class="empty-state-box">
+            <div style="margin-bottom:12px;color:#94A3B8;display:flex;justify-content:center;">
+              <svg width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M22 10v6M2 10l10-5 10 5-10 5z"></path>
+                <path d="M6 12v5c3 3 9 3 12 0v-5"></path>
+              </svg>
+            </div>
+            <h3 style="font-size:16.5px;color:#0F172A;margin:0 0 6px 0">No tienes certificaciones emitidas aún</h3>
+            <p style="font-size:13.5px;color:#64748B;margin:0 0 18px 0">Una vez que solicites y pagues una Certificación Progresiva, aparecerá listada aquí para su consulta, descarga e impresión en cualquier momento.</p>
+            <a href="solicitar.html" class="btn btn-primary" style="display:inline-flex;align-items:center;gap:8px;">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="12" y1="5" x2="12" y2="19"></line>
+                <line x1="5" y1="12" x2="19" y2="12"></line>
+              </svg>
+              Solicitar Certificación Progresiva
+            </a>
+          </div>
+        `;
+      }
+
+      return certs.map(cert => {
+        const emitidoSol = DB.certificacionEmitida(me.id, cert.id);
+        const isOpen = !!openAccordions[cert.id];
+
+        return `
+          <div class="cert-accordion-card ${isOpen ? 'is-open' : ''}">
+            <div class="cert-accordion-head" onclick="toggleAccordion('${cert.id}')">
+              <div class="cert-accordion-head-left">
+                <div class="cert-doc-icon">
+                  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                    <polyline points="14 2 14 8 20 8"></polyline>
+                    <polyline points="9 15 11 17 15 13"></polyline>
+                  </svg>
+                </div>
+                <div class="cert-title-wrap">
+                  <h3>${cert.titulo}</h3>
+                  <div class="cert-sub">${cert.area} · ${cert.cursos.length} asignaturas validadas · Nota prom: <b>${cert.promedio}</b></div>
+                </div>
+              </div>
+
+              <div style="display:flex;align-items:center;gap:14px;">
+                <span class="pill ok" style="display:inline-flex;align-items:center;gap:6px;font-weight:700;">
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                  Emitido · Disponible
+                </span>
+                <div class="cert-accordion-chevron">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="6 9 12 15 18 9"></polyline>
+                  </svg>
+                </div>
+              </div>
+            </div>
+
+            <div class="cert-accordion-body">
+              <div class="courses-table">
+                ${cert.cursos.map(c => `
+                  <div class="courses-table-row">
+                    <div class="course-title-sub">${c.nombre}</div>
+                    <div class="course-status-side">
+                      <span class="course-grade-badge">Nota: ${c.nota}</span>
+                      <span class="course-check-tag">
+                        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+                          <polyline points="20 6 9 17 4 12"></polyline>
+                        </svg>
+                        Cumple requisito
+                      </span>
+                    </div>
+                  </div>
+                `).join('')}
+              </div>
+
+              <!-- Point 4: Mensaje simple y solo botones de Imprimir y Descargar con iconos SVG -->
+              <div class="cert-completion-callout">
+                <div class="cert-completion-text">
+                  Certificado oficial emitido con firma digital institucional y enviado a tu correo institucional (<b>${me.email}</b>).
+                </div>
+
+                <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
+                  <button class="btn btn-ghost btn-sm" onclick="DOC._pr('T-010', '${me.id}', '${emitidoSol ? emitidoSol.id : ''}')" style="display:inline-flex;align-items:center;gap:6px;">
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                      <polyline points="6 9 6 2 18 2 18 9"></polyline>
+                      <path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path>
+                      <rect x="6" y="14" width="12" height="8"></rect>
+                    </svg>
+                    <span>Imprimir</span>
+                  </button>
+
+                  <button class="btn btn-primary btn-sm" onclick="descargarCertificado('${emitidoSol ? emitidoSol.id : ''}')" style="display:inline-flex;align-items:center;gap:6px;">
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                      <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                      <polyline points="7 10 12 15 17 10"></polyline>
+                      <line x1="12" y1="15" x2="12" y2="3"></line>
+                    </svg>
+                    <span>Descargar certificado</span>
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function renderTodosDocsTab(docs) {
+      if (!docs || docs.length === 0) {
+        return `
+          <div class="empty-state-box">
+            <div style="margin-bottom:12px;color:#94A3B8;display:flex;justify-content:center;">
+              <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                <polyline points="14 2 14 8 20 8"></polyline>
+                <line x1="16" y1="13" x2="8" y2="13"></line>
+                <line x1="16" y1="17" x2="8" y2="17"></line>
+              </svg>
+            </div>
+            <h3 style="font-size:16px;color:#1E293B;margin:0 0 4px 0">No hay documentos emitidos</h3>
+            <p style="font-size:13px;margin:0">Los documentos y certificaciones que solicites y pagues aparecerán listados aquí para descarga permanente.</p>
+          </div>
+        `;
+      }
+
+      return docs.map(s => {
+        const codigoDoc = 'DOC-' + s.id.replace('S-', '');
+        return `
+          <div class="doc-issued-card">
+            <div class="doc-issued-left">
+              <div class="doc-issued-icon">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                  <polyline points="14 2 14 8 20 8"></polyline>
+                  <line x1="16" y1="13" x2="8" y2="13"></line>
+                  <line x1="16" y1="17" x2="8" y2="17"></line>
+                </svg>
+              </div>
+              <div class="doc-issued-details">
+                <h3>${s.tramiteNombre}</h3>
+                <div class="doc-issued-meta">
+                  <span style="font-family:monospace;font-weight:700;color:#0F172A;background:#F1F5F9;padding:2px 8px;border-radius:6px;">
+                    ${codigoDoc}
+                  </span>
+                  <span class="sep">·</span>
+                  <span>Emitido el ${s.fecha}</span>
+                  <span class="sep">·</span>
+                  <span style="color:#278B52;font-weight:600;display:inline-flex;align-items:center;gap:4px;">
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                    Firma digital institucional
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            <div style="display:flex;align-items:center;gap:10px;">
+              <button class="btn btn-ghost btn-sm" onclick="DOC._pr('${s.tramiteId}', '${me.id}', '${s.id}')" style="display:inline-flex;align-items:center;gap:6px;">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <polyline points="6 9 6 2 18 2 18 9"></polyline>
+                  <path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path>
+                  <rect x="6" y="14" width="12" height="8"></rect>
+                </svg>
+                <span>Imprimir</span>
+              </button>
+
+              <button class="btn btn-primary btn-sm" onclick="descargarCertificado('${s.id}')" style="display:inline-flex;align-items:center;gap:6px;">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                  <polyline points="7 10 12 15 17 10"></polyline>
+                  <line x1="12" y1="15" x2="12" y2="3"></line>
+                </svg>
+                <span>Descargar</span>
+              </button>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    renderView();
+  </script>
+</body>
+
+</html>
