@@ -13,7 +13,7 @@
   <script>
     const ctx = APP.renderShell('usuarios');
     let tab = 'todos';
-    const PERMS = [['tramites','Trámites'],['solicitudes','Solicitudes'],['flujos','Flujos'],['procesar','Procesar'],['reportes','Reportes'],['registrar','Registrar trámite'],['usuarios','Usuarios'],['seguridad','Seguridad']];
+    const PERMS = [['tramites','Trámites'],['certificaciones','Certificaciones Progresivas'],['solicitudes','Solicitudes'],['flujos','Flujos'],['procesar','Procesar'],['reportes','Reportes'],['registrar','Registrar trámite'],['usuarios','Usuarios'],['seguridad','Seguridad']];
 
     function setTab(t, el){ tab=t; document.querySelectorAll('.tab').forEach(x=>x.classList.remove('active')); el.classList.add('active'); render(); }
 

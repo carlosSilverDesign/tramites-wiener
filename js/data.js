@@ -201,9 +201,154 @@
         }
       ],
 
-      // ---- Catálogo de Sedes Institucionales ----
-      // ---- Catálogo de Certificaciones Progresivas ----
+      // ---- Catálogo de Certificaciones Progresivas (Propuesta Institucional) ----
       certificacionesProgresivas: [
+        // ---- INGENIERÍA DE SISTEMAS E INFORMÁTICA (Presencial: 59 / Semipresencial: 2120) ----
+        {
+          id: 'CP-ISI-01',
+          codigo: 'CP-ISI-01',
+          programaId: 'PROG-ISI',
+          programa: 'Ingeniería de Sistemas e Informática',
+          carrera: 'Ingeniería de Sistemas e Informática',
+          codigoPresencial: '59',
+          codigoSemipresencial: '2120',
+          competencia: 'Gestión de Procesos, Datos y Recursos Informáticos',
+          nombreCompetencial: 'Gestión de Procesos, Datos y Recursos Informáticos',
+          titulo: 'Certificación en "Gestión de Procesos y Datos Digitales"',
+          nombreFinal: 'Certificación en "Gestión de Procesos y Datos Digitales"',
+          nombreConocimientos: 'Certificación en "Gestión de Procesos y Datos Digitales"',
+          cicloOtorgamiento: 'Ciclo VI',
+          ciclo: 6,
+          area: 'Gestión de Procesos y Datos Digitales',
+          descripcion: 'Acredita competencias en optimización de procesos de negocio, modelado y administración de bases de datos, arquitectura de computadoras y redes de comunicación de datos.',
+          promedioMinimoRequerido: 14.0,
+          costo: 0.00,
+          gratuito: true,
+          cursos: [
+            { codigo: 'IG7062', nombre: 'GESTIÓN DE PROCESOS DE NEGOCIO', ciclo: 3, tipo: 'O', creditaje: 4, nota: 16, cumple: true },
+            { codigo: 'IS6032', nombre: 'BASE DE DATOS', ciclo: 4, tipo: 'O', creditaje: 4, nota: 17, cumple: true },
+            { codigo: 'IS6051', nombre: 'SISTEMAS OPERATIVOS Y PROGRAMACIÓN', ciclo: 5, tipo: 'O', creditaje: 4, nota: 15, cumple: true },
+            { codigo: 'IS6053', nombre: 'ARQUITECTURA DE COMPUTADORAS', ciclo: 5, tipo: 'O', creditaje: 4, nota: 16, cumple: true },
+            { codigo: 'IS6066', nombre: 'REDES DE COMUNICACIÓN DE DATOS', ciclo: 6, tipo: 'O', creditaje: 4, nota: 18, cumple: true }
+          ],
+          promedio: 16.4
+        },
+        {
+          id: 'CP-ISI-02',
+          codigo: 'CP-ISI-02',
+          programaId: 'PROG-ISI',
+          programa: 'Ingeniería de Sistemas e Informática',
+          carrera: 'Ingeniería de Sistemas e Informática',
+          codigoPresencial: '59',
+          codigoSemipresencial: '2120',
+          competencia: 'Desarrollo de Aplicaciones Multiplataforma',
+          nombreCompetencial: 'Desarrollo de Aplicaciones Multiplataforma',
+          titulo: 'Certificación en "Tecnologías para Aplicaciones"',
+          nombreFinal: 'Certificación en "Tecnologías para Aplicaciones"',
+          nombreConocimientos: 'Certificación en "Tecnologías para Aplicaciones"',
+          cicloOtorgamiento: 'Ciclo VII',
+          ciclo: 7,
+          area: 'Desarrollo de Software Multiplataforma',
+          descripcion: 'Acredita capacidades sólidas en programación moderna, desarrollo web fullstack, aplicaciones móviles multiplataforma, circuitos electrónicos e integración con dispositivos IoT.',
+          promedioMinimoRequerido: 14.0,
+          costo: 0.00,
+          gratuito: true,
+          cursos: [
+            { codigo: 'IS6041', nombre: 'INTRODUCCIÓN A LOS LENGUAJES DE PROGRAMACIÓN', ciclo: 5, tipo: 'O', creditaje: 4, nota: 17, cumple: true },
+            { codigo: 'IS6074', nombre: 'DESARROLLO DE APLICACIONES WEB', ciclo: 6, tipo: 'O', creditaje: 4, nota: 16, cumple: true },
+            { codigo: 'IS6081', nombre: 'DESARROLLO DE APLICACIONES MÓVILES', ciclo: 7, tipo: 'O', creditaje: 4, nota: 17, cumple: true },
+            { codigo: 'IS6065', nombre: 'CIRCUITOS DIGITALES Y ELECTRÓNICOS', ciclo: 6, tipo: 'O', creditaje: 4, nota: 15, cumple: true },
+            { codigo: 'IS6071', nombre: 'INTERNET DE LAS COSAS', ciclo: 7, tipo: 'O', creditaje: 4, nota: 16, cumple: true }
+          ],
+          promedio: 16.2
+        },
+        {
+          id: 'CP-ISI-03',
+          codigo: 'CP-ISI-03',
+          programaId: 'PROG-ISI',
+          programa: 'Ingeniería de Sistemas e Informática',
+          carrera: 'Ingeniería de Sistemas e Informática',
+          codigoPresencial: '59',
+          codigoSemipresencial: '2120',
+          competencia: 'Ingeniería de Software',
+          nombreCompetencial: 'Ingeniería de Software',
+          titulo: 'Certificación en "Dirección de Proyectos Tecnológicos"',
+          nombreFinal: 'Certificación en "Dirección de Proyectos Tecnológicos"',
+          nombreConocimientos: 'Certificación en "Dirección de Proyectos Tecnológicos"',
+          cicloOtorgamiento: 'Ciclo VIII',
+          ciclo: 8,
+          area: 'Ingeniería y Dirección de Proyectos TI',
+          descripcion: 'Acredita competencias integrales en el ciclo de vida del software, calidad y procesos personales, diseño y construcción ágil, y liderazgo de proyectos tecnológicos integradores.',
+          promedioMinimoRequerido: 14.0,
+          costo: 0.00,
+          gratuito: true,
+          cursos: [
+            { codigo: 'IS6052', nombre: 'SOFTWARE I: PROCESO PERSONAL Y CALIDAD', ciclo: 4, tipo: 'O', creditaje: 4, nota: 16, cumple: true },
+            { codigo: 'IS6063', nombre: 'SOFTWARE II: DISEÑO Y PROCESO', ciclo: 5, tipo: 'O', creditaje: 4, nota: 17, cumple: true },
+            { codigo: 'IS6064', nombre: 'SOFTWARE III: CONSTRUCCIÓN Y TRANSICIÓN', ciclo: 6, tipo: 'O', creditaje: 4, nota: 16, cumple: true },
+            { codigo: 'IS6077', nombre: 'SOFTWARE IV: PROYECTO INTEGRADOR', ciclo: 7, tipo: 'O', creditaje: 4, nota: 18, cumple: true },
+            { codigo: 'IS6082', nombre: 'SOFTWARE V: PROCESOS Y GESTIÓN DE PROYECTOS', ciclo: 8, tipo: 'O', creditaje: 4, nota: 17, cumple: true }
+          ],
+          promedio: 16.8
+        },
+        {
+          id: 'CP-ISI-04',
+          codigo: 'CP-ISI-04',
+          programaId: 'PROG-ISI',
+          programa: 'Ingeniería de Sistemas e Informática',
+          carrera: 'Ingeniería de Sistemas e Informática',
+          codigoPresencial: '59',
+          codigoSemipresencial: '2120',
+          competencia: 'Arquitectura Cloud y Sistemas Distribuidos',
+          nombreCompetencial: 'Arquitectura Cloud y Sistemas Distribuidos',
+          titulo: 'Certificación en "Cloud Computing y Arquitectura Digital"',
+          nombreFinal: 'Certificación en "Cloud Computing y Arquitectura Digital"',
+          nombreConocimientos: 'Certificación en "Cloud Computing y Arquitectura Digital"',
+          cicloOtorgamiento: 'Ciclo IX',
+          ciclo: 9,
+          area: 'Cloud Computing y Arquitectura Digital',
+          descripcion: 'Acredita dominio en despliegue y arquitectura tecnológica sobre la nube, servicios cognitivos e inteligencia artificial distribuida, y diseño de ingeniería de software seguro.',
+          promedioMinimoRequerido: 14.0,
+          costo: 0.00,
+          gratuito: true,
+          cursos: [
+            { codigo: 'IS6054', nombre: 'ARQUITECTURA TECNOLÓGICA EN LA NUBE', ciclo: 7, tipo: 'O', creditaje: 4, nota: 16, cumple: true },
+            { codigo: 'IS6061', nombre: 'SERVICIOS COGNITIVOS IN CLOUD', ciclo: 8, tipo: 'O', creditaje: 4, nota: 16, cumple: true },
+            { codigo: 'IS6073', nombre: 'INGENIERÍA DE SOFTWARE SEGURO', ciclo: 9, tipo: 'O', creditaje: 4, nota: 17, cumple: true },
+            { codigo: 'IS6085', nombre: 'PRINCIPIOS DE LOS SISTEMAS DISTRIBUIDOS', ciclo: 8, tipo: 'O', creditaje: 4, nota: 15, cumple: true },
+            { codigo: 'IS6093', nombre: 'COMPUTACIÓN DISTRIBUIDA', ciclo: 9, tipo: 'O', creditaje: 4, nota: 16, cumple: true }
+          ],
+          promedio: 16.0
+        },
+        {
+          id: 'CP-ISI-05',
+          codigo: 'CP-ISI-05',
+          programaId: 'PROG-ISI',
+          programa: 'Ingeniería de Sistemas e Informática',
+          carrera: 'Ingeniería de Sistemas e Informática',
+          codigoPresencial: '59',
+          codigoSemipresencial: '2120',
+          competencia: 'Sistemas Inteligentes y Ciencia de Datos',
+          nombreCompetencial: 'Sistemas Inteligentes y Ciencia de Datos',
+          titulo: 'Certificación en "Analítica e Inteligencia Artificial"',
+          nombreFinal: 'Certificación en "Analítica e Inteligencia Artificial"',
+          nombreConocimientos: 'Certificación en "Analítica e Inteligencia Artificial"',
+          cicloOtorgamiento: 'Ciclo X',
+          ciclo: 10,
+          area: 'Analítica e Inteligencia Artificial',
+          descripcion: 'Acredita competencias avanzadas en visualización masiva de datos, gestión y pipelines de ciencia de datos in cloud, computación distribuida e IA generativa orientada a negocios.',
+          promedioMinimoRequerido: 14.0,
+          costo: 0.00,
+          gratuito: true,
+          cursos: [
+            { codigo: 'IS6086', nombre: 'ANÁLISIS Y VISUALIZACIÓN DE DATOS', ciclo: 8, tipo: 'O', creditaje: 4, nota: 17, cumple: true },
+            { codigo: 'IS6072', nombre: 'GESTIÓN DE CIENCIA Y DATOS IN CLOUD', ciclo: 9, tipo: 'O', creditaje: 4, nota: 16, cumple: true },
+            { codigo: 'IS6093', nombre: 'COMPUTACIÓN DISTRIBUIDA', ciclo: 9, tipo: 'O', creditaje: 4, nota: 16, cumple: true },
+            { codigo: 'IS6104', nombre: 'IA GENERATIVA PARA LOS NEGOCIOS', ciclo: 10, tipo: 'O', creditaje: 4, nota: 18, cumple: true }
+          ],
+          promedio: 16.75
+        },
+        // Certificaciones de referencia complementarias
         {
           id: 'CP-001',
           codigo: 'CP-STEM-MAT',
@@ -262,6 +407,232 @@
           ],
           promedio: 15.0,
           costo: 120.00
+        }
+      ],
+
+      // ---- Catálogo de Programas Académicos (Referencia Tabla Institucional) ----
+      programasCertificaciones: [
+        {
+          id: 'PROG-ISI',
+          nombre: 'Ingeniería de Sistemas e Informática',
+          facultad: 'Facultad de Ingeniería y Negocios',
+          codigoPresencial: '59',
+          codigoSemipresencial: '2120',
+          activo: true,
+          certificacionesIds: ['CP-ISI-01', 'CP-ISI-02', 'CP-ISI-03', 'CP-ISI-04', 'CP-ISI-05']
+        },
+        {
+          id: 'PROG-IND',
+          nombre: 'Ingeniería Industrial y de Gestión Empresarial',
+          facultad: 'Facultad de Ingeniería y Negocios',
+          codigoPresencial: '68',
+          codigoSemipresencial: '2121',
+          activo: true,
+          certificacionesIds: []
+        },
+        {
+          id: 'PROG-CIV',
+          nombre: 'Ingeniería Civil',
+          facultad: 'Facultad de Ingeniería y Negocios',
+          codigoPresencial: '2321',
+          codigoSemipresencial: null,
+          activo: true,
+          certificacionesIds: []
+        },
+        {
+          id: 'PROG-ARQ',
+          nombre: 'Arquitectura',
+          facultad: 'Facultad de Ingeniería y Negocios',
+          codigoPresencial: '2319',
+          codigoSemipresencial: null,
+          activo: true,
+          certificacionesIds: []
+        },
+        {
+          id: 'PROG-BIO',
+          nombre: 'Ingeniería Biomédica',
+          facultad: 'Facultad de Ingeniería y Negocios',
+          codigoPresencial: '2410',
+          codigoSemipresencial: null,
+          activo: true,
+          certificacionesIds: []
+        },
+        {
+          id: 'PROG-ADNI',
+          nombre: 'Administración y Negocios Internacionales',
+          facultad: 'Facultad de Ciencias Empresariales',
+          codigoPresencial: '1',
+          codigoSemipresencial: '2118',
+          activo: true,
+          certificacionesIds: []
+        },
+        {
+          id: 'PROG-ADE',
+          nombre: 'Administración y Dirección de Empresas',
+          facultad: 'Facultad de Ciencias Empresariales',
+          codigoPresencial: '1568',
+          codigoSemipresencial: '2117',
+          activo: true,
+          certificacionesIds: []
+        },
+        {
+          id: 'PROG-CON',
+          nombre: 'Contabilidad y Auditoría',
+          facultad: 'Facultad de Ciencias Empresariales',
+          codigoPresencial: '44',
+          codigoSemipresencial: '2119',
+          activo: true,
+          certificacionesIds: []
+        },
+        {
+          id: 'PROG-MKT',
+          nombre: 'Administración y Marketing',
+          facultad: 'Facultad de Ciencias Empresariales',
+          codigoPresencial: '1569',
+          codigoSemipresencial: '2275',
+          activo: true,
+          certificacionesIds: []
+        },
+        {
+          id: 'PROG-DER',
+          nombre: 'Derecho y Ciencia Política',
+          facultad: 'Facultad de Derecho y Ciencia Política',
+          codigoPresencial: '65',
+          codigoSemipresencial: '2115',
+          activo: true,
+          certificacionesIds: []
+        }
+      ],
+
+      // ---- Programaciones Automáticas de Cierre de Ciclo ----
+      programacionesEmision: [
+        {
+          id: 'PROG-2026-II-01',
+          nombre: 'Cierre Académico 2026-II - Sistemas Módulo I (Ciclo VI)',
+          programaId: 'PROG-ISI',
+          programaNombre: 'Ingeniería de Sistemas e Informática',
+          certificacionId: 'CP-ISI-01',
+          certificacionTitulo: 'Certificación en "Gestión de Procesos y Datos Digitales"',
+          cicloOtorgamiento: 'Ciclo VI',
+          periodo: '2026-II',
+          fechaEjecucion: '2026-12-15T23:59',
+          estado: 'Programado',
+          creadoPor: 'Carlos Mendoza Ríos (Registros Académicos)',
+          fechaCreacion: '2026-11-01',
+          alumnosEstimados: 45,
+          reglas: { notaMinima: 14.0, exigirSinDeuda: true, omitirYaEmitidos: true },
+          canalDespacho: 'Correo institucional @uwiener.edu.pe',
+          frecuencia: 'Única al cierre de ciclo',
+          observacion: 'Cierre regular de notas semestrales y emisión masiva automática.'
+        },
+        {
+          id: 'PROG-2026-II-02',
+          nombre: 'Cierre Académico 2026-II - Sistemas Módulo II (Ciclo VII)',
+          programaId: 'PROG-ISI',
+          programaNombre: 'Ingeniería de Sistemas e Informática',
+          certificacionId: 'CP-ISI-02',
+          certificacionTitulo: 'Certificación en "Tecnologías para Aplicaciones"',
+          cicloOtorgamiento: 'Ciclo VII',
+          periodo: '2026-II',
+          fechaEjecucion: '2026-12-16T23:59',
+          estado: 'Programado',
+          creadoPor: 'Carlos Mendoza Ríos (Registros Académicos)',
+          fechaCreacion: '2026-11-01',
+          alumnosEstimados: 38,
+          reglas: { notaMinima: 14.0, exigirSinDeuda: true, omitirYaEmitidos: true },
+          canalDespacho: 'Correo institucional @uwiener.edu.pe',
+          frecuencia: 'Única al cierre de ciclo',
+          observacion: 'Emisión para estudiantes con asignaturas del módulo II completas.'
+        },
+        {
+          id: 'PROG-2026-II-EXT',
+          nombre: 'Cierre Extemporáneo y Subsanaciones 2026-II',
+          programaId: 'PROG-ISI',
+          programaNombre: 'Ingeniería de Sistemas e Informática',
+          certificacionId: 'TODAS',
+          certificacionTitulo: 'Todas las Certificaciones del Programa (Ciclos VI a X)',
+          cicloOtorgamiento: 'Ciclos VI al X',
+          periodo: '2026-II',
+          fechaEjecucion: '2026-12-28T18:00',
+          estado: 'Programado',
+          creadoPor: 'Carlos Mendoza Ríos (Registros Académicos)',
+          fechaCreacion: '2026-11-03',
+          alumnosEstimados: 20,
+          reglas: { notaMinima: 14.0, exigirSinDeuda: true, omitirYaEmitidos: true },
+          canalDespacho: 'Correo institucional @uwiener.edu.pe',
+          frecuencia: 'Extemporánea de regularización',
+          observacion: 'Procesamiento de alumnos con actas extemporáneas o sustitutorios.'
+        }
+      ],
+
+      // ---- Historial de Lotes de Emisión Masiva ----
+      lotesEmision: [
+        {
+          id: 'LOTE-2026-I-ISI-01',
+          fecha: '2026-07-22 17:45:10',
+          fechaFormato: '22/07/2026 17:45 hrs',
+          programa: 'Ingeniería de Sistemas e Informática',
+          programaId: 'PROG-ISI',
+          certificacionId: 'CP-ISI-01',
+          certificacionTitulo: 'Certificación en "Gestión de Procesos y Datos Digitales"',
+          cicloOtorgamiento: 'Ciclo VI',
+          periodo: '2026-I',
+          totalAlumnos: 42,
+          tasaEntrega: '100% (42/42)',
+          canalDespacho: 'Correo Institucional (@uwiener.edu.pe)',
+          estado: 'Despachado',
+          usuario: 'Carlos Mendoza Ríos (Registros Académicos)',
+          tipo: 'Cierre de Ciclo Masivo Gratuito',
+          alumnosEmitidos: [
+            { codigo: '2020100589', nombre: 'Sebastián Torres Vega', email: 'a2020100589@uwiener.edu.pe', folio: '2026.11024', fecha: '22/07/2026 17:45' },
+            { codigo: '2021100342', nombre: 'Camila Alessandra Castro Morales', email: 'a2021100342@uwiener.edu.pe', folio: '2026.11025', fecha: '22/07/2026 17:45' },
+            { codigo: '2021100411', nombre: 'Mateo Alejandro Rivas Delgado', email: 'a2021100411@uwiener.edu.pe', folio: '2026.11026', fecha: '22/07/2026 17:45' },
+            { codigo: '2020100912', nombre: 'Valeria Lucía Méndez Salazar', email: 'a2020100912@uwiener.edu.pe', folio: '2026.11027', fecha: '22/07/2026 17:45' },
+            { codigo: '2020100885', nombre: 'Rodrigo Alonso Tapia Quispe', email: 'a2020100885@uwiener.edu.pe', folio: '2026.11028', fecha: '22/07/2026 17:45' }
+          ]
+        },
+        {
+          id: 'LOTE-2026-I-ISI-02',
+          fecha: '2026-07-23 11:20:05',
+          fechaFormato: '23/07/2026 11:20 hrs',
+          programa: 'Ingeniería de Sistemas e Informática',
+          programaId: 'PROG-ISI',
+          certificacionId: 'CP-ISI-02',
+          certificacionTitulo: 'Certificación en "Tecnologías para Aplicaciones"',
+          cicloOtorgamiento: 'Ciclo VII',
+          periodo: '2026-I',
+          totalAlumnos: 38,
+          tasaEntrega: '100% (38/38)',
+          canalDespacho: 'Correo Institucional (@uwiener.edu.pe)',
+          estado: 'Despachado',
+          usuario: 'Carlos Mendoza Ríos (Registros Académicos)',
+          tipo: 'Cierre de Ciclo Masivo Gratuito',
+          alumnosEmitidos: [
+            { codigo: '2019200115', nombre: 'Gonzalo Andrés Paredes Ruiz', email: 'a2019200115@uwiener.edu.pe', folio: '2026.11090', fecha: '23/07/2026 11:20' },
+            { codigo: '2020100780', nombre: 'Andrea Nicole Chávez Huamán', email: 'a2020100780@uwiener.edu.pe', folio: '2026.11091', fecha: '23/07/2026 11:20' },
+            { codigo: '2019100552', nombre: 'Renato Luis Carrillo Benites', email: 'a2019100552@uwiener.edu.pe', folio: '2026.11092', fecha: '23/07/2026 11:20' }
+          ]
+        },
+        {
+          id: 'LOTE-2025-II-ISI-01',
+          fecha: '2025-12-19 18:00:00',
+          fechaFormato: '19/12/2025 18:00 hrs',
+          programa: 'Ingeniería de Sistemas e Informática',
+          programaId: 'PROG-ISI',
+          certificacionId: 'CP-ISI-01',
+          certificacionTitulo: 'Certificación en "Gestión de Procesos y Datos Digitales"',
+          cicloOtorgamiento: 'Ciclo VI',
+          periodo: '2025-II',
+          totalAlumnos: 54,
+          tasaEntrega: '100% (54/54)',
+          canalDespacho: 'Correo Institucional (@uwiener.edu.pe)',
+          estado: 'Despachado',
+          usuario: 'Carlos Mendoza Ríos (Registros Académicos)',
+          tipo: 'Cierre de Ciclo Masivo Gratuito',
+          alumnosEmitidos: [
+            { codigo: '2019100234', nombre: 'Diego Alonso Flores Ramos', email: 'a2019100234@uwiener.edu.pe', folio: '2025.99042', fecha: '19/12/2025 18:00' },
+            { codigo: '2018200671', nombre: 'Luciana Beatriz Navarro Silva', email: 'a2018200671@uwiener.edu.pe', folio: '2025.99043', fecha: '19/12/2025 18:00' }
+          ]
         }
       ],
       sedesCatalogo: [
@@ -486,14 +857,181 @@
           id: 'U-ALU-1', rol: 'alumno', nombre: 'María Fernanda Quispe', codigo: '2021100345',
           email: 'a2021100345@uwiener.edu.pe', dni: '72845109', telefono: '945112233', celular: '51945112233',
           institucion: 'Universidad Privada Norbert Wiener',
-          carreras: ['Ingeniería de Sistemas', 'Ingeniería Industrial'],
+          carreras: ['Ingeniería de Sistemas e Informática', 'Ingeniería Industrial'],
           estado: 'activo',
-          perfil: { nivel: 'pregrado', programa: 'Ingeniería de Sistemas', ciclo: 8, creditos: 168, tercioSuperior: true, quintoSuperior: false, promedio: 16.2 }
+          perfil: {
+            nivel: 'pregrado',
+            programa: 'Ingeniería de Sistemas e Informática',
+            modalidad: 'Presencial',
+            codigoPresencial: '59',
+            ciclo: 8,
+            creditos: 168,
+            tercioSuperior: true,
+            quintoSuperior: false,
+            promedio: 16.8,
+            deuda: 0.00,
+            detalleDeuda: null
+          },
+          historialCursos: {
+            // Módulo 1 (Ciclo VI): Gestión de Procesos y Datos Digitales
+            IG7062: { codigo: 'IG7062', nombre: 'GESTIÓN DE PROCESOS DE NEGOCIO', ciclo: 3, creditaje: 4, tipo: 'O', nota: 16, estado: 'Aprobado' },
+            IS6032: { codigo: 'IS6032', nombre: 'BASE DE DATOS', ciclo: 4, creditaje: 4, tipo: 'O', nota: 17, estado: 'Aprobado' },
+            IS6051: { codigo: 'IS6051', nombre: 'SISTEMAS OPERATIVOS Y PROGRAMACIÓN', ciclo: 5, creditaje: 4, tipo: 'O', nota: 15, estado: 'Aprobado' },
+            IS6053: { codigo: 'IS6053', nombre: 'ARQUITECTURA DE COMPUTADORAS', ciclo: 5, creditaje: 4, tipo: 'O', nota: 16, estado: 'Aprobado' },
+            IS6066: { codigo: 'IS6066', nombre: 'REDES DE COMUNICACIÓN DE DATOS', ciclo: 6, creditaje: 4, tipo: 'O', nota: 18, estado: 'Aprobado' },
+            // Módulo 2 (Ciclo VII): Tecnologías para Aplicaciones
+            IS6041: { codigo: 'IS6041', nombre: 'INTRODUCCIÓN A LOS LENGUAJES DE PROGRAMACIÓN', ciclo: 5, creditaje: 4, tipo: 'O', nota: 17, estado: 'Aprobado' },
+            IS6074: { codigo: 'IS6074', nombre: 'DESARROLLO DE APLICACIONES WEB', ciclo: 6, creditaje: 4, tipo: 'O', nota: 16, estado: 'Aprobado' },
+            IS6081: { codigo: 'IS6081', nombre: 'DESARROLLO DE APLICACIONES MÓVILES', ciclo: 7, creditaje: 4, tipo: 'O', nota: 17, estado: 'Aprobado' },
+            IS6065: { codigo: 'IS6065', nombre: 'CIRCUITOS DIGITALES Y ELECTRÓNICOS', ciclo: 6, creditaje: 4, tipo: 'O', nota: 15, estado: 'Aprobado' },
+            IS6071: { codigo: 'IS6071', nombre: 'INTERNET DE LAS COSAS', ciclo: 7, creditaje: 4, tipo: 'O', nota: 16, estado: 'Aprobado' },
+            // Módulo 3 (Ciclo VIII): Dirección de Proyectos Tecnológicos
+            IS6052: { codigo: 'IS6052', nombre: 'SOFTWARE I: PROCESO PERSONAL Y CALIDAD', ciclo: 4, creditaje: 4, tipo: 'O', nota: 16, estado: 'Aprobado' },
+            IS6063: { codigo: 'IS6063', nombre: 'SOFTWARE II: DISEÑO Y PROCESO', ciclo: 5, creditaje: 4, tipo: 'O', nota: 17, estado: 'Aprobado' },
+            IS6064: { codigo: 'IS6064', nombre: 'SOFTWARE III: CONSTRUCCIÓN Y TRANSICIÓN', ciclo: 6, creditaje: 4, tipo: 'O', nota: 16, estado: 'Aprobado' },
+            IS6077: { codigo: 'IS6077', nombre: 'SOFTWARE IV: PROYECTO INTEGRADOR', ciclo: 7, creditaje: 4, tipo: 'O', nota: 18, estado: 'Aprobado' },
+            IS6082: { codigo: 'IS6082', nombre: 'SOFTWARE V: PROCESOS Y GESTIÓN DE PROYECTOS', ciclo: 8, creditaje: 4, tipo: 'O', nota: 17, estado: 'Aprobado' }
+          }
+        },
+        {
+          id: 'U-ALU-ISI-2', rol: 'alumno', nombre: 'HUAMÁN CASTRO, Rodrigo Alonso', codigo: '2021200412',
+          email: 'a2021200412@uwiener.edu.pe', dni: '73019284', telefono: '984120934', celular: '51984120934',
+          institucion: 'Universidad Privada Norbert Wiener',
+          carreras: ['Ingeniería de Sistemas e Informática'],
+          estado: 'activo',
+          perfil: {
+            nivel: 'pregrado',
+            programa: 'Ingeniería de Sistemas e Informática',
+            modalidad: 'Presencial',
+            codigoPresencial: '59',
+            ciclo: 8,
+            creditos: 164,
+            tercioSuperior: false,
+            quintoSuperior: false,
+            promedio: 15.8,
+            deuda: 480.00,
+            detalleDeuda: 'Cuotas 4 y 5 de pensión académica vencidas (S/ 480.00)'
+          },
+          historialCursos: {
+            IG7062: { codigo: 'IG7062', nombre: 'GESTIÓN DE PROCESOS DE NEGOCIO', ciclo: 3, creditaje: 4, tipo: 'O', nota: 15, estado: 'Aprobado' },
+            IS6032: { codigo: 'IS6032', nombre: 'BASE DE DATOS', ciclo: 4, creditaje: 4, tipo: 'O', nota: 16, estado: 'Aprobado' },
+            IS6051: { codigo: 'IS6051', nombre: 'SISTEMAS OPERATIVOS Y PROGRAMACIÓN', ciclo: 5, creditaje: 4, tipo: 'O', nota: 17, estado: 'Aprobado' },
+            IS6053: { codigo: 'IS6053', nombre: 'ARQUITECTURA DE COMPUTADORAS', ciclo: 5, creditaje: 4, tipo: 'O', nota: 16, estado: 'Aprobado' },
+            IS6066: { codigo: 'IS6066', nombre: 'REDES DE COMUNICACIÓN DE DATOS', ciclo: 6, creditaje: 4, tipo: 'O', nota: 15, estado: 'Aprobado' }
+          }
+        },
+        {
+          id: 'U-ALU-ISI-3', rol: 'alumno', nombre: 'MÉNDEZ TELLO, Valeria Lucía', codigo: '2022100874',
+          email: 'a2022100874@uwiener.edu.pe', dni: '75920145', telefono: '976341209', celular: '51976341209',
+          institucion: 'Universidad Privada Norbert Wiener',
+          carreras: ['Ingeniería de Sistemas e Informática'],
+          estado: 'activo',
+          perfil: {
+            nivel: 'pregrado',
+            programa: 'Ingeniería de Sistemas e Informática',
+            modalidad: 'Presencial',
+            codigoPresencial: '59',
+            ciclo: 7,
+            creditos: 142,
+            tercioSuperior: false,
+            quintoSuperior: false,
+            promedio: 14.2,
+            deuda: 0.00,
+            detalleDeuda: null
+          },
+          historialCursos: {
+            IG7062: { codigo: 'IG7062', nombre: 'GESTIÓN DE PROCESOS DE NEGOCIO', ciclo: 3, creditaje: 4, tipo: 'O', nota: 12, estado: 'Aprobado con observación (Nota < 14)' },
+            IS6032: { codigo: 'IS6032', nombre: 'BASE DE DATOS', ciclo: 4, creditaje: 4, tipo: 'O', nota: 16, estado: 'Aprobado' },
+            IS6051: { codigo: 'IS6051', nombre: 'SISTEMAS OPERATIVOS Y PROGRAMACIÓN', ciclo: 5, creditaje: 4, tipo: 'O', nota: 14, estado: 'Aprobado' },
+            IS6053: { codigo: 'IS6053', nombre: 'ARQUITECTURA DE COMPUTADORAS', ciclo: 5, creditaje: 4, tipo: 'O', nota: 15, estado: 'Aprobado' },
+            IS6066: { codigo: 'IS6066', nombre: 'REDES DE COMUNICACIÓN DE DATOS', ciclo: 6, creditaje: 4, tipo: 'O', nota: 16, estado: 'Aprobado' }
+          }
+        },
+        {
+          id: 'U-ALU-ISI-4', rol: 'alumno', nombre: 'TORRES VEGA, Sebastián Andrés', codigo: '2020100589',
+          email: 'a2020100589@uwiener.edu.pe', dni: '71829034', telefono: '933221100', celular: '51933221100',
+          institucion: 'Universidad Privada Norbert Wiener',
+          carreras: ['Ingeniería de Sistemas e Informática'],
+          estado: 'activo',
+          perfil: {
+            nivel: 'pregrado',
+            programa: 'Ingeniería de Sistemas e Informática',
+            modalidad: 'Presencial',
+            codigoPresencial: '59',
+            ciclo: 9,
+            creditos: 190,
+            tercioSuperior: true,
+            quintoSuperior: false,
+            promedio: 16.0,
+            deuda: 0.00,
+            detalleDeuda: null
+          },
+          historialCursos: {
+            IG7062: { codigo: 'IG7062', nombre: 'GESTIÓN DE PROCESOS DE NEGOCIO', ciclo: 3, creditaje: 4, tipo: 'O', nota: 16, estado: 'Aprobado' },
+            IS6032: { codigo: 'IS6032', nombre: 'BASE DE DATOS', ciclo: 4, creditaje: 4, tipo: 'O', nota: 17, estado: 'Aprobado' },
+            IS6051: { codigo: 'IS6051', nombre: 'SISTEMAS OPERATIVOS Y PROGRAMACIÓN', ciclo: 5, creditaje: 4, tipo: 'O', nota: 15, estado: 'Aprobado' },
+            IS6053: { codigo: 'IS6053', nombre: 'ARQUITECTURA DE COMPUTADORAS', ciclo: 5, creditaje: 4, tipo: 'O', nota: 16, estado: 'Aprobado' },
+            IS6066: { codigo: 'IS6066', nombre: 'REDES DE COMUNICACIÓN DE DATOS', ciclo: 6, creditaje: 4, tipo: 'O', nota: 18, estado: 'Aprobado' }
+          }
+        },
+        {
+          id: 'U-ALU-ISI-5', rol: 'alumno', nombre: 'PAREDES NÚÑEZ, Andrea Jimena', codigo: '2021100998',
+          email: 'a2021100998@uwiener.edu.pe', dni: '74819203', telefono: '955102938', celular: '51955102938',
+          institucion: 'Universidad Privada Norbert Wiener',
+          carreras: ['Ingeniería de Sistemas e Informática'],
+          estado: 'activo',
+          perfil: {
+            nivel: 'pregrado',
+            programa: 'Ingeniería de Sistemas e Informática',
+            modalidad: 'Semipresencial',
+            codigoSemipresencial: '2120',
+            ciclo: 8,
+            creditos: 168,
+            tercioSuperior: true,
+            quintoSuperior: true,
+            promedio: 17.4,
+            deuda: 0.00,
+            detalleDeuda: null
+          },
+          historialCursos: {
+            IG7062: { codigo: 'IG7062', nombre: 'GESTIÓN DE PROCESOS DE NEGOCIO', ciclo: 3, creditaje: 4, tipo: 'O', nota: 18, estado: 'Aprobado' },
+            IS6032: { codigo: 'IS6032', nombre: 'BASE DE DATOS', ciclo: 4, creditaje: 4, tipo: 'O', nota: 16, estado: 'Aprobado' },
+            IS6051: { codigo: 'IS6051', nombre: 'SISTEMAS OPERATIVOS Y PROGRAMACIÓN', ciclo: 5, creditaje: 4, tipo: 'O', nota: 17, estado: 'Aprobado' },
+            IS6053: { codigo: 'IS6053', nombre: 'ARQUITECTURA DE COMPUTADORAS', ciclo: 5, creditaje: 4, tipo: 'O', nota: 19, estado: 'Aprobado' },
+            IS6066: { codigo: 'IS6066', nombre: 'REDES DE COMUNICACIÓN DE DATOS', ciclo: 6, creditaje: 4, tipo: 'O', nota: 17, estado: 'Aprobado' }
+          }
+        },
+        {
+          id: 'U-ALU-ISI-6', rol: 'alumno', nombre: 'CHAUCA MORALES, Kevin Joel', codigo: '2023101230',
+          email: 'a2023101230@uwiener.edu.pe', dni: '76102938', telefono: '940129481', celular: '51940129481',
+          institucion: 'Universidad Privada Norbert Wiener',
+          carreras: ['Ingeniería de Sistemas e Informática'],
+          estado: 'activo',
+          perfil: {
+            nivel: 'pregrado',
+            programa: 'Ingeniería de Sistemas e Informática',
+            modalidad: 'Presencial',
+            codigoPresencial: '59',
+            ciclo: 5,
+            creditos: 104,
+            tercioSuperior: false,
+            quintoSuperior: false,
+            promedio: 15.2,
+            deuda: 0.00,
+            detalleDeuda: null
+          },
+          historialCursos: {
+            IG7062: { codigo: 'IG7062', nombre: 'GESTIÓN DE PROCESOS DE NEGOCIO', ciclo: 3, creditaje: 4, tipo: 'O', nota: 15, estado: 'Aprobado' },
+            IS6032: { codigo: 'IS6032', nombre: 'BASE DE DATOS', ciclo: 4, creditaje: 4, tipo: 'O', nota: 16, estado: 'Aprobado' },
+            IS6051: { codigo: 'IS6051', nombre: 'SISTEMAS OPERATIVOS Y PROGRAMACIÓN', ciclo: 5, creditaje: 4, tipo: 'O', nota: 15, estado: 'Aprobado' },
+            IS6053: { codigo: 'IS6053', nombre: 'ARQUITECTURA DE COMPUTADORAS', ciclo: 5, creditaje: 4, tipo: 'O', nota: 14, estado: 'Aprobado' }
+            // IS6066 no cursado aún (pertenece a ciclo 6)
+          }
         },
         {
           id: 'U-ADM-1', rol: 'administrativo', nombre: 'Carlos Mendoza Ríos', codigo: 'ADM-0091',
           email: 'c.mendoza@uwiener.edu.pe', dni: '40981233', estado: 'activo', area: 'Registros Académicos',
-          permisos: ['tramites', 'solicitudes', 'flujos', 'procesar', 'reportes', 'usuarios', 'seguridad', 'registrar']
+          permisos: ['tramites', 'solicitudes', 'flujos', 'procesar', 'reportes', 'usuarios', 'seguridad', 'registrar', 'certificaciones']
         },
         {
           id: 'U-ALU-2', rol: 'alumno', nombre: 'José Antonio Ramos', codigo: '2019054420',
@@ -549,6 +1087,53 @@
 
       // ---- Solicitudes realizadas por alumnos (Catálogo Vista de Trámites) ----
       solicitudes: [
+        {
+          id: '2026.11024',
+          ticket: '2026.11024',
+          sedeCodigo: '7803-2',
+          sede: '7803-2 - Jr. Larrabure y Unanue 110 Santa Beatriz, Lima',
+          institucion: 'Universidad Norbert Wiener',
+          tramiteId: 'T-010',
+          tramiteNombre: 'Certificación Progresiva: Certificación en "Gestión de Procesos y Datos Digitales"',
+          certificacionId: 'CP-ISI-01',
+          certificacionTitulo: 'Certificación en "Gestión de Procesos y Datos Digitales"',
+          carrera: 'Ingeniería de Sistemas e Informática',
+          periodo: '2026-I',
+          seccion: '6SI01',
+          alumnoId: 'U-ALU-ISI-4',
+          alumnoCodigo: '2020100589',
+          alumnoNombre: 'TORRES VEGA, Sebastián Andrés',
+          alumnoDni: '71829034',
+          alumnoEmail: 'a2020100589@uwiener.edu.pe',
+          alumnoTelefono: '933221100',
+          alumnoCelular: '51933221100',
+          estado: 'Emitido',
+          activo: true,
+          fecha: '2026-07-15',
+          fechaHora: '2026-07-15 04:30:00 PM',
+          costo: 0.00,
+          conceptoCodigo: '01020120',
+          origen: 'Emisión Masiva Admin - Gratuita',
+          loteId: 'LOTE-2026-I-ISI',
+          pago: {
+            estado: 'exonerado',
+            obligacionGenerada: false,
+            monto: 0.00,
+            metodo: 'Gratuito - Emisión Institucional Masiva',
+            carrera: 'Ingeniería de Sistemas e Informática',
+            nroDocumento: 'GRATUITO-MASIVO-2026-I',
+            operacion: 'INST-2026-CP-11024'
+          },
+          detalle: 'Emisión masiva institucional de cierre de ciclo 2026-I.',
+          requisitos: [],
+          proceso: [
+            { orden: 1, area: 'Registros Académicos', plazoHoras: 0, diasRetraso: 0, observacionInterna: 'Emisión masiva de cierre de ciclo aprobada.', estado: 'Atendido', fechaAtencion: '2026-07-15' }
+          ],
+          mensajeSolicitante: 'Tu Certificación Progresiva fue emitida de forma gratuita institucional y enviada a tu correo a2020100589@uwiener.edu.pe.',
+          historial: [
+            { estado: 'Emitido', fecha: '2026-07-15 04:30', nota: 'Emisión masiva de cierre de ciclo 2026-I. Enviado a correo a2020100589@uwiener.edu.pe', usuario: 'Carlos Mendoza Ríos (Registros Académicos)' }
+          ]
+        },
         {
           id: '2026.43545',
           ticket: '2026.43545',
@@ -1700,11 +2285,50 @@
         dirty = true;
       }
     }
-    // Asegurar que el catálogo de certificaciones progresivas exista
-    if (!s.certificacionesProgresivas || !Array.isArray(s.certificacionesProgresivas) || s.certificacionesProgresivas.length === 0) {
+    // Asegurar que el catálogo de certificaciones progresivas exista y tenga las de ISI
+    if (!s.certificacionesProgresivas || !Array.isArray(s.certificacionesProgresivas) || !s.certificacionesProgresivas.some(c => c.id === 'CP-ISI-01')) {
       s.certificacionesProgresivas = seed().certificacionesProgresivas;
       dirty = true;
     }
+    // Asegurar colecciones complementarias
+    if (!s.programasCertificaciones) { s.programasCertificaciones = seed().programasCertificaciones; dirty = true; }
+    if (!s.programacionesEmision || s.programacionesEmision.length <= 1) { s.programacionesEmision = seed().programacionesEmision; dirty = true; }
+    if (!s.lotesEmision || s.lotesEmision.length <= 1) { s.lotesEmision = seed().lotesEmision; dirty = true; }
+
+    // Asegurar alumnos de ISI para auditoría
+    if (!s.usuarios.some(u => u.id === 'U-ALU-ISI-2')) {
+      const newUsers = seed().usuarios.filter(u => u.id.startsWith('U-ALU-ISI-'));
+      s.usuarios.push(...newUsers);
+      dirty = true;
+    }
+
+    // Actualizar perfil de U-ALU-1 si no tiene historialCursos
+    const alu1 = s.usuarios.find(u => u.id === 'U-ALU-1');
+    if (alu1 && (!alu1.historialCursos || !alu1.historialCursos.IG7062)) {
+      const seedAlu1 = seed().usuarios.find(u => u.id === 'U-ALU-1');
+      if (seedAlu1) {
+        alu1.historialCursos = seedAlu1.historialCursos;
+        alu1.perfil = Object.assign({}, alu1.perfil, seedAlu1.perfil);
+        dirty = true;
+      }
+    }
+
+    // Asegurar permiso de certificaciones para U-ADM-1
+    const adm1 = s.usuarios.find(u => u.id === 'U-ADM-1');
+    if (adm1 && adm1.permisos && !adm1.permisos.includes('certificaciones')) {
+      adm1.permisos.push('certificaciones');
+      dirty = true;
+    }
+
+    // Asegurar solicitud de Sebastián Torres Vega como emitida para prueba de no duplicidad
+    if (!s.solicitudes.some(sol => sol.id === '2026.11024')) {
+      const solSebas = seed().solicitudes.find(sol => sol.id === '2026.11024');
+      if (solSebas) {
+        s.solicitudes.unshift(solSebas);
+        dirty = true;
+      }
+    }
+
     // Asegurar que la solicitud pre-emitida exista para U-ALU-1
     if (s.solicitudes && !s.solicitudes.some(sol => sol.certificacionId === 'CP-003' || (sol.tramiteNombre && sol.tramiteNombre.includes('Excel Intermedio')))) {
       const solExcel = seed().solicitudes.find(sol => sol.id === '2026.43545');
@@ -1979,6 +2603,355 @@
       });
       save(db);
       return s;
+    },
+
+    // ======== MÓDULO EMISIÓN MASIVA DE CERTIFICACIONES PROGRESIVAS ========
+    programasCertificaciones() {
+      const db = load();
+      return db.programasCertificaciones || seed().programasCertificaciones || [];
+    },
+    programacionesEmision() {
+      const db = load();
+      return db.programacionesEmision || [];
+    },
+    lotesEmision() {
+      const db = load();
+      return db.lotesEmision || [];
+    },
+    programarEmisionMasiva(datos) {
+      const db = load();
+      if (!db.programacionesEmision) db.programacionesEmision = [];
+      const item = {
+        id: datos.id || ('PROG-' + Date.now()),
+        nombre: datos.nombre || 'Emisión Programada Cierre de Ciclo',
+        programaId: datos.programaId || 'PROG-ISI',
+        programaNombre: datos.programaNombre || 'Ingeniería de Sistemas e Informática',
+        certificacionId: datos.certificacionId || 'CP-ISI-01',
+        certificacionTitulo: datos.certificacionTitulo || 'Certificación en "Gestión de Procesos y Datos Digitales"',
+        cicloOtorgamiento: datos.cicloOtorgamiento || 'Ciclo VI',
+        periodo: datos.periodo || '2026-II',
+        fechaEjecucion: datos.fechaEjecucion || new Date().toISOString(),
+        estado: datos.estado || 'Programado',
+        creadoPor: datos.creadoPor || 'Carlos Mendoza Ríos (Registros Académicos)',
+        fechaCreacion: datos.fechaCreacion || new Date().toISOString().slice(0, 10),
+        alumnosEstimados: datos.alumnosEstimados || 40,
+        reglas: datos.reglas || { notaMinima: 14.0, exigirSinDeuda: true, omitirYaEmitidos: true },
+        canalDespacho: 'Correo institucional @uwiener.edu.pe',
+        frecuencia: datos.frecuencia || 'Única al cierre de ciclo',
+        observacion: datos.observacion || 'Ejecución programada automática por cierre de periodo lectivo.'
+      };
+      db.programacionesEmision.unshift(item);
+      save(db);
+      return item;
+    },
+    actualizarProgramacionEmision(id, datos) {
+      const db = load();
+      if (!db.programacionesEmision) db.programacionesEmision = [];
+      const idx = db.programacionesEmision.findIndex(p => p.id === id);
+      if (idx !== -1) {
+        db.programacionesEmision[idx] = Object.assign({}, db.programacionesEmision[idx], datos, {
+          id: id,
+          fechaModificacion: new Date().toLocaleString('es-PE')
+        });
+        save(db);
+        return db.programacionesEmision[idx];
+      }
+      return null;
+    },
+    eliminarProgramacionEmision(id) {
+      const db = load();
+      db.programacionesEmision = (db.programacionesEmision || []).filter(p => p.id !== id);
+      save(db);
+      return { ok: true };
+    },
+    togglePausaProgramacion(id) {
+      const db = load();
+      const item = (db.programacionesEmision || []).find(p => p.id === id);
+      if (item) {
+        item.estado = item.estado === 'Pausado' ? 'Programado' : 'Pausado';
+        save(db);
+      }
+      return item;
+    },
+    ejecutarProgramacionEmision(id) {
+      const db = load();
+      const prog = (db.programacionesEmision || []).find(p => p.id === id);
+      if (!prog) throw new Error('Programación no encontrada: ' + id);
+
+      let targetCertId = prog.certificacionId;
+      if (!targetCertId || targetCertId === 'TODAS') {
+        targetCertId = 'CP-ISI-01';
+      }
+
+      const res = this.emitirCertificacionesMasivas(null, targetCertId, {
+        periodo: prog.periodo || '2026-II',
+        notaMinima: (prog.reglas && prog.reglas.notaMinima) || 14.0,
+        exigirSinDeuda: prog.reglas ? prog.reglas.exigirSinDeuda !== false : true,
+        omitirYaEmitidos: prog.reglas ? prog.reglas.omitirYaEmitidos !== false : true
+      });
+
+      prog.estado = 'Completado';
+      prog.fechaUltimaEjecucion = new Date().toLocaleString('es-PE');
+      prog.ultimoLoteId = res.loteId;
+      save(db);
+
+      return { prog, resultado: res };
+    },
+    getLoteEmision(id) {
+      const db = load();
+      return (db.lotesEmision || []).find(l => l.id === id);
+    },
+    cancelarProgramacionEmision(id) {
+      return this.togglePausaProgramacion(id);
+    },
+    evaluarAlumnosCertificacion(certId, opciones = {}) {
+      const db = load();
+      const cert = (db.certificacionesProgresivas || []).find(c => c.id === certId || c.codigo === certId);
+      if (!cert) return [];
+
+      const notaMinima = opciones.notaMinima != null ? Number(opciones.notaMinima) : 14.0;
+      const exigirSinDeuda = opciones.exigirSinDeuda !== false;
+      const omitirYaEmitidos = opciones.omitirYaEmitidos !== false;
+      const modalidadFiltro = opciones.modalidad || 'todas';
+      const cicloFiltro = opciones.ciclo || 'todos';
+
+      // Alumnos de la carrera
+      const alumnos = (db.usuarios || []).filter(u => {
+        if (u.rol !== 'alumno') return false;
+        const prog = (u.perfil && u.perfil.programa) || (u.carreras && u.carreras[0]) || '';
+        const matchProg = prog.toLowerCase().includes('sistemas') || prog.toLowerCase().includes(cert.carrera.toLowerCase());
+        if (!matchProg) return false;
+        if (modalidadFiltro !== 'todas') {
+          const mod = (u.perfil && u.perfil.modalidad) || 'Presencial';
+          if (mod.toLowerCase() !== modalidadFiltro.toLowerCase()) return false;
+        }
+        if (cicloFiltro !== 'todos') {
+          const c = (u.perfil && u.perfil.ciclo) || 0;
+          if (String(c) !== String(cicloFiltro)) return false;
+        }
+        return true;
+      });
+
+      return alumnos.map(alumno => {
+        const perfil = alumno.perfil || {};
+        const historial = alumno.historialCursos || {};
+        const deudaMonto = Number(perfil.deuda || alumno.deuda || 0);
+        const tieneDeuda = deudaMonto > 0;
+
+        const cursosDetalle = cert.cursos.map(cur => {
+          const info = historial[cur.codigo] || historial[cur.nombre] || null;
+          // Si el alumno tiene historial académico y el curso no está registrado, no ha sido cursado
+          const nota = info ? Number(info.nota) : (alumno.historialCursos ? null : (cur.nota != null ? Number(cur.nota) : null));
+          const cursado = nota !== null;
+          const aprobado = cursado && nota >= notaMinima;
+          return {
+            codigo: cur.codigo,
+            nombre: cur.nombre,
+            ciclo: cur.ciclo,
+            creditaje: cur.creditaje,
+            tipo: cur.tipo,
+            nota: nota,
+            cursado: cursado,
+            aprobado: aprobado,
+            cumpleNotaMinima: cursado ? nota >= notaMinima : false
+          };
+        });
+
+        const totalCursos = cert.cursos.length;
+        const cursosAprobados = cursosDetalle.filter(c => c.aprobado).length;
+        const cursosCompletos = cursosAprobados === totalCursos;
+
+        const notasList = cursosDetalle.filter(c => c.nota !== null).map(c => c.nota);
+        const promedio = notasList.length ? (notasList.reduce((a, b) => a + b, 0) / notasList.length).toFixed(1) : 0;
+        const cursosBajaNota = cursosDetalle.filter(c => c.cursado && c.nota < notaMinima);
+        const cursosFaltantes = cursosDetalle.filter(c => !c.cursado);
+
+        const emisionPrevia = (db.solicitudes || []).find(s => {
+          if (s.alumnoId !== alumno.id && s.alumnoCodigo !== alumno.codigo) return false;
+          if (s.estado !== 'Emitido') return false;
+          if (s.certificacionId === cert.id) return true;
+          if (s.certificacionTitulo && s.certificacionTitulo === cert.titulo) return true;
+          if (s.tramiteNombre && s.tramiteNombre.includes(cert.titulo)) return true;
+          return false;
+        });
+
+        let apto = true;
+        let motivo = 'Cumple con todos los requisitos académicos y financieros (Apto para emisión gratuita)';
+        let estadoClase = 'apto';
+
+        if (omitirYaEmitidos && emisionPrevia) {
+          apto = false;
+          estadoClase = 'emitido';
+          motivo = `Certificación ya emitida previamente el ${emisionPrevia.fecha || 'anteriormente'} (${emisionPrevia.id}) - Omitido por regla de no duplicidad`;
+        } else if (!cursosCompletos) {
+          apto = false;
+          if (cursosBajaNota.length > 0) {
+            estadoClase = 'nota';
+            motivo = `Nota menor al mínimo de ${notaMinima.toFixed(2)} en: ${cursosBajaNota.map(c => `${c.codigo} [Nota ${c.nota}]`).join(', ')}`;
+          } else {
+            estadoClase = 'incompleto';
+            motivo = `Cursos incompletos: ${cursosAprobados} de ${totalCursos} asignaturas aprobadas. Pendiente: ${cursosFaltantes.map(c => c.codigo || c.nombre).join(', ')}`;
+          }
+        } else if (exigirSinDeuda && tieneDeuda) {
+          apto = false;
+          estadoClase = 'deuda';
+          motivo = `Registra deuda financiera pendiente de S/ ${deudaMonto.toFixed(2)} (${perfil.detalleDeuda || 'Aranceles/pensiones'})`;
+        }
+
+        return {
+          alumnoId: alumno.id,
+          codigo: alumno.codigo,
+          nombre: alumno.nombre,
+          email: alumno.email,
+          dni: alumno.dni,
+          programa: perfil.programa || cert.carrera,
+          ciclo: perfil.ciclo || 8,
+          modalidad: perfil.modalidad || 'Presencial',
+          certificacionId: cert.id,
+          certificacionTitulo: cert.titulo,
+          cursosTotal: totalCursos,
+          cursosAprobados: cursosAprobados,
+          promedio: promedio,
+          cursosDetalle: cursosDetalle,
+          deudaMonto: deudaMonto,
+          tieneDeuda: tieneDeuda,
+          detalleDeuda: perfil.detalleDeuda || null,
+          emisionPrevia: emisionPrevia,
+          apto: apto,
+          estadoClase: estadoClase,
+          motivo: motivo
+        };
+      });
+    },
+    emitirCertificacionesMasivas(alumnosIds, certId, opciones = {}) {
+      const db = load();
+      const cert = (db.certificacionesProgresivas || []).find(c => c.id === certId || c.codigo === certId);
+      if (!cert) throw new Error('Certificación no encontrada: ' + certId);
+
+      const evaluados = this.evaluarAlumnosCertificacion(cert.id, opciones);
+      const targetIds = (Array.isArray(alumnosIds) && alumnosIds.length > 0)
+        ? alumnosIds
+        : evaluados.filter(e => e.apto).map(e => e.alumnoId);
+
+      const loteNum = (db.lotesEmision || []).length + 1;
+      const loteId = 'LOTE-' + (opciones.periodo || '2026-II') + '-ISI-' + String(loteNum).padStart(2, '0');
+      const fechaNow = new Date().toISOString().slice(0, 10);
+      const fechaHoraNow = new Date().toLocaleString('es-PE');
+      const periodo = opciones.periodo || '2026-II';
+      const emitidos = [];
+
+      for (const aluId of targetIds) {
+        const ev = evaluados.find(e => e.alumnoId === aluId);
+        if (!ev) continue;
+        if (!ev.apto && !opciones.forzar) continue;
+
+        const alumno = db.usuarios.find(u => u.id === aluId);
+        if (!alumno) continue;
+
+        const solId = '2026.' + Math.floor(80000 + Math.random() * 19999);
+        const nuevaSol = {
+          id: solId,
+          ticket: solId,
+          sedeCodigo: '7803-2',
+          sede: '7803-2 - Jr. Larrabure y Unanue 110 Santa Beatriz, Lima',
+          institucion: 'Universidad Norbert Wiener',
+          tramiteId: 'T-010',
+          tramiteNombre: 'Certificación Progresiva: ' + cert.titulo,
+          certificacionId: cert.id,
+          certificacionTitulo: cert.titulo,
+          cicloOtorgamiento: cert.cicloOtorgamiento || 'Ciclo VI',
+          carrera: alumno.perfil?.programa || cert.carrera,
+          periodo: periodo,
+          seccion: (alumno.perfil?.ciclo || 8) + 'SI01',
+          alumnoId: alumno.id,
+          alumnoCodigo: alumno.codigo,
+          alumnoNombre: alumno.nombre,
+          alumnoDni: alumno.dni,
+          alumnoEmail: alumno.email,
+          alumnoTelefono: alumno.telefono || '945112233',
+          alumnoCelular: alumno.celular || '51945112233',
+          estado: 'Emitido',
+          activo: true,
+          fecha: fechaNow,
+          fechaHora: fechaHoraNow,
+          costo: 0.00,
+          conceptoCodigo: '01020120',
+          origen: 'Emisión Masiva Admin - Gratuita',
+          loteId: loteId,
+          pago: {
+            estado: 'exonerado',
+            obligacionGenerada: false,
+            monto: 0.00,
+            metodo: 'Gratuito - Emisión Institucional Masiva',
+            carrera: alumno.perfil?.programa || cert.carrera,
+            nroDocumento: 'GRATUITO-MASIVO-' + solId,
+            operacion: 'INST-2026-CP-' + solId
+          },
+          detalle: `Emisión masiva institucional gratuita de ${cert.titulo} por cierre de ciclo ${periodo}.`,
+          requisitos: [],
+          proceso: [
+            { orden: 1, area: 'Registros Académicos', plazoHoras: 0, diasRetraso: 0, observacionInterna: 'Emisión masiva aprobada de oficio.', estado: 'Atendido', fechaAtencion: fechaNow }
+          ],
+          mensajeSolicitante: `Tu ${cert.titulo} ha sido emitida de forma gratuita institucional por cierre de ciclo y enviada a tu correo institucional ${alumno.email}. Ya puedes visualizarla y descargarla en 'Mis documentos'.`,
+          historial: [
+            {
+              fecha: fechaHoraNow,
+              estado: 'Emitido',
+              nota: `Emisión masiva institucional gratuita de Certificación Progresiva (${cert.titulo}) por cierre de ciclo ${periodo}. Validado cumplimiento de nota mínima ≥ 14.00 y solvencia económica sin deuda. Notificado a correo institucional ${alumno.email}`,
+              usuario: 'Carlos Mendoza Ríos (Registros Académicos)'
+            }
+          ]
+        };
+
+        db.solicitudes.unshift(nuevaSol);
+        emitidos.push(nuevaSol);
+      }
+
+      if (!db.lotesEmision) db.lotesEmision = [];
+      const nuevoLote = {
+        id: loteId,
+        fecha: new Date().toISOString().slice(0, 19).replace('T', ' '),
+        fechaFormato: fechaHoraNow,
+        programa: cert.programa || cert.carrera,
+        programaId: cert.programaId || 'PROG-ISI',
+        certificacionId: cert.id,
+        certificacionTitulo: cert.titulo,
+        cicloOtorgamiento: cert.cicloOtorgamiento || 'Ciclo VI',
+        periodo: periodo,
+        totalAlumnos: emitidos.length,
+        tasaEntrega: '100% (' + emitidos.length + '/' + emitidos.length + ')',
+        canalDespacho: 'Correo Institucional (@uwiener.edu.pe)',
+        estado: 'Despachado',
+        usuario: 'Carlos Mendoza Ríos (Registros Académicos)',
+        tipo: 'Cierre de Ciclo Masivo Gratuito',
+        alumnosEmitidos: emitidos.map(e => ({
+          codigo: e.alumnoCodigo,
+          nombre: e.alumnoNombre,
+          email: e.alumnoEmail,
+          folio: e.id,
+          fecha: fechaHoraNow
+        }))
+      };
+
+      db.lotesEmision.unshift(nuevoLote);
+      save(db);
+      return { loteId, nuevoLote, emitidos, total: emitidos.length };
+    },
+    resetCertificaciones() {
+      const db = load();
+      // Eliminar solicitudes generadas por emisión masiva gratuita reciente
+      db.solicitudes = (db.solicitudes || []).filter(s => {
+        if (s.id === '2026.11024') return true; // Mantener la de Sebastián para regla de duplicidad
+        if (s.origen === 'Emisión Masiva Admin - Gratuita' && !s.loteId?.startsWith('LOTE-2026-I-ISI-')) return false;
+        return true;
+      });
+      // Restaurar lotes y programaciones base de seed
+      db.lotesEmision = seed().lotesEmision;
+      db.programacionesEmision = seed().programacionesEmision;
+      save(db);
+      return { ok: true, message: 'Data de emisión masiva reiniciada a valores base' };
     }
   };
+
+  window.resetCertificaciones = () => DB.resetCertificaciones();
 })();

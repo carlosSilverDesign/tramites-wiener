@@ -1,5 +1,5 @@
 /* ==========================================================================
-   MOTOR DE DOCUMENTOS — previsualización y descarga de constancias/certificados
+   MOTOR DE DOCUMENTOS - previsualización y descarga de constancias/certificados
    La plantilla de cada trámite es configurable desde el administrador.
    ========================================================================== */
 (function () {
@@ -63,11 +63,11 @@
       ciclo: p.ciclo || ALUMNO_DEMO.perfil.ciclo,
       creditos: p.creditos != null ? p.creditos : ALUMNO_DEMO.perfil.creditos,
       fecha: fechaLarga(sol ? sol.fecha : null),
-      periodo: '2026 - I',
+      periodo: (sol && sol.periodo) || '2026 - II',
       tramite: t.nombre,
-      certificacion: (sol && (sol.certificacionTitulo || sol.certificacion)) || (t && t.certificacionTitulo) || 'Tutor STEM Matemática',
-      codigoDoc: sol ? sol.id.replace('S-', 'DOC-') : 'DOC-2026-XXXX',
-      operacion: sol && sol.pago ? sol.pago.operacion : ''
+      certificacion: (sol && (sol.certificacionTitulo || sol.certificacion)) || (t && t.certificacionTitulo) || 'Certificación en "Gestión de Procesos y Datos Digitales"',
+      codigoDoc: sol ? (sol.id.startsWith('DOC-') ? sol.id : (sol.id.startsWith('S-') ? sol.id.replace('S-', 'DOC-') : 'DOC-' + sol.id)) : 'DOC-2026-XXXX',
+      operacion: (sol && sol.pago && sol.pago.operacion) ? sol.pago.operacion : ''
     };
   }
 

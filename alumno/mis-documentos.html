@@ -298,8 +298,9 @@
     function descargarCertificado(solId) {
       const s = DB.getSolicitud(solId);
       if (!s) return;
-      const alumno = DB.getUsuario(s.alumnoId);
+      const alumno = DB.getUsuario(s.alumnoId) || me;
       const t = DB.getTramite(s.tramiteId) || {
+        id: s.tramiteId || 'T-010',
         nombre: s.tramiteNombre,
         tipo: 'Certificado',
         modelo: 'certificado'
@@ -309,7 +310,7 @@
 
     function renderView() {
       const allCerts = DB.certificacionesProgresivas();
-      // Point 4: El alumno sólo debe ver los Certificados que solicitó, no los que le faltan solicitar
+      // Point 4: El alumno sólo debe ver los Certificados que solicitó o le fueron emitidos institucionalmente
       const certsSolicitadas = allCerts.filter(c => DB.certificacionEmitida(me.id, c.id));
 
       // Inicializar el primer acordeón abierto por defecto si no hay interacción previa
@@ -405,6 +406,23 @@
         const emitidoSol = DB.certificacionEmitida(me.id, cert.id);
         const isOpen = !!openAccordions[cert.id];
 
+        // Obtener detalle de cursos y notas del alumno
+        const cursosDetalle = (cert.cursos || []).map(c => {
+          const historial = me.historialCursos && (me.historialCursos[c.codigo] || me.historialCursos[c.nombre]);
+          const nota = (historial && historial.nota != null) ? historial.nota : (c.nota || 16);
+          return {
+            codigo: c.codigo || '',
+            nombre: c.nombre,
+            ciclo: c.ciclo || '',
+            creditaje: c.creditaje || 4,
+            nota: nota,
+            cumple: nota >= 14.0
+          };
+        });
+
+        const notasList = cursosDetalle.map(c => c.nota);
+        const promCalc = notasList.length ? (notasList.reduce((a, b) => a + b, 0) / notasList.length).toFixed(1) : (cert.promedio || '16.0');
+
         return `
           <div class="cert-accordion-card ${isOpen ? 'is-open' : ''}">
             <div class="cert-accordion-head" onclick="toggleAccordion('${cert.id}')">
@@ -418,7 +436,7 @@
                 </div>
                 <div class="cert-title-wrap">
                   <h3>${cert.titulo}</h3>
-                  <div class="cert-sub">${cert.area} · ${cert.cursos.length} asignaturas validadas · Nota prom: <b>${cert.promedio}</b></div>
+                  <div class="cert-sub">${cert.area || cert.competencia || 'Tecnologías de la Información'} · ${cursosDetalle.length} asignaturas validadas · Nota prom: <b>${promCalc}</b></div>
                 </div>
               </div>
 
@@ -437,16 +455,20 @@
 
             <div class="cert-accordion-body">
               <div class="courses-table">
-                ${cert.cursos.map(c => `
+                ${cursosDetalle.map(c => `
                   <div class="courses-table-row">
-                    <div class="course-title-sub">${c.nombre}</div>
+                    <div class="course-title-sub">
+                      ${c.codigo ? `<span style="font-family:monospace;font-weight:700;color:#0F848F;">[${c.codigo}]</span> ` : ''}
+                      <b>${c.nombre}</b>
+                      ${c.ciclo ? `<span style="font-size:12px;color:#64748B;font-weight:normal;"> · Ciclo ${c.ciclo}</span>` : ''}
+                    </div>
                     <div class="course-status-side">
-                      <span class="course-grade-badge">Nota: ${c.nota}</span>
+                      <span class="course-grade-badge">Nota: ${Number(c.nota).toFixed(1)}</span>
                       <span class="course-check-tag">
                         <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
                           <polyline points="20 6 9 17 4 12"></polyline>
                         </svg>
-                        Cumple requisito
+                        Cumple requisito (≥ 14.00)
                       </span>
                     </div>
                   </div>
@@ -457,6 +479,13 @@
               <div class="cert-completion-callout">
                 <div class="cert-completion-text">
                   Certificado oficial emitido con firma digital institucional y enviado a tu correo institucional (<b>${me.email}</b>).
+                  ${emitidoSol && emitidoSol.origen ? `
+                    <div style="margin-top:6px;">
+                      <span class="pill ok" style="font-size:11.5px;font-weight:700;background:#E0F4F6;color:#0F848F;border:1px solid #BCE3E6;padding:3px 10px;border-radius:6px;display:inline-flex;align-items:center;gap:6px;">
+                        🎁 Emisión Masiva Institucional Gratuita (${emitidoSol.periodo || 'Cierre de Ciclo'})
+                      </span>
+                    </div>
+                  ` : ''}
                 </div>
 
                 <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">

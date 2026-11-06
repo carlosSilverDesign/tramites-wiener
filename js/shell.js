@@ -43,7 +43,8 @@
     registrar: 'M11,13v3q0,0.43 0.29,0.71T12,17t0.71-0.29Q13,16.43 13,16V13h3q0.43,0 0.71-0.29Q17,12.43 17,12t-0.29-0.71T16,11H13V8q0-0.43-0.29-0.71T12,7T11.29,7.29T11,8v3H8q-0.42,0-0.71,0.29T7,12t0.29,0.71T8,13h3ZM5,21q-0.83,0-1.41-0.59T3,19V5Q3,4.17 3.59,3.59T5,3H19q0.83,0 1.41,0.59T21,5V19q0,0.82-0.59,1.41T19,21H5Zm0-2H19V5H5V19ZM5,5V19V5Z',
 
     config: 'M12 8a4 4 0 1 0 0 8 4 4 0 0 0 0-8zm8.4 4 1.8 1.4-1.8 3.1-2.2-.7a6.9 6.9 0 0 1-1.5.9l-.3 2.3h-3.6l-.3-2.3c-.5-.2-1-.5-1.5-.9l-2.2.7-1.8-3.1L4.6 12l-.2-.9.2-1.1L2.8 8.6l1.8-3.1 2.2.7c.5-.4 1-.7 1.5-.9l.3-2.3h3.6l.3 2.3c.5.2 1 .5 1.5.9l2.2-.7 1.8 3.1L20.6 12z',
-    documentos: 'M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6zm-1 1.5L18.5 9H13V3.5zM6 20V4h5v6h6v10H6zm3-4h6v1.5H9V16zm0-3h6v1.5H9V13zm0-3h3v1.5H9V10z'
+    documentos: 'M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6zm-1 1.5L18.5 9H13V3.5zM6 20V4h5v6h6v10H6zm3-4h6v1.5H9V16zm0-3h6v1.5H9V13zm0-3h3v1.5H9V10z',
+    certificaciones: 'M19 3h-4.18C14.4 1.84 13.3 1 12 1c-1.3 0-2.4.84-2.82 2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-7 0c.55 0 1 .45 1 1s-.45 1-1 1-1-.45-1-1 .45-1 1-1zm-2 14-3.5-3.5 1.41-1.41L10 14.17l6.09-6.09 1.41 1.41L10 17z'
   };
 
   const NAV = {
@@ -78,6 +79,7 @@
       {
         group: 'Configuración', items: [
           { id: 'tramites', label: 'Trámites', href: 'admin/tramites.html', icon: 'tramites' },
+          { id: 'certificaciones', label: 'Certificaciones Progresivas', href: 'admin/certificaciones.html', icon: 'certificaciones' },
           { id: 'usuarios', label: 'Usuarios', href: 'admin/usuarios.html', icon: 'usuarios' },
           { id: 'seguridad', label: 'Seguridad', href: 'admin/seguridad.html', icon: 'seguridad' }
         ]
@@ -712,8 +714,12 @@
     if (!originalParent) return;
     const initialVal = inputEl.value;
 
-    const container = document.createElement('div');
-    container.className = 'custom-date-container';
+    let container = inputEl.closest('.custom-date-container');
+    const isNewContainer = !container;
+    if (isNewContainer) {
+      container = document.createElement('div');
+      container.className = 'custom-date-container';
+    }
 
     const trigger = document.createElement('div');
     trigger.className = 'custom-date-trigger';
@@ -740,7 +746,6 @@
 
     trigger.appendChild(displayInput);
     trigger.appendChild(iconSpan);
-    container.appendChild(trigger);
 
     // Ocultar input original de forma irreversible para que no se duplique
     inputEl.style.setProperty('display', 'none', 'important');
@@ -748,8 +753,13 @@
     inputEl.setAttribute('tabindex', '-1');
     inputEl.setAttribute('aria-hidden', 'true');
 
-    originalParent.insertBefore(container, inputEl);
-    container.appendChild(inputEl);
+    if (isNewContainer) {
+      originalParent.insertBefore(container, inputEl);
+      container.appendChild(trigger);
+      container.appendChild(inputEl);
+    } else {
+      container.insertBefore(trigger, inputEl);
+    }
 
     initDatePicker(container, displayInput, initialVal, (newIso, displayStr) => {
       inputEl.value = newIso;
