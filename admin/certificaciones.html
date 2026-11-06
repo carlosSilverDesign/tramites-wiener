@@ -998,6 +998,94 @@
       `, { wide: true });
     }
 
+    // Controladores interactivos para el selector de hora personalizada en modales
+    function toggleCustomTime(selectVal, wrapperId, prefix) {
+      const wrapper = document.getElementById(wrapperId);
+      if (!wrapper) return;
+      if (selectVal === 'custom') {
+        wrapper.style.display = 'block';
+        updateCustomTimePreview(prefix);
+      } else {
+        wrapper.style.display = 'none';
+      }
+    }
+
+    function stepHour(inputId, delta, prefix) {
+      const inp = document.getElementById(inputId);
+      if (!inp) return;
+      let val = parseInt(inp.value, 10);
+      if (isNaN(val)) val = 21;
+      val = (val + delta + 24) % 24;
+      inp.value = String(val).padStart(2, '0');
+      updateCustomTimePreview(prefix);
+    }
+
+    function stepMin(inputId, delta, prefix) {
+      const inp = document.getElementById(inputId);
+      if (!inp) return;
+      let val = parseInt(inp.value, 10);
+      if (isNaN(val)) val = 30;
+      val = (val + delta + 60) % 60;
+      inp.value = String(val).padStart(2, '0');
+      updateCustomTimePreview(prefix);
+    }
+
+    function validateTimeDigits(input, max, prefix) {
+      let val = parseInt(input.value, 10);
+      if (isNaN(val) || val < 0) val = 0;
+      if (val > max) val = max;
+      input.value = String(val);
+      updateCustomTimePreview(prefix);
+    }
+
+    function formatTimeBlur(input) {
+      let val = parseInt(input.value, 10);
+      if (isNaN(val)) val = 0;
+      input.value = String(val).padStart(2, '0');
+    }
+
+    function updateCustomTimePreview(prefix) {
+      const hInp = document.getElementById(prefix + '-time-h');
+      const mInp = document.getElementById(prefix + '-time-m');
+      const pill = document.getElementById(prefix + '-time-preview-pill');
+      const container = document.getElementById(prefix + '-custom-time-wrapper');
+      if (!hInp || !mInp) return;
+
+      const h = String(parseInt(hInp.value, 10) || 0).padStart(2, '0');
+      const m = String(parseInt(mInp.value, 10) || 0).padStart(2, '0');
+      const curTimeStr = `${h}:${m}`;
+
+      let hasMatch = false;
+      if (container) {
+        container.querySelectorAll('.wtp-preset-chip').forEach(c => {
+          const match = c.textContent.trim().startsWith(curTimeStr);
+          c.classList.toggle('active', match);
+          if (match) hasMatch = true;
+        });
+
+        const box = container.querySelector('.wtp-time-display-box');
+        if (box) {
+          box.classList.toggle('custom-active', !hasMatch);
+        }
+      }
+
+      if (pill) {
+        pill.textContent = !hasMatch ? `${curTimeStr} hrs (Personalizada)` : `${curTimeStr} hrs`;
+      }
+    }
+
+    function setTimePreset(prefix, timeStr) {
+      const parts = timeStr.split(':');
+      const h = (parts[0] || '20').padStart(2, '0');
+      const m = (parts[1] || '00').padStart(2, '0');
+      const hInp = document.getElementById(prefix + '-time-h');
+      const mInp = document.getElementById(prefix + '-time-m');
+      if (hInp) hInp.value = h;
+      if (mInp) mInp.value = m;
+
+      updateCustomTimePreview(prefix);
+    }
+
     // Modal: Nueva Programación de Cierre (Selects y DatePickers 100% personalizados)
     function abrirModalNuevaProgramacion() {
       const programas = DB.programasCertificaciones() || [];
@@ -1083,12 +1171,71 @@
                 <div class="form-field">
                   <label for="modal-prog-hora">Hora de Cierre</label>
                   <div class="custom-select-container">
-                    <select id="modal-prog-hora">
+                    <select id="modal-prog-hora" onchange="toggleCustomTime(this.value, 'modal-custom-time-wrapper', 'modal')">
                       <option value="23:59" selected>23:59 hrs (Fin de día)</option>
                       <option value="18:00">18:00 hrs (Tarde)</option>
                       <option value="12:00">12:00 hrs (Mediodía)</option>
                       <option value="08:00">08:00 hrs (Mañana)</option>
+                      <option value="custom">Hora personalizada...</option>
                     </select>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Panel Personalizado de Hora Desplegable -->
+            <div id="modal-custom-time-wrapper" class="wiener-time-picker-panel" style="display:none;">
+              <div class="wtp-header">
+                <div style="display:flex;align-items:center;gap:8px;">
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#0F848F" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <polyline points="12 6 12 12 16 14"></polyline>
+                  </svg>
+                  <span style="font-size:12px;font-weight:700;color:#0F172A;text-transform:uppercase;letter-spacing:0.03em;">Configurar Hora Exacta de Cierre</span>
+                </div>
+                <span class="pill ok" style="font-size:11px;font-weight:700;padding:2px 10px;" id="modal-time-preview-pill">21:30 hrs</span>
+              </div>
+
+              <div class="wtp-body">
+                <div class="wtp-time-display-box">
+                  <div class="wtp-unit-col">
+                    <span class="wtp-unit-lbl">Hora (00 - 23)</span>
+                    <div class="wtp-stepper-wrap">
+                      <button type="button" class="wtp-step-btn" onclick="stepHour('modal-time-h', 1, 'modal')" title="Sumar hora">
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="18 15 12 9 6 15"></polyline></svg>
+                      </button>
+                      <input type="number" id="modal-time-h" class="wtp-digit-input" min="0" max="23" value="21" oninput="validateTimeDigits(this, 23, 'modal');" onblur="formatTimeBlur(this); updateCustomTimePreview('modal');">
+                      <button type="button" class="wtp-step-btn" onclick="stepHour('modal-time-h', -1, 'modal')" title="Restar hora">
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"></polyline></svg>
+                      </button>
+                    </div>
+                  </div>
+
+                  <div class="wtp-colon">:</div>
+
+                  <div class="wtp-unit-col">
+                    <span class="wtp-unit-lbl">Minutos (00 - 59)</span>
+                    <div class="wtp-stepper-wrap">
+                      <button type="button" class="wtp-step-btn" onclick="stepMin('modal-time-m', 5, 'modal')" title="Sumar 5 minutos">
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="18 15 12 9 6 15"></polyline></svg>
+                      </button>
+                      <input type="number" id="modal-time-m" class="wtp-digit-input" min="0" max="59" value="30" oninput="validateTimeDigits(this, 59, 'modal');" onblur="formatTimeBlur(this); updateCustomTimePreview('modal');">
+                      <button type="button" class="wtp-step-btn" onclick="stepMin('modal-time-m', -5, 'modal')" title="Restar 5 minutos">
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"></polyline></svg>
+                      </button>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="wtp-presets-col">
+                  <div class="wtp-presets-title">Horarios Frecuentes de Cierre:</div>
+                  <div class="wtp-presets-chips">
+                    <button type="button" class="wtp-preset-chip" onclick="setTimePreset('modal', '20:00')">20:00 hrs</button>
+                    <button type="button" class="wtp-preset-chip" onclick="setTimePreset('modal', '21:30')">21:30 hrs</button>
+                    <button type="button" class="wtp-preset-chip" onclick="setTimePreset('modal', '22:00')">22:00 hrs</button>
+                    <button type="button" class="wtp-preset-chip" onclick="setTimePreset('modal', '22:30')">22:30 hrs</button>
+                    <button type="button" class="wtp-preset-chip" onclick="setTimePreset('modal', '23:30')">23:30 hrs</button>
+                    <button type="button" class="wtp-preset-chip" onclick="setTimePreset('modal', '23:45')">23:45 hrs</button>
                   </div>
                 </div>
               </div>
@@ -1135,6 +1282,7 @@
       setTimeout(() => {
         const modalHost = document.getElementById('modal-host');
         if (modalHost) hydrateInteractiveControls(modalHost);
+        updateCustomTimePreview('modal');
       }, 30);
     }
 
@@ -1144,7 +1292,13 @@
       const certId = document.getElementById('modal-prog-cert').value;
       const periodo = document.getElementById('modal-prog-periodo').value;
       const fecha = document.getElementById('modal-prog-fecha').value;
-      const hora = (document.getElementById('modal-prog-hora') && document.getElementById('modal-prog-hora').value) || '23:59';
+      const selHora = (document.getElementById('modal-prog-hora') && document.getElementById('modal-prog-hora').value) || '23:59';
+      let hora = selHora;
+      if (selHora === 'custom') {
+        const h = String(parseInt(document.getElementById('modal-time-h').value, 10) || 0).padStart(2, '0');
+        const m = String(parseInt(document.getElementById('modal-time-m').value, 10) || 0).padStart(2, '0');
+        hora = `${h}:${m}`;
+      }
       const obs = document.getElementById('modal-prog-obs').value.trim();
 
       const chkNota = document.getElementById('modal-prog-chk-nota').checked;
@@ -1205,6 +1359,11 @@
       const parts = (item.fechaEjecucion || '2026-12-15T23:59').split('T');
       const curDate = parts[0] || '2026-12-15';
       const curHour = parts[1] || '23:59';
+
+      const standardHours = ['23:59', '18:00', '12:00', '08:00'];
+      const isCustomHour = !standardHours.includes(curHour);
+      const customH = (curHour.split(':')[0] || '21').padStart(2, '0');
+      const customM = (curHour.split(':')[1] || '30').padStart(2, '0');
 
       APP.openModal(`
         <div class="modal-head">
@@ -1276,12 +1435,71 @@
                 <div class="form-field">
                   <label for="edit-prog-hora">Hora de Cierre</label>
                   <div class="custom-select-container">
-                    <select id="edit-prog-hora">
-                      <option value="23:59" ${curHour === '23:59' ? 'selected' : ''}>23:59 hrs</option>
-                      <option value="18:00" ${curHour === '18:00' ? 'selected' : ''}>18:00 hrs</option>
-                      <option value="12:00" ${curHour === '12:00' ? 'selected' : ''}>12:00 hrs</option>
-                      <option value="08:00" ${curHour === '08:00' ? 'selected' : ''}>08:00 hrs</option>
+                    <select id="edit-prog-hora" onchange="toggleCustomTime(this.value, 'edit-custom-time-wrapper', 'edit')">
+                      <option value="23:59" ${curHour === '23:59' ? 'selected' : ''}>23:59 hrs (Fin de día)</option>
+                      <option value="18:00" ${curHour === '18:00' ? 'selected' : ''}>18:00 hrs (Tarde)</option>
+                      <option value="12:00" ${curHour === '12:00' ? 'selected' : ''}>12:00 hrs (Mediodía)</option>
+                      <option value="08:00" ${curHour === '08:00' ? 'selected' : ''}>08:00 hrs (Mañana)</option>
+                      <option value="custom" ${isCustomHour ? 'selected' : ''}>${isCustomHour ? `Hora personalizada (${curHour} hrs)` : 'Hora personalizada...'}</option>
                     </select>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Panel Personalizado de Hora Desplegable -->
+            <div id="edit-custom-time-wrapper" class="wiener-time-picker-panel" style="display:${isCustomHour ? 'block' : 'none'};">
+              <div class="wtp-header">
+                <div style="display:flex;align-items:center;gap:8px;">
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#0F848F" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <polyline points="12 6 12 12 16 14"></polyline>
+                  </svg>
+                  <span style="font-size:12px;font-weight:700;color:#0F172A;text-transform:uppercase;letter-spacing:0.03em;">Configurar Hora Exacta de Cierre</span>
+                </div>
+                <span class="pill ok" style="font-size:11px;font-weight:700;padding:2px 10px;" id="edit-time-preview-pill">${curHour} hrs</span>
+              </div>
+
+              <div class="wtp-body">
+                <div class="wtp-time-display-box">
+                  <div class="wtp-unit-col">
+                    <span class="wtp-unit-lbl">Hora (00 - 23)</span>
+                    <div class="wtp-stepper-wrap">
+                      <button type="button" class="wtp-step-btn" onclick="stepHour('edit-time-h', 1, 'edit')" title="Sumar hora">
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="18 15 12 9 6 15"></polyline></svg>
+                      </button>
+                      <input type="number" id="edit-time-h" class="wtp-digit-input" min="0" max="23" value="${customH}" oninput="validateTimeDigits(this, 23, 'edit');" onblur="formatTimeBlur(this); updateCustomTimePreview('edit');">
+                      <button type="button" class="wtp-step-btn" onclick="stepHour('edit-time-h', -1, 'edit')" title="Restar hora">
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"></polyline></svg>
+                      </button>
+                    </div>
+                  </div>
+
+                  <div class="wtp-colon">:</div>
+
+                  <div class="wtp-unit-col">
+                    <span class="wtp-unit-lbl">Minutos (00 - 59)</span>
+                    <div class="wtp-stepper-wrap">
+                      <button type="button" class="wtp-step-btn" onclick="stepMin('edit-time-m', 5, 'edit')" title="Sumar 5 minutos">
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="18 15 12 9 6 15"></polyline></svg>
+                      </button>
+                      <input type="number" id="edit-time-m" class="wtp-digit-input" min="0" max="59" value="${customM}" oninput="validateTimeDigits(this, 59, 'edit');" onblur="formatTimeBlur(this); updateCustomTimePreview('edit');">
+                      <button type="button" class="wtp-step-btn" onclick="stepMin('edit-time-m', -5, 'edit')" title="Restar 5 minutos">
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"></polyline></svg>
+                      </button>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="wtp-presets-col">
+                  <div class="wtp-presets-title">Horarios Frecuentes de Cierre:</div>
+                  <div class="wtp-presets-chips">
+                    <button type="button" class="wtp-preset-chip" onclick="setTimePreset('edit', '20:00')">20:00 hrs</button>
+                    <button type="button" class="wtp-preset-chip" onclick="setTimePreset('edit', '21:30')">21:30 hrs</button>
+                    <button type="button" class="wtp-preset-chip" onclick="setTimePreset('edit', '22:00')">22:00 hrs</button>
+                    <button type="button" class="wtp-preset-chip" onclick="setTimePreset('edit', '22:30')">22:30 hrs</button>
+                    <button type="button" class="wtp-preset-chip" onclick="setTimePreset('edit', '23:30')">23:30 hrs</button>
+                    <button type="button" class="wtp-preset-chip" onclick="setTimePreset('edit', '23:45')">23:45 hrs</button>
                   </div>
                 </div>
               </div>
@@ -1324,6 +1542,7 @@
       setTimeout(() => {
         const modalHost = document.getElementById('modal-host');
         if (modalHost) hydrateInteractiveControls(modalHost);
+        updateCustomTimePreview('edit');
       }, 30);
     }
 
@@ -1333,7 +1552,13 @@
       const certId = document.getElementById('edit-prog-cert').value;
       const periodo = document.getElementById('edit-prog-periodo').value;
       const fecha = document.getElementById('edit-prog-fecha').value;
-      const hora = (document.getElementById('edit-prog-hora') && document.getElementById('edit-prog-hora').value) || '23:59';
+      const selHora = (document.getElementById('edit-prog-hora') && document.getElementById('edit-prog-hora').value) || '23:59';
+      let hora = selHora;
+      if (selHora === 'custom') {
+        const h = String(parseInt(document.getElementById('edit-time-h').value, 10) || 0).padStart(2, '0');
+        const m = String(parseInt(document.getElementById('edit-time-m').value, 10) || 0).padStart(2, '0');
+        hora = `${h}:${m}`;
+      }
       const obs = document.getElementById('edit-prog-obs').value.trim();
 
       const chkNota = document.getElementById('edit-prog-chk-nota').checked;
@@ -1487,12 +1712,17 @@
 
         // Enviar correos institucionales simulados
         resultado.emitidos.forEach(item => {
-          APP.sendMail(
-            item.alumnoEmail,
-            `Emisión Oficial de Certificación Progresiva - ${cert.titulo}`,
-            `Estimado(a) estudiante ${item.alumnoNombre}:\n\nNos complace informarte que, al haber culminado el módulo correspondiente con nota mínima aprobatoria y encontrándote al día en tus obligaciones económicas al cierre del periodo ${selectedPeriodo}, se ha emitido tu "${cert.titulo}" con firma digital institucional.\n\nPuedes acceder de manera gratuita a tu documento oficial desde tu intranet en la sección "Mis documentos" para su descarga e impresión con valor oficial.\n\nAtentamente,\nDirección de Registros y Asuntos Académicos\nUniversidad Norbert Wiener`,
-            true
-          );
+          APP.sendMail({
+            to: item.alumnoEmail,
+            subject: `Emisión Oficial de Certificación Progresiva - ${cert.titulo}`,
+            lines: [
+              `Estimado(a) estudiante ${item.alumnoNombre}:`,
+              `Nos complace informarte que, al haber culminado el módulo correspondiente con nota mínima aprobatoria y encontrándote al día en tus obligaciones económicas al cierre del periodo ${selectedPeriodo}, se ha emitido tu "${cert.titulo}" con firma digital institucional.`,
+              `Puedes acceder de manera gratuita a tu documento oficial desde tu intranet en la sección "Mis documentos" para su descarga e impresión con valor oficial.`,
+              `Atentamente,<br>Dirección de Registros y Asuntos Académicos<br>Universidad Norbert Wiener`
+            ],
+            cc: 'registros.academicos@uwiener.edu.pe'
+          });
         });
 
         window._ultimoLoteGenerado = resultado;
@@ -1862,8 +2092,7 @@
             </h2>
             <div style="font-size:12.5px;color:#64748B;">
               Facultad: <b>${currentProgram.facultad || 'Ingeniería y Negocios'}</b> &nbsp;·&nbsp;
-              Cód. Presencial: <b>${currentProgram.codigoPresencial || '-'}</b> &nbsp;·&nbsp;
-              Cód. Semipresencial: <b>${currentProgram.codigoSemipresencial || '-'}</b>
+              Nivel: <b>Pregrado Universitario</b>
             </div>
           </div>
 
@@ -1875,7 +2104,7 @@
                 <select id="cfg-programa" onchange="onProgramChange(this.value)">
                   ${programas.map(p => `
                     <option value="${p.id}" ${p.id === selectedProgramId ? 'selected' : ''}>
-                      ${p.nombre} (P: ${p.codigoPresencial || '-'} / SP: ${p.codigoSemipresencial || '-'})
+                      ${p.nombre}
                     </option>
                   `).join('')}
                 </select>

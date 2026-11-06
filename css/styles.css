@@ -1005,6 +1005,173 @@ body.modal-open {
   width: 100%;
 }
 
+/* =========================================================================
+   PANEL PERSONALIZADO DE HORA (WIENER TIME PICKER UI)
+   ========================================================================= */
+.wiener-time-picker-panel {
+  background: #F8FAFC;
+  border: 1px solid #CBD5E1;
+  border-radius: 10px;
+  padding: 14px 16px;
+  margin-top: 10px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.04);
+  animation: fadeInDropdown 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.wtp-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-bottom: 10px;
+  margin-bottom: 12px;
+  border-bottom: 1px dashed #E2E8F0;
+}
+
+.wtp-body {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  flex-wrap: wrap;
+}
+
+.wtp-time-display-box {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: #FFFFFF;
+  border: 1.5px solid #CBD5E1;
+  border-radius: 8px;
+  padding: 8px 14px;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
+}
+
+.wtp-time-display-box.custom-active {
+  border: 1.5px solid #0F848F !important;
+  background: #F0F9FA !important;
+  box-shadow: 0 0 0 3px rgba(15, 132, 143, 0.15) !important;
+}
+
+.wtp-unit-col {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+}
+
+.wtp-unit-lbl {
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  color: #64748B;
+  letter-spacing: 0.04em;
+}
+
+.wtp-stepper-wrap {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.wtp-step-btn {
+  width: 26px;
+  height: 26px;
+  border-radius: 6px;
+  border: 1px solid #CBD5E1;
+  background: #F8FAFC;
+  color: #334155;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  padding: 0;
+}
+
+.wtp-step-btn:hover {
+  background: #E0F4F6;
+  border-color: #0F848F;
+  color: #0F848F;
+}
+
+.wtp-digit-input {
+  width: 48px;
+  height: 38px;
+  text-align: center;
+  font-family: 'Lato', monospace, sans-serif;
+  font-size: 20px;
+  font-weight: 900;
+  color: #0F172A;
+  border: 1px solid #CBD5E1;
+  border-radius: 6px;
+  background: #FFFFFF;
+  outline: none;
+  transition: border-color 0.2s, box-shadow 0.2s;
+  -moz-appearance: textfield;
+}
+
+.wtp-digit-input::-webkit-outer-spin-button,
+.wtp-digit-input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+.wtp-digit-input:focus {
+  border-color: #0F848F;
+  box-shadow: 0 0 0 3px rgba(15, 132, 143, 0.15);
+}
+
+.wtp-colon {
+  font-size: 22px;
+  font-weight: 900;
+  color: #0F848F;
+  line-height: 1;
+  margin-top: 14px;
+}
+
+.wtp-presets-col {
+  flex: 1;
+  min-width: 220px;
+}
+
+.wtp-presets-title {
+  font-size: 11px;
+  font-weight: 700;
+  color: #64748B;
+  text-transform: uppercase;
+  margin-bottom: 6px;
+  letter-spacing: 0.03em;
+}
+
+.wtp-presets-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.wtp-preset-chip {
+  padding: 4px 10px;
+  border-radius: 6px;
+  border: 1px solid #CBD5E1;
+  background: #FFFFFF;
+  font-size: 11.5px;
+  font-weight: 600;
+  color: #334155;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.wtp-preset-chip:hover {
+  background: #E0F4F6;
+  border-color: #0F848F;
+  color: #0F848F;
+}
+
+.wtp-preset-chip.active {
+  background: #0F848F;
+  border-color: #0F848F;
+  color: #FFFFFF;
+}
+
 @keyframes pop {
   from {
     transform: translateY(12px) scale(.98);

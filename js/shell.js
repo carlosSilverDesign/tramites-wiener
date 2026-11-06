@@ -225,6 +225,10 @@
     let ic = 'bell';
     let timeout = 5200;
 
+    if (arg1 === null || arg1 === undefined) {
+      return;
+    }
+
     if (typeof arg1 === 'string') {
       if (typeof arg2 === 'string' && arg3 !== undefined) {
         // Formato toast(titulo, mensaje, icono)
@@ -232,21 +236,27 @@
         body = arg2;
         ic = arg3;
       } else if (typeof arg2 === 'string') {
-        // Formato toast(mensaje, tipo)
-        body = arg1;
         const type = arg2.toLowerCase();
-        if (type === 'ok' || type === 'success') {
-          title = 'Operación exitosa';
-          ic = 'ok';
-        } else if (type === 'warn' || type === 'warning') {
-          title = 'Atención';
-          ic = 'warn';
-        } else if (type === 'error' || type === 'danger') {
-          title = 'Aviso del sistema';
-          ic = 'warn';
-        } else {
-          title = 'Notificación';
+        if (['ok', 'success', 'warn', 'warning', 'error', 'danger', 'info', 'mail', 'bell'].includes(type)) {
+          // Formato toast(mensaje, tipo/icono)
+          body = arg1;
           ic = arg2;
+          if (type === 'ok' || type === 'success') {
+            title = 'Operación exitosa';
+          } else if (type === 'warn' || type === 'warning') {
+            title = 'Atención';
+          } else if (type === 'error' || type === 'danger') {
+            title = 'Aviso del sistema';
+          } else if (type === 'mail') {
+            title = 'Correo institucional';
+          } else {
+            title = 'Notificación institucional';
+          }
+        } else {
+          // Formato toast(titulo, mensaje)
+          title = arg1;
+          body = arg2;
+          ic = 'bell';
         }
       } else {
         // Formato toast(mensaje)
@@ -254,19 +264,27 @@
         title = 'Notificación institucional';
         ic = 'bell';
       }
-    } else if (arg1 && typeof arg1 === 'object') {
+    } else if (typeof arg1 === 'object') {
       title = arg1.title || '';
-      body = arg1.body || '';
-      ic = arg1.icon || 'bell';
+      body = arg1.body || arg1.message || arg1.msg || arg1.text || arg1.description || '';
+      ic = arg1.icon || arg1.tipo || arg1.type || 'bell';
       timeout = arg1.timeout || 5200;
     }
 
+    // Limpieza estricta de literales 'undefined' o valores nulos
+    if (title === 'undefined' || !title) title = '';
+    if (body === 'undefined' || !body) body = '';
+
     // Si solo viene cuerpo sin título, usar título por defecto según icono
     if (!title && body) {
-      if (ic === 'ok' || ic === '✅') title = 'Operación exitosa';
-      else if (ic === 'warn' || ic === 'error' || ic === '⚠️') title = 'Atención';
+      if (ic === 'ok' || ic === '✅' || ic === 'success') title = 'Operación exitosa';
+      else if (ic === 'warn' || ic === 'error' || ic === '⚠️' || ic === 'danger') title = 'Atención';
+      else if (ic === 'mail' || ic === '✉️') title = 'Correo institucional';
       else title = 'Notificación institucional';
     }
+
+    // Si tanto título como cuerpo están vacíos, no mostrar toast
+    if (!title && !body) return;
 
     let host = document.getElementById('toast-host');
     if (!host) {
@@ -299,11 +317,33 @@
     setTimeout(() => { el.style.opacity = '0'; el.style.transition = 'opacity .3s'; setTimeout(() => el.remove(), 300); }, timeout);
   }
 
-  // Simula el envío de correo al alumno + copia (CC) al administrativo responsable
-  function sendMail({ to, cc, subject, lines }) {
+  // Simula el envío de correo al alumno + copia (CC) al administrativo responsable (admite objeto o argumentos posicionales)
+  function sendMail(arg1, arg2, arg3, arg4) {
+    let to = '', cc = '', subject = '', lines = [];
+    if (typeof arg1 === 'string') {
+      to = arg1;
+      subject = arg2 || 'Notificación Wiener';
+      if (Array.isArray(arg3)) {
+        lines = arg3;
+      } else if (typeof arg3 === 'string') {
+        lines = arg3.split('\n').filter(Boolean);
+      }
+      cc = typeof arg4 === 'string' ? arg4 : (arg4 ? 'registros.academicos@uwiener.edu.pe' : '');
+    } else if (arg1 && typeof arg1 === 'object') {
+      to = arg1.to || '';
+      cc = arg1.cc || '';
+      subject = arg1.subject || 'Notificación Wiener';
+      if (Array.isArray(arg1.lines)) {
+        lines = arg1.lines;
+      } else if (typeof arg1.lines === 'string') {
+        lines = [arg1.lines];
+      } else if (typeof arg1.body === 'string') {
+        lines = arg1.body.split('\n').filter(Boolean);
+      }
+    }
     const body = lines.join('<br>');
-    toast({ icon: 'mail', title: 'Correo enviado → ' + to, body: `<b>Asunto:</b> ${subject}<br>${body}` });
-    if (cc) setTimeout(() => toast({ icon: 'copy', title: 'Copia (CC) → ' + cc, body: `<b>Asunto:</b> ${subject}` }), 700);
+    toast({ icon: 'mail', title: 'Correo enviado -> ' + (to || 'alumno@uwiener.edu.pe'), body: `<b>Asunto:</b> ${subject}<br>${body}` });
+    if (cc) setTimeout(() => toast({ icon: 'copy', title: 'Copia (CC) -> ' + cc, body: `<b>Asunto:</b> ${subject}` }), 700);
     console.log('[MAIL]', { to, cc, subject, lines });
   }
 
