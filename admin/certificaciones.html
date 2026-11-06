@@ -861,11 +861,29 @@
       }
     }
 
-    // Modal: Detalle completo de un Lote de Emisión Masiva
+    // Navegación segura hacia el perfil del alumno con sincronización de sesión
+    function irAPerfilAlumno(codigo = '2021100345') {
+      const alumno = (DB.usuarios() || []).find(u => u.codigo === codigo || u.id === codigo)
+                  || (DB.usuarios() || []).find(u => u.rol === 'alumno' && u.estado === 'activo');
+      if (alumno) {
+        APP.setSession({
+          id: alumno.id,
+          nombre: alumno.nombre,
+          rol: alumno.rol,
+          email: alumno.email,
+          area: alumno.area || '',
+          codigo: alumno.codigo,
+          perfil: alumno.perfil || {}
+        });
+      }
+      window.location.href = `../alumno/mis-documentos.html?codigo=${codigo}`;
+    }
+
+    // Modal: Detalle completo de un Lote de Emisión Masiva (Soporte integral scroll horizontal)
     function verDetalleLote(loteId) {
       const lote = DB.getLoteEmision(loteId);
       if (!lote) {
-        APP.toast('Lote no encontrado', 'error');
+        APP.toast({ icon: 'warn', title: 'Aviso del sistema', body: 'Lote no encontrado' });
         return;
       }
 
@@ -917,21 +935,23 @@
             <span class="pill ok" style="font-size:11px;">Trámite Gratuito (S/ 0.00)</span>
           </h4>
 
-          <div style="border:1px solid #CBD5E1;border-radius:8px;overflow:hidden;max-height:300px;overflow-y:auto;">
-            <table class="vt-table">
+          <!-- Contenedor con Scroll Horizontal Garantizado en Modal Wide -->
+          <div class="modal-table-wrap" style="border:1px solid #CBD5E1;border-radius:8px;max-height:330px;overflow-x:auto !important;overflow-y:auto;-webkit-overflow-scrolling:touch;">
+            <table class="vt-table" style="min-width:820px;width:100%;margin:0;">
               <thead>
                 <tr>
-                  <th style="width:120px;">N° Folio / Sol.</th>
-                  <th>Estudiante</th>
-                  <th>Correo Institucional</th>
-                  <th style="text-align:center;">Fecha y Firma</th>
-                  <th style="text-align:center;">Estado</th>
+                  <th style="width:130px;white-space:nowrap;">N° Folio / Sol.</th>
+                  <th style="min-width:200px;white-space:nowrap;">Estudiante Acreditado</th>
+                  <th style="min-width:220px;white-space:nowrap;">Correo Institucional</th>
+                  <th style="width:140px;text-align:center;white-space:nowrap;">Fecha y Firma</th>
+                  <th style="width:120px;text-align:center;white-space:nowrap;">Estado Emisión</th>
+                  <th style="width:120px;text-align:center;white-space:nowrap;">Perfil Alumno</th>
                 </tr>
               </thead>
               <tbody>
                 ${alumnos.length === 0 ? `
                   <tr>
-                    <td colspan="5" style="text-align:center;padding:24px;color:#64748B;">
+                    <td colspan="6" style="text-align:center;padding:24px;color:#64748B;">
                       No se encontraron registros individuales en el detalle de este lote.
                     </td>
                   </tr>
@@ -943,15 +963,21 @@
                   const fch = alu.fecha || lote.fechaFormato || lote.fecha;
                   return `
                     <tr>
-                      <td style="font-family:monospace;font-weight:700;color:#0F848F;">${fol}</td>
-                      <td><b>${nom}</b><div style="font-size:11.5px;color:#64748B;font-family:monospace;">Cód: ${cod}</div></td>
-                      <td><span style="font-family:monospace;color:#334155;">${mail}</span></td>
+                      <td style="font-family:monospace;font-weight:700;color:#0F848F;white-space:nowrap;">${fol}</td>
+                      <td style="white-space:nowrap;"><b>${nom}</b><div style="font-size:11.5px;color:#64748B;font-family:monospace;">Cód: ${cod}</div></td>
+                      <td style="white-space:nowrap;"><span style="font-family:monospace;color:#334155;">${mail}</span></td>
                       <td style="text-align:center;font-size:12px;color:#64748B;white-space:nowrap;">${fch}</td>
-                      <td style="text-align:center;">
-                        <span class="pill ok" style="font-size:10.5px;">
-                          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                      <td style="text-align:center;white-space:nowrap;">
+                        <span class="pill ok" style="font-size:10.5px;font-weight:700;display:inline-flex;align-items:center;gap:4px;">
+                          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>
                           Notificado
                         </span>
+                      </td>
+                      <td style="text-align:center;white-space:nowrap;">
+                        <button type="button" class="btn btn-ghost btn-sm" onclick="APP.closeModal(); irAPerfilAlumno('${cod}')" title="Ver documentos de ${nom}" style="display:inline-flex;align-items:center;gap:4px;font-size:11.5px;padding:3px 8px;color:#0F848F;">
+                          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path><polyline points="15 3 21 3 21 9"></polyline><line x1="10" y1="14" x2="21" y2="3"></line></svg>
+                          <span>Ver alumno</span>
+                        </button>
                       </td>
                     </tr>
                   `;
@@ -1126,11 +1152,11 @@
       const chkDup = document.getElementById('modal-prog-chk-dup').checked;
 
       if (!nombre) {
-        APP.toast('Ingresa un nombre para la programación', 'warn');
+        APP.toast({ icon: 'warn', title: 'Campo obligatorio', body: 'Ingresa un nombre para la programación.' });
         return;
       }
       if (!fecha) {
-        APP.toast('Selecciona la fecha de ejecución', 'warn');
+        APP.toast({ icon: 'warn', title: 'Campo obligatorio', body: 'Selecciona la fecha de ejecución programada.' });
         return;
       }
 
@@ -1157,7 +1183,7 @@
       });
 
       APP.closeModal();
-      APP.toast('Programación registrada y activada con éxito', 'ok');
+      APP.toast({ icon: 'ok', title: 'Programación registrada', body: 'La tarea masiva se incorporó activamente al cronograma institucional.' });
       setMainTab('programacion');
     }
 
@@ -1166,7 +1192,7 @@
       const progs = DB.programacionesEmision() || [];
       const item = progs.find(p => p.id === progId);
       if (!item) {
-        APP.toast('Programación no encontrada', 'error');
+        APP.toast({ icon: 'warn', title: 'Aviso del sistema', body: 'Programación no encontrada' });
         return;
       }
 
@@ -1336,14 +1362,14 @@
       });
 
       APP.closeModal();
-      APP.toast('Programación actualizada correctamente', 'ok');
+      APP.toast({ icon: 'ok', title: 'Programación actualizada', body: 'Los cambios fueron guardados exitosamente.' });
       renderPage();
     }
 
     function eliminarProgramacion(id) {
       if (confirm('¿Estás seguro de eliminar esta programación de cierre?')) {
         DB.eliminarProgramacionEmision(id);
-        APP.toast('Programación eliminada del cronograma', 'ok');
+        APP.toast({ icon: 'ok', title: 'Programación eliminada', body: 'La tarea masiva fue retirada del cronograma.' });
         renderPage();
       }
     }
@@ -1351,7 +1377,8 @@
     function togglePausa(id) {
       const res = DB.togglePausaProgramacion(id);
       if (res) {
-        APP.toast(`Programación ${res.estado === 'Pausado' ? 'pausada temporalmente' : 'reactivada con éxito'}`, 'ok');
+        const estadoTxt = res.estado === 'Pausado' ? 'pausada temporalmente' : 'reactivada con éxito';
+        APP.toast({ icon: 'ok', title: 'Estado actualizado', body: `La programación fue ${estadoTxt}.` });
         renderPage();
       }
     }
@@ -1516,14 +1543,14 @@
               </div>
 
               <div style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap;">
-                <a href="../alumno/mis-documentos.html" class="btn btn-primary" style="display:inline-flex;align-items:center;gap:8px;">
+                <button type="button" class="btn btn-primary" onclick="APP.closeModal(); irAPerfilAlumno('2021100345');" style="display:inline-flex;align-items:center;gap:8px;">
                   <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
                     <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path>
                     <polyline points="15 3 21 3 21 9"></polyline>
                     <line x1="10" y1="14" x2="21" y2="3"></line>
                   </svg>
                   <span>Ver en perfil Alumno (Mis documentos)</span>
-                </a>
+                </button>
                 <button class="btn btn-outline" onclick="APP.closeModal(); renderPage();">
                   Ver en Histórico de Lotes
                 </button>
@@ -1547,7 +1574,7 @@
     function reiniciarDataDemo() {
       if (confirm('¿Deseas reiniciar la data de prueba de emisión de certificaciones para volver a realizar la demostración completa?')) {
         DB.resetCertificaciones();
-        APP.toast('Data de prueba de certificaciones reiniciada a valores base', 'ok');
+        APP.toast({ icon: 'ok', title: 'Data restablecida', body: 'Data de prueba de certificaciones reiniciada a valores base.' });
         renderPage();
       }
     }
@@ -1611,14 +1638,14 @@
               </svg>
               <span>Reiniciar data demo</span>
             </button>
-            <a href="../alumno/mis-documentos.html" class="btn btn-secondary" style="display:inline-flex;align-items:center;gap:6px;">
+            <button type="button" class="btn btn-secondary" onclick="irAPerfilAlumno('2021100345')" style="display:inline-flex;align-items:center;gap:6px;">
               <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
                 <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path>
                 <polyline points="15 3 21 3 21 9"></polyline>
                 <line x1="10" y1="14" x2="21" y2="3"></line>
               </svg>
               <span>Ver perfil Alumno</span>
-            </a>
+            </button>
           </div>
         </div>
 

@@ -219,7 +219,55 @@
   }
 
   // -------- Toast / simulación de correo con iconos SVG --------
-  function toast({ title, body, icon: ic = 'bell', timeout = 5200 }) {
+  function toast(arg1, arg2, arg3) {
+    let title = '';
+    let body = '';
+    let ic = 'bell';
+    let timeout = 5200;
+
+    if (typeof arg1 === 'string') {
+      if (typeof arg2 === 'string' && arg3 !== undefined) {
+        // Formato toast(titulo, mensaje, icono)
+        title = arg1;
+        body = arg2;
+        ic = arg3;
+      } else if (typeof arg2 === 'string') {
+        // Formato toast(mensaje, tipo)
+        body = arg1;
+        const type = arg2.toLowerCase();
+        if (type === 'ok' || type === 'success') {
+          title = 'Operación exitosa';
+          ic = 'ok';
+        } else if (type === 'warn' || type === 'warning') {
+          title = 'Atención';
+          ic = 'warn';
+        } else if (type === 'error' || type === 'danger') {
+          title = 'Aviso del sistema';
+          ic = 'warn';
+        } else {
+          title = 'Notificación';
+          ic = arg2;
+        }
+      } else {
+        // Formato toast(mensaje)
+        body = arg1;
+        title = 'Notificación institucional';
+        ic = 'bell';
+      }
+    } else if (arg1 && typeof arg1 === 'object') {
+      title = arg1.title || '';
+      body = arg1.body || '';
+      ic = arg1.icon || 'bell';
+      timeout = arg1.timeout || 5200;
+    }
+
+    // Si solo viene cuerpo sin título, usar título por defecto según icono
+    if (!title && body) {
+      if (ic === 'ok' || ic === '✅') title = 'Operación exitosa';
+      else if (ic === 'warn' || ic === 'error' || ic === '⚠️') title = 'Atención';
+      else title = 'Notificación institucional';
+    }
+
     let host = document.getElementById('toast-host');
     if (!host) {
       host = document.createElement('div');
@@ -234,9 +282,9 @@
       iconSvg = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></svg>';
     } else if (ic === '📋' || ic === 'copy') {
       iconSvg = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path><rect x="8" y="2" width="8" height="4" rx="1" ry="1"></rect></svg>';
-    } else if (ic === '⚠️' || ic === 'warn') {
+    } else if (ic === '⚠️' || ic === 'warn' || ic === 'error') {
       iconSvg = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#D97706" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>';
-    } else if (ic === '✅' || ic === 'ok') {
+    } else if (ic === '✅' || ic === 'ok' || ic === 'success') {
       iconSvg = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#278B52" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;"><polyline points="20 6 9 17 4 12"></polyline></svg>';
     } else if (typeof ic === 'string' && ic.startsWith('<svg')) {
       iconSvg = ic;
@@ -244,7 +292,9 @@
       iconSvg = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>';
     }
 
-    el.innerHTML = `<div class="t-title" style="display:flex;align-items:center;gap:8px;">${iconSvg} <span>${title}</span></div><div class="t-body">${body}</div>`;
+    const titleMarkup = title ? `<div class="t-title" style="display:flex;align-items:center;gap:8px;">${iconSvg} <span>${title}</span></div>` : '';
+    const bodyMarkup = body ? `<div class="t-body">${body}</div>` : '';
+    el.innerHTML = `${titleMarkup}${bodyMarkup}`;
     host.appendChild(el);
     setTimeout(() => { el.style.opacity = '0'; el.style.transition = 'opacity .3s'; setTimeout(() => el.remove(), 300); }, timeout);
   }
