@@ -458,12 +458,43 @@
       cursor: pointer;
     }
 
+    /* Scroll horizontal responsivo garantizado para las tablas */
+    .table-wrap {
+      overflow-x: auto !important;
+      -webkit-overflow-scrolling: touch;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      background: var(--surface);
+    }
+
+    .table-wrap::-webkit-scrollbar {
+      height: 7px;
+    }
+    .table-wrap::-webkit-scrollbar-track {
+      background: #F8FAFC;
+      border-radius: 4px;
+    }
+    .table-wrap::-webkit-scrollbar-thumb {
+      background: #CBD5E1;
+      border-radius: 4px;
+    }
+    .table-wrap::-webkit-scrollbar-thumb:hover {
+      background: #94A3B8;
+    }
+
+    .table-wrap table.data {
+      min-width: 1040px;
+      width: 100%;
+    }
+
     /* Grilla de 4 acciones (2 arriba, 2 abajo) del mismo tamaño + botón eliminar */
     .action-cell-wrap {
       display: inline-flex;
       align-items: center;
       justify-content: center;
       gap: 6px;
+      white-space: nowrap;
+      flex-shrink: 0;
     }
 
     .action-grid-2x2 {
@@ -666,6 +697,22 @@
     .flow-container-wrap {
       overflow-x: auto;
       padding: 6px 2px 10px 2px;
+      -webkit-overflow-scrolling: touch;
+    }
+
+    .flow-container-wrap::-webkit-scrollbar {
+      height: 6px;
+    }
+    .flow-container-wrap::-webkit-scrollbar-track {
+      background: #F1F5F9;
+      border-radius: 4px;
+    }
+    .flow-container-wrap::-webkit-scrollbar-thumb {
+      background: #CBD5E1;
+      border-radius: 4px;
+    }
+    .flow-container-wrap::-webkit-scrollbar-thumb:hover {
+      background: #94A3B8;
     }
 
     .flow-line-diagram {
@@ -673,6 +720,7 @@
       align-items: center;
       gap: 0;
       min-width: max-content;
+      flex-wrap: nowrap;
     }
 
     .flow-card-node {
@@ -685,6 +733,7 @@
       position: relative;
       transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
       user-select: none;
+      flex-shrink: 0;
     }
 
     .flow-card-node b {
@@ -741,10 +790,9 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      color: #94A3B8;
+      color: #5f6368;
       padding: 0 6px;
-      font-size: 18px;
-      font-weight: 700;
+      flex-shrink: 0;
     }
 
     .flow-card-node.clickable {
@@ -1151,7 +1199,7 @@
             <td style="text-align:center">
               <span class="muted" style="font-size:12.5px;white-space:nowrap">${t.fechaRegistro || '2026-07-19'}</span>
             </td>
-            <td style="text-align:center;white-space:nowrap">
+            <td style="text-align:center;white-space:nowrap;min-width:215px">
               <div class="action-cell-wrap">
                 <div class="action-grid-2x2">
                   <button type="button" class="btn-grid-act" title="Editar datos generales y concepto" onclick="editarTramite('${t.id}')">
@@ -1214,7 +1262,7 @@
                 <th style="min-width:140px;width:16%">Observación</th>
                 <th style="width:90px;text-align:center">Estado</th>
                 <th style="width:110px;text-align:center">Fecha reg.</th>
-                <th style="width:190px;text-align:center">Acciones</th>
+                <th style="width:215px;min-width:215px;text-align:center">Acciones</th>
               </tr>
             </thead>
             <tbody>
@@ -1449,7 +1497,7 @@
 
     function renderModalFlowNodes({ id, area, proceso, requiereApr, esPago, pagoMomento, costo, dias, reqCount, isSaved }) {
       const arrow = `<div class="flow-arrow-conn">
-          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" height="24px" width="24px" fill="#09A5B1"><path d="M16.61,12.75H5.25q-0.32,0-0.53-0.22T4.5,12t0.22-0.53t0.53-0.22H16.61L13.32,7.96Q13.1,7.73 13.1,7.44T13.32,6.9q0.23-0.23 0.53-0.24t0.53,0.22l4.48,4.48q0.14,0.14 0.2,0.3T19.12,12t-0.06,0.34t-0.2,0.3l-4.48,4.48q-0.22,0.22-0.53,0.22T13.32,17.1q-0.22-0.23-0.22-0.53t0.22-0.53l3.29-3.29Z"/></svg>
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" height="24px" width="24px" fill="#5f6368"><path d="M16.61,12.75H5.25q-0.32,0-0.53-0.22T4.5,12t0.22-0.53t0.53-0.22H16.61L13.32,7.96Q13.1,7.73 13.1,7.44T13.32,6.9q0.23-0.23 0.53-0.24t0.53,0.22l4.48,4.48q0.14,0.14 0.2,0.3T19.12,12t-0.06,0.34t-0.2,0.3l-4.48,4.48q-0.22,0.22-0.53,0.22T13.32,17.1q-0.22-0.23-0.22-0.53t0.22-0.53l3.29-3.29Z"/></svg>
         </div>`;
       const clkAttr = (paso) => isSaved
         ? `onclick="clickFlujoPaso('${id}', '${paso}')"`
