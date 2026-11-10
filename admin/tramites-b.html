@@ -1,0 +1,4104 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Configuración de Trámites · Wiener Admin</title>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Lato:wght@400;700;900&family=Roboto:wght@400;500;700&display=swap"
+    rel="stylesheet">
+  <link rel="stylesheet" href="../css/styles.css">
+  <style>
+    /* Tabs de navegación estilo Wiener */
+    .tabs-header {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 22px;
+      border-bottom: 2px solid var(--border-soft);
+      padding-bottom: 4px;
+    }
+
+    .tab-nav-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 18px;
+      border-radius: 10px 10px 0 0;
+      border: none;
+      background: transparent;
+      color: var(--text-muted);
+      font-family: 'Lato', sans-serif;
+      font-size: 14.5px;
+      font-weight: 700;
+      cursor: pointer;
+      position: relative;
+      transition: all 0.2s ease;
+    }
+
+    .tab-nav-btn:hover {
+      color: var(--brand);
+      background: var(--surface-2);
+    }
+
+    .tab-nav-btn.active {
+      color: var(--brand-dark);
+      background: var(--surface);
+      border-bottom: 3px solid var(--brand);
+      margin-bottom: -6px;
+    }
+
+    .tab-nav-btn .count-badge {
+      font-size: 11px;
+      font-weight: 700;
+      padding: 2px 8px;
+      border-radius: 12px;
+      background: var(--surface-2);
+      color: var(--text-soft);
+    }
+
+    .tab-nav-btn.active .count-badge {
+      background: var(--brand-tint);
+      color: var(--brand-dark);
+    }
+
+    /* Barra de filtros y búsqueda */
+    .filter-card {
+      background: var(--surface);
+      border: 1px solid var(--border-soft);
+      border-radius: var(--radius-sm);
+      padding: 14px 18px;
+      margin-bottom: 18px;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 14px;
+      box-shadow: var(--shadow);
+    }
+
+    .filter-group {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .filter-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 13.5px;
+      color: var(--text-soft);
+      font-weight: 500;
+    }
+
+    .filter-input {
+      padding: 8px 12px;
+      font-size: 13.5px;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      background: #FFF;
+      outline: none;
+      min-width: 220px;
+    }
+
+    .filter-select {
+      padding: 8px 12px;
+      font-size: 13.5px;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      background: #FFF;
+      outline: none;
+    }
+
+    /* Custom select look & feel en barra de filtros */
+    .filter-card .select-wrap.inline,
+    .filter-card .custom-select-wrap {
+      width: 135px !important;
+      margin: 0 !important;
+      display: inline-block !important;
+      vertical-align: middle !important;
+    }
+
+    .filter-card .custom-select-trigger {
+      height: 38px !important;
+      min-height: 38px !important;
+      max-height: 38px !important;
+      border-radius: 8px !important;
+      padding: 0 32px 0 12px !important;
+      display: flex !important;
+      align-items: center !important;
+      background: #FFFFFF !important;
+      font-size: 13.5px !important;
+      border: 1px solid var(--border) !important;
+      box-sizing: border-box !important;
+    }
+
+    .filter-card .custom-select-label {
+      line-height: 36px !important;
+      font-size: 13.5px !important;
+    }
+
+    .filter-card .custom-select-arrow {
+      right: 12px !important;
+    }
+
+    .filter-card .custom-select-menu {
+      min-width: 135px !important;
+      z-index: 200 !important;
+      border-radius: 8px !important;
+    }
+
+    /* Mini etiquetas y badges */
+    .concept-tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      background: #F1F5F9;
+      border: 1px solid #CBD5E1;
+      border-radius: 6px;
+      padding: 2px 7px;
+      font-size: 11px;
+      color: #334155;
+      font-family: monospace;
+    }
+
+    .flow-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      font-size: 11.5px;
+      color: var(--brand-dark);
+      background: var(--brand-soft);
+      border: 1px solid #BFE6E9;
+      padding: 3px 8px;
+      border-radius: 12px;
+      font-weight: 600;
+    }
+
+    .action-btn-group {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      flex-wrap: wrap;
+    }
+
+    .btn-icon-action {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      padding: 5px 9px;
+      font-size: 12px;
+      border-radius: 6px;
+      border: 1px solid var(--border);
+      background: #FFF;
+      color: var(--text-soft);
+      cursor: pointer;
+      font-weight: 600;
+      transition: all 0.15s ease;
+    }
+
+    .btn-icon-action:hover {
+      background: var(--surface-2);
+      border-color: var(--brand);
+      color: var(--brand-dark);
+    }
+
+    .btn-icon-action.highlight {
+      background: var(--brand-soft);
+      border-color: var(--brand);
+      color: var(--brand-dark);
+    }
+
+    .avatar-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: #FFF;
+      border: 1px solid var(--border-soft);
+      border-radius: 16px;
+      padding: 3px 9px 3px 4px;
+      font-size: 12px;
+      margin: 2px 4px 2px 0;
+    }
+
+    .avatar-mini {
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      background: var(--brand);
+      color: #FFF;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 9.5px;
+      font-weight: 700;
+    }
+
+    /* Tablas modales */
+    .modal-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+      margin-top: 10px;
+    }
+
+    .modal-table th {
+      background: var(--surface-2);
+      padding: 9px 12px;
+      text-align: left;
+      font-weight: 700;
+      color: var(--text-soft);
+      border-bottom: 2px solid var(--border);
+    }
+
+    .modal-table td {
+      padding: 8px 12px;
+      border-bottom: 1px solid var(--border-soft);
+      vertical-align: middle;
+    }
+
+    .modal-table tr:hover td {
+      background: #FAFAFA;
+    }
+
+
+    /* Modal Wide con ancho optimizado para evitar cortes de información */
+    .modal.wide {
+      max-width: 960px !important;
+      width: 96% !important;
+    }
+
+    /* Switch toggle compacto para tablas */
+    .switch.switch-sm {
+      width: 36px;
+      height: 20px;
+      display: inline-block;
+      vertical-align: middle;
+      margin: 0;
+    }
+
+    .switch.switch-sm .slider::before {
+      height: 14px;
+      width: 14px;
+      left: 3px;
+      top: 3px;
+    }
+
+    .switch.switch-sm input:checked+.slider::before {
+      transform: translateX(16px);
+    }
+
+    /* Subtabs internas de modales estilo Wiener */
+    .modal-subnav {
+      display: flex;
+      gap: 6px;
+      border-bottom: 2px solid var(--border-soft);
+      margin-bottom: 20px;
+    }
+
+    .modal-subnav-btn {
+      padding: 10px 18px;
+      font-size: 13.5px;
+      font-weight: 700;
+      font-family: 'Lato', sans-serif;
+      color: var(--text-muted);
+      background: transparent;
+      border: none;
+      border-bottom: 3px solid transparent;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      transition: all 0.2s ease;
+      margin-bottom: -2px;
+      border-radius: 6px 6px 0 0;
+    }
+
+    .modal-subnav-btn svg {
+      flex-shrink: 0;
+    }
+
+    .modal-subnav-btn:hover {
+      color: var(--brand);
+      background: var(--surface-2);
+    }
+
+    .modal-subnav-btn.active {
+      color: var(--brand);
+      border-bottom-color: var(--brand);
+      background: #FFFFFF;
+      box-shadow: 0 -2px 6px rgba(0, 0, 0, 0.03);
+    }
+
+    .char-limit-text {
+      font-size: 11px;
+      color: var(--text-muted);
+      margin-top: 4px;
+      text-align: right;
+    }
+
+    .search-panel-box {
+      background: #F8FAFC;
+      border: 1px solid #CBD5E1;
+      border-radius: 10px;
+      padding: 14px 16px;
+      margin-bottom: 16px;
+    }
+
+    .btn-circle-del {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      background: #FEE2E2;
+      color: #DC2626;
+      border: 1px solid #FCA5A5;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      line-height: 1;
+      transition: all 0.15s ease;
+      padding: 0;
+      flex-shrink: 0;
+    }
+
+    .btn-circle-del:hover {
+      background: #DC2626;
+      color: #FFF;
+    }
+
+    .btn-circle-add {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      background: #ECFDF5;
+      color: #047857;
+      border: 1px solid #A7F3D0;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      line-height: 1;
+      transition: all 0.15s ease;
+      padding: 0;
+      flex-shrink: 0;
+    }
+
+    .btn-circle-add:hover {
+      background: #047857;
+      color: #FFF;
+    }
+
+    .detail-card-info {
+      background: #FFF;
+      border: 1px solid var(--border-soft);
+      border-radius: 10px;
+      padding: 16px;
+      margin-bottom: 14px;
+    }
+
+    /* Botones de acción y jerarquía visual Wiener */
+    .btn-dark {
+      background: #0F172A;
+      border: 1px solid #0F172A;
+      color: #FFFFFF;
+      font-weight: 700;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      border-radius: 8px;
+      padding: 8px 16px;
+      font-size: 13.5px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .btn-dark:hover {
+      background: #1E293B;
+      border-color: #1E293B;
+      color: #FFFFFF;
+    }
+
+    .btn-search-bar {
+      height: 38px;
+      padding: 0 16px;
+      font-family: inherit;
+      font-size: 13.5px;
+      font-weight: 700;
+      border-radius: 8px;
+      background: #0F172A;
+      border: 1px solid #0F172A;
+      color: #FFFFFF;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 7px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .btn-search-bar:hover {
+      background: #1E293B;
+      border-color: #1E293B;
+    }
+
+    .btn-new-bar {
+      height: 38px;
+      padding: 0 18px;
+      font-family: inherit;
+      font-size: 13.5px;
+      font-weight: 700;
+      border-radius: 8px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 7px;
+      cursor: pointer;
+    }
+
+    /* Grilla de 4 acciones (2 arriba, 2 abajo) del mismo tamaño + botón eliminar */
+    .action-cell-wrap {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+    }
+
+    .action-grid-2x2 {
+      display: grid;
+      grid-template-columns: repeat(2, 74px);
+      gap: 4px;
+    }
+
+    .btn-grid-act {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 4px;
+      width: 74px;
+      height: 27px;
+      box-sizing: border-box;
+      font-family: inherit;
+      font-size: 11px;
+      font-weight: 700;
+      border-radius: 6px;
+      border: 1px solid var(--border);
+      background: #FFFFFF;
+      color: var(--text);
+      cursor: pointer;
+      transition: all 0.15s ease;
+      white-space: nowrap;
+    }
+
+    .btn-grid-act:hover {
+      background: var(--surface-2);
+      border-color: var(--brand);
+      color: var(--brand-dark);
+    }
+
+    .btn-grid-act svg {
+      flex-shrink: 0;
+      color: var(--brand-dark);
+    }
+
+    .btn-grid-del {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 28px;
+      height: 58px;
+      border-radius: 6px;
+      border: 1px solid #FCA5A5;
+      background: #FEE2E2;
+      color: #DC2626;
+      cursor: pointer;
+      transition: all 0.15s ease;
+      flex-shrink: 0;
+    }
+
+    .btn-grid-del:hover {
+      background: #FCA5A5;
+      color: #991B1B;
+    }
+
+    /* Editor de texto enriquecido (RTE) */
+    .rte-box {
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      overflow: hidden;
+      background: #FFF;
+    }
+
+    .rte-bar {
+      background: #F8FAFC;
+      border-bottom: 1px solid #E2E8F0;
+      padding: 6px 8px;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      flex-wrap: wrap;
+    }
+
+    .rte-tool-btn {
+      background: #FFF;
+      border: 1px solid #CBD5E1;
+      border-radius: 4px;
+      padding: 2px 7px;
+      font-size: 11.5px;
+      font-weight: 700;
+      cursor: pointer;
+      color: #334155;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-width: 24px;
+      height: 24px;
+      user-select: none;
+    }
+
+    .rte-tool-btn:hover {
+      background: #E2E8F0;
+      color: var(--brand-dark);
+    }
+
+    .rte-editor-area {
+      width: 100%;
+      min-height: 110px;
+      padding: 10px 12px;
+      border: none;
+      outline: none;
+      font-family: inherit;
+      font-size: 13.5px;
+      resize: vertical;
+      line-height: 1.5;
+      box-sizing: border-box;
+    }
+
+    /* Tarjetas de cronograma sistema de diseño Wiener */
+    .cronog-card-wiener {
+      border: 1px solid var(--border-soft);
+      border-radius: 10px;
+      background: #FFFFFF;
+      margin-bottom: 14px;
+      overflow: visible !important;
+      box-shadow: var(--shadow-sm);
+      transition: box-shadow 0.2s ease;
+    }
+
+    .cronog-card-wiener>div:first-child {
+      border-top-left-radius: 9px;
+      border-top-right-radius: 9px;
+    }
+
+    .cronog-card-wiener:hover {
+      box-shadow: var(--shadow);
+    }
+
+    /* =========================================================================
+       PROPUESTA B: CONSTRUCTOR VISUAL DE FLUJO INTERACTIVO (Estilo flujos.html)
+       ========================================================================= */
+    .flow-builder-box {
+      background: #F8FAFC;
+      border: 1px solid #CBD5E1;
+      border-radius: 12px;
+      padding: 16px;
+      margin-top: 14px;
+      position: relative;
+    }
+
+    .flow-builder-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 12px;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .flow-builder-title {
+      font-size: 13.5px;
+      font-weight: 700;
+      color: var(--text);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .flow-controls-row {
+      display: flex;
+      align-items: flex-end;
+      gap: 16px;
+      flex-wrap: wrap;
+      background: #FFFFFF;
+      padding: 12px 16px;
+      border-radius: 10px;
+      border: 1px solid #E2E8F0;
+      margin-bottom: 14px;
+    }
+
+    .flow-control-field {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .flow-control-label {
+      font-size: 11.5px;
+      font-weight: 700;
+      color: #475569;
+      text-transform: uppercase;
+      letter-spacing: 0.35px;
+      margin: 0;
+      line-height: 1.2;
+    }
+
+    .flow-control-item {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 12.5px;
+      font-weight: 600;
+      color: var(--text);
+    }
+
+    .flow-container-wrap {
+      overflow-x: auto;
+      padding: 6px 2px 10px 2px;
+    }
+
+    .flow-line-diagram {
+      display: flex;
+      align-items: center;
+      gap: 0;
+      min-width: max-content;
+    }
+
+    .flow-card-node {
+      background: #FFFFFF;
+      border: 1.5px solid #CBD5E1;
+      border-radius: 10px;
+      padding: 12px 16px;
+      min-width: 140px;
+      text-align: center;
+      position: relative;
+      transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+      user-select: none;
+    }
+
+    .flow-card-node b {
+      font-size: 13px;
+      display: block;
+      color: var(--text);
+      margin-bottom: 3px;
+    }
+
+    .flow-card-node span {
+      font-size: 11.5px;
+      color: var(--text-muted);
+      display: block;
+    }
+
+    .flow-card-node.start {
+      background: #E6F7F6;
+      border-color: #00A499;
+    }
+
+    .flow-card-node.start b {
+      color: #006D66;
+    }
+
+    .flow-card-node.review {
+      background: #F1F5F9;
+      border-color: #94A3B8;
+    }
+
+    .flow-card-node.approval {
+      background: #F8FAFC;
+      border-color: #94A3B8;
+    }
+
+    .flow-card-node.pay {
+      background: #E0F2FE;
+      border-color: #7DD3FC;
+    }
+
+    .flow-card-node.pay b {
+      color: #0369A1;
+    }
+
+    .flow-card-node.end {
+      background: #FAF5FF;
+      border-color: #D8B4FE;
+    }
+
+    .flow-card-node.end b {
+      color: #6B21A8;
+    }
+
+    .flow-arrow-conn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #94A3B8;
+      padding: 0 6px;
+      font-size: 18px;
+      font-weight: 700;
+    }
+
+    .flow-card-node.clickable {
+      cursor: pointer;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+    }
+
+    .flow-card-node.clickable:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 6px 14px rgba(0, 164, 153, 0.18);
+      border-color: var(--brand);
+    }
+
+    .flow-card-node .node-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 3px;
+      margin-top: 6px;
+      padding: 2px 7px;
+      font-size: 10.5px;
+      font-weight: 700;
+      border-radius: 10px;
+    }
+
+    .flow-card-node.clickable .node-badge {
+      background: rgba(0, 164, 153, 0.12);
+      color: #006D66;
+    }
+
+    .flow-card-node:not(.clickable) .node-badge {
+      background: #E2E8F0;
+      color: #64748B;
+    }
+
+    .pago-segmented-wrap {
+      display: inline-flex;
+      background: #E2E8F0;
+      border-radius: 8px;
+      padding: 3px;
+      gap: 3px;
+      height: 36px;
+      box-sizing: border-box;
+      align-items: center;
+    }
+
+    .pago-segmented-btn {
+      padding: 0 14px;
+      height: 30px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 12px;
+      font-weight: 700;
+      border-radius: 6px;
+      cursor: pointer;
+      border: none;
+      background: transparent;
+      color: #475569;
+      transition: all 0.15s ease;
+      white-space: nowrap;
+    }
+
+    .pago-segmented-btn.active {
+      background: #FFFFFF;
+      color: var(--brand-dark);
+      box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+    }
+
+    .flow-interactive-banner {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 14px;
+      border-radius: 8px;
+      font-size: 12.5px;
+      margin-bottom: 12px;
+      line-height: 1.45;
+    }
+
+    .flow-interactive-banner.active {
+      background: #ECFDF5;
+      border: 1px solid #A7F3D0;
+      color: #065F46;
+    }
+
+    .flow-interactive-banner.pending {
+      background: #EFF6FF;
+      border: 1px solid #BFDBFE;
+      color: #1E40AF;
+    }
+  </style>
+</head>
+
+<body>
+  <script src="../js/data.js"></script>
+  <script src="../js/shell.js"></script>
+  <script src="../js/doc.js"></script>
+  <script>
+    const ctx = APP.renderShell('tramites');
+    const CICLOS = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
+    let ACTIVE_TAB = 'tramites'; // 'tramites' | 'areas' | 'requisitos'
+    let SEARCH_QUERY = '';
+    let FILTER_ESTADO = 'todos';
+    let FILTER_ACTIVACION = 'todos';
+    let DRAFT = null;
+
+    // Catálogos institucionales para cronograma y segmentación
+    const GRADOS_ESTUDIO = [
+      'Todos',
+      'CEPRE - Pre Wiener',
+      'Diplomatura',
+      'Extensión Universitaria',
+      'Idiomas',
+      'Posgrado',
+      'Pregrado',
+      'Programa de Especialización',
+      'Segunda Especialidad'
+    ];
+
+    const MODALIDADES_POR_GRADO = {
+      'Todos': ['Todas', 'Presencial', 'Semipresencial', 'A distancia'],
+      'Pregrado': [
+        'Todas',
+        'Modalidad EPEX',
+        'Modalidad Ordinaria',
+        'Pregrado Semipresencial',
+        'Revalidación de Título Profesional Presencial'
+      ],
+      'Posgrado': [
+        'Todas',
+        'Maestría Presencial',
+        'Maestría Semipresencial',
+        'Maestría A Distancia',
+        'Doctorado Presencial',
+        'Segunda Especialidad Médica'
+      ],
+      'CEPRE - Pre Wiener': [
+        'Todas',
+        'Ciclo Regular Presencial',
+        'Ciclo Regular Virtual',
+        'Ciclo Intensivo',
+        'Ciclo Repaso'
+      ],
+      'Idiomas': [
+        'Todas',
+        'Inglés Regular Virtual',
+        'Inglés Intensivo',
+        'Portugués Regular',
+        'Portugués Intensivo'
+      ],
+      'Diplomatura': [
+        'Todas',
+        'Presencial',
+        'Semipresencial',
+        'A Distancia (Virtual)'
+      ],
+      'Extensión Universitaria': [
+        'Todas',
+        'Presencial',
+        'Virtual'
+      ],
+      'Programa de Especialización': [
+        'Todas',
+        'Presencial',
+        'Semipresencial',
+        'Virtual'
+      ],
+      'Segunda Especialidad': [
+        'Todas',
+        'Presencial',
+        'Semipresencial'
+      ]
+    };
+
+    const FACULTADES_CATALOGO = [
+      'Todas',
+      'Facultad de Ciencias de la Salud',
+      'Facultad de Farmacia y Bioquímica',
+      'Facultad de Ingeniería y Negocios',
+      'Facultad de Derecho y Ciencia Política'
+    ];
+
+    const CARRERAS_CATALOGO = [
+      'Todas',
+      'Medicina Humana',
+      'Enfermería',
+      'Obstetricia',
+      'Odontología',
+      'Tecnología Médica - Terapia Física',
+      'Tecnología Médica - Laboratorio Clínico',
+      'Psicología',
+      'Farmacia y Bioquímica',
+      'Derecho',
+      'Administración y Negocios Internacionales',
+      'Contabilidad y Auditoría',
+      'Ingeniería de Sistemas e Informática',
+      'Ingeniería Industrial'
+    ];
+
+    const PERIODOS_CATALOGO = [
+      'Todos',
+      '2026-1',
+      '2026-2',
+      '2027-0',
+      '2027-1'
+    ];
+
+    // Íconos SVG reutilizables para toda la interfaz
+    const SVG_ICONS = {
+      edit: `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"/></svg>`,
+      eye: `<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>`,
+      trash: `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><line x1="10" y1="11" x2="10" y2="17"/><line x1="14" y1="11" x2="14" y2="17"/></svg>`,
+      sede: `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 21h18M5 21V7l8-4v18M19 21V11l-6-4M9 9h1M9 13h1M9 17h1"/></svg>`,
+      user: `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg>`,
+      plus: `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>`,
+      cross: `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>`,
+      search: `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>`,
+      doc: `<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>`,
+      tramiteTab: `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="9" y1="21" x2="9" y2="9"/></svg>`,
+      requisitoTab: `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>`,
+      warn: `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>`,
+      check: `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>`,
+      proceso: `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>`,
+      cronograma: `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/><circle cx="12" cy="15" r="2"/></svg>`,
+      correo: `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>`,
+      dots: `<svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><circle cx="5" cy="12" r="2"/><circle cx="12" cy="12" r="2"/><circle cx="19" cy="12" r="2"/></svg>`,
+      minus: `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="5" y1="12" x2="19" y2="12"/></svg>`
+    };
+
+    function rteCommand(textareaId, cmd) {
+      const ta = document.getElementById(textareaId);
+      if (!ta) return;
+      const start = ta.selectionStart;
+      const end = ta.selectionEnd;
+      const sel = ta.value.substring(start, end);
+      let rep = '';
+      if (cmd === 'bold') rep = `<b>${sel || 'texto en negrita'}</b>`;
+      else if (cmd === 'italic') rep = `<i>${sel || 'texto en cursiva'}</i>`;
+      else if (cmd === 'underline') rep = `<u>${sel || 'texto subrayado'}</u>`;
+      else if (cmd === 'strike') rep = `<s>${sel || 'texto tachado'}</s>`;
+      else if (cmd === 'list-ul') rep = `\n• ${sel || 'elemento de lista'}\n`;
+      else if (cmd === 'list-ol') rep = `\n1. ${sel || 'elemento numerado'}\n`;
+      else if (cmd === 'quote') rep = `\n> ${sel || 'cita'}\n`;
+      else if (cmd === 'link') {
+        const url = prompt('Ingrese URL del enlace:', 'https://');
+        if (url) rep = `<a href="${url}" target="_blank">${sel || 'Enlace'}</a>`;
+        else return;
+      }
+      ta.setRangeText(rep, start, end, 'end');
+      ta.focus();
+    }
+
+    function updateCharCounter(elId, len, max = 500) {
+      const el = document.getElementById(elId);
+      if (el) el.textContent = `${len} / ${max} caracteres (máx. ${max})`;
+    }
+
+    function mostrarConfirmacionModal({ titulo, icono, mensaje, textoBoton, onConfirm }) {
+      cerrarConfirmacionModal();
+      const ov = document.createElement('div');
+      ov.id = 'confirm-modal-backdrop';
+      ov.style.cssText = 'position:fixed;inset:0;background:rgba(15,23,42,0.65);backdrop-filter:blur(2px);display:flex;align-items:center;justify-content:center;z-index:9999;padding:20px;animation:pop .15s ease;';
+      ov.innerHTML = `
+        <div class="modal" style="max-width:440px;box-shadow:0 20px 25px -5px rgba(0,0,0,0.3);border:1px solid var(--border-soft);background:#FFFFFF;border-radius:12px;overflow:hidden">
+          <div class="modal-head" style="padding:14px 18px;border-bottom:1px solid var(--border-soft);display:flex;align-items:center;justify-content:space-between">
+            <div style="display:flex;align-items:center;gap:10px">
+              <span style="color:var(--warn-fg);display:inline-flex;align-items:center">${icono || SVG_ICONS.warn}</span>
+              <h3 style="margin:0;font-size:16px">${titulo}</h3>
+            </div>
+            <button class="modal-close" type="button" onclick="cerrarConfirmacionModal()">×</button>
+          </div>
+          <div class="modal-body" style="padding:18px;font-size:13.5px;color:var(--text);line-height:1.45">
+            ${mensaje}
+          </div>
+          <div class="modal-foot" style="padding:12px 18px;background:var(--surface-2);border-top:1px solid var(--border-soft);display:flex;justify-content:flex-end;gap:10px">
+            <button class="btn btn-sm" type="button" onclick="cerrarConfirmacionModal()">Cancelar</button>
+            <button class="btn btn-sm btn-danger" type="button" id="btn-confirm-action" style="display:inline-flex;align-items:center;gap:6px">
+              ${SVG_ICONS.trash} ${textoBoton || 'Eliminar'}
+            </button>
+          </div>
+        </div>
+      `;
+      document.body.appendChild(ov);
+      ov.addEventListener('click', (e) => {
+        if (e.target === ov) cerrarConfirmacionModal();
+      });
+      document.getElementById('btn-confirm-action').onclick = onConfirm;
+    }
+
+    function cerrarConfirmacionModal() {
+      const el = document.getElementById('confirm-modal-backdrop');
+      if (el) el.remove();
+    }
+
+    // =========================================================================
+    // RENDER PRINCIPAL
+    // =========================================================================
+    function render() {
+      const ts = DB.tramites();
+      const areas = DB.areas();
+      const reqs = DB.requisitos();
+
+      ctx.mount.innerHTML = `
+        <div class="page-head" style="margin-bottom:14px">
+          <div>
+            <div style="display:inline-flex;align-items:center;gap:8px;margin-bottom:4px">
+              <h1 style="margin:0">Configuración de Trámites</h1>
+              <span class="pill" style="background:#E0F2FE;color:#0369A1;font-weight:700;font-size:11px">Propuesta B · Flujos Visuales</span>
+            </div>
+            <p>Administración modular: Áreas de atención y responsables, catálogo de requisitos y parametrización ágil por flujos.</p>
+          </div>
+          <div style="display:flex;align-items:center;gap:10px">
+            <a href="flujos.html" class="btn btn-outline" style="font-size:12.5px;font-weight:700;display:inline-flex;align-items:center;gap:6px" title="Ver diagrama lineal de flujos de todos los trámites">
+              📊 <span>Ver Flujos de Trámites</span>
+            </a>
+            <span class="pill ok">Institución Activa</span>
+          </div>
+        </div>
+
+        <!-- TABS DE NAVEGACIÓN -->
+        <div class="tabs-header">
+          <button class="tab-nav-btn ${ACTIVE_TAB === 'tramites' ? 'active' : ''}" onclick="setTab('tramites')">
+            ${SVG_ICONS.tramiteTab}
+            <span>Trámites</span>
+            <span class="count-badge">${ts.length}</span>
+          </button>
+          <button class="tab-nav-btn ${ACTIVE_TAB === 'areas' ? 'active' : ''}" onclick="setTab('areas')">
+            ${SVG_ICONS.sede}
+            <span>Áreas y responsables</span>
+            <span class="count-badge">${areas.length}</span>
+          </button>
+          <button class="tab-nav-btn ${ACTIVE_TAB === 'requisitos' ? 'active' : ''}" onclick="setTab('requisitos')">
+            ${SVG_ICONS.requisitoTab}
+            <span>Catálogo de Requisitos</span>
+            <span class="count-badge">${reqs.length}</span>
+          </button>
+        </div>
+
+        <div id="tab-content">
+          ${renderTabContent()}
+        </div>
+      `;
+
+      if (APP && APP.initCustomSelects) {
+        APP.initCustomSelects(ctx.mount);
+      }
+      if (APP && APP.initDatePickers) {
+        APP.initDatePickers(ctx.mount);
+      }
+    }
+
+    function setTab(tab) {
+      ACTIVE_TAB = tab;
+      SEARCH_QUERY = '';
+      FILTER_ESTADO = 'todos';
+      FILTER_ACTIVACION = 'todos';
+      render();
+    }
+
+    function renderTabContent() {
+      if (ACTIVE_TAB === 'tramites') return renderTramitesTab();
+      if (ACTIVE_TAB === 'areas') return renderAreasTab();
+      if (ACTIVE_TAB === 'requisitos') return renderRequisitosTab();
+      return '';
+    }
+
+    // =========================================================================
+    // SECCIÓN 1: TRÁMITES
+    // =========================================================================
+    function renderTramitesTab() {
+      let ts = DB.tramites();
+      if (SEARCH_QUERY) {
+        const q = SEARCH_QUERY.toLowerCase();
+        ts = ts.filter(t => (t.nombre && t.nombre.toLowerCase().includes(q)) || (t.id && t.id.toLowerCase().includes(q)) || (t.area && t.area.toLowerCase().includes(q)) || (t.observacion && t.observacion.toLowerCase().includes(q)));
+      }
+      if (FILTER_ESTADO !== 'todos') {
+        const act = FILTER_ESTADO === 'activo';
+        ts = ts.filter(t => Boolean(t.activo) === act);
+      }
+
+      const rows = ts.map((t, idx) => {
+        return `
+          <tr>
+            <td style="text-align:center"><span class="mono muted" style="font-size:13px">${idx + 1}</span></td>
+            <td>
+              <div class="strong" style="font-size:13.5px;color:var(--text);line-height:1.35">${t.nombre}</div>
+            </td>
+            <td>
+              <div style="font-size:12.5px;color:var(--text-soft);line-height:1.4">
+                ${t.descripcion ? (t.descripcion.length > 95 ? t.descripcion.slice(0, 95) + '...' : t.descripcion) : '<span class="muted">-</span>'}
+              </div>
+            </td>
+            <td style="text-align:center">
+              <span style="font-weight:700;font-size:13px;color:var(--brand-dark)">${t.costo > 0 ? APP.money(t.costo) : '0'}</span>
+            </td>
+            <td>
+              <div style="font-size:12px;color:var(--text-muted);line-height:1.35">
+                ${t.observacion ? (t.observacion.length > 65 ? t.observacion.slice(0, 65) + '...' : t.observacion) : '<span class="muted">-</span>'}
+              </div>
+            </td>
+            <td style="text-align:center">
+              ${t.activo ? '<span class="pill ok">Activo</span>' : '<span class="pill gray">Inactivo</span>'}
+            </td>
+            <td style="text-align:center">
+              <span class="muted" style="font-size:12.5px;white-space:nowrap">${t.fechaRegistro || '2026-07-19'}</span>
+            </td>
+            <td style="text-align:center;white-space:nowrap">
+              <div class="action-cell-wrap">
+                <div class="action-grid-2x2">
+                  <button type="button" class="btn-grid-act" title="Editar datos generales y concepto" onclick="editarTramite('${t.id}')">
+                    ${SVG_ICONS.edit} <span>Edi.</span>
+                  </button>
+                  <button type="button" class="btn-grid-act" title="Editar Requisito y Proceso del Trámite" onclick="editarProcesoTramite('${t.id}')">
+                    ${SVG_ICONS.proceso} <span>Proceso</span>
+                  </button>
+                  <button type="button" class="btn-grid-act" title="Editar Cronograma del Trámite" onclick="gestionarCronograma('${t.id}')">
+                    ${SVG_ICONS.cronograma} <span>Cronog.</span>
+                  </button>
+                  <button type="button" class="btn-grid-act" title="Plantilla de Notificación por Mail" onclick="configurarCorreo('${t.id}')">
+                    ${SVG_ICONS.correo} <span>Mail</span>
+                  </button>
+                </div>
+                <button type="button" class="btn-grid-del" title="Eliminar trámite" onclick="eliminarTramite('${t.id}')">
+                  ${SVG_ICONS.trash}
+                </button>
+              </div>
+            </td>
+          </tr>
+        `;
+      }).join('');
+
+      return `
+        <div class="filter-card">
+          <div class="filter-group">
+            <div class="filter-item">
+              <span>Palabra:</span>
+              <input class="filter-input" id="search-tramite-kw" placeholder="Buscar por título, descripción..." value="${SEARCH_QUERY}" onkeyup="if(event.key==='Enter') buscarTramite()">
+            </div>
+            <div class="filter-item">
+              <span>Estado:</span>
+              <div class="select-wrap inline" style="margin:0;width:135px">
+                <select class="filter-select" id="filter-tramite-estado" onchange="buscarTramite()">
+                  <option value="todos" ${FILTER_ESTADO === 'todos' ? 'selected' : ''}>Todos</option>
+                  <option value="activo" ${FILTER_ESTADO === 'activo' ? 'selected' : ''}>Activo</option>
+                  <option value="inactivo" ${FILTER_ESTADO === 'inactivo' ? 'selected' : ''}>Inactivo</option>
+                </select>
+              </div>
+            </div>
+            <button class="btn btn-search-bar" onclick="buscarTramite()">${SVG_ICONS.search} <span>Buscar</span></button>
+          </div>
+          <div style="display:inline-flex;align-items:center;gap:8px">
+            <a href="flujos.html" class="btn btn-outline" style="height:36px;display:inline-flex;align-items:center;gap:6px;font-weight:700;font-size:12.5px" title="Ver diagrama lineal global de todos los trámites">
+              📊 <span>Ver Flujos</span>
+            </a>
+            <button class="btn btn-primary btn-new-bar" onclick="editarTramite(null)">${SVG_ICONS.plus} <span>Nuevo Trámite</span></button>
+          </div>
+        </div>
+
+        <div class="table-wrap">
+          <table class="data">
+            <thead>
+              <tr>
+                <th style="width:45px;text-align:center">Nº</th>
+                <th style="min-width:220px;width:25%">Titulo</th>
+                <th style="min-width:200px">Descripción</th>
+                <th style="width:80px;text-align:center">Costo</th>
+                <th style="min-width:140px;width:16%">Observación</th>
+                <th style="width:90px;text-align:center">Estado</th>
+                <th style="width:110px;text-align:center">Fecha reg.</th>
+                <th style="width:190px;text-align:center">Acciones</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${rows.length ? rows : `<tr><td colspan="8" style="text-align:center;padding:34px;color:var(--text-muted)">No se encontraron trámites con los filtros aplicados.</td></tr>`}
+            </tbody>
+          </table>
+        </div>
+        <div style="margin-top:12px;font-size:13px;color:var(--text-muted);font-weight:600">${ts.length} Registro(s)</div>
+      `;
+    }
+
+    function buscarTramite() {
+      SEARCH_QUERY = document.getElementById('search-tramite-kw') ? document.getElementById('search-tramite-kw').value.trim() : '';
+      FILTER_ESTADO = document.getElementById('filter-tramite-estado') ? document.getElementById('filter-tramite-estado').value : 'todos';
+      render();
+    }
+
+    // =========================================================================
+    // SECCIÓN 2: ÁREAS Y RESPONSABLES
+    // =========================================================================
+    function renderAreasTab() {
+      let areas = DB.areas();
+      if (SEARCH_QUERY) {
+        const q = SEARCH_QUERY.toLowerCase();
+        areas = areas.filter(a => a.nombre.toLowerCase().includes(q) || (a.observacion && a.observacion.toLowerCase().includes(q)) || (a.codigo && a.codigo.toLowerCase().includes(q)));
+      }
+      if (FILTER_ESTADO !== 'todos') {
+        const act = FILTER_ESTADO === 'activo';
+        areas = areas.filter(a => Boolean(a.activo) === act);
+      }
+
+      const rows = areas.map((a, idx) => {
+        const sedesCount = (a.sedes || []).length;
+        const respCount = (a.responsables || []).length;
+
+        return `
+          <tr>
+            <td style="text-align:center"><span class="mono muted" style="font-size:13px">${idx + 1}</span></td>
+            <td>
+              <div class="strong" style="font-size:14px;color:var(--text);line-height:1.35;margin-bottom:4px">${a.nombre}</div>
+              <div style="display:inline-flex;align-items:center;gap:12px;font-size:12px;color:var(--text-muted);font-weight:500">
+                <span style="display:inline-flex;align-items:center;gap:4px;color:var(--brand-dark)">${SVG_ICONS.sede} ${sedesCount} sede(s)</span>
+                <span style="display:inline-flex;align-items:center;gap:4px;color:var(--brand-dark)">${SVG_ICONS.user} ${respCount} responsable(s)</span>
+              </div>
+            </td>
+            <td>
+              <div style="font-size:13px;color:var(--text-soft);line-height:1.45">
+                ${a.observacion || '<span class="muted">-</span>'}
+              </div>
+            </td>
+            <td style="text-align:center">
+              <span class="muted" style="font-size:12.5px;white-space:nowrap">${a.fechaRegistro || '2022-06-10'}</span>
+            </td>
+            <td style="text-align:center">
+              ${a.activo ? '<span class="pill ok">Activo</span>' : '<span class="pill gray">Inactivo</span>'}
+            </td>
+            <td style="text-align:center;white-space:nowrap">
+              <div style="display:inline-flex;align-items:center;justify-content:center;gap:6px;flex-wrap:nowrap">
+                <button class="btn btn-sm btn-outline" style="padding:5px 10px;font-size:12px;font-weight:700;display:inline-flex;align-items:center;gap:5px;white-space:nowrap" title="Editar datos del área, sedes y responsables" onclick="editarArea('${a.id}')">
+                  ${SVG_ICONS.edit} <span>Editar</span>
+                </button>
+                <button class="btn btn-sm" style="background:#F1F5F9;border:1px solid #CBD5E1;color:#334155;padding:5px 8px;display:inline-flex;align-items:center;justify-content:center" title="Ver ficha completa y todo lo configurado" onclick="verDetalleArea('${a.id}')">
+                  ${SVG_ICONS.eye}
+                </button>
+                <button class="btn btn-sm" style="background:#FEE2E2;border:1px solid #FCA5A5;color:#DC2626;padding:5px 8px;display:inline-flex;align-items:center;justify-content:center" title="Eliminar área institucional" onclick="eliminarArea('${a.id}')">
+                  ${SVG_ICONS.trash}
+                </button>
+              </div>
+            </td>
+          </tr>
+        `;
+      }).join('');
+
+      return `
+        <div class="filter-card">
+          <div class="filter-group">
+            <div class="filter-item">
+              <span>Palabra:</span>
+              <input class="filter-input" id="search-area-kw" placeholder="Buscar por área u observación..." value="${SEARCH_QUERY}" onkeyup="if(event.key==='Enter') buscarArea()">
+            </div>
+            <div class="filter-item">
+              <span>Estado:</span>
+              <div class="select-wrap inline" style="margin:0;width:135px">
+                <select class="filter-select" id="filter-area-estado" onchange="buscarArea()">
+                  <option value="todos" ${FILTER_ESTADO === 'todos' ? 'selected' : ''}>Todos</option>
+                  <option value="activo" ${FILTER_ESTADO === 'activo' ? 'selected' : ''}>Activo</option>
+                  <option value="inactivo" ${FILTER_ESTADO === 'inactivo' ? 'selected' : ''}>Inactivo</option>
+                </select>
+              </div>
+            </div>
+            <button class="btn btn-search-bar" onclick="buscarArea()">${SVG_ICONS.search} <span>Buscar</span></button>
+          </div>
+          <button class="btn btn-primary btn-new-bar" onclick="nuevaArea()">${SVG_ICONS.plus} <span>Nueva área</span></button>
+        </div>
+
+        <div class="table-wrap">
+          <table class="data">
+            <thead>
+              <tr>
+                <th style="width:45px;text-align:center">N°</th>
+                <th style="min-width:240px;width:28%">Área</th>
+                <th>Observación</th>
+                <th style="width:115px;text-align:center">Fecha reg.</th>
+                <th style="width:95px;text-align:center">Estado</th>
+                <th style="width:200px;text-align:center">Acciones</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${rows.length ? rows : `<tr><td colspan="6" style="text-align:center;padding:34px;color:var(--text-muted)">No se encontraron áreas con el criterio de búsqueda.</td></tr>`}
+            </tbody>
+          </table>
+        </div>
+        <div style="margin-top:12px;font-size:13px;color:var(--text-muted);font-weight:600">${areas.length} Registro(s)</div>
+      `;
+    }
+
+    function buscarArea() {
+      SEARCH_QUERY = document.getElementById('search-area-kw') ? document.getElementById('search-area-kw').value.trim() : '';
+      FILTER_ESTADO = document.getElementById('filter-area-estado') ? document.getElementById('filter-area-estado').value : 'todos';
+      render();
+    }
+
+    // =========================================================================
+    // SECCIÓN 3: REQUISITOS (Catálogo Maestro)
+    // =========================================================================
+    function renderRequisitosTab() {
+      let reqs = DB.requisitos();
+      if (SEARCH_QUERY) {
+        const q = SEARCH_QUERY.toLowerCase();
+        reqs = reqs.filter(r => r.titulo.toLowerCase().includes(q) || (r.observacion && r.observacion.toLowerCase().includes(q)));
+      }
+      if (FILTER_ESTADO !== 'todos') {
+        const act = FILTER_ESTADO === 'activo';
+        reqs = reqs.filter(r => Boolean(r.activo) === act);
+      }
+
+      const rows = reqs.map((r, idx) => `
+        <tr>
+          <td style="text-align:center"><span class="mono muted" style="font-size:13px">${idx + 1}</span></td>
+          <td>
+            <div class="strong" style="font-size:14px;color:var(--text);line-height:1.35">${r.titulo}</div>
+          </td>
+          <td>
+            <div style="font-size:12.5px;color:var(--text-soft);line-height:1.45">${r.observacion || '<span class="muted">-</span>'}</div>
+          </td>
+          <td>
+            ${r.requiereAdjunto ? `
+              <div>
+                <div style="display:flex;align-items:center;gap:6px;font-size:12.5px;font-weight:600;color:var(--brand-dark)">
+                  <span style="color:var(--brand);flex-shrink:0;display:inline-flex;align-items:center">${SVG_ICONS.doc}</span>
+                  <span style="word-break:break-word">${r.adjuntoNombre || 'Archivo adjunto'}</span>
+                </div>
+                <div style="margin-top:4px">
+                  <span class="tag gray" style="font-size:10px;padding:1px 6px;font-weight:700;letter-spacing:0.03em">${r.formato || 'PDF'}</span>
+                </div>
+              </div>
+            ` : `<span class="muted" style="font-size:12px">No requiere archivo</span>`}
+          </td>
+          <td style="text-align:center">
+            ${r.activo ? '<span class="pill ok">Activo</span>' : '<span class="pill gray">Inactivo</span>'}
+          </td>
+          <td style="text-align:center">
+            <span class="muted" style="font-size:12.5px;white-space:nowrap">${r.fechaRegistro || '2026-06-10'}</span>
+          </td>
+          <td style="text-align:center;white-space:nowrap">
+            <div style="display:inline-flex;align-items:center;justify-content:center;gap:6px;flex-wrap:nowrap">
+              <button class="btn btn-sm btn-outline" style="padding:5px 10px;font-size:12px;font-weight:700;display:inline-flex;align-items:center;gap:5px;white-space:nowrap" title="Editar requisito" onclick="editarRequisito('${r.id}')">
+                ${SVG_ICONS.edit} <span>Editar</span>
+              </button>
+              <button class="btn btn-sm" style="background:#FEE2E2;border:1px solid #FCA5A5;color:#DC2626;padding:5px 8px;display:inline-flex;align-items:center;justify-content:center" title="Eliminar requisito" onclick="eliminarRequisito('${r.id}')">
+                ${SVG_ICONS.trash}
+              </button>
+            </div>
+          </td>
+        </tr>
+      `).join('');
+
+      return `
+        <div class="filter-card">
+          <div class="filter-group">
+            <div class="filter-item">
+              <span>Palabra:</span>
+              <input class="filter-input" id="search-req-kw" placeholder="Buscar requisito..." value="${SEARCH_QUERY}" onkeyup="if(event.key==='Enter') buscarRequisito()">
+            </div>
+            <div class="filter-item">
+              <span>Estado:</span>
+              <div class="select-wrap inline" style="margin:0;width:135px">
+                <select class="filter-select" id="filter-req-estado" onchange="buscarRequisito()">
+                  <option value="todos" ${FILTER_ESTADO === 'todos' ? 'selected' : ''}>Todos</option>
+                  <option value="activo" ${FILTER_ESTADO === 'activo' ? 'selected' : ''}>Activo</option>
+                  <option value="inactivo" ${FILTER_ESTADO === 'inactivo' ? 'selected' : ''}>Inactivo</option>
+                </select>
+              </div>
+            </div>
+            <button class="btn btn-search-bar" onclick="buscarRequisito()">${SVG_ICONS.search} <span>Buscar</span></button>
+          </div>
+          <button class="btn btn-primary btn-new-bar" onclick="editarRequisito(null)">${SVG_ICONS.plus} <span>Nuevo Requisito</span></button>
+        </div>
+
+        <div class="table-wrap">
+          <table class="data">
+            <thead>
+              <tr>
+                <th style="width:45px;text-align:center">N°</th>
+                <th style="min-width:230px;width:28%">Requisito</th>
+                <th style="width:23%">Observación</th>
+                <th style="min-width:160px;width:18%">Adjuntar Archivo</th>
+                <th style="width:90px;text-align:center">Estado</th>
+                <th style="width:120px;text-align:center">Fecha reg.</th>
+                <th style="width:145px;text-align:center">Acciones</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${rows.length ? rows : `<tr><td colspan="7" style="text-align:center;padding:34px;color:var(--text-muted)">No se encontraron requisitos.</td></tr>`}
+            </tbody>
+          </table>
+        </div>
+        <div style="margin-top:12px;font-size:13px;color:var(--text-muted);font-weight:600">${reqs.length} requisito(s) registrado(s)</div>
+      `;
+    }
+
+    function buscarRequisito() {
+      SEARCH_QUERY = document.getElementById('search-req-kw') ? document.getElementById('search-req-kw').value.trim() : '';
+      FILTER_ESTADO = document.getElementById('filter-req-estado') ? document.getElementById('filter-req-estado').value : 'todos';
+      render();
+    }
+
+    // =========================================================================
+    // PROPUESTA B: GESTIÓN DE FLUJO OPERATIVO Y MODAL NUEVO / EDITAR TRÁMITE
+    // =========================================================================
+    let NAV_FROM_MODAL_TRAMITE = null;
+
+    function renderModalFlowNodes({ id, area, proceso, requiereApr, esPago, pagoMomento, costo, dias, reqCount, isSaved }) {
+      const arrow = `<div class="flow-arrow-conn">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" height="24px" width="24px" fill="#09A5B1"><path d="M16.61,12.75H5.25q-0.32,0-0.53-0.22T4.5,12t0.22-0.53t0.53-0.22H16.61L13.32,7.96Q13.1,7.73 13.1,7.44T13.32,6.9q0.23-0.23 0.53-0.24t0.53,0.22l4.48,4.48q0.14,0.14 0.2,0.3T19.12,12t-0.06,0.34t-0.2,0.3l-4.48,4.48q-0.22,0.22-0.53,0.22T13.32,17.1q-0.22-0.23-0.22-0.53t0.22-0.53l3.29-3.29Z"/></svg>
+        </div>`;
+      const clkAttr = (paso) => isSaved
+        ? `onclick="clickFlujoPaso('${id}', '${paso}')"`
+        : `onclick="alertModalNoGuardado()"`;
+
+      // 1. Solicitud (Alumno)
+      const solBadge = isSaved
+        ? `<span class="node-badge">⚙️ ${reqCount || 0} req.</span>`
+        : `<span class="node-badge">1. Solicitud</span>`;
+      const sol = `
+        <div class="flow-card-node start ${isSaved ? 'clickable' : ''}" ${clkAttr('solicitud')} title="${isSaved ? 'Clic para configurar requisitos y documentos del alumno' : 'Paso 1: Solicitud del Alumno'}">
+          <b>Solicitud</b>
+          <span>Alumno</span>
+          ${solBadge}
+        </div>
+      `;
+
+      // 2. Pago (Niubiz)
+      const pagoBadge = isSaved
+        ? `<span class="node-badge">⚙️ Concepto</span>`
+        : `<span class="node-badge">Niubiz</span>`;
+      const pagoNode = `
+        <div class="flow-card-node pay ${isSaved ? 'clickable' : ''}" ${clkAttr('pago')} title="${isSaved ? 'Clic para cambiar concepto contable de caja y arancel' : 'Pago del trámite mediante pasarela Niubiz'}">
+          <b>Pago (Niubiz)</b>
+          <span>${APP.money(costo || 0)}</span>
+          ${pagoBadge}
+        </div>
+      `;
+
+      // 3. Revisión: Desglose de múltiples áreas secuenciales
+      let revNodes = '';
+      if (Array.isArray(proceso) && proceso.length > 1) {
+        revNodes = proceso.map((p, idx) => {
+          const pArea = p.area || 'Registros Académicos';
+          const pDias = p.duracionDias || 2;
+          const badge = isSaved
+            ? `<span class="node-badge">⚙️ ${pDias} d. háb.</span>`
+            : `<span class="node-badge">${pDias} días</span>`;
+          return `
+            <div class="flow-card-node review ${isSaved ? 'clickable' : ''}" ${clkAttr('revision')} title="${isSaved ? 'Paso ' + (idx + 1) + ': ' + pArea + ' (' + pDias + ' días háb.) - Clic para gestionar proceso secuencial' : 'Paso ' + (idx + 1) + ' de revisión: ' + pArea}">
+              <b>Rev. ${idx + 1}: ${pArea}</b>
+              <span style="max-width:140px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${p.descripcion || pArea}">${p.descripcion ? p.descripcion : pArea}</span>
+              ${badge}
+            </div>
+          `;
+        }).join(arrow);
+      } else {
+        const singleArea = (Array.isArray(proceso) && proceso[0] && proceso[0].area) ? proceso[0].area : (area || 'Registros Académicos');
+        const revBadge = isSaved
+          ? `<span class="node-badge">⚙️ 1 etapa</span>`
+          : `<span class="node-badge">Revisión</span>`;
+        revNodes = `
+          <div class="flow-card-node review ${isSaved ? 'clickable' : ''}" ${clkAttr('revision')} title="${isSaved ? 'Clic para configurar áreas responsables, tareas y días de duración' : 'Paso de revisión por área responsable'}">
+            <b>Revisión</b>
+            <span style="max-width:140px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${singleArea}">${singleArea}</span>
+            ${revBadge}
+          </div>
+        `;
+      }
+
+      // 4. Aprobación (Administrativo)
+      const aprBadge = isSaved
+        ? `<span class="node-badge">⚙️ Aprobación</span>`
+        : `<span class="node-badge">Resolución</span>`;
+      const apr = requiereApr ? `
+        ${arrow}
+        <div class="flow-card-node approval ${isSaved ? 'clickable' : ''}" ${clkAttr('aprobacion')} title="${isSaved ? 'Clic para ajustar requerimiento de aprobación administrativa' : 'Aprobación por personal administrativo'}">
+          <b>Aprobación</b>
+          <span>Administrativo</span>
+          ${aprBadge}
+        </div>
+      ` : '';
+
+      // 5. Emisión
+      const emiBadge = isSaved
+        ? `<span class="node-badge">⚙️ Entrega & Mail</span>`
+        : `<span class="node-badge">Salida</span>`;
+      const fin = `
+        <div class="flow-card-node end ${isSaved ? 'clickable' : ''}" ${clkAttr('emision')} title="${isSaved ? 'Clic para configurar plantillas de correo, cronograma o formato de documento' : 'Emisión y entrega del trámite'}">
+          <b>Emisión</b>
+          <span>${dias || 3} días háb.</span>
+          ${emiBadge}
+        </div>
+      `;
+
+      if (esPago) {
+        if (pagoMomento === 'antes') {
+          return `${sol}${arrow}${pagoNode}${arrow}${revNodes}${apr}${arrow}${fin}`;
+        } else {
+          return `${sol}${arrow}${revNodes}${apr}${arrow}${pagoNode}${arrow}${fin}`;
+        }
+      } else {
+        return `${sol}${arrow}${revNodes}${apr}${arrow}${fin}`;
+      }
+    }
+
+    function actualizarDiagramaFlujoModal() {
+      const diagEl = document.getElementById('modal-flow-line-diagram');
+      if (!diagEl) return;
+
+      const id = diagEl.dataset.tramiteId || '';
+      const isSaved = Boolean(id);
+      const areaEl = document.getElementById('t-area-resp');
+      const aprValEl = document.getElementById('t-requiere-apr-val');
+      const esPagoEl = document.getElementById('t-es-pago-val');
+      const pagoMomEl = document.getElementById('t-pago-momento');
+      const costoEl = document.getElementById('t-costo');
+      const recojoEl = document.getElementById('t-recojo');
+
+      const area = areaEl ? areaEl.value : 'Registros Académicos';
+      const requiereApr = aprValEl ? (aprValEl.value === 'si') : true;
+      const esPago = esPagoEl ? (esPagoEl.value === 'si') : false;
+      const pagoMomento = pagoMomEl ? pagoMomEl.value : 'despues';
+      const costo = esPago ? (parseFloat(costoEl ? costoEl.value : 0) || 0) : 0;
+      const dias = recojoEl ? (parseInt(recojoEl.value) || 3) : 3;
+
+      const t = id ? DB.getTramite(id) : null;
+      const reqCount = t && t.requisitos ? t.requisitos.length : 0;
+      const proceso = (t && Array.isArray(t.proceso) && t.proceso.length) ? t.proceso : [{ area, duracionDias: 2 }];
+
+      diagEl.innerHTML = renderModalFlowNodes({
+        id,
+        area,
+        proceso,
+        requiereApr,
+        esPago,
+        pagoMomento,
+        costo,
+        dias,
+        reqCount,
+        isSaved
+      });
+    }
+
+    function setModalAprobacion(requerida) {
+      const valEl = document.getElementById('t-requiere-apr-val');
+      if (valEl) valEl.value = requerida ? 'si' : 'no';
+
+      const btnSi = document.getElementById('btn-apr-si');
+      const btnNo = document.getElementById('btn-apr-no');
+      if (btnSi) btnSi.classList.toggle('active', requerida);
+      if (btnNo) btnNo.classList.toggle('active', !requerida);
+
+      actualizarDiagramaFlujoModal();
+    }
+
+    function setModalPago(esPago) {
+      const valEl = document.getElementById('t-es-pago-val');
+      if (valEl) valEl.value = esPago ? 'si' : 'no';
+
+      const btnGratis = document.getElementById('btn-pago-gratis');
+      const btnCosto = document.getElementById('btn-pago-costo');
+      if (btnGratis) btnGratis.classList.toggle('active', !esPago);
+      if (btnCosto) btnCosto.classList.toggle('active', esPago);
+
+      const wrapPagoMomento = document.getElementById('wrap-pago-momento');
+      if (wrapPagoMomento) wrapPagoMomento.style.display = esPago ? 'flex' : 'none';
+
+      const boxConcepto = document.getElementById('box-concepto-pago');
+      if (boxConcepto) boxConcepto.style.display = esPago ? 'block' : 'none';
+
+      const costoEl = document.getElementById('t-costo');
+      if (!esPago && costoEl) {
+        costoEl.value = 0;
+      } else if (esPago && costoEl && parseFloat(costoEl.value) === 0) {
+        costoEl.value = 30.00;
+      }
+
+      actualizarDiagramaFlujoModal();
+    }
+
+    function alertModalNoGuardado() {
+      APP.toast({
+        icon: '💡',
+        title: 'Primero graba el trámite',
+        body: 'Haz clic en «Grabar Trámite» abajo para guardar los datos básicos y activar la configuración detallada de cada paso.'
+      });
+    }
+
+    function clickFlujoPaso(id, paso) {
+      const t = DB.getTramite(id);
+      if (!t) return;
+      NAV_FROM_MODAL_TRAMITE = id;
+
+      if (paso === 'solicitud') {
+        editarProcesoTramite(id);
+        APP.toast({ icon: '📎', title: 'Paso 1: Solicitud', body: `Gestiona los requisitos y adjuntos solicitados al alumno.` });
+      } else if (paso === 'revision') {
+        editarProcesoTramite(id);
+        APP.toast({ icon: '🏢', title: 'Paso 2: Revisión', body: `Configura las áreas, tareas y tiempos en días.` });
+      } else if (paso === 'aprobacion') {
+        mostrarModalAprobacionFlujo(id);
+      } else if (paso === 'pago') {
+        abrirCatalogoConceptos();
+      } else if (paso === 'emision') {
+        mostrarModalEmisionFlujo(id);
+      }
+    }
+
+    function cerrarSubmodalVolverFlujo() {
+      if (NAV_FROM_MODAL_TRAMITE) {
+        const returnId = NAV_FROM_MODAL_TRAMITE;
+        NAV_FROM_MODAL_TRAMITE = null;
+        editarTramite(returnId);
+      } else {
+        APP.closeModal();
+      }
+    }
+
+    function mostrarModalAprobacionFlujo(id) {
+      const t = DB.getTramite(id);
+      if (!t) return;
+      const actual = Boolean(t.requiereAprobacion);
+
+      APP.openModal(`
+        <div class="modal-head">
+          <div style="display:flex;align-items:center;gap:10px">
+            <div style="width:34px;height:34px;border-radius:8px;background:var(--brand-soft);color:var(--brand);display:flex;align-items:center;justify-content:center">
+              👤
+            </div>
+            <div>
+              <h3>Etapa de Aprobación Administrativa</h3>
+              <div style="font-size:12px;color:var(--text-muted)">Trámite: ${t.nombre}</div>
+            </div>
+          </div>
+          <button class="modal-close" onclick="cerrarSubmodalVolverFlujo()">×</button>
+        </div>
+        <div class="modal-body">
+          <div class="alert info" style="margin-bottom:16px">
+            Define si las solicitudes ingresadas por los estudiantes requieren una resolución o aprobación administrativa formal antes de pasar a la emisión final.
+          </div>
+          <div style="background:#F8FAFC;border:1px solid #CBD5E1;border-radius:10px;padding:16px">
+            <label style="font-size:14px;font-weight:700;display:flex;align-items:center;gap:10px;cursor:pointer">
+              <input type="checkbox" id="sub-aprobacion-toggle" ${actual ? 'checked' : ''} style="width:18px;height:18px">
+              <span>Habilitar etapa de Aprobación Administrativa</span>
+            </label>
+            <p style="margin:8px 0 0 28px;font-size:12.5px;color:var(--text-muted)">
+              Si se desactiva, una vez concluida la revisión del área institucional, el trámite avanzará directamente al pago o a la emisión sin requerir un paso administrativo adicional.
+            </p>
+          </div>
+        </div>
+        <div class="modal-foot">
+          <button type="button" class="btn" onclick="cerrarSubmodalVolverFlujo()">← Volver al Trámite</button>
+          <button type="button" class="btn btn-primary" onclick="guardarAprobacionFlujo('${id}')">✓ Guardar Ajuste</button>
+        </div>
+      `, { wide: false });
+    }
+
+    function guardarAprobacionFlujo(id) {
+      const t = DB.getTramite(id);
+      if (!t) return;
+      const chk = document.getElementById('sub-aprobacion-toggle');
+      t.requiereAprobacion = chk ? chk.checked : true;
+      DB.upsertTramite(t);
+      APP.toast({ icon: '✅', title: 'Aprobación actualizada', body: t.requiereAprobacion ? 'Etapa de aprobación activada.' : 'Aprobación automática activada.' });
+      cerrarSubmodalVolverFlujo();
+    }
+
+    function mostrarModalEmisionFlujo(id) {
+      const t = DB.getTramite(id);
+      if (!t) return;
+
+      APP.openModal(`
+        <div class="modal-head">
+          <div style="display:flex;align-items:center;gap:10px">
+            <div style="width:34px;height:34px;border-radius:8px;background:var(--brand-soft);color:var(--brand);display:flex;align-items:center;justify-content:center">
+              🏁
+            </div>
+            <div>
+              <h3>Etapa de Emisión y Salida del Trámite</h3>
+              <div style="font-size:12px;color:var(--text-muted)">Trámite: ${t.nombre}</div>
+            </div>
+          </div>
+          <button class="modal-close" onclick="cerrarSubmodalVolverFlujo()">×</button>
+        </div>
+        <div class="modal-body">
+          <p style="margin-top:0;font-size:13.5px;color:var(--text)">
+            Selecciona el componente que deseas configurar para la etapa final de emisión:
+          </p>
+          <div style="display:flex;flex-direction:column;gap:12px">
+            <div style="display:flex;align-items:center;justify-content:space-between;padding:14px;border:1px solid var(--border-soft);border-radius:10px;background:#FFF">
+              <div>
+                <div style="font-weight:700;font-size:13.5px;color:var(--brand-dark);display:flex;align-items:center;gap:6px">
+                  ${SVG_ICONS.correo} Plantillas de Notificación por Mail
+                </div>
+                <div style="font-size:12px;color:var(--text-muted);margin-top:3px">
+                  Configura remitente, asunto y mensaje enviado al estudiante en estados Aprobado, Rechazado y Observado.
+                </div>
+              </div>
+              <button type="button" class="btn btn-sm btn-outline" style="font-weight:700;white-space:nowrap" onclick="configurarCorreo('${id}')">
+                Configurar Mail ➔
+              </button>
+            </div>
+
+            <div style="display:flex;align-items:center;justify-content:space-between;padding:14px;border:1px solid var(--border-soft);border-radius:10px;background:#FFF">
+              <div>
+                <div style="font-weight:700;font-size:13.5px;color:var(--brand-dark);display:flex;align-items:center;gap:6px">
+                  ${SVG_ICONS.cronograma} Cronograma y Periodos Institucionales
+                </div>
+                <div style="font-size:12px;color:var(--text-muted);margin-top:3px">
+                  Define periodos académicos vigentes, facultades y carreras aplicables.
+                </div>
+              </div>
+              <button type="button" class="btn btn-sm btn-outline" style="font-weight:700;white-space:nowrap" onclick="gestionarCronograma('${id}')">
+                Gestionar Fechas ➔
+              </button>
+            </div>
+
+            <div style="display:flex;align-items:center;justify-content:space-between;padding:14px;border:1px solid var(--border-soft);border-radius:10px;background:#FFF">
+              <div>
+                <div style="font-weight:700;font-size:13.5px;color:var(--brand-dark);display:flex;align-items:center;gap:6px">
+                  ${SVG_ICONS.doc} Vista Previa del Documento / Constancia
+                </div>
+                <div style="font-size:12px;color:var(--text-muted);margin-top:3px">
+                  Verifica el membrete oficial, emisor, firmante institucional y formato emitido.
+                </div>
+              </div>
+              <button type="button" class="btn btn-sm btn-outline" style="font-weight:700;white-space:nowrap" onclick="DOC.preview(DB.getTramite('${id}'))">
+                Vista Previa ➔
+              </button>
+            </div>
+          </div>
+        </div>
+        <div class="modal-foot">
+          <button type="button" class="btn" onclick="cerrarSubmodalVolverFlujo()">← Volver al Trámite</button>
+        </div>
+      `, { wide: false });
+    }
+
+    // =========================================================================
+    // MODAL PRINCIPAL: REGISTRAR / EDITAR TRÁMITE (Propuesta B)
+    // =========================================================================
+    function editarTramite(id, opts = {}) {
+      const t = id ? JSON.parse(JSON.stringify(DB.getTramite(id))) : {
+        id: null, codigo: 'T-00' + (DB.tramites().length + 1), nombre: '', tipo: 'Constancia', modelo: 'constancia',
+        descripcion: '', conceptoCodigo: '', conceptoServicio: '', costo: 0,
+        tiempoVigenciaHrs: 48, plazoRecojoDias: 3, observacion: '',
+        tipoActivacion: 'Permanente', envioCorreo: true, activo: true, area: 'Registros Académicos',
+        pagoMomento: 'despues', requiereAprobacion: true, diasEntrega: 3,
+        audiencia: { niveles: ['pregrado'], ciclos: [], minCreditos: 0, tercioSuperior: false, quintoSuperior: false, promedioMin: 0 },
+        requisitos: [], proceso: [], cronogramas: []
+      };
+      DRAFT = t;
+      const isSaved = Boolean(id);
+      const justSaved = Boolean(opts && opts.justSaved);
+      const areas = DB.areas();
+      const a = t.audiencia || { niveles: ['pregrado'], ciclos: [], minCreditos: 0 };
+      const pl = DOC.getPlantilla(t);
+      const cicloChips = CICLOS.map(c => `<label class="chip-check ${a.ciclos && a.ciclos.includes(c) ? 'checked' : ''}"><input type="checkbox" data-ciclo="${c}" ${a.ciclos && a.ciclos.includes(c) ? 'checked' : ''} onchange="this.closest('.chip-check').classList.toggle('checked',this.checked)">${c}° ciclo</label>`).join('');
+
+      const titLen = (t.nombre || '').length;
+      const obsLen = (t.observacion || '').length;
+      const esPago = (t.costo > 0 || (t.conceptoCodigo && t.conceptoCodigo !== '00000000') || t.requierePago === true);
+
+      // Banner interactivo según estado
+      let bannerHTML = '';
+      if (justSaved) {
+        bannerHTML = `
+          <div class="flow-interactive-banner active">
+            <span style="font-size:20px">🎉</span>
+            <div>
+              <b>¡Trámite guardado con éxito!</b> Las tarjetas del flujo lineal de abajo ya están interactivas. Haz clic sobre cualquiera de ellas para configurar sus requisitos, áreas de revisión o correos de salida.
+            </div>
+          </div>
+        `;
+      } else if (isSaved) {
+        bannerHTML = `
+          <div class="flow-interactive-banner active" style="background:#F0FDF4;border-color:#BBF7D0;color:#166534">
+            <span style="font-size:18px">⚙️</span>
+            <div>
+              <b>Modo Configuración por Flujo:</b> Haz clic en cualquiera de las etapas del diagrama lineal para gestionar requisitos, áreas secuenciales, aprobación o correos.
+            </div>
+          </div>
+        `;
+      } else {
+        bannerHTML = `
+          <div class="flow-interactive-banner pending">
+            <span style="font-size:18px">💡</span>
+            <div>
+              <b>Paso 1:</b> Define el título, descripción y estructura general del flujo. Al presionar <b>«Grabar Trámite»</b> podrás entrar a configurar el detalle de cada etapa haciendo clic en sus tarjetas.
+            </div>
+          </div>
+        `;
+      }
+
+      APP.openModal(`
+        <div class="modal-head">
+          <div style="display:flex;align-items:center;gap:12px">
+            <div style="width:36px;height:36px;border-radius:8px;background:var(--brand-soft);color:var(--brand);display:flex;align-items:center;justify-content:center;flex-shrink:0">
+              ${SVG_ICONS.edit}
+            </div>
+            <div>
+              <h3>${id ? ('Editar Trámite: ' + (t.nombre || '')) : 'Registrar Nuevo Trámite (Propuesta B)'}</h3>
+              <div style="font-size:12px;color:var(--text-muted)">Institución: Universidad Privada Norbert Wiener S.A.</div>
+            </div>
+          </div>
+          <button class="modal-close" onclick="cerrarSubmodalVolverFlujo()">×</button>
+        </div>
+        <div class="modal-body">
+          
+          ${bannerHTML}
+
+          <div class="form-grid">
+            <div class="field full">
+              <label>Título: *</label>
+              <input class="input" id="t-titulo" maxlength="500" value="${t.nombre || ''}" placeholder="Ej. BECA IMPULSA 30% o CONSTANCIA DE MATRÍCULA" oninput="updateCharCounter('t-tit-count', this.value.length, 500)">
+              <div class="char-limit-text" id="t-tit-count">Ingrese como máximo 500 caracteres. (${titLen}/500)</div>
+            </div>
+
+            <!-- DESCRIPCIÓN CON EDITOR ENRIQUECIDO -->
+            <div class="field full">
+              <label>Descripción:</label>
+              <div class="rte-box">
+                <div class="rte-bar">
+                  <button type="button" class="rte-tool-btn" title="Fuente HTML" onclick="rteCommand('t-desc','bold')">&lt;/&gt;</button>
+                  <button type="button" class="rte-tool-btn" title="Negrita" onclick="rteCommand('t-desc','bold')"><b>B</b></button>
+                  <button type="button" class="rte-tool-btn" title="Cursiva" onclick="rteCommand('t-desc','italic')"><i>I</i></button>
+                  <button type="button" class="rte-tool-btn" title="Subrayado" onclick="rteCommand('t-desc','underline')"><u>U</u></button>
+                  <button type="button" class="rte-tool-btn" title="Tachado" onclick="rteCommand('t-desc','strike')"><s>S</s></button>
+                  <span style="width:1px;height:16px;background:#CBD5E1;margin:0 4px"></span>
+                  <button type="button" class="rte-tool-btn" title="Lista con viñetas" onclick="rteCommand('t-desc','list-ul')">•≡</button>
+                  <button type="button" class="rte-tool-btn" title="Lista numerada" onclick="rteCommand('t-desc','list-ol')">1≡</button>
+                  <button type="button" class="rte-tool-btn" title="Cita" onclick="rteCommand('t-desc','quote')">“ ”</button>
+                  <button type="button" class="rte-tool-btn" title="Enlace" onclick="rteCommand('t-desc','link')">
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg>
+                  </button>
+                </div>
+                <textarea class="rte-editor-area" id="t-desc" rows="3" placeholder="Ingrese la descripción detallada del trámite...">${t.descripcion || ''}</textarea>
+              </div>
+            </div>
+          </div>
+
+          <!-- ============================================================= -->
+          <!-- CONSTRUCTOR Y DIAGRAMA VISUAL DE FLUJO (Estilo flujos.html)   -->
+          <!-- ============================================================= -->
+          <div class="flow-builder-box">
+            <div class="flow-builder-header">
+              <div class="flow-builder-title">
+                <span style="color:var(--brand)">${SVG_ICONS.proceso}</span>
+                <span>Flujo de Pasos del Trámite</span>
+                <span class="tag teal" style="font-size:11px">Diagrama Lineal</span>
+              </div>
+              <div style="font-size:12px;color:var(--text-muted);font-weight:600">
+                ${isSaved ? '🖱️ Clic en cada etapa para configurar' : 'Diseña el flujo preliminar'}
+              </div>
+            </div>
+
+            <!-- Controles interactivos de configuración rápida del flujo (Labels arriba) -->
+            <div class="flow-controls-row">
+              <div class="flow-control-field">
+                <label class="flow-control-label">Área de Revisión:</label>
+                <div class="select-wrap inline" style="margin:0;width:210px">
+                  <select class="select" id="t-area-resp" style="padding:5px 10px;font-size:12.5px;height:36px" onchange="actualizarDiagramaFlujoModal()">
+                    ${areas.map(ar => `<option value="${ar.nombre}" ${t.area === ar.nombre ? 'selected' : ''}>${ar.nombre}</option>`).join('')}
+                  </select>
+                </div>
+              </div>
+
+              <div class="flow-control-field">
+                <label class="flow-control-label">Aprobación Administrativa:</label>
+                <div class="pago-segmented-wrap">
+                  <button type="button" class="pago-segmented-btn ${!t.requiereAprobacion ? 'active' : ''}" id="btn-apr-no" onclick="setModalAprobacion(false)">No requiere</button>
+                  <button type="button" class="pago-segmented-btn ${t.requiereAprobacion ? 'active' : ''}" id="btn-apr-si" onclick="setModalAprobacion(true)">Requerida</button>
+                </div>
+                <input type="hidden" id="t-requiere-apr-val" value="${t.requiereAprobacion ? 'si' : 'no'}">
+              </div>
+
+              <div class="flow-control-field">
+                <label class="flow-control-label">Modalidad de Pago:</label>
+                <div class="pago-segmented-wrap">
+                  <button type="button" class="pago-segmented-btn ${!esPago ? 'active' : ''}" id="btn-pago-gratis" onclick="setModalPago(false)">Gratuito</button>
+                  <button type="button" class="pago-segmented-btn ${esPago ? 'active' : ''}" id="btn-pago-costo" onclick="setModalPago(true)">Con Pago</button>
+                </div>
+                <input type="hidden" id="t-es-pago-val" value="${esPago ? 'si' : 'no'}">
+              </div>
+
+              <div class="flow-control-field" id="wrap-pago-momento" style="${esPago ? 'display:flex;' : 'display:none;'}">
+                <label class="flow-control-label">Momento de Cobro:</label>
+                <div class="select-wrap inline" style="margin:0;width:205px">
+                  <select class="select" id="t-pago-momento" style="padding:5px 10px;font-size:12.5px;height:36px" onchange="actualizarDiagramaFlujoModal()">
+                    <option value="despues" ${t.pagoMomento !== 'antes' ? 'selected' : ''}>Después de revisión</option>
+                    <option value="antes" ${t.pagoMomento === 'antes' ? 'selected' : ''}>Al solicitar (anticipado)</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+
+            <!-- Contenedor del Diagrama Lineal (Desglose de múltiples áreas) -->
+            <div class="flow-container-wrap">
+              <div class="flow-line-diagram" id="modal-flow-line-diagram" data-tramite-id="${t.id || ''}">
+                ${renderModalFlowNodes({
+        id: t.id,
+        area: t.area,
+        proceso: (t.proceso && t.proceso.length) ? t.proceso : [{ area: t.area, duracionDias: 2 }],
+        requiereApr: t.requiereAprobacion,
+        esPago: esPago,
+        pagoMomento: t.pagoMomento,
+        costo: t.costo,
+        dias: t.plazoRecojoDias || 3,
+        reqCount: (t.requisitos || []).length,
+        isSaved: isSaved
+      })}
+              </div>
+            </div>
+          </div>
+
+          <!-- ============================================================= -->
+          <!-- CONCEPTO DE CAJA / FACTURACIÓN (Labels arriba, + Agregar)     -->
+          <!-- ============================================================= -->
+          <div id="box-concepto-pago" style="${esPago ? 'display:block;' : 'display:none;'}margin-top:14px;background:#F8FAFC;border:1px solid #CBD5E1;border-radius:10px;padding:16px">
+            <div style="display:flex;align-items:flex-end;gap:14px;flex-wrap:wrap">
+              
+              <!-- Botón Agregar con label encima -->
+              <div class="flow-control-field">
+                <label class="flow-control-label">Concepto de Caja:</label>
+                <button class="btn btn-primary" type="button" style="height:36px;padding:0 14px;display:inline-flex;align-items:center;gap:6px;font-weight:700;font-size:12.5px" onclick="abrirCatalogoConceptos()" title="Seleccionar concepto desde el catálogo contable">
+                  ${SVG_ICONS.plus} <span>Agregar</span>
+                </button>
+              </div>
+
+              <!-- Código (No focusable) -->
+              <div class="flow-control-field" style="width:120px">
+                <label class="flow-control-label">Código:</label>
+                <input class="input" id="t-concepto-cod" value="${t.conceptoCodigo || ''}" placeholder="Sin código" readonly tabindex="-1" onfocus="this.blur()" style="height:36px;background:#F1F5F9;border:1px solid #CBD5E1;font-weight:700;font-family:monospace;color:var(--brand-dark);cursor:default;outline:none;user-select:none;box-shadow:none">
+              </div>
+
+              <!-- Servicio Contable (No focusable) -->
+              <div class="flow-control-field" style="flex:1;min-width:220px">
+                <label class="flow-control-label">Servicio Contable de Facturación:</label>
+                <input class="input" id="t-concepto-serv" value="${t.conceptoServicio || ''}" placeholder="Ningún concepto seleccionado (clic en + Agregar)" readonly tabindex="-1" onfocus="this.blur()" style="height:36px;background:#F1F5F9;border:1px solid #CBD5E1;font-weight:600;color:var(--text);cursor:default;outline:none;user-select:none;box-shadow:none">
+              </div>
+
+              <!-- Costo: S/. (Editable con label encima) -->
+              <div class="flow-control-field" style="width:130px">
+                <label class="flow-control-label">Costo: S/.</label>
+                <input class="input" id="t-costo" type="number" step="0.5" min="0" value="${t.costo || 0}" oninput="actualizarDiagramaFlujoModal()" style="height:36px;font-weight:700;color:var(--brand-dark)">
+              </div>
+
+            </div>
+          </div>
+
+          <!-- ============================================================= -->
+          <!-- FORM-GRID: PARÁMETROS OPERATIVOS INSTITUCIONALES               -->
+          <!-- ============================================================= -->
+          <div class="form-grid" style="margin-top:14px">
+            <div class="field">
+              <label>Tiempo vigencia del trámite(Hrs):</label>
+              <input class="input" id="t-vigencia" type="number" min="0" value="${t.tiempoVigenciaHrs || 48}">
+            </div>
+            <div class="field">
+              <label>Plazo Máx. Recojo (Días):</label>
+              <input class="input" id="t-recojo" type="number" min="0" value="${t.plazoRecojoDias || 3}" oninput="actualizarDiagramaFlujoModal()">
+            </div>
+          </div>
+
+          <!-- OBSERVACIÓN INSTITUCIONAL Y CONFIGURACIONES ADICIONALES -->
+          <div class="form-grid" style="margin-top:14px">
+            <div class="field full">
+              <label>Observación:</label>
+              <textarea class="input" id="t-obs" rows="2" maxlength="500" placeholder="Ingrese como máximo 500 caracteres..." oninput="updateCharCounter('t-obs-count', this.value.length, 500)">${t.observacion || ''}</textarea>
+              <div class="char-limit-text" id="t-obs-count">Ingrese como máximo 500 caracteres. (${obsLen}/500)</div>
+            </div>
+
+            <div class="field">
+              <label>Tipo de Activación:</label>
+              <div class="select-wrap">
+                <select class="select" id="t-tipo-act">
+                  <option value="Permanente" ${t.tipoActivacion === 'Permanente' ? 'selected' : ''}>Permanente</option>
+                  <option value="Cronograma" ${t.tipoActivacion === 'Cronograma' ? 'selected' : ''}>Cronograma</option>
+                </select>
+              </div>
+            </div>
+            <div class="field">
+              <label>Envio Correo Personalizado:</label>
+              <div class="select-wrap">
+                <select class="select" id="t-envio-correo">
+                  <option value="no" ${!t.envioCorreo ? 'selected' : ''}>No</option>
+                  <option value="si" ${t.envioCorreo ? 'selected' : ''}>Si</option>
+                </select>
+              </div>
+            </div>
+            <div class="field">
+              <label>Habilitar:</label>
+              <div class="select-wrap">
+                <select class="select" id="t-habilitar">
+                  <option value="si" ${t.activo ? 'selected' : ''}>Si</option>
+                  <option value="no" ${!t.activo ? 'selected' : ''}>No</option>
+                </select>
+              </div>
+            </div>
+          </div>
+
+          <!-- OPCIONES AVANZADAS: OCULTAS DE MOMENTO SEGÚN REQUERIMIENTO -->
+          <div id="opciones-avanzadas-tramite" style="display:none">
+            <input type="hidden" id="t-codigo" value="${t.codigo || t.id || 'AUTOGENERADO'}">
+            <input type="checkbox" id="t-aud-pre" ${a.niveles && a.niveles.includes('pregrado') ? 'checked' : ''}>
+            <input type="checkbox" id="t-aud-post" ${a.niveles && a.niveles.includes('postgrado') ? 'checked' : ''}>
+            <input type="checkbox" id="t-aud-tercio" ${a.tercioSuperior ? 'checked' : ''}>
+            <input type="checkbox" id="t-aud-quinto" ${a.quintoSuperior ? 'checked' : ''}>
+            <input type="number" id="t-aud-cred" value="${a.minCreditos || 0}">
+            <input type="number" id="t-aud-prom" value="${a.promedioMin || 0}">
+            <select id="t-tipo"><option selected>${t.tipo || 'Constancia'}</option></select>
+            <select id="t-modelo"><option selected>${t.modelo || 'constancia'}</option></select>
+            <input id="p-emisor" value="${pl.emisor || ''}">
+            <input id="p-titulo" value="${pl.titulo || ''}">
+            <textarea id="p-cuerpo">${pl.cuerpo || ''}</textarea>
+            <input id="p-firmante" value="${pl.firmante || ''}">
+            <input id="p-cargo" value="${pl.cargo || ''}">
+            <div id="chips-ciclos-container">${cicloChips}</div>
+          </div>
+
+        </div>
+        <div class="modal-foot">
+          <button type="button" class="btn" onclick="APP.closeModal()">Cerrar</button>
+          <button type="button" class="btn btn-primary" onclick="guardarTramite('${id || ''}', true)" style="display:inline-flex;align-items:center;gap:6px">
+            ${SVG_ICONS.check} ${id ? 'Guardar y Continuar Configurando' : 'Grabar Trámite'}
+          </button>
+        </div>
+      `, { wide: true });
+    }
+
+    // Modal selector de conceptos (Captura 4)
+    function abrirCatalogoConceptos() {
+      const concs = DB.conceptos();
+      const rows = concs.map(c => `
+        <tr>
+          <td style="text-align:center"><button class="btn-circle-add" title="Seleccionar concepto" onclick="seleccionarConcepto('${c.codigo}', '${c.servicio.replace(/'/g, "\\'")}', ${c.monto})">${SVG_ICONS.plus}</button></td>
+          <td><span class="mono strong" style="color:var(--brand-dark)">${c.codigo}</span></td>
+          <td><b>${c.servicio}</b></td>
+          <td><b>${APP.money(c.monto)}</b></td>
+          <td><span class="muted" style="font-size:12px">${c.obs || '-'}</span></td>
+        </tr>
+      `).join('');
+
+      const popup = document.createElement('div');
+      popup.id = 'concept-popup-layer';
+      popup.style.cssText = 'position:fixed;inset:0;background:rgba(15,23,42,0.65);backdrop-filter:blur(2px);display:flex;align-items:center;justify-content:center;z-index:9999;padding:20px;';
+      popup.innerHTML = `
+        <div style="background:#FFF;border-radius:12px;max-width:760px;width:100%;max-height:85vh;display:flex;flex-direction:column;box-shadow:var(--shadow-lg);border:1px solid var(--border)">
+          <div style="padding:14px 20px;border-bottom:1px solid var(--border-soft);display:flex;justify-content:space-between;align-items:center">
+            <h4 style="margin:0;font-size:16px;color:var(--brand-dark)">Catálogo de Conceptos de Caja / Facturación</h4>
+            <button class="modal-close" onclick="cerrarConceptPopup()">×</button>
+          </div>
+          <div style="padding:14px 20px;overflow-y:auto;flex:1">
+            <table class="modal-table" style="margin:0">
+              <thead>
+                <tr>
+                  <th style="width:45px;text-align:center">Sel.</th>
+                  <th>Código</th>
+                  <th>Servicio</th>
+                  <th>Monto</th>
+                  <th>Observación</th>
+                </tr>
+              </thead>
+              <tbody>${rows}</tbody>
+            </table>
+          </div>
+          <div style="padding:12px 20px;border-top:1px solid var(--border-soft);display:flex;justify-content:flex-end">
+            <button class="btn btn-sm" onclick="cerrarConceptPopup()">Cerrar</button>
+          </div>
+        </div>
+      `;
+      document.body.appendChild(popup);
+    }
+
+    function cerrarConceptPopup() {
+      const p = document.getElementById('concept-popup-layer');
+      if (p) p.remove();
+    }
+
+    function seleccionarConcepto(codigo, servicio, monto) {
+      if (document.getElementById('t-concepto-cod')) document.getElementById('t-concepto-cod').value = codigo;
+      if (document.getElementById('t-concepto-serv')) document.getElementById('t-concepto-serv').value = servicio;
+      if (document.getElementById('t-costo')) document.getElementById('t-costo').value = monto;
+      if (document.getElementById('t-titulo') && !document.getElementById('t-titulo').value) {
+        document.getElementById('t-titulo').value = servicio;
+      }
+      cerrarConceptPopup();
+      actualizarDiagramaFlujoModal();
+      APP.toast({ icon: '🏷️', title: 'Concepto vinculado', body: `Código ${codigo}: ${servicio} (S/ ${monto})` });
+    }
+
+    function guardarTramite(id, keepOpen = false) {
+      const nombreEl = document.getElementById('t-titulo');
+      if (!nombreEl || !nombreEl.value.trim()) {
+        APP.toast({ icon: '⚠️', title: 'Falta título', body: 'Ingresa el título o nombre del trámite.' });
+        if (nombreEl) nombreEl.focus();
+        return;
+      }
+      const nombre = nombreEl.value.trim();
+
+      const niveles = [];
+      if (document.getElementById('t-aud-pre') && document.getElementById('t-aud-pre').checked) niveles.push('pregrado');
+      if (document.getElementById('t-aud-post') && document.getElementById('t-aud-post').checked) niveles.push('postgrado');
+      const ciclos = Array.from(document.querySelectorAll('input[data-ciclo]:checked')).map(i => +i.dataset.ciclo);
+
+      const existing = id ? DB.getTramite(id) : null;
+      const esPagoVal = document.getElementById('t-es-pago-val') ? (document.getElementById('t-es-pago-val').value === 'si') : false;
+      const costoVal = esPagoVal ? (parseFloat(document.getElementById('t-costo').value) || 0) : 0;
+      const areaResp = document.getElementById('t-area-resp') ? document.getElementById('t-area-resp').value : (existing ? existing.area : 'Registros Académicos');
+      const reqApr = document.getElementById('t-requiere-apr-val') ? (document.getElementById('t-requiere-apr-val').value === 'si') : (existing ? existing.requiereAprobacion : true);
+      const pagoMomento = document.getElementById('t-pago-momento') ? document.getElementById('t-pago-momento').value : (existing ? existing.pagoMomento : 'despues');
+
+      const nuevoId = id || (existing ? existing.id : 'T-00' + (DB.tramites().length + 1));
+
+      const t = {
+        id: nuevoId,
+        codigo: document.getElementById('t-codigo') ? document.getElementById('t-codigo').value : (existing ? existing.codigo : nuevoId),
+        nombre,
+        descripcion: document.getElementById('t-desc') ? document.getElementById('t-desc').value.trim() : (existing ? existing.descripcion : ''),
+        conceptoCodigo: esPagoVal ? (document.getElementById('t-concepto-cod') ? document.getElementById('t-concepto-cod').value.trim() : '') : '00000000',
+        conceptoServicio: esPagoVal ? (document.getElementById('t-concepto-serv') ? document.getElementById('t-concepto-serv').value.trim() : '') : 'COSTO CERO / GRATUITO',
+        costo: costoVal,
+        tiempoVigenciaHrs: parseInt(document.getElementById('t-vigencia').value) || 48,
+        plazoRecojoDias: parseInt(document.getElementById('t-recojo').value) || 3,
+        area: areaResp,
+        observacion: document.getElementById('t-obs') ? document.getElementById('t-obs').value.trim() : '',
+        tipoActivacion: document.getElementById('t-tipo-act').value,
+        envioCorreo: document.getElementById('t-envio-correo').value === 'si',
+        pagoMomento: pagoMomento,
+        activo: document.getElementById('t-habilitar').value === 'si',
+        fechaRegistro: existing ? (existing.fechaRegistro || '2026-07-19') : new Date().toISOString().slice(0, 10),
+        tipo: document.getElementById('t-tipo') ? document.getElementById('t-tipo').value : (existing ? existing.tipo : 'Constancia'),
+        modelo: document.getElementById('t-modelo') ? document.getElementById('t-modelo').value : (existing ? existing.modelo : 'constancia'),
+        diasEntrega: parseInt(document.getElementById('t-recojo').value) || 3,
+        requiereAprobacion: reqApr,
+        requierePago: esPagoVal,
+        requiereAdjunto: existing ? existing.requiereAdjunto : false,
+        adjuntoIndicacion: existing ? existing.adjuntoIndicacion : '',
+        intenciones: existing ? existing.intenciones : ['todos'],
+        audiencia: {
+          niveles: niveles.length ? niveles : (existing && existing.audiencia ? existing.audiencia.niveles : ['pregrado']),
+          ciclos,
+          minCreditos: document.getElementById('t-aud-cred') ? (parseInt(document.getElementById('t-aud-cred').value) || 0) : 0,
+          promedioMin: document.getElementById('t-aud-prom') ? (parseFloat(document.getElementById('t-aud-prom').value) || 0) : 0,
+          tercioSuperior: document.getElementById('t-aud-tercio') ? document.getElementById('t-aud-tercio').checked : false,
+          quintoSuperior: document.getElementById('t-aud-quinto') ? document.getElementById('t-aud-quinto').checked : false
+        },
+        plantilla: {
+          generaDocumento: existing ? DOC.getPlantilla(existing).generaDocumento : true,
+          emisor: document.getElementById('p-emisor') ? document.getElementById('p-emisor').value.trim() : 'Universidad Privada Norbert Wiener',
+          titulo: document.getElementById('p-titulo') ? document.getElementById('p-titulo').value.trim() : nombre,
+          cuerpo: document.getElementById('p-cuerpo') ? document.getElementById('p-cuerpo').value.trim() : '',
+          firmante: document.getElementById('p-firmante') ? document.getElementById('p-firmante').value.trim() : 'Dirección de Registros Académicos',
+          cargo: document.getElementById('p-cargo') ? document.getElementById('p-cargo').value.trim() : 'Secretario General'
+        },
+        requisitos: existing && existing.requisitos ? existing.requisitos : [],
+        proceso: existing && existing.proceso && existing.proceso.length ? existing.proceso : [
+          { id: 'P-1', orden: 1, area: areaResp, descripcion: 'revisión documentaria', observacion: '', duracionDias: 2, activo: true }
+        ],
+        cronogramas: existing && existing.cronogramas ? existing.cronogramas : [],
+        correos: existing && existing.correos ? existing.correos : [],
+        correoConfig: existing && existing.correoConfig ? existing.correoConfig : {
+          remitente: 'tramites@uwiener.edu.pe',
+          asunto: `Actualización sobre tu trámite: ${nombre}`,
+          mensaje: `Estimado(a) estudiante, tu trámite ${nombre} se encuentra en atención.`
+        }
+      };
+
+      DB.upsertTramite(t);
+      render();
+
+      if (keepOpen) {
+        APP.toast({ icon: '✅', title: 'Trámite Guardado', body: `«${nombre}» guardado. ¡Tarjetas del flujo activadas!` });
+        editarTramite(nuevoId, { justSaved: true });
+      } else {
+        APP.closeModal();
+        APP.toast({ icon: '✅', title: 'Trámite Guardado', body: `«${nombre}» se configuró exitosamente.` });
+      }
+    }
+
+    function eliminarTramite(id) {
+      const t = DB.getTramite(id);
+      if (!t) return;
+      mostrarConfirmacionModal({
+        titulo: 'Eliminar Trámite',
+        icono: SVG_ICONS.warn,
+        mensaje: `¿Estás seguro de que deseas eliminar permanentemente el trámite <b>«${t.nombre}»</b>?<br><br><span style="font-size:12px;color:var(--text-muted)">Esta acción retirará el trámite del catálogo oficial. No afectará las solicitudes históricas registradas.</span>`,
+        textoBoton: 'Sí, Eliminar Trámite',
+        onConfirm: () => {
+          DB.deleteTramite(id);
+          cerrarConfirmacionModal();
+          APP.toast({ icon: '🗑️', title: 'Trámite eliminado', body: `«${t.nombre}» fue retirado del catálogo.` });
+          render();
+        }
+      });
+    }
+
+    // =========================================================================
+    // MODAL: EDITAR REQUISITO Y PROCESO DEL TRÁMITE (Capturas 3 y 4)
+    // =========================================================================
+    let SHOW_AREAS_POPUP = false;
+    let SHOW_REQS_POPUP = false;
+
+    function editarProcesoTramite(id) {
+      const t = JSON.parse(JSON.stringify(DB.getTramite(id)));
+      if (!Array.isArray(t.requisitos)) t.requisitos = [];
+      if (!Array.isArray(t.proceso)) t.proceso = [];
+
+      window._PROCESO_DRAFT = t;
+      SHOW_AREAS_POPUP = false;
+      SHOW_REQS_POPUP = false;
+
+      renderProcesoModalBody();
+    }
+
+    function renderProcesoModalBody() {
+      const t = window._PROCESO_DRAFT;
+      const areas = DB.areas();
+      const allReqs = DB.requisitos();
+
+      // Popup / Subpanel de Requisitos Disponibles
+      let reqPopupHTML = '';
+      if (SHOW_REQS_POPUP) {
+        const dispoReqs = allReqs.map((rq, rIdx) => `
+          <tr>
+            <td style="text-align:center">
+              <button type="button" class="btn-circle-add" title="Agregar requisito a este trámite" onclick="procesoAgregarRequisitoItem('${rq.id}')">${SVG_ICONS.plus}</button>
+            </td>
+            <td style="text-align:center"><span class="mono muted">${rIdx + 1}</span></td>
+            <td><b>${rq.titulo}</b></td>
+            <td><span class="tag gray" style="font-size:11px">${rq.requiereAdjunto ? (rq.formato || 'PDF') : 'Sin archivo'}</span></td>
+          </tr>
+        `).join('');
+
+        reqPopupHTML = `
+          <div style="background:#F8FAFC;border:1px solid #CBD5E1;border-radius:10px;padding:14px;margin-bottom:14px">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+              <b style="font-size:13.5px;color:var(--brand-dark)">Catálogo Maestro de Requisitos:</b>
+              <button type="button" class="btn-circle-del" title="Cerrar selección" onclick="SHOW_REQS_POPUP=false;renderProcesoModalBody()">${SVG_ICONS.cross}</button>
+            </div>
+            <div style="max-height:180px;overflow-y:auto;border:1px solid var(--border-soft);border-radius:8px;background:#FFF">
+              <table class="modal-table" style="margin:0">
+                <thead>
+                  <tr>
+                    <th style="width:45px;text-align:center">Agregar</th>
+                    <th style="width:40px;text-align:center">Nro.</th>
+                    <th>Requisito</th>
+                    <th style="width:110px">Formato</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  ${dispoReqs.length ? dispoReqs : `<tr><td colspan="4" style="text-align:center;padding:14px;color:var(--text-muted)">No hay requisitos disponibles en el catálogo.</td></tr>`}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        `;
+      }
+
+      // Popup / Subpanel de Selección de Áreas (Captura 4)
+      let areasPopupHTML = '';
+      if (SHOW_AREAS_POPUP) {
+        const areaRows = areas.map((ar, aIdx) => `
+          <tr>
+            <td style="text-align:center">
+              <button type="button" class="btn-circle-add" title="Agregar al proceso" onclick="procesoAgregarAreaItem('${ar.nombre.replace(/'/g, "\\'")}')">${SVG_ICONS.plus}</button>
+            </td>
+            <td style="text-align:center"><span class="mono muted">${aIdx + 1}</span></td>
+            <td><b>${ar.nombre}</b></td>
+          </tr>
+        `).join('');
+
+        areasPopupHTML = `
+          <div style="background:#F8FAFC;border:1px solid #CBD5E1;border-radius:10px;padding:14px;margin-bottom:14px">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+              <b style="font-size:13.5px;color:var(--brand-dark)">Áreas:</b>
+              <button type="button" class="btn-circle-del" title="Cerrar áreas" onclick="SHOW_AREAS_POPUP=false;renderProcesoModalBody()">${SVG_ICONS.cross}</button>
+            </div>
+            <div style="max-height:220px;overflow-y:auto;border:1px solid var(--border-soft);border-radius:8px;background:#FFF">
+              <table class="modal-table" style="margin:0">
+                <thead>
+                  <tr>
+                    <th style="width:45px;text-align:center"></th>
+                    <th style="width:45px;text-align:center">Nro.</th>
+                    <th>Área</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  ${areaRows.length ? areaRows : `<tr><td colspan="3" style="text-align:center;padding:14px;color:var(--text-muted)">No hay áreas institucionales registradas.</td></tr>`}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        `;
+      }
+
+      // Filas de Requisitos vinculados (Captura 3)
+      const reqRows = (t.requisitos || []).map((r, idx) => `
+        <tr>
+          <td style="text-align:center"><span class="mono muted">${idx + 1}</span></td>
+          <td><b>${r.titulo}</b></td>
+          <td style="text-align:center">
+            <select class="select" style="padding:4px 8px;font-size:12px;width:75px" onchange="window._PROCESO_DRAFT.requisitos[${idx}].adjuntarArchivo = (this.value === 'si')">
+              <option value="si" ${r.adjuntarArchivo ? 'selected' : ''}>Sí</option>
+              <option value="no" ${!r.adjuntarArchivo ? 'selected' : ''}>No</option>
+            </select>
+          </td>
+          <td style="text-align:center">
+            <select class="select" style="padding:4px 8px;font-size:12px;width:75px" onchange="window._PROCESO_DRAFT.requisitos[${idx}].activo = (this.value === 'si')">
+              <option value="si" ${r.activo ? 'selected' : ''}>Sí</option>
+              <option value="no" ${!r.activo ? 'selected' : ''}>No</option>
+            </select>
+          </td>
+          <td style="text-align:center">
+            <input class="input" type="number" min="1" value="${r.orden || (idx + 1)}" style="width:60px;padding:4px 6px;text-align:center" onchange="window._PROCESO_DRAFT.requisitos[${idx}].orden = parseInt(this.value)||1">
+          </td>
+          <td style="text-align:center">
+            <button type="button" class="btn-circle-del" title="Quitar requisito" onclick="confirmarQuitarRequisitoTramite(${idx})">${SVG_ICONS.trash}</button>
+          </td>
+        </tr>
+      `).join('');
+
+      // Filas de Procesos / Áreas secuenciales
+      const procRows = (t.proceso || []).map((p, idx) => `
+        <tr>
+          <td style="text-align:center"><span class="mono muted">${idx + 1}</span></td>
+          <td>
+            <div class="strong" style="font-size:13px;color:var(--text);margin-bottom:2px">${p.area}</div>
+          </td>
+          <td>
+            <textarea class="input" style="font-size:12px;min-height:50px;padding:6px;width:100%" maxlength="500" placeholder="Descripción de la tarea a realizar en esta etapa..." onchange="window._PROCESO_DRAFT.proceso[${idx}].descripcion = this.value">${p.descripcion || ''}</textarea>
+            <div class="char-limit-text">máx. 500 caracteres.</div>
+          </td>
+          <td>
+            <textarea class="input" style="font-size:12px;min-height:50px;padding:6px;width:100%" maxlength="500" placeholder="Observación institucional..." onchange="window._PROCESO_DRAFT.proceso[${idx}].observacion = this.value">${p.observacion || ''}</textarea>
+            <div class="char-limit-text">máx. 500 caracteres.</div>
+          </td>
+          <td style="text-align:center">
+            <div style="display:inline-flex;align-items:center;gap:4px">
+              <input class="input" type="number" min="1" value="${p.duracionDias || 2}" style="width:55px;padding:4px 6px;text-align:center" onchange="window._PROCESO_DRAFT.proceso[${idx}].duracionDias = parseInt(this.value)||1">
+              <span style="font-size:11.5px;color:var(--text-muted)">días.</span>
+            </div>
+          </td>
+          <td style="text-align:center">
+            <select class="select" style="padding:4px 8px;font-size:12px;width:75px" onchange="window._PROCESO_DRAFT.proceso[${idx}].activo = (this.value === 'si')">
+              <option value="si" ${p.activo ? 'selected' : ''}>Si</option>
+              <option value="no" ${!p.activo ? 'selected' : ''}>No</option>
+            </select>
+          </td>
+          <td style="text-align:center">
+            <button type="button" class="btn-circle-del" title="Quitar paso del proceso" onclick="confirmarQuitarPasoProceso(${idx})">${SVG_ICONS.trash}</button>
+          </td>
+        </tr>
+      `).join('');
+
+      APP.openModal(`
+        <div class="modal-head">
+          <div style="display:flex;align-items:center;gap:12px">
+            <div style="width:36px;height:36px;border-radius:8px;background:var(--brand-soft);color:var(--brand);display:flex;align-items:center;justify-content:center;flex-shrink:0">
+              ${SVG_ICONS.proceso}
+            </div>
+            <div>
+              <h3>Editar Requisito y Proceso: ${t.nombre}</h3>
+              <div style="font-size:12px;color:var(--text-muted)">Configuración de flujo operativo secuencial institucional</div>
+            </div>
+          </div>
+          <button class="modal-close" onclick="cerrarSubmodalVolverFlujo()">×</button>
+        </div>
+        <div class="modal-body">
+
+          <!-- BLOQUE 1: REQUISITOS -->
+          <div style="background:#FFF;border:1px solid var(--border-soft);border-radius:10px;padding:16px;margin-bottom:18px">
+            <div style="margin-bottom:10px">
+              <b style="font-size:13.5px;color:var(--text);display:block;margin-bottom:8px">Requisitos:</b>
+              <button type="button" class="btn btn-dark" onclick="SHOW_REQS_POPUP = !SHOW_REQS_POPUP; renderProcesoModalBody()">
+                ${SVG_ICONS.plus} <span>Agregar Requisitos</span>
+              </button>
+            </div>
+
+            ${reqPopupHTML}
+
+            <table class="modal-table">
+              <thead>
+                <tr>
+                  <th style="width:45px;text-align:center">N°</th>
+                  <th>Descripción</th>
+                  <th style="width:120px;text-align:center">Adjuntar Archivo</th>
+                  <th style="width:95px;text-align:center">Activo</th>
+                  <th style="width:90px;text-align:center">Orden</th>
+                  <th style="width:60px;text-align:center">Quitar</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${reqRows.length ? reqRows : `<tr><td colspan="6" style="text-align:center;color:var(--text-muted);padding:18px">(*) No se encontraron Requisitos registrados para este trámite.</td></tr>`}
+              </tbody>
+            </table>
+          </div>
+
+          <!-- BLOQUE 2: ÁREA RESPONSABLE -->
+          <div style="background:#FFF;border:1px solid var(--border-soft);border-radius:10px;padding:16px;margin-bottom:18px">
+            <div class="field" style="max-width:440px;margin:0">
+              <label style="font-size:13.5px;font-weight:700;color:var(--text);display:block;margin-bottom:6px">Área Responsable Principal:</label>
+              <div class="select-wrap">
+                <select class="select" id="proc-area-principal" style="width:100%" onchange="window._PROCESO_DRAFT.area = this.value">
+                  <option value="">-- Seleccione Área Responsable --</option>
+                  ${areas.map(ar => `<option value="${ar.nombre}" ${t.area === ar.nombre ? 'selected' : ''}>${ar.nombre}</option>`).join('')}
+                </select>
+              </div>
+            </div>
+          </div>
+
+          <!-- BLOQUE 3: PROCESO -->
+          <div style="background:#FFF;border:1px solid var(--border-soft);border-radius:10px;padding:16px">
+            <div style="margin-bottom:12px">
+              <b style="font-size:13.5px;color:var(--text);display:block;margin-bottom:8px">Proceso:</b>
+              <button type="button" class="btn btn-dark" onclick="SHOW_AREAS_POPUP = !SHOW_AREAS_POPUP; renderProcesoModalBody()">
+                ${SVG_ICONS.plus} <span>Agregar Áreas</span>
+              </button>
+            </div>
+
+            ${areasPopupHTML}
+
+            <table class="modal-table">
+              <thead>
+                <tr>
+                  <th style="width:45px;text-align:center">N°</th>
+                  <th style="width:190px">Área</th>
+                  <th>Descripción de la Tarea</th>
+                  <th>Observación</th>
+                  <th style="width:100px;text-align:center">Duración</th>
+                  <th style="width:85px;text-align:center">Activo</th>
+                  <th style="width:65px;text-align:center">Quitar</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${procRows.length ? procRows : `<tr><td colspan="7" style="text-align:center;color:var(--text-muted);padding:22px">(*) No se encontraron Procesos registrados para este trámite.</td></tr>`}
+              </tbody>
+            </table>
+          </div>
+
+        </div>
+        <div class="modal-foot">
+          <button type="button" class="btn" onclick="cerrarSubmodalVolverFlujo()">${NAV_FROM_MODAL_TRAMITE ? '← Volver al Trámite' : 'Cerrar'}</button>
+          <button type="button" class="btn btn-primary" onclick="grabarProcesoYRequisitos()" style="display:inline-flex;align-items:center;gap:6px">
+            ${SVG_ICONS.check} Grabar Proceso y Requisitos
+          </button>
+        </div>
+      `, { wide: true });
+    }
+
+    function procesoAgregarRequisitoItem(reqId) {
+      const rm = DB.getRequisito(reqId);
+      if (!rm) return;
+      const yaExiste = window._PROCESO_DRAFT.requisitos.some(r => r.id === rm.id || r.titulo === rm.titulo);
+      if (yaExiste) {
+        APP.toast({ icon: '⚠️', title: 'Ya registrado', body: `«${rm.titulo}» ya está en los requisitos.` });
+        return;
+      }
+      window._PROCESO_DRAFT.requisitos.push({
+        id: rm.id,
+        titulo: rm.titulo,
+        adjuntarArchivo: rm.requiereAdjunto,
+        activo: true,
+        orden: window._PROCESO_DRAFT.requisitos.length + 1
+      });
+      SHOW_REQS_POPUP = false;
+      renderProcesoModalBody();
+      APP.toast({ icon: '📎', title: 'Requisito agregado', body: rm.titulo });
+    }
+
+    function procesoAgregarAreaItem(areaNombre) {
+      window._PROCESO_DRAFT.proceso.push({
+        id: 'P-' + Date.now(),
+        orden: window._PROCESO_DRAFT.proceso.length + 1,
+        area: areaNombre,
+        descripcion: 'revisa las notas',
+        observacion: '',
+        duracionDias: 2,
+        activo: true
+      });
+      SHOW_AREAS_POPUP = false;
+      renderProcesoModalBody();
+      APP.toast({ icon: '🏢', title: 'Área agregada al proceso', body: `«${areaNombre}» agregada como paso N° ${window._PROCESO_DRAFT.proceso.length}.` });
+    }
+
+    function confirmarQuitarRequisitoTramite(idx) {
+      const r = window._PROCESO_DRAFT.requisitos[idx];
+      mostrarConfirmacionModal({
+        titulo: 'Quitar Requisito',
+        icono: SVG_ICONS.warn,
+        mensaje: `¿Deseas desvincular el requisito <b>«${r.titulo}»</b> de este trámite?`,
+        textoBoton: 'Quitar Requisito',
+        onConfirm: () => {
+          window._PROCESO_DRAFT.requisitos.splice(idx, 1);
+          cerrarConfirmacionModal();
+          renderProcesoModalBody();
+        }
+      });
+    }
+
+    function confirmarQuitarPasoProceso(idx) {
+      const p = window._PROCESO_DRAFT.proceso[idx];
+      mostrarConfirmacionModal({
+        titulo: 'Quitar Paso del Proceso',
+        icono: SVG_ICONS.warn,
+        mensaje: `¿Deseas quitar la etapa de <b>«${p.area}»</b> (Paso N° ${idx + 1}) del flujo operativo?`,
+        textoBoton: 'Quitar Paso',
+        onConfirm: () => {
+          window._PROCESO_DRAFT.proceso.splice(idx, 1);
+          cerrarConfirmacionModal();
+          renderProcesoModalBody();
+        }
+      });
+    }
+
+    function grabarProcesoYRequisitos() {
+      const t = window._PROCESO_DRAFT;
+      t.requiereAdjunto = (t.requisitos || []).some(r => r.adjuntarArchivo && r.activo);
+      if (t.requiereAdjunto && !t.adjuntoIndicacion) {
+        t.adjuntoIndicacion = 'Adjuntar los documentos requeridos en el catálogo oficial.';
+      }
+      DB.upsertTramite(t);
+      APP.toast({ icon: '✅', title: 'Flujo actualizado', body: `Requisitos y proceso guardados para «${t.nombre}».` });
+      render();
+      if (NAV_FROM_MODAL_TRAMITE) {
+        const returnId = NAV_FROM_MODAL_TRAMITE;
+        NAV_FROM_MODAL_TRAMITE = null;
+        setTimeout(() => editarTramite(returnId), 150);
+      } else {
+        APP.closeModal();
+      }
+    }
+
+    // =========================================================================
+    // MODAL: CRONOGRAMA DE VISIBILIDAD (Captura 5)
+    // =========================================================================
+    let DRAFT_CRONOGRAMA = null;
+    let DRAFT_CRONOGRAMA_ID = null;
+    let SHOW_TODOS_CRONOGRAMAS = false;
+
+    function gestionarCronograma(id) {
+      DRAFT_CRONOGRAMA_ID = id;
+      const t = DB.getTramite(id);
+      DRAFT_CRONOGRAMA = JSON.parse(JSON.stringify(t.cronogramas || []));
+      SHOW_TODOS_CRONOGRAMAS = false;
+      renderCronogramaModal();
+    }
+
+    function cronogCambiarGrado(idx, nuevoGrado) {
+      syncCronogramaDraftFromDOM();
+      DRAFT_CRONOGRAMA[idx].grado = nuevoGrado;
+      const mods = MODALIDADES_POR_GRADO[nuevoGrado] || ['Todas'];
+      DRAFT_CRONOGRAMA[idx].modalidad = mods[0] || 'Todas';
+      renderCronogramaModal();
+    }
+
+    function syncCronogramaDraftFromDOM() {
+      if (!Array.isArray(DRAFT_CRONOGRAMA)) return;
+      DRAFT_CRONOGRAMA.forEach((c, idx) => {
+        const grd = document.getElementById(`cr-grd-${idx}`);
+        const mod = document.getElementById(`cr-mod-${idx}`);
+        const fac = document.getElementById(`cr-fac-${idx}`);
+        const car = document.getElementById(`cr-car-${idx}`);
+        const per = document.getElementById(`cr-per-${idx}`);
+        const ini = document.getElementById(`cr-ini-${idx}`);
+        const fin = document.getElementById(`cr-fin-${idx}`);
+        const act = document.getElementById(`cr-act-${idx}`);
+        if (grd) c.grado = grd.value;
+        if (mod) c.modalidad = mod.value;
+        if (fac) c.facultad = fac.value;
+        if (car) c.carrera = car.value;
+        if (per) c.periodo = per.value;
+        if (ini) c.fechaInicio = ini.value;
+        if (fin) c.fechaFin = fin.value;
+        if (act) c.activo = (act.value === 'si');
+      });
+    }
+
+    function cronogAgregarItem() {
+      syncCronogramaDraftFromDOM();
+      const defaultGrado = 'Pregrado';
+      const defaultMod = MODALIDADES_POR_GRADO[defaultGrado][1] || 'Modalidad Ordinaria';
+      DRAFT_CRONOGRAMA.push({
+        id: 'CR-' + Date.now(),
+        grado: defaultGrado,
+        modalidad: defaultMod,
+        facultad: 'Todas',
+        carrera: 'Todas',
+        periodo: '2026-1',
+        fechaInicio: new Date().toISOString().slice(0, 10),
+        fechaFin: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().slice(0, 10),
+        activo: true
+      });
+      renderCronogramaModal();
+    }
+
+    function confirmarQuitarUltimoItemCronograma() {
+      syncCronogramaDraftFromDOM();
+      if (!DRAFT_CRONOGRAMA.length) {
+        APP.toast({ icon: 'ℹ️', title: 'Sin ítems', body: 'No hay ítems registrados en el cronograma para quitar.' });
+        return;
+      }
+      mostrarConfirmacionModal({
+        titulo: 'Quitar Último Ítem',
+        icono: SVG_ICONS.warn,
+        mensaje: `¿Deseas quitar el último rango del cronograma (Ítem N° ${DRAFT_CRONOGRAMA.length})?`,
+        textoBoton: 'Quitar Ítem',
+        onConfirm: () => {
+          DRAFT_CRONOGRAMA.pop();
+          cerrarConfirmacionModal();
+          renderCronogramaModal();
+          APP.toast({ icon: '🗑️', title: 'Ítem quitado', body: 'Se removió el último rango del cronograma.' });
+        }
+      });
+    }
+
+    function confirmarQuitarItemCronograma(idx) {
+      syncCronogramaDraftFromDOM();
+      const c = DRAFT_CRONOGRAMA[idx];
+      mostrarConfirmacionModal({
+        titulo: 'Quitar Rango de Cronograma',
+        icono: SVG_ICONS.warn,
+        mensaje: `¿Deseas quitar el rango <b>Ítem N° ${idx + 1}</b> (${c.grado} - ${c.modalidad})?`,
+        textoBoton: 'Quitar Rango',
+        onConfirm: () => {
+          DRAFT_CRONOGRAMA.splice(idx, 1);
+          cerrarConfirmacionModal();
+          renderCronogramaModal();
+          APP.toast({ icon: '🗑️', title: 'Rango quitado', body: 'Rango removido del cronograma.' });
+        }
+      });
+    }
+
+    function grabarItemsCronograma() {
+      syncCronogramaDraftFromDOM();
+      const t = DB.getTramite(DRAFT_CRONOGRAMA_ID);
+      t.cronogramas = DRAFT_CRONOGRAMA;
+      DB.upsertTramite(t);
+      APP.toast({ icon: '📅', title: 'Cronograma guardado', body: `Rangos de cronograma actualizados para «${t.nombre}».` });
+      render();
+      if (NAV_FROM_MODAL_TRAMITE) {
+        const returnId = NAV_FROM_MODAL_TRAMITE;
+        NAV_FROM_MODAL_TRAMITE = null;
+        setTimeout(() => editarTramite(returnId), 150);
+      } else {
+        APP.closeModal();
+      }
+    }
+
+    function renderCronogramaModal() {
+      const t = DB.getTramite(DRAFT_CRONOGRAMA_ID);
+
+      // Bloque "Todos los Cronogramas" (Captura 5)
+      let todosBoxHTML = '';
+      if (SHOW_TODOS_CRONOGRAMAS) {
+        todosBoxHTML = `
+          <div style="background:#F0FAFA;border:1px solid #BFE6E9;border-radius:8px;padding:12px 16px;margin-bottom:14px">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
+              <b style="color:var(--brand-dark);font-size:13px">Todos los Cronogramas</b>
+              <button type="button" class="btn-circle-del" title="Cerrar vista" onclick="SHOW_TODOS_CRONOGRAMAS=false;renderCronogramaModal()">${SVG_ICONS.cross}</button>
+            </div>
+            <div style="font-size:12.5px;color:var(--text-soft)">
+              ${DRAFT_CRONOGRAMA.length ? `Actualmente hay <b>${DRAFT_CRONOGRAMA.length} rango(s)</b> configurado(s) para este trámite.` : 'No se encontraron Requisitos registrados.'}
+            </div>
+          </div>
+        `;
+      }
+
+      // Generación de ítems de cronograma con el sistema de diseño Wiener
+      const itemsHTML = DRAFT_CRONOGRAMA.map((c, idx) => {
+        const modsList = MODALIDADES_POR_GRADO[c.grado] || ['Todas'];
+        const gradoOpts = GRADOS_ESTUDIO.map(g => `<option value="${g}" ${g === c.grado ? 'selected' : ''}>${g}</option>`).join('');
+        const modOpts = modsList.map(m => `<option value="${m}" ${m === c.modalidad ? 'selected' : ''}>${m}</option>`).join('');
+        const facOpts = FACULTADES_CATALOGO.map(f => `<option value="${f}" ${f === c.facultad ? 'selected' : ''}>${f}</option>`).join('');
+        const carOpts = CARRERAS_CATALOGO.map(cr => `<option value="${cr}" ${cr === c.carrera ? 'selected' : ''}>${cr}</option>`).join('');
+        const perOpts = PERIODOS_CATALOGO.map(p => `<option value="${p}" ${p === c.periodo ? 'selected' : ''}>${p}</option>`).join('');
+
+        return `
+          <div class="cronog-card-wiener">
+            <div style="background:var(--surface-2);padding:10px 16px;border-bottom:1px solid var(--border-soft);display:flex;justify-content:space-between;align-items:center">
+              <div style="display:flex;align-items:center;gap:8px">
+                <span class="mono strong" style="font-size:13px;color:var(--brand-dark)">Rango N° ${idx + 1}</span>
+                <span class="tag teal" style="font-size:11px;font-weight:700">${c.grado}</span>
+                <span class="tag" style="font-size:11px">${c.modalidad}</span>
+              </div>
+              <button type="button" class="btn btn-sm" style="background:#FEE2E2;border:1px solid #FCA5A5;color:#DC2626;padding:4px 10px;font-size:12px;display:inline-flex;align-items:center;gap:5px" title="Quitar este rango" onclick="confirmarQuitarItemCronograma(${idx})">
+                ${SVG_ICONS.trash} <span>Quitar</span>
+              </button>
+            </div>
+            <div style="padding:16px">
+              <div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(210px, 1fr));gap:12px;margin-bottom:14px">
+                <div class="field" style="margin:0">
+                  <label style="font-size:12px;font-weight:700;color:var(--text-soft);margin-bottom:4px;display:block">Grado Estudio *</label>
+                  <select class="select" id="cr-grd-${idx}" style="font-size:13px;width:100%" onchange="cronogCambiarGrado(${idx}, this.value)">
+                    ${gradoOpts}
+                  </select>
+                </div>
+                <div class="field" style="margin:0">
+                  <label style="font-size:12px;font-weight:700;color:var(--text-soft);margin-bottom:4px;display:block">Modalidad de Estudio *</label>
+                  <select class="select" id="cr-mod-${idx}" style="font-size:13px;width:100%">
+                    ${modOpts}
+                  </select>
+                </div>
+                <div class="field" style="margin:0">
+                  <label style="font-size:12px;font-weight:700;color:var(--text-soft);margin-bottom:4px;display:block">Facultad</label>
+                  <select class="select" id="cr-fac-${idx}" style="font-size:13px;width:100%">
+                    ${facOpts}
+                  </select>
+                </div>
+                <div class="field" style="margin:0">
+                  <label style="font-size:12px;font-weight:700;color:var(--text-soft);margin-bottom:4px;display:block">Escuela / Carrera</label>
+                  <select class="select" id="cr-car-${idx}" style="font-size:13px;width:100%">
+                    ${carOpts}
+                  </select>
+                </div>
+              </div>
+              <div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(170px, 1fr));gap:12px">
+                <div class="field" style="margin:0">
+                  <label style="font-size:12px;font-weight:700;color:var(--text-soft);margin-bottom:4px;display:block">Periodo Académico</label>
+                  <select class="select" id="cr-per-${idx}" style="font-size:13px;width:100%">
+                    ${perOpts}
+                  </select>
+                </div>
+                <div class="field" style="margin:0">
+                  <label style="font-size:12px;font-weight:700;color:var(--text-soft);margin-bottom:4px;display:block">Fecha Inicio</label>
+                  <input class="input" type="date" id="cr-ini-${idx}" value="${c.fechaInicio || '2026-10-01'}" style="font-size:13px;width:100%">
+                </div>
+                <div class="field" style="margin:0">
+                  <label style="font-size:12px;font-weight:700;color:var(--text-soft);margin-bottom:4px;display:block">Fecha Fin</label>
+                  <input class="input" type="date" id="cr-fin-${idx}" value="${c.fechaFin || '2026-11-01'}" style="font-size:13px;width:100%">
+                </div>
+                <div class="field" style="margin:0">
+                  <label style="font-size:12px;font-weight:700;color:var(--text-soft);margin-bottom:4px;display:block">Estado</label>
+                  <select class="select" id="cr-act-${idx}" style="font-size:13px;width:100%">
+                    <option value="si" ${c.activo ? 'selected' : ''}>Activo</option>
+                    <option value="no" ${!c.activo ? 'selected' : ''}>Inactivo</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+          </div>
+        `;
+      }).join('');
+
+      APP.openModal(`
+        <div class="modal-head">
+          <div style="display:flex;align-items:center;gap:12px">
+            <div style="width:36px;height:36px;border-radius:8px;background:var(--brand-soft);color:var(--brand);display:flex;align-items:center;justify-content:center;flex-shrink:0">
+              ${SVG_ICONS.cronograma}
+            </div>
+            <div>
+              <h3>Editar Cronograma: ${t.nombre}</h3>
+              <div style="font-size:12px;color:var(--text-muted)">Configuración de visibilidad académica por grado, modalidad y periodo</div>
+            </div>
+          </div>
+          <button class="modal-close" onclick="cerrarSubmodalVolverFlujo()">×</button>
+        </div>
+        <div class="modal-body">
+
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;flex-wrap:wrap;gap:10px">
+            <div>
+              <b style="font-size:14px;color:var(--text);display:block">Rangos de Cronograma</b>
+              <div style="font-size:12.5px;color:var(--text-muted)">Disponibilidad y fechas de apertura para el registro del estudiante</div>
+            </div>
+            <button type="button" class="btn btn-dark" onclick="cronogAgregarItem()">
+              ${SVG_ICONS.plus} <span>Agregar Rango</span>
+            </button>
+          </div>
+
+          <div style="margin-top:10px">
+            ${itemsHTML.length ? itemsHTML : `<div style="text-align:center;padding:36px;background:var(--surface-2);border:1px dashed var(--border);border-radius:10px;color:var(--text-muted);font-weight:500">No hay rangos de cronograma configurados. Presiona «+ Agregar Rango».</div>`}
+          </div>
+
+        </div>
+        <div class="modal-foot">
+          <button type="button" class="btn" onclick="cerrarSubmodalVolverFlujo()">${NAV_FROM_MODAL_TRAMITE ? '← Volver al Trámite' : 'Cerrar'}</button>
+          <button type="button" class="btn btn-primary" onclick="grabarItemsCronograma()" style="display:inline-flex;align-items:center;gap:6px">
+            ${SVG_ICONS.check} Grabar Cronograma
+          </button>
+        </div>
+      `, { wide: true });
+    }
+
+    // =========================================================================
+    // =========================================================================
+    // MODAL: PLANTILLAS DE NOTIFICACIÓN POR CORREO (Capturas 1, 2 y 3)
+    // =========================================================================
+    let DRAFT_CORREOS_TR_ID = null;
+    let DRAFT_CORREOS = [];
+    let ACTIVE_CORREO_EDIT_IDX = null; // null: cerrado, -1: nuevo, >=0: editando
+
+    function configurarCorreo(id) {
+      DRAFT_CORREOS_TR_ID = id;
+      const t = DB.getTramite(id);
+      if (!t) return;
+      if (!Array.isArray(t.correos) || !t.correos.length) {
+        t.correos = [
+          {
+            id: 'MAIL-' + (t.id || 'T') + '-1',
+            tipoEstado: 'Aprobado',
+            remitente: 'cobranzas@uwiener.edu.pe',
+            password: '••••••••',
+            asunto: `CONFIRMACIÓN TRAMITE ${t.nombre.toUpperCase()}`,
+            cc: 'registros@uwiener.edu.pe',
+            contenido: `<div>Estimado estudiante:</div><br><div>Agradecemos su atención y le informamos que el trámite de <b>«${t.nombre}»</b> se realizó con éxito. Recuerde que podrá verificar su constancia o estado a través del portal institucional.</div>`,
+            activo: true
+          },
+          {
+            id: 'MAIL-' + (t.id || 'T') + '-2',
+            tipoEstado: 'Rechazado',
+            remitente: 'cobranzas@uwiener.edu.pe',
+            password: '••••••••',
+            asunto: `CONFIRMACIÓN TRAMITE ${t.nombre.toUpperCase()}`,
+            cc: 'registros@uwiener.edu.pe',
+            contenido: `<div>Estimado estudiante:</div><br><div>Le informamos que su trámite de <b>«${t.nombre}»</b> no ha cumplido con los requisitos y fue <b>RECHAZADO</b>. Ingrese a la plataforma para conocer las observaciones correspondientes.</div>`,
+            activo: true
+          },
+          {
+            id: 'MAIL-' + (t.id || 'T') + '-3',
+            tipoEstado: 'Observado',
+            remitente: 'cobranzas@uwiener.edu.pe',
+            password: '••••••••',
+            asunto: `CONFIRMACIÓN TRAMITE ${t.nombre.toUpperCase()}`,
+            cc: 'registros@uwiener.edu.pe',
+            contenido: `<div>Estimado estudiante:</div><br><div>Su trámite de <b>«${t.nombre}»</b> cuenta con observaciones pendientes. Por favor ingrese a su intranet para regularizar la documentación requerida dentro del plazo.</div>`,
+            activo: true
+          }
+        ];
+        DB.upsertTramite(t);
+      }
+      DRAFT_CORREOS = JSON.parse(JSON.stringify(t.correos));
+      ACTIVE_CORREO_EDIT_IDX = null;
+      renderCorreoModal();
+    }
+
+    function renderCorreoModal() {
+      const t = DB.getTramite(DRAFT_CORREOS_TR_ID);
+      if (!t) return;
+
+      // Subformulario de Registrar / Editar (Capturas 1 y 3)
+      let subformHTML = '';
+      if (ACTIVE_CORREO_EDIT_IDX !== null) {
+        const isEdit = ACTIVE_CORREO_EDIT_IDX >= 0;
+        const item = isEdit ? DRAFT_CORREOS[ACTIVE_CORREO_EDIT_IDX] : {
+          tipoEstado: 'Aprobado',
+          remitente: 'cobranzas@uwiener.edu.pe',
+          password: '',
+          asunto: `CONFIRMACIÓN TRAMITE ${t.nombre.toUpperCase()}`,
+          cc: '',
+          contenido: `<div>Estimado estudiante:</div>\n\n<div>Agradecemos su atención y le informamos sobre el estado de su trámite...</div>`,
+          activo: true
+        };
+
+        subformHTML = `
+          <div style="background:#FFF;border:1px solid var(--border-soft);border-radius:10px;padding:18px 20px;margin-bottom:18px;box-shadow:var(--shadow-sm)">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;padding-bottom:10px;border-bottom:1px solid var(--border-soft)">
+              <div style="display:flex;align-items:center;gap:8px">
+                <span style="color:var(--brand);display:inline-flex">${SVG_ICONS.correo}</span>
+                <b style="font-size:14px;color:var(--brand-dark)">${isEdit ? 'Editar Configuración de Correo del Trámite' : 'Registrar Configuración de Correo del Trámite'}</b>
+              </div>
+              <button type="button" class="btn-circle-del" title="Cerrar formulario" onclick="cerrarSubformCorreo()">${SVG_ICONS.cross}</button>
+            </div>
+
+            <div class="form-grid">
+              <div class="field full">
+                <label>Tipo estado del Correo: *</label>
+                <select class="select" id="mail-sub-estado">
+                  <option value="Aprobado" ${item.tipoEstado === 'Aprobado' ? 'selected' : ''}>Aprobado</option>
+                  <option value="Rechazado" ${item.tipoEstado === 'Rechazado' ? 'selected' : ''}>Rechazado</option>
+                  <option value="Observado" ${item.tipoEstado === 'Observado' ? 'selected' : ''}>Observado</option>
+                  <option value="En revisión" ${item.tipoEstado === 'En revisión' ? 'selected' : ''}>En revisión</option>
+                  <option value="Pendiente de pago" ${item.tipoEstado === 'Pendiente de pago' ? 'selected' : ''}>Pendiente de pago</option>
+                  <option value="Finalizado" ${item.tipoEstado === 'Finalizado' ? 'selected' : ''}>Finalizado</option>
+                </select>
+              </div>
+
+              <div class="field">
+                <label>Correo Remitente: *</label>
+                <input class="input" id="mail-sub-remitente" value="${item.remitente || ''}" placeholder="ej. cobranzas@uwiener.edu.pe">
+              </div>
+
+              <div class="field">
+                <label>Contraseña del Correo:</label>
+                <input class="input" type="password" id="mail-sub-pass" value="${item.password || ''}" placeholder="Credencial de envío SMTP">
+              </div>
+
+              <div class="field full">
+                <label>Asunto: *</label>
+                <input class="input" id="mail-sub-asunto" value="${item.asunto || ''}" placeholder="Asunto oficial del correo">
+              </div>
+
+              <div class="field full">
+                <label>CC...:</label>
+                <input class="input" id="mail-sub-cc" value="${item.cc || ''}" placeholder="Si desea agregar más de un correo separar con una coma (,)">
+                <div style="font-size:11.5px;color:var(--text-muted);margin-top:3px">Si desea agregar más de un correo separar con una coma (,)</div>
+              </div>
+
+              <div class="field full">
+                <label>Contenido: *</label>
+                <div class="rte-box">
+                  <div class="rte-bar">
+                    <button type="button" class="rte-tool-btn" title="Negrita" onclick="rteCommand('mail-sub-contenido','bold')"><b>B</b></button>
+                    <button type="button" class="rte-tool-btn" title="Cursiva" onclick="rteCommand('mail-sub-contenido','italic')"><i>I</i></button>
+                    <button type="button" class="rte-tool-btn" title="Subrayado" onclick="rteCommand('mail-sub-contenido','underline')"><u>U</u></button>
+                    <span style="width:1px;height:16px;background:#CBD5E1;margin:0 4px"></span>
+                    <button type="button" class="rte-tool-btn" title="Lista con viñetas" onclick="rteCommand('mail-sub-contenido','list-ul')">•≡</button>
+                    <button type="button" class="rte-tool-btn" title="Lista numerada" onclick="rteCommand('mail-sub-contenido','list-ol')">1≡</button>
+                    <button type="button" class="rte-tool-btn" title="Enlace" onclick="rteCommand('mail-sub-contenido','link')">
+                      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg>
+                    </button>
+                  </div>
+                  <textarea class="rte-editor-area" id="mail-sub-contenido" rows="5" placeholder="Contenido o cuerpo HTML de la notificación...">${item.contenido || ''}</textarea>
+                </div>
+              </div>
+
+              <div class="field full">
+                <label>Activo:</label>
+                <div style="display:flex;align-items:center;gap:12px">
+                  <select class="select" id="mail-sub-activo" style="width:90px">
+                    <option value="si" ${item.activo ? 'selected' : ''}>Si</option>
+                    <option value="no" ${!item.activo ? 'selected' : ''}>No</option>
+                  </select>
+                  <span style="font-size:12px;color:var(--text-muted)">Activación o bloqueo del Envío de Correo.</span>
+                </div>
+              </div>
+            </div>
+
+            <div style="display:flex;justify-content:flex-end;gap:10px;margin-top:16px;padding-top:12px;border-top:1px solid var(--border-soft)">
+              <button type="button" class="btn" onclick="cerrarSubformCorreo()">Cancelar</button>
+              <button type="button" class="btn btn-primary" onclick="guardarSubformCorreo()" style="display:inline-flex;align-items:center;gap:6px">
+                ${SVG_ICONS.check} ${isEdit ? 'Actualizar' : 'Grabar'}
+              </button>
+            </div>
+          </div>
+        `;
+      }
+
+      // Filas de la tabla (Captura 2)
+      const rows = DRAFT_CORREOS.map((c, idx) => {
+        let pillClass = 'info';
+        if (c.tipoEstado === 'Aprobado') pillClass = 'ok';
+        else if (c.tipoEstado === 'Rechazado') pillClass = 'danger';
+        else if (c.tipoEstado === 'Observado') pillClass = 'warn';
+
+        return `
+          <tr>
+            <td style="text-align:center"><span class="mono muted" style="font-size:13px">${idx + 1}</span></td>
+            <td>
+              <span class="pill ${pillClass}" style="font-weight:700">${c.tipoEstado}</span>
+            </td>
+            <td>
+              <span class="mono" style="font-size:12.5px;color:var(--brand-dark);font-weight:600">${c.remitente}</span>
+              ${c.cc ? `<div style="font-size:11px;color:var(--text-muted)">CC: ${c.cc}</div>` : ''}
+            </td>
+            <td>
+              <div style="font-size:13px;color:var(--text);font-weight:600;line-height:1.35">${c.asunto}</div>
+            </td>
+            <td style="text-align:center">
+              <select class="select" style="font-size:12px;padding:4px 6px;width:70px" onchange="DRAFT_CORREOS[${idx}].activo = (this.value === 'si')">
+                <option value="si" ${c.activo ? 'selected' : ''}>Si</option>
+                <option value="no" ${!c.activo ? 'selected' : ''}>No</option>
+              </select>
+            </td>
+            <td style="text-align:center;white-space:nowrap">
+              <div style="display:inline-flex;align-items:center;justify-content:center;gap:6px">
+                <button type="button" class="btn btn-sm btn-outline" style="padding:4px 8px;font-size:11.5px;font-weight:700;display:inline-flex;align-items:center;gap:4px" title="Editar configuración" onclick="abrirSubformCorreo(${idx})">
+                  ${SVG_ICONS.edit} <span>Edi.</span>
+                </button>
+                <button type="button" class="btn btn-sm" style="background:#FEE2E2;border:1px solid #FCA5A5;color:#DC2626;padding:4px 8px;display:inline-flex;align-items:center;justify-content:center" title="Quitar configuración" onclick="confirmarQuitarCorreo(${idx})">
+                  ${SVG_ICONS.trash}
+                </button>
+              </div>
+            </td>
+          </tr>
+        `;
+      }).join('');
+
+      APP.openModal(`
+        <div class="modal-head">
+          <div style="display:flex;align-items:center;gap:12px">
+            <div style="width:36px;height:36px;border-radius:8px;background:var(--brand-soft);color:var(--brand);display:flex;align-items:center;justify-content:center;flex-shrink:0">
+              ${SVG_ICONS.correo}
+            </div>
+            <div>
+              <h3>Configuración Correo del Trámite: ${t.nombre}</h3>
+              <div style="font-size:12px;color:var(--text-muted)">Plantillas de notificación automática disparadas en hitos de resolución</div>
+            </div>
+          </div>
+          <button class="modal-close" onclick="cerrarSubmodalVolverFlujo()">×</button>
+        </div>
+        <div class="modal-body">
+
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;flex-wrap:wrap;gap:10px">
+            <div>
+              <b style="font-size:14px;color:var(--text);display:block">Plantillas de Notificación</b>
+              <div style="font-size:12.5px;color:var(--text-muted)">Configura los correos enviados automáticamente según el estado del trámite.</div>
+            </div>
+            <button type="button" class="btn btn-dark" onclick="abrirSubformCorreo(-1)">
+              ${SVG_ICONS.plus} <span>Agregar</span>
+            </button>
+          </div>
+
+          ${subformHTML}
+
+          <table class="modal-table">
+            <thead>
+              <tr>
+                <th style="width:45px;text-align:center">N°</th>
+                <th style="width:130px">Tipo Mensaje</th>
+                <th style="width:220px">Correo Remitente</th>
+                <th>Asunto Correo</th>
+                <th style="width:85px;text-align:center">Activo</th>
+                <th style="width:110px;text-align:center">Acciones</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${rows.length ? rows : `<tr><td colspan="6" style="text-align:center;padding:28px;color:var(--text-muted)">No hay plantillas de correo configuradas para este trámite. Presione «+ Agregar».</td></tr>`}
+            </tbody>
+          </table>
+
+        </div>
+        <div class="modal-foot">
+          <button type="button" class="btn" onclick="cerrarSubmodalVolverFlujo()">${NAV_FROM_MODAL_TRAMITE ? '← Volver al Trámite' : 'Cerrar'}</button>
+          <button type="button" class="btn btn-primary" onclick="guardarTodosLosCorreos()" style="display:inline-flex;align-items:center;gap:6px">
+            ${SVG_ICONS.check} Grabar Cambios
+          </button>
+        </div>
+      `, { wide: true });
+    }
+
+    function abrirSubformCorreo(idx) {
+      ACTIVE_CORREO_EDIT_IDX = idx;
+      renderCorreoModal();
+    }
+
+    function cerrarSubformCorreo() {
+      ACTIVE_CORREO_EDIT_IDX = null;
+      renderCorreoModal();
+    }
+
+    function guardarSubformCorreo() {
+      const estado = document.getElementById('mail-sub-estado').value;
+      const remitente = document.getElementById('mail-sub-remitente').value.trim();
+      const pass = document.getElementById('mail-sub-pass').value;
+      const asunto = document.getElementById('mail-sub-asunto').value.trim();
+      const cc = document.getElementById('mail-sub-cc').value.trim();
+      const contenido = document.getElementById('mail-sub-contenido').value.trim();
+      const activo = document.getElementById('mail-sub-activo').value === 'si';
+
+      if (!remitente || !remitente.includes('@')) {
+        APP.toast({ icon: '⚠️', title: 'Correo inválido', body: 'Ingresa un correo remitente institucional válido.' });
+        return;
+      }
+      if (!asunto) {
+        APP.toast({ icon: '⚠️', title: 'Falta asunto', body: 'Ingresa el asunto del correo institucional.' });
+        return;
+      }
+      if (!contenido) {
+        APP.toast({ icon: '⚠️', title: 'Falta contenido', body: 'Ingresa el texto o cuerpo del mensaje.' });
+        return;
+      }
+
+      if (ACTIVE_CORREO_EDIT_IDX === -1) {
+        DRAFT_CORREOS.push({
+          id: 'MAIL-' + Date.now(),
+          tipoEstado: estado,
+          remitente,
+          password: pass || '••••••••',
+          asunto,
+          cc,
+          contenido,
+          activo
+        });
+        APP.toast({ icon: '✉️', title: 'Plantilla agregada', body: `Notificación para «${estado}» registrada.` });
+      } else {
+        const item = DRAFT_CORREOS[ACTIVE_CORREO_EDIT_IDX];
+        item.tipoEstado = estado;
+        item.remitente = remitente;
+        if (pass) item.password = pass;
+        item.asunto = asunto;
+        item.cc = cc;
+        item.contenido = contenido;
+        item.activo = activo;
+        APP.toast({ icon: '✉️', title: 'Plantilla actualizada', body: `Notificación para «${estado}» actualizada.` });
+      }
+
+      ACTIVE_CORREO_EDIT_IDX = null;
+      renderCorreoModal();
+    }
+
+    function confirmarQuitarCorreo(idx) {
+      const c = DRAFT_CORREOS[idx];
+      mostrarConfirmacionModal({
+        titulo: 'Quitar Plantilla de Correo',
+        icono: SVG_ICONS.warn,
+        mensaje: `¿Deseas quitar la plantilla de correo para el estado <b>«${c.tipoEstado}»</b>?`,
+        textoBoton: 'Quitar Plantilla',
+        onConfirm: () => {
+          DRAFT_CORREOS.splice(idx, 1);
+          cerrarConfirmacionModal();
+          renderCorreoModal();
+          APP.toast({ icon: '🗑️', title: 'Plantilla quitada', body: `Se removió la notificación para ${c.tipoEstado}.` });
+        }
+      });
+    }
+
+    function guardarTodosLosCorreos() {
+      const t = DB.getTramite(DRAFT_CORREOS_TR_ID);
+      if (!t) return;
+      t.correos = DRAFT_CORREOS;
+      if (DRAFT_CORREOS.length) {
+        t.correoConfig = {
+          remitente: DRAFT_CORREOS[0].remitente,
+          asunto: DRAFT_CORREOS[0].asunto,
+          mensaje: DRAFT_CORREOS[0].contenido
+        };
+      }
+      DB.upsertTramite(t);
+      APP.toast({ icon: '✉️', title: 'Correos guardados', body: `Plantillas de notificación actualizadas para «${t.nombre}».` });
+      render();
+      if (NAV_FROM_MODAL_TRAMITE) {
+        const returnId = NAV_FROM_MODAL_TRAMITE;
+        NAV_FROM_MODAL_TRAMITE = null;
+        setTimeout(() => editarTramite(returnId), 150);
+      } else {
+        APP.closeModal();
+      }
+    }
+
+    // =========================================================================
+    // MODAL: REGISTRAR / EDITAR REQUISITO (Captura 2)
+    // =========================================================================
+    function editarRequisito(id) {
+      const r = id ? DB.getRequisito(id) : {
+        id: null, codigo: 'REQ-00' + (DB.requisitos().length + 1), titulo: '', observacion: '',
+        requiereAdjunto: false, adjuntoNombre: '', formato: 'PDF', activo: true
+      };
+
+      const titLen = (r.titulo || '').length;
+      const obsLen = (r.observacion || '').length;
+      const adjLen = (r.adjuntoNombre || '').length;
+
+      APP.openModal(`
+        <div class="modal-head">
+          <div style="display:flex;align-items:center;gap:12px">
+            <div style="width:36px;height:36px;border-radius:8px;background:var(--brand-soft);color:var(--brand);display:flex;align-items:center;justify-content:center;flex-shrink:0">
+              ${SVG_ICONS.requisitoTab}
+            </div>
+            <div>
+              <h3>${id ? 'Editar Requisito' : 'Registrar Requisito'}</h3>
+              <div style="font-size:12px;color:var(--text-muted)">Catálogo Institucional · Flujo de Trámites</div>
+            </div>
+          </div>
+          <button class="modal-close" onclick="cerrarSubmodalVolverFlujo()">×</button>
+        </div>
+        <div class="modal-body">
+          <div class="form-grid">
+            <div class="field">
+              <label>Código:</label>
+              <input class="input" id="req-cod" value="${r.codigo || r.id || 'AUTOGENERADO'}" disabled style="background:#F8FAFC;font-weight:700;color:var(--brand-dark)">
+            </div>
+            <div class="field">
+              <label>Institución:</label>
+              <input class="input" value="Universidad Privada Norbert Wiener S.A." disabled style="background:#F8FAFC;font-weight:600">
+            </div>
+            <div class="field full">
+              <label>Título / Descripción del requisito *</label>
+              <textarea class="input" id="req-titulo" rows="2" maxlength="500" placeholder="Ej. Certificado de voluntariado o Constancia de no adeudo" oninput="updateCharCounter('req-tit-count', this.value.length, 500)">${r.titulo || ''}</textarea>
+              <div class="char-limit-text" id="req-tit-count">${titLen} / 500 caracteres (máx. 500)</div>
+            </div>
+            <div class="field full">
+              <label>Observación e indicaciones</label>
+              <textarea class="input" id="req-obs" rows="3" maxlength="1000" placeholder="Ej. Debe ser nítido por ambas caras en documento original..." oninput="updateCharCounter('req-obs-count', this.value.length, 1000)">${r.observacion || ''}</textarea>
+              <div class="char-limit-text" id="req-obs-count">${obsLen} / 1000 caracteres (máx. 1000)</div>
+            </div>
+          </div>
+
+          <!-- CHECKBOX FUERA DE LA CAJA CON SU TEXTO -->
+          <div style="margin-top:16px">
+            <label style="display:flex;align-items:flex-start;gap:10px;cursor:pointer;font-size:13px;font-weight:600;color:var(--text);margin-bottom:10px;user-select:none">
+              <input type="checkbox" id="req-chk-adj" style="margin-top:2px;width:16px;height:16px;accent-color:var(--brand);cursor:pointer" ${r.requiereAdjunto ? 'checked' : ''} onchange="toggleReqAdjuntoBox(this.checked)">
+              <span>Si desea que se adjunte un archivo para este requisito; darle check, ingresar el nombre y seleccionar el formato del archivo.</span>
+            </label>
+
+            <!-- RECUADRO INTERNO (solo Nombre y Formato) -->
+            <div id="adj-box-container" style="background:${r.requiereAdjunto ? '#F8FAFC' : '#F1F5F9'};border:1px solid ${r.requiereAdjunto ? '#CBD5E1' : '#E2E8F0'};border-radius:10px;padding:14px 16px;transition:all 0.2s ease;${!r.requiereAdjunto ? 'opacity:0.55;pointer-events:none' : ''}">
+              <div class="form-grid">
+                <div class="field">
+                  <label>Nombre del Archivo Adjunto *</label>
+                  <input class="input" id="req-adj-nom" maxlength="50" value="${r.adjuntoNombre || ''}" placeholder="Ej. DNI_Solicitante o Foto" ${!r.requiereAdjunto ? 'disabled' : ''} oninput="updateCharCounter('req-adj-nom-count', this.value.length, 50)">
+                  <div class="char-limit-text" id="req-adj-nom-count">${adjLen} / 50 caracteres (máx. 50)</div>
+                </div>
+                <div class="field">
+                  <label>Formato *</label>
+                  <select class="select" id="req-adj-fmt" ${!r.requiereAdjunto ? 'disabled' : ''}>
+                    <option value="" ${!r.formato ? 'selected' : ''}>-- Seleccione --</option>
+                    <option value="PDF" ${r.formato === 'PDF' ? 'selected' : ''}>PDF</option>
+                    <option value="DOC" ${r.formato === 'DOC' ? 'selected' : ''}>DOC</option>
+                    <option value="PNG" ${r.formato === 'PNG' ? 'selected' : ''}>PNG</option>
+                    <option value="JPG" ${r.formato === 'JPG' ? 'selected' : ''}>JPG</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- HABILITAR CON SWITCH -->
+          <div style="margin-top:16px;display:flex;align-items:center;justify-content:space-between;background:#FFFFFF;border:1px solid var(--border-soft);border-radius:10px;padding:12px 16px">
+            <div>
+              <div style="font-size:13.5px;font-weight:700;color:var(--text)">Habilitar Requisito</div>
+              <div style="font-size:12px;color:var(--text-muted)">Determina si el requisito estará disponible para su uso en los trámites.</div>
+            </div>
+            <div style="display:flex;align-items:center;gap:10px">
+              <label class="switch" title="Habilitar / Inhabilitar">
+                <input type="checkbox" id="req-habilitar" ${r.activo ? 'checked' : ''} onchange="document.getElementById('req-hab-txt').textContent = this.checked ? 'Activo' : 'Inactivo'">
+                <span class="slider"></span>
+              </label>
+              <span id="req-hab-txt" style="font-size:13px;font-weight:700;color:${r.activo ? 'var(--brand-dark)' : 'var(--text-muted)'};min-width:55px">${r.activo ? 'Activo' : 'Inactivo'}</span>
+            </div>
+          </div>
+        </div>
+        <div class="modal-foot">
+          <button class="btn" onclick="APP.closeModal()">Cerrar</button>
+          <button class="btn btn-primary" onclick="guardarRequisito('${id || ''}')" style="display:inline-flex;align-items:center;gap:6px">
+            ${SVG_ICONS.check} ${id ? 'Guardar Cambios' : 'Grabar Requisito'}
+          </button>
+        </div>
+      `, { wide: false });
+    }
+
+    function toggleReqAdjuntoBox(checked) {
+      const box = document.getElementById('adj-box-container');
+      const nomInput = document.getElementById('req-adj-nom');
+      const fmtSelect = document.getElementById('req-adj-fmt');
+      if (box && nomInput && fmtSelect) {
+        if (checked) {
+          box.style.opacity = '1';
+          box.style.background = '#F8FAFC';
+          box.style.borderColor = '#CBD5E1';
+          box.style.pointerEvents = 'auto';
+          nomInput.disabled = false;
+          fmtSelect.disabled = false;
+          const trig = box.querySelector('.custom-select-trigger');
+          if (trig) trig.disabled = false;
+          nomInput.focus();
+        } else {
+          box.style.opacity = '0.55';
+          box.style.background = '#F1F5F9';
+          box.style.borderColor = '#E2E8F0';
+          box.style.pointerEvents = 'none';
+          nomInput.disabled = true;
+          fmtSelect.disabled = true;
+          const trig = box.querySelector('.custom-select-trigger');
+          if (trig) trig.disabled = true;
+        }
+      }
+    }
+
+    function guardarRequisito(id) {
+      const titulo = document.getElementById('req-titulo').value.trim();
+      if (!titulo) {
+        APP.toast({ icon: '⚠️', title: 'Falta título', body: 'Ingresa la descripción del requisito.' });
+        document.getElementById('req-titulo').focus();
+        return;
+      }
+
+      const reqAdj = document.getElementById('req-chk-adj').checked;
+      let adjNom = '';
+      let fmt = '';
+      if (reqAdj) {
+        adjNom = document.getElementById('req-adj-nom').value.trim();
+        fmt = document.getElementById('req-adj-fmt').value;
+        if (!adjNom) {
+          APP.toast({ icon: '⚠️', title: 'Falta nombre de archivo', body: 'Ingresa el nombre del archivo adjunto requerido.' });
+          document.getElementById('req-adj-nom').focus();
+          return;
+        }
+        if (!fmt) {
+          APP.toast({ icon: '⚠️', title: 'Falta formato', body: 'Selecciona el formato admitido (PDF, DOC, PNG, JPG).' });
+          document.getElementById('req-adj-fmt').focus();
+          return;
+        }
+      }
+
+      const r = {
+        id: id || ('REQ-' + String(DB.requisitos().length + 1).padStart(3, '0')),
+        codigo: document.getElementById('req-cod').value,
+        titulo,
+        observacion: document.getElementById('req-obs').value.trim(),
+        requiereAdjunto: reqAdj,
+        adjuntoNombre: adjNom,
+        formato: fmt,
+        activo: document.getElementById('req-habilitar').checked,
+        fechaRegistro: (id && DB.getRequisito(id)) ? DB.getRequisito(id).fechaRegistro : new Date().toISOString().slice(0, 10)
+      };
+
+      DB.upsertRequisito(r);
+      APP.closeModal();
+      APP.toast({ icon: '✅', title: id ? 'Requisito actualizado' : 'Requisito guardado', body: `«${titulo}» registrado en el catálogo maestro.` });
+      render();
+    }
+
+    function eliminarRequisito(id) {
+      const r = DB.getRequisito(id);
+      if (!r) return;
+
+      const tramitesUsan = DB.tramites().filter(t => {
+        if (!t.requisitos) return false;
+        return t.requisitos.some(item => (typeof item === 'string' && (item === r.id || item === r.titulo)) || (typeof item === 'object' && (item.id === r.id || item.titulo === r.titulo)));
+      });
+      const cantUsos = tramitesUsan.length;
+
+      APP.openModal(`
+        <div class="modal-head">
+          <div style="display:flex;align-items:center;gap:10px">
+            <span style="color:var(--warn-fg);display:inline-flex;align-items:center">${SVG_ICONS.warn}</span>
+            <h3>Confirmar Eliminación de Requisito</h3>
+          </div>
+          <button class="modal-close" onclick="cerrarSubmodalVolverFlujo()">×</button>
+        </div>
+        <div class="modal-body">
+          <p style="font-size:14px;color:var(--text);margin-bottom:12px">
+            ¿Estás seguro de que deseas eliminar permanentemente el requisito <b>«${r.titulo}»</b> (Código: <code>${r.codigo || r.id}</code>)?
+          </p>
+
+          ${cantUsos > 0 ? `
+            <div class="alert warn" style="margin-bottom:14px">
+              <div style="display:flex;align-items:center;gap:6px;font-weight:700;margin-bottom:4px">
+                ${SVG_ICONS.warn} Advertencia Institucional:
+              </div>
+              <div>Este requisito está asociado a <b>${cantUsos} trámite(s)</b> institucional(es):</div>
+              <ul style="margin:6px 0 0 16px;padding:0">
+                ${tramitesUsan.slice(0, 3).map(t => `<li>${t.nombre}</li>`).join('')}
+                ${cantUsos > 3 ? `<li>... y ${cantUsos - 3} trámite(s) más.</li>` : ''}
+              </ul>
+              <div style="margin-top:6px;font-size:12px">Eliminarlo afectará los requisitos configurados de dichos trámites.</div>
+            </div>
+          ` : `
+            <div class="alert info" style="margin-bottom:14px">
+              Este requisito no está siendo utilizado por ningún trámite activo y se puede retirar con total seguridad.
+            </div>
+          `}
+
+          <div style="font-size:12.5px;color:var(--text-muted)">Esta acción no se puede deshacer.</div>
+        </div>
+        <div class="modal-foot">
+          <button class="btn" onclick="APP.closeModal()">Cancelar</button>
+          <button class="btn btn-danger" style="display:inline-flex;align-items:center;gap:6px" onclick="confirmarEliminarRequisito('${id}')">
+            ${SVG_ICONS.trash} Sí, Eliminar definitivamente
+          </button>
+        </div>
+      `, { wide: false });
+    }
+
+    function confirmarEliminarRequisito(id) {
+      const r = DB.getRequisito(id);
+      const titulo = r ? r.titulo : 'Requisito';
+      DB.deleteRequisito(id);
+      APP.closeModal();
+      APP.toast({ icon: '🗑️', title: 'Requisito eliminado', body: `«${titulo}» fue retirado del catálogo.` });
+      render();
+    }
+
+    // =========================================================================
+    // SECCIÓN 2: GESTIÓN DE ÁREAS, SEDES Y RESPONSABLES
+    // =========================================================================
+    let DRAFT_AREA = null;
+    let EDIT_AREA_SUBTAB = 'general'; // 'general' | 'sedes' | 'responsables'
+    let SHOW_COLAB_SEARCH = false;
+    let COLAB_SEARCH_RESULTS = [];
+
+    // -------------------------------------------------------------------------
+    // 1. FLUJO ALTA RÁPIDA: NUEVA ÁREA (Captura 1)
+    // -------------------------------------------------------------------------
+    function nuevaArea() {
+      const all = DB.areas();
+      const nextNum = all.length + 1;
+      const nextCod = 'A-' + String(nextNum).padStart(3, '0');
+
+      APP.openModal(`
+        <div class="modal-head">
+          <div style="display:flex;align-items:center;gap:12px">
+            <div style="width:36px;height:36px;border-radius:8px;background:var(--brand-soft);color:var(--brand);display:flex;align-items:center;justify-content:center;flex-shrink:0">
+              ${SVG_ICONS.sede}
+            </div>
+            <div>
+              <h3>Registrar Área</h3>
+              <div style="font-size:12px;color:var(--text-muted)">Gestión de Entidad Institucional · Flujo de Trámites</div>
+            </div>
+          </div>
+          <button class="modal-close" onclick="cerrarSubmodalVolverFlujo()">×</button>
+        </div>
+        <div class="modal-body">
+          <div class="form-grid">
+            <div class="field">
+              <label>Código</label>
+              <input class="input" value="${nextCod}" disabled style="background:#F8FAFC;font-weight:700;color:var(--brand-dark)">
+            </div>
+            <div class="field">
+              <label>Institución</label>
+              <input class="input" value="Universidad Privada Norbert Wiener S.A." disabled style="background:#F8FAFC;font-weight:600">
+            </div>
+            <div class="field full">
+              <label>Título / Nombre del Área *</label>
+              <input class="input" id="nueva-area-nom" maxlength="500" placeholder="Ej. Dirección de Bienestar Universitario" oninput="updateCharCounter('new-nom-count', this.value.length)">
+              <div class="char-limit-text" id="new-nom-count">0 / 500 caracteres (máx. 500)</div>
+            </div>
+            <div class="field full">
+              <label>Observación</label>
+              <textarea class="input" id="nueva-area-obs" rows="3" maxlength="500" placeholder="Ingrese como máximo 500 caracteres..." oninput="updateCharCounter('new-obs-count', this.value.length)"></textarea>
+              <div class="char-limit-text" id="new-obs-count">0 / 500 caracteres (máx. 500)</div>
+            </div>
+            <div class="field">
+              <label>Habilitar</label>
+              <select class="select" id="nueva-area-hab">
+                <option value="si" selected>Sí</option>
+                <option value="no">No</option>
+              </select>
+            </div>
+          </div>
+          <div class="alert info" style="margin-top:16px;font-size:12.5px;display:flex;align-items:flex-start;gap:10px">
+            <span style="color:var(--brand);flex-shrink:0;margin-top:2px">${SVG_ICONS.doc}</span>
+            <div>Al registrar el área se creará el nuevo registro. Podrás asociar sus <b>Sedes</b> y asignar su equipo de <b>Responsables</b> desde el botón <b>Editar</b>.</div>
+          </div>
+        </div>
+        <div class="modal-foot">
+          <button class="btn" onclick="APP.closeModal()">Cerrar</button>
+          <button class="btn btn-primary" onclick="guardarNuevaArea('${nextCod}')" style="display:inline-flex;align-items:center;gap:6px">${SVG_ICONS.check} Grabar Área</button>
+        </div>
+      `, { wide: false });
+    }
+
+    function guardarNuevaArea(cod) {
+      const nom = document.getElementById('nueva-area-nom') ? document.getElementById('nueva-area-nom').value.trim() : '';
+      if (!nom) {
+        APP.toast({ icon: '⚠️', title: 'Falta el nombre', body: 'Ingresa el nombre o título de la nueva área.' });
+        return;
+      }
+      const obs = document.getElementById('nueva-area-obs') ? document.getElementById('nueva-area-obs').value.trim() : '';
+      const hab = document.getElementById('nueva-area-hab') ? document.getElementById('nueva-area-hab').value : 'si';
+      const catSedes = DB.sedesCatalogo();
+
+      const nueva = {
+        id: cod,
+        codigo: cod,
+        institucion: 'Universidad Privada Norbert Wiener S.A.',
+        nombre: nom,
+        observacion: obs,
+        activo: (hab === 'si'),
+        fechaRegistro: new Date().toISOString().slice(0, 10),
+        sedes: [
+          { id: 'SED-1', nombre: catSedes[0] || '7803-2 --> LOCAL 1 / Jr. Larrabure y Unanue 110 Santa Beatriz, Lima', activo: true }
+        ],
+        responsables: []
+      };
+
+      DB.upsertArea(nueva);
+      APP.closeModal();
+      APP.toast({ icon: '🏢', title: 'Área creada', body: `«${nom}» registrada. Ahora puedes configurar sus Sedes y Responsables desde Editar.` });
+      render();
+    }
+
+    // -------------------------------------------------------------------------
+    // 2. FORMULARIO UNIFICADO DE EDICIÓN: DATOS, SEDES Y RESPONSABLES
+    // -------------------------------------------------------------------------
+    function editarArea(id, subtab) {
+      const a = DB.getArea(id);
+      if (!a) return;
+      DRAFT_AREA = JSON.parse(JSON.stringify(a));
+      if (!Array.isArray(DRAFT_AREA.sedes)) DRAFT_AREA.sedes = [];
+      if (!Array.isArray(DRAFT_AREA.responsables)) DRAFT_AREA.responsables = [];
+      SHOW_COLAB_SEARCH = false;
+      COLAB_SEARCH_RESULTS = [];
+      renderEditAreaModal(subtab || 'general');
+    }
+
+    function syncDraftGeneralFields() {
+      const nomEl = document.getElementById('edit-area-nom');
+      const obsEl = document.getElementById('edit-area-obs');
+      const habEl = document.getElementById('edit-area-hab');
+      if (nomEl) DRAFT_AREA.nombre = nomEl.value.trim();
+      if (obsEl) DRAFT_AREA.observacion = obsEl.value.trim();
+      if (habEl) DRAFT_AREA.activo = (habEl.value === 'si');
+    }
+
+    function setSubtabEditArea(subtab) {
+      syncDraftGeneralFields();
+      renderEditAreaModal(subtab);
+    }
+
+    function renderEditAreaModal(subtab) {
+      EDIT_AREA_SUBTAB = subtab;
+      const catSedes = DB.sedesCatalogo();
+      const sedesCount = DRAFT_AREA.sedes.length;
+      const respCount = DRAFT_AREA.responsables.length;
+
+      // Sub-vista 1: Datos Generales
+      let subContent = '';
+      if (EDIT_AREA_SUBTAB === 'general') {
+        const nomLen = (DRAFT_AREA.nombre || '').length;
+        const obsLen = (DRAFT_AREA.observacion || '').length;
+        subContent = `
+          <div class="form-grid">
+            <div class="field">
+              <label>Código</label>
+              <input class="input" value="${DRAFT_AREA.codigo || DRAFT_AREA.id}" disabled style="background:#F8FAFC;font-weight:700;color:var(--brand-dark)">
+            </div>
+            <div class="field">
+              <label>Institución</label>
+              <input class="input" value="${DRAFT_AREA.institucion || 'Universidad Privada Norbert Wiener S.A.'}" disabled style="background:#F8FAFC;font-weight:600">
+            </div>
+            <div class="field full">
+              <label>Título / Nombre del Área *</label>
+              <input class="input" id="edit-area-nom" maxlength="500" value="${DRAFT_AREA.nombre || ''}" oninput="updateCharCounter('edit-nom-count', this.value.length)">
+              <div class="char-limit-text" id="edit-nom-count">${nomLen} / 500 caracteres (máx. 500)</div>
+            </div>
+            <div class="field full">
+              <label>Observación</label>
+              <textarea class="input" id="edit-area-obs" rows="3" maxlength="500" placeholder="Ingrese como máximo 500 caracteres..." oninput="updateCharCounter('edit-obs-count', this.value.length)">${DRAFT_AREA.observacion || ''}</textarea>
+              <div class="char-limit-text" id="edit-obs-count">${obsLen} / 500 caracteres (máx. 500)</div>
+            </div>
+            <div class="field">
+              <label>Habilitar</label>
+              <select class="select" id="edit-area-hab">
+                <option value="si" ${DRAFT_AREA.activo ? 'selected' : ''}>Sí</option>
+                <option value="no" ${!DRAFT_AREA.activo ? 'selected' : ''}>No</option>
+              </select>
+            </div>
+          </div>
+        `;
+      } else if (EDIT_AREA_SUBTAB === 'sedes') {
+        // Sub-vista 2: Sedes (Captura 2)
+        const sedesRows = DRAFT_AREA.sedes.map((s, idx) => {
+          const optSedes = catSedes.map(cs => `<option value="${cs}" ${cs === s.nombre ? 'selected' : ''}>${cs}</option>`).join('');
+          return `
+            <tr>
+              <td style="text-align:center"><span class="mono muted">${idx + 1}</span></td>
+              <td>
+                <select class="select" style="font-size:13px;width:100%" onchange="draftCambiarSede(${idx}, 'nombre', this.value)">
+                  ${optSedes}
+                </select>
+              </td>
+              <td style="text-align:center;width:80px">
+                <label class="switch switch-sm" title="Activar / Desactivar">
+                  <input type="checkbox" ${s.activo ? 'checked' : ''} onchange="draftCambiarSede(${idx}, 'activo', this.checked)">
+                  <span class="slider"></span>
+                </label>
+              </td>
+              <td style="text-align:center;width:60px">
+                <button type="button" class="btn-circle-del" title="Quitar sede" onclick="confirmarQuitarSede(${idx})">${SVG_ICONS.trash}</button>
+              </td>
+            </tr>
+          `;
+        }).join('');
+
+        subContent = `
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;flex-wrap:wrap;gap:10px">
+            <div>
+              <div class="section-label" style="margin:0">Sedes Contenidas / Ventanillas</div>
+              <div style="font-size:12px;color:var(--text-muted)">Puntos físicos o virtuales donde el área atiende o recibe solicitudes.</div>
+            </div>
+            <button class="btn btn-sm btn-primary" type="button" onclick="draftAgregarSede()" style="display:inline-flex;align-items:center;gap:6px">
+              ${SVG_ICONS.plus} Agregar Sede
+            </button>
+          </div>
+
+          <table class="modal-table">
+            <thead>
+              <tr>
+                <th style="width:45px;text-align:center">N°</th>
+                <th>Sede Institucional</th>
+                <th style="width:80px;text-align:center">Activo</th>
+                <th style="width:60px;text-align:center">Quitar</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${sedesRows.length ? sedesRows : `<tr><td colspan="4" style="text-align:center;padding:24px;color:var(--text-muted)">No hay sedes asignadas. Haz clic en «Agregar Sede».</td></tr>`}
+            </tbody>
+          </table>
+          <div style="margin-top:10px;font-size:12.5px;color:var(--text-muted)">${sedesCount} Sede(s) asignada(s)</div>
+        `;
+      } else if (EDIT_AREA_SUBTAB === 'responsables') {
+        // Sub-vista 3: Responsables (Capturas 3, 4 y 5)
+        let searchPanelHTML = '';
+        if (SHOW_COLAB_SEARCH) {
+          const resRows = COLAB_SEARCH_RESULTS.map((c, cIdx) => `
+            <tr>
+              <td style="text-align:center">
+                <button type="button" class="btn-circle-add" title="Asignar al área" onclick="draftAgregarColaborador('${c.personal}')">${SVG_ICONS.plus}</button>
+              </td>
+              <td style="text-align:center"><span class="mono muted">${cIdx + 1}</span></td>
+              <td><span class="mono" style="font-weight:700;color:var(--brand-dark)">${c.personal}</span></td>
+              <td><b>${c.paterno} ${c.materno}, ${c.nombres}</b></td>
+              <td><span class="mono" style="font-size:11px">${c.gerCodigo || '-'}</span></td>
+              <td><span style="font-size:12px;color:var(--text-soft)">${c.gerencia}</span></td>
+            </tr>
+          `).join('');
+
+          searchPanelHTML = `
+            <div class="search-panel-box">
+              <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+                <div style="display:flex;align-items:center;gap:8px;font-weight:700;font-size:13.5px;color:var(--brand-dark)">
+                  ${SVG_ICONS.search} <span>Buscar y Asignar Nuevo Responsable</span>
+                </div>
+                <button type="button" class="btn-circle-del" title="Cerrar búsqueda" onclick="toggleColabSearch()">${SVG_ICONS.cross}</button>
+              </div>
+              <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:flex-end">
+                <div style="flex:1;min-width:130px">
+                  <label style="font-size:11px;font-weight:700;color:var(--text-muted);display:block;margin-bottom:3px">AP. PATERNO</label>
+                  <input class="input" id="colab-pat" placeholder="Ej. SANTA" onkeyup="if(event.key==='Enter') buscarColaboradores()">
+                </div>
+                <div style="flex:1;min-width:130px">
+                  <label style="font-size:11px;font-weight:700;color:var(--text-muted);display:block;margin-bottom:3px">AP. MATERNO</label>
+                  <input class="input" id="colab-mat" placeholder="Ej. CRUZ" onkeyup="if(event.key==='Enter') buscarColaboradores()">
+                </div>
+                <div style="flex:1;min-width:130px">
+                  <label style="font-size:11px;font-weight:700;color:var(--text-muted);display:block;margin-bottom:3px">NOMBRES</label>
+                  <input class="input" id="colab-nom" placeholder="Ej. CARLOS" onkeyup="if(event.key==='Enter') buscarColaboradores()">
+                </div>
+                <button type="button" class="btn btn-primary btn-sm" onclick="buscarColaboradores()" style="display:inline-flex;align-items:center;gap:5px">${SVG_ICONS.search} Buscar</button>
+              </div>
+
+              <div style="margin-top:14px">
+                <div style="font-size:12px;font-weight:700;color:var(--text-muted);margin-bottom:6px">${COLAB_SEARCH_RESULTS.length} Registro(s) encontrado(s)</div>
+                <div style="max-height:210px;overflow-y:auto;border:1px solid var(--border-soft);border-radius:8px;background:#FFF">
+                  <table class="modal-table" style="margin:0">
+                    <thead>
+                      <tr>
+                        <th style="width:40px;text-align:center">Asignar</th>
+                        <th style="width:40px;text-align:center">Nro.</th>
+                        <th style="width:90px">Personal</th>
+                        <th>Apellidos y Nombres</th>
+                        <th style="width:65px">Ger.</th>
+                        <th>Gerencia</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      ${resRows.length ? resRows : `<tr><td colspan="6" style="text-align:center;padding:16px;color:var(--text-muted)">Ingresa un criterio de búsqueda y presiona Buscar.</td></tr>`}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          `;
+        }
+
+        const respRows = DRAFT_AREA.responsables.map((r, idx) => {
+          return `
+            <tr>
+              <td style="text-align:center;width:40px"><span class="mono muted">${idx + 1}</span></td>
+              <td style="width:85px"><span class="mono" style="font-weight:700;color:var(--brand-dark);font-size:12px">${r.personal || '-'}</span></td>
+              <td style="min-width:190px">
+                <div class="strong" style="font-size:13px">${r.nombre}</div>
+              </td>
+              <td style="min-width:210px">
+                <div style="font-size:12px;color:var(--text-soft);line-height:1.35">${r.sede || '-'}</div>
+              </td>
+              <td style="width:135px">
+                <select class="select" style="font-size:12px;font-weight:600;padding:5px 8px;width:100%" onchange="draftCambiarResponsable(${idx}, 'cargo', this.value)">
+                  <option value="Responsable" ${r.cargo === 'Responsable' ? 'selected' : ''}>Responsable</option>
+                  <option value="Coordinador" ${r.cargo === 'Coordinador' ? 'selected' : ''}>Coordinador</option>
+                  <option value="Reporteador" ${r.cargo === 'Reporteador' ? 'selected' : ''}>Reporteador</option>
+                </select>
+              </td>
+              <td style="text-align:center;width:75px">
+                <label class="switch switch-sm" title="Activar / Desactivar">
+                  <input type="checkbox" ${r.activo ? 'checked' : ''} onchange="draftCambiarResponsable(${idx}, 'activo', this.checked)">
+                  <span class="slider"></span>
+                </label>
+              </td>
+              <td style="text-align:center;width:60px">
+                <button type="button" class="btn-circle-del" title="Quitar responsable del área" onclick="confirmarQuitarResponsable(${idx})">${SVG_ICONS.trash}</button>
+              </td>
+            </tr>
+          `;
+        }).join('');
+
+        subContent = `
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;flex-wrap:wrap;gap:10px">
+            <div>
+              <div class="section-label" style="margin:0">Equipo de Responsables del Área</div>
+              <div style="font-size:12px;color:var(--text-muted)">Define los colaboradores que atienden este departamento y sus permisos.</div>
+            </div>
+            <button class="btn btn-sm btn-primary" type="button" onclick="toggleColabSearch()" style="display:inline-flex;align-items:center;gap:6px">
+              ${SHOW_COLAB_SEARCH ? SVG_ICONS.cross + ' Cerrar Búsqueda' : SVG_ICONS.plus + ' Agregar Responsable'}
+            </button>
+          </div>
+
+          ${searchPanelHTML}
+
+          <div style="max-height:420px;overflow-y:auto;border:1px solid var(--border-soft);border-radius:8px">
+            <table class="modal-table" style="margin:0">
+              <thead>
+                <tr>
+                  <th style="width:40px;text-align:center">N°</th>
+                  <th style="width:85px">Personal</th>
+                  <th style="min-width:190px">Apellidos y Nombres</th>
+                  <th style="min-width:210px">Sede</th>
+                  <th style="width:135px">Cargo / Rol</th>
+                  <th style="width:75px;text-align:center">Activo</th>
+                  <th style="width:60px;text-align:center">Quitar</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${respRows.length ? respRows : `<tr><td colspan="7" style="text-align:center;padding:26px;color:var(--text-muted)">No hay responsables asignados. Presiona «+ Agregar Responsable».</td></tr>`}
+              </tbody>
+            </table>
+          </div>
+          <div style="margin-top:10px;font-size:12.5px;color:var(--text-muted);font-weight:600">${respCount} Registro(s)</div>
+        `;
+      }
+
+      APP.openModal(`
+        <div class="modal-head">
+          <div style="display:flex;align-items:center;gap:12px">
+            <div style="width:38px;height:38px;border-radius:10px;background:var(--brand-soft);color:var(--brand);display:flex;align-items:center;justify-content:center;flex-shrink:0">
+              ${SVG_ICONS.edit}
+            </div>
+            <div>
+              <h3>Editar Área: ${DRAFT_AREA.nombre}</h3>
+              <div style="font-size:12.5px;color:var(--text-muted);margin-top:2px">
+                <b>Código:</b> ${DRAFT_AREA.codigo || DRAFT_AREA.id} &nbsp;·&nbsp; 
+                <b>Institución:</b> ${DRAFT_AREA.institucion || 'Universidad Privada Norbert Wiener S.A.'}
+              </div>
+            </div>
+          </div>
+          <button class="modal-close" onclick="APP.closeModal()">×</button>
+        </div>
+
+        <div class="modal-body">
+          <!-- SUB-TABS INTERNAS -->
+          <div class="modal-subnav">
+            <button type="button" class="modal-subnav-btn ${EDIT_AREA_SUBTAB === 'general' ? 'active' : ''}" onclick="setSubtabEditArea('general')">
+              ${SVG_ICONS.doc} <span>Datos Generales</span>
+            </button>
+            <button type="button" class="modal-subnav-btn ${EDIT_AREA_SUBTAB === 'sedes' ? 'active' : ''}" onclick="setSubtabEditArea('sedes')">
+              ${SVG_ICONS.sede} <span>Sedes (${sedesCount})</span>
+            </button>
+            <button type="button" class="modal-subnav-btn ${EDIT_AREA_SUBTAB === 'responsables' ? 'active' : ''}" onclick="setSubtabEditArea('responsables')">
+              ${SVG_ICONS.user} <span>Responsables (${respCount})</span>
+            </button>
+          </div>
+
+          <div id="subtab-body">
+            ${subContent}
+          </div>
+        </div>
+
+        <div class="modal-foot" style="display:flex;justify-content:space-between;align-items:center">
+          <button class="btn" type="button" onclick="APP.closeModal()">Cancelar</button>
+          <button class="btn btn-primary" type="button" onclick="guardarEdicionArea('${DRAFT_AREA.id}')" style="display:inline-flex;align-items:center;gap:6px">${SVG_ICONS.check} Guardar Cambios</button>
+        </div>
+      `, { wide: true });
+    }
+
+    function draftAgregarSede() {
+      const cat = DB.sedesCatalogo();
+      const yaAsignadas = DRAFT_AREA.sedes.map(s => s.nombre);
+      const dispo = cat.find(s => !yaAsignadas.includes(s)) || cat[0] || '7803-2 --> LOCAL 1 / Jr. Larrabure y Unanue 110 Santa Beatriz, Lima';
+      DRAFT_AREA.sedes.push({
+        id: 'SED-' + Date.now(),
+        nombre: dispo,
+        activo: true
+      });
+      renderEditAreaModal('sedes');
+    }
+
+    function confirmarQuitarSede(idx) {
+      syncDraftGeneralFields();
+      if (!DRAFT_AREA || !DRAFT_AREA.sedes || !DRAFT_AREA.sedes[idx]) return;
+      if (DRAFT_AREA.sedes.length <= 1) {
+        APP.toast({ icon: '⚠️', title: 'Atención', body: 'El área debe contar con al menos una sede registrada.' });
+        return;
+      }
+      const s = DRAFT_AREA.sedes[idx];
+      mostrarConfirmacionModal({
+        titulo: 'Quitar Sede del Área',
+        icono: SVG_ICONS.warn,
+        mensaje: `¿Estás seguro de que deseas desvincular la sede <b>«${s.nombre}»</b> de esta área?`,
+        textoBoton: 'Sí, Quitar Sede',
+        onConfirm: () => {
+          DRAFT_AREA.sedes.splice(idx, 1);
+          cerrarConfirmacionModal();
+          renderEditAreaModal('sedes');
+          APP.toast({ icon: '🗑️', title: 'Sede removida', body: 'Se actualizó la lista de sedes del área.' });
+        }
+      });
+    }
+
+    function draftCambiarSede(idx, campo, val) {
+      if (DRAFT_AREA.sedes[idx]) {
+        DRAFT_AREA.sedes[idx][campo] = (campo === 'activo' ? (val === 'si' || val === true) : val);
+      }
+    }
+
+    function toggleColabSearch() {
+      SHOW_COLAB_SEARCH = !SHOW_COLAB_SEARCH;
+      if (SHOW_COLAB_SEARCH && COLAB_SEARCH_RESULTS.length === 0) {
+        COLAB_SEARCH_RESULTS = DB.colaboradores().slice(0, 5);
+      }
+      renderEditAreaModal('responsables');
+    }
+
+    function buscarColaboradores() {
+      const pat = (document.getElementById('colab-pat') ? document.getElementById('colab-pat').value.trim().toLowerCase() : '');
+      const mat = (document.getElementById('colab-mat') ? document.getElementById('colab-mat').value.trim().toLowerCase() : '');
+      const nom = (document.getElementById('colab-nom') ? document.getElementById('colab-nom').value.trim().toLowerCase() : '');
+
+      const all = DB.colaboradores();
+      COLAB_SEARCH_RESULTS = all.filter(c => {
+        const matchPat = !pat || (c.paterno && c.paterno.toLowerCase().includes(pat));
+        const matchMat = !mat || (c.materno && c.materno.toLowerCase().includes(mat));
+        const matchNom = !nom || (c.nombres && c.nombres.toLowerCase().includes(nom));
+        return matchPat && matchMat && matchNom;
+      });
+      renderEditAreaModal('responsables');
+    }
+
+    function draftAgregarColaborador(personal) {
+      const colab = DB.colaboradores().find(c => c.personal === personal);
+      if (!colab) return;
+
+      const exists = DRAFT_AREA.responsables.find(r => r.personal === personal);
+      if (exists) {
+        APP.toast({ icon: '⚠️', title: 'Ya está asignado', body: `${colab.nombres} ya figura en la lista de responsables de esta área.` });
+        return;
+      }
+
+      const defaultSede = (DRAFT_AREA.sedes && DRAFT_AREA.sedes.length > 0)
+        ? DRAFT_AREA.sedes[0].nombre
+        : '7803-2 --> LOCAL 1 / Jr. Larrabure y Unanue 110 Santa Beatriz, Lima';
+
+      DRAFT_AREA.responsables.push({
+        id: 'RESP-' + Date.now(),
+        personal: colab.personal,
+        nombre: `${colab.paterno} ${colab.materno}, ${colab.nombres}`.trim(),
+        sede: defaultSede,
+        cargo: 'Responsable',
+        activo: true
+      });
+
+      APP.toast({ icon: '👤', title: 'Responsable agregado', body: `${colab.paterno} ${colab.materno} fue añadido a la tabla.` });
+      renderEditAreaModal('responsables');
+    }
+
+    function confirmarQuitarResponsable(idx) {
+      syncDraftGeneralFields();
+      if (!DRAFT_AREA || !DRAFT_AREA.responsables || !DRAFT_AREA.responsables[idx]) return;
+      const r = DRAFT_AREA.responsables[idx];
+      mostrarConfirmacionModal({
+        titulo: 'Quitar Responsable del Área',
+        icono: SVG_ICONS.warn,
+        mensaje: `¿Estás seguro de que deseas retirar a <b>«${r.nombre}»</b> (${r.cargo}) del equipo de responsables de esta área?`,
+        textoBoton: 'Sí, Quitar Responsable',
+        onConfirm: () => {
+          DRAFT_AREA.responsables.splice(idx, 1);
+          cerrarConfirmacionModal();
+          renderEditAreaModal('responsables');
+          APP.toast({ icon: '🗑️', title: 'Responsable retirado', body: 'Se retiró al colaborador del área.' });
+        }
+      });
+    }
+
+    function draftCambiarResponsable(idx, campo, val) {
+      if (DRAFT_AREA.responsables[idx]) {
+        DRAFT_AREA.responsables[idx][campo] = (campo === 'activo' ? (val === 'si' || val === true) : val);
+      }
+    }
+
+    function guardarEdicionArea(id) {
+      syncDraftGeneralFields();
+
+      if (!DRAFT_AREA.nombre) {
+        APP.toast({ icon: '⚠️', title: 'Falta el nombre', body: 'El área debe tener un título o nombre válido.' });
+        setSubtabEditArea('general');
+        return;
+      }
+
+      DB.upsertArea(DRAFT_AREA);
+      APP.closeModal();
+      APP.toast({ icon: '🏢', title: 'Área actualizada', body: `«${DRAFT_AREA.nombre}» guardada con sedes y responsables.` });
+      render();
+    }
+
+    // -------------------------------------------------------------------------
+    // 3. EL "OJO": VER FICHA COMPLETA DEL ÁREA (Card / Modal Detalle)
+    // -------------------------------------------------------------------------
+    function verDetalleArea(id) {
+      const a = DB.getArea(id);
+      if (!a) return;
+
+      const sedesChips = (a.sedes || []).map(s => `
+        <div style="display:flex;align-items:center;justify-content:space-between;padding:8px 12px;background:var(--surface-2);border-radius:8px;margin-bottom:6px">
+          <div style="display:flex;align-items:center;gap:8px">
+            <span style="color:var(--brand);display:inline-flex;align-items:center">${SVG_ICONS.sede}</span>
+            <span style="font-size:13px;font-weight:600">${s.nombre}</span>
+          </div>
+          ${s.activo ? '<span class="pill ok" style="font-size:11px">Activo</span>' : '<span class="pill gray" style="font-size:11px">Inactivo</span>'}
+        </div>
+      `).join('') || `<span class="muted" style="font-size:12.5px">Sin sedes asociadas</span>`;
+
+      const respRows = (a.responsables || []).map((r, idx) => {
+        let cargoBadge = '<span class="tag teal">Responsable</span>';
+        if (r.cargo === 'Coordinador') cargoBadge = '<span class="tag purple">Coordinador</span>';
+        else if (r.cargo === 'Reporteador') cargoBadge = '<span class="tag">Reporteador</span>';
+
+        return `
+          <tr>
+            <td style="text-align:center"><span class="mono muted">${idx + 1}</span></td>
+            <td><span class="mono" style="font-weight:700;color:var(--brand-dark)">${r.personal || '-'}</span></td>
+            <td><b>${r.nombre}</b></td>
+            <td><span style="font-size:12px;color:var(--text-soft)">${r.sede || '-'}</span></td>
+            <td>${cargoBadge}</td>
+            <td style="text-align:center">${r.activo ? '<span class="pill ok" style="font-size:11px">Activo</span>' : '<span class="pill gray" style="font-size:11px">Inactivo</span>'}</td>
+          </tr>
+        `;
+      }).join('');
+
+      APP.openModal(`
+        <div class="modal-head">
+          <div style="display:flex;align-items:center;gap:12px">
+            <div style="width:38px;height:38px;border-radius:10px;background:var(--brand-soft);color:var(--brand);display:flex;align-items:center;justify-content:center;flex-shrink:0">
+              ${SVG_ICONS.sede}
+            </div>
+            <div>
+              <h3>${a.nombre}</h3>
+              <div style="display:flex;align-items:center;gap:8px;margin-top:2px">
+                <span class="mono" style="font-size:11px;background:#F1F5F9;border:1px solid #CBD5E1;border-radius:4px;padding:1px 6px;color:var(--brand-dark);font-weight:700">${a.codigo || a.id}</span>
+                <span style="font-size:12px;color:var(--text-muted)">${a.institucion || 'Universidad Privada Norbert Wiener S.A.'}</span>
+                ${a.activo ? '<span class="pill ok">Activo</span>' : '<span class="pill gray">Inactivo</span>'}
+              </div>
+            </div>
+          </div>
+          <button class="modal-close" onclick="APP.closeModal()">×</button>
+        </div>
+
+        <div class="modal-body">
+          <!-- Bloque Observación -->
+          <div class="detail-card-info">
+            <div class="section-label" style="margin:0 0 6px 0">Observación / Funciones del Área</div>
+            <div style="font-size:13.5px;color:var(--text-soft);line-height:1.5">
+              ${a.observacion || '<span class="muted">Sin observaciones o descripción institucional registrada.</span>'}
+            </div>
+            <div style="margin-top:10px;font-size:12px;color:var(--text-muted)">
+              Fecha de Registro Oficial: <b>${a.fechaRegistro || '2022-06-10'}</b>
+            </div>
+          </div>
+
+          <!-- Bloque Sedes -->
+          <div class="detail-card-info">
+            <div class="section-label" style="margin:0 0 10px 0">Sedes y Ventanillas Asignadas (${(a.sedes || []).length})</div>
+            ${sedesChips}
+          </div>
+
+          <!-- Bloque Responsables -->
+          <div class="detail-card-info" style="margin-bottom:0">
+            <div class="section-label" style="margin:0 0 10px 0">Equipo de Responsables Asignados (${(a.responsables || []).length})</div>
+            <div style="max-height:280px;overflow-y:auto;border:1px solid var(--border-soft);border-radius:8px">
+              <table class="modal-table" style="margin:0">
+                <thead>
+                  <tr>
+                    <th style="width:40px;text-align:center">N°</th>
+                    <th style="width:95px">Personal</th>
+                    <th>Apellidos y Nombres</th>
+                    <th>Sede de Atención</th>
+                    <th style="width:130px">Cargo / Rol</th>
+                    <th style="width:85px;text-align:center">Estado</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  ${respRows.length ? respRows : `<tr><td colspan="6" style="text-align:center;padding:20px;color:var(--text-muted)">No hay responsables asignados a esta área.</td></tr>`}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <div class="modal-foot" style="display:flex;justify-content:space-between;align-items:center">
+          <button class="btn" onclick="APP.closeModal()">Cerrar</button>
+          <button class="btn btn-primary" style="display:inline-flex;align-items:center;gap:6px" onclick="APP.closeModal(); editarArea('${id}')">${SVG_ICONS.edit} Editar Área</button>
+        </div>
+      `, { wide: true });
+    }
+
+    // -------------------------------------------------------------------------
+    // 4. CONFIRMACIÓN Y ELIMINACIÓN DE ÁREA
+    // -------------------------------------------------------------------------
+    function eliminarArea(id) {
+      const a = DB.getArea(id);
+      if (!a) return;
+
+      const tramitesUsan = DB.tramites().filter(t => t.area === a.nombre || (t.proceso && t.proceso.some(p => p.area === a.nombre)));
+      const cantUsos = tramitesUsan.length;
+
+      APP.openModal(`
+        <div class="modal-head">
+          <div style="display:flex;align-items:center;gap:10px">
+            <span style="color:var(--warn-fg);display:inline-flex;align-items:center">${SVG_ICONS.warn}</span>
+            <h3>Confirmar Eliminación de Área</h3>
+          </div>
+          <button class="modal-close" onclick="cerrarSubmodalVolverFlujo()">×</button>
+        </div>
+        <div class="modal-body">
+          <p style="font-size:14px;color:var(--text);margin-bottom:12px">
+            ¿Estás seguro de que deseas eliminar permanentemente el área <b>«${a.nombre}»</b> (Código: <code>${a.codigo || a.id}</code>)?
+          </p>
+
+          ${cantUsos > 0 ? `
+            <div class="alert warn" style="margin-bottom:14px">
+              <div style="display:flex;align-items:center;gap:6px;font-weight:700;margin-bottom:4px">
+                ${SVG_ICONS.warn} Advertencia Institucional:
+              </div>
+              <div>Esta área se encuentra referenciada en <b>${cantUsos} trámite(s)</b> institucional(es):</div>
+              <ul style="margin:6px 0 0 16px;padding:0">
+                ${tramitesUsan.slice(0, 3).map(t => `<li>${t.nombre}</li>`).join('')}
+                ${cantUsos > 3 ? `<li>... y ${cantUsos - 3} trámite(s) más.</li>` : ''}
+              </ul>
+              <div style="margin-top:6px;font-size:12px">Eliminarla puede afectar el flujo secuencial de revisión de solicitudes vinculadas.</div>
+            </div>
+          ` : `
+            <div class="alert info" style="margin-bottom:14px">
+              Esta área no tiene trámites activos bloqueándola. Se eliminarán sus sedes y equipo de responsables asignados.
+            </div>
+          `}
+
+          <div style="font-size:12.5px;color:var(--text-muted)">Esta acción no se puede deshacer.</div>
+        </div>
+        <div class="modal-foot">
+          <button class="btn" onclick="APP.closeModal()">Cancelar</button>
+          <button class="btn btn-danger" style="display:inline-flex;align-items:center;gap:6px" onclick="confirmarEliminarArea('${id}')">${SVG_ICONS.trash} Sí, Eliminar definitivamente</button>
+        </div>
+      `, { wide: false });
+    }
+
+    function confirmarEliminarArea(id) {
+      const a = DB.getArea(id);
+      const nombre = a ? a.nombre : 'Área';
+      DB.deleteArea(id);
+      APP.closeModal();
+      APP.toast({ icon: '🗑️', title: 'Área eliminada', body: `«${nombre}» fue retirada del sistema.` });
+      render();
+    }
+
+    render();
+
+    // Sincronización con parámetros de URL (ej. enlaces desde flujos.html)
+    (function checkUrlParams() {
+      const params = new URLSearchParams(window.location.search);
+      if (params.get('nuevo') === '1') {
+        setTimeout(() => editarTramite(null), 120);
+      } else if (params.get('editar')) {
+        const id = params.get('editar');
+        if (DB.getTramite(id)) {
+          setTimeout(() => editarTramite(id), 120);
+        }
+      }
+    })();
+  </script>
+</body>
+
+</html>
