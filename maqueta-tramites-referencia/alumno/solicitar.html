@@ -1,0 +1,1266 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Solicitar trámite · Universidad Norbert Wiener</title>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Lato:wght@400;700;900&family=Roboto:wght@400;500;700&display=swap"
+    rel="stylesheet">
+  <link rel="stylesheet" href="../css/styles.css">
+  <style>
+    [hidden] {
+      display: none !important;
+    }
+
+    /* ---- Perfil compacto y plegable ---- */
+    .perfil-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      margin-bottom: 18px;
+    }
+
+    .perfil-toggle {
+      width: 100%;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 10px 14px;
+      min-height: 48px;
+      background: none;
+      border: none;
+      border-radius: 12px;
+      font-family: inherit;
+      font-size: 13.5px;
+      color: var(--text-soft);
+      text-align: left;
+      cursor: pointer;
+    }
+
+    .perfil-toggle:hover {
+      background: var(--brand-soft);
+    }
+
+    .perfil-avatar {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      background: var(--brand);
+      color: #fff;
+      font-family: 'Lato', sans-serif;
+      font-size: 13px;
+      font-weight: 900;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .perfil-resumen {
+      flex: 1;
+      min-width: 0;
+      line-height: 1.4;
+    }
+
+    .perfil-resumen b {
+      color: var(--text);
+    }
+
+    .perfil-mas {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      font-weight: 600;
+      color: var(--brand);
+      white-space: nowrap;
+    }
+
+    .chev {
+      transition: transform .18s ease;
+      flex-shrink: 0;
+    }
+
+    [aria-expanded="true"] .chev {
+      transform: rotate(180deg);
+    }
+
+    .perfil-panel {
+      padding: 4px 16px 16px 58px;
+    }
+
+    .perfil-datos {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+      gap: 10px 20px;
+      margin: 0 0 10px 0;
+    }
+
+    .perfil-datos div {
+      min-width: 0;
+    }
+
+    .perfil-datos dt {
+      font-size: 12px;
+      color: var(--text-muted);
+    }
+
+    .perfil-datos dd {
+      margin: 0;
+      font-size: 13.5px;
+      font-weight: 600;
+      overflow-wrap: anywhere;
+    }
+
+    /* ---- Buscador y categorías ---- */
+    .catalog-tools {
+      margin-bottom: 14px;
+    }
+
+    .cat-title {
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--text-soft);
+      margin: 14px 0 8px 0;
+    }
+
+    .cat-bar {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .cat-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      min-height: 36px;
+      padding: 6px 14px;
+      border-radius: 999px;
+      border: 1px solid var(--border);
+      background: var(--surface);
+      font-family: inherit;
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text-soft);
+      cursor: pointer;
+    }
+
+    .cat-btn:hover {
+      border-color: var(--brand);
+      color: var(--brand);
+    }
+
+    .cat-btn.active {
+      background: var(--brand);
+      border-color: var(--brand);
+      color: #fff;
+    }
+
+    .cat-btn .tab-count {
+      min-width: 20px;
+      height: 18px;
+      font-size: 11px;
+    }
+
+    .cat-btn.active .tab-count {
+      background: rgba(255, 255, 255, .22);
+      color: #fff;
+    }
+
+    .result-count {
+      font-size: 13px;
+      color: var(--text-muted);
+      margin: 0 0 12px 0;
+    }
+
+    /* ---- Tarjeta de trámite ---- */
+    .tram-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 16px;
+    }
+
+    .tram-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      min-width: 0;
+      transition: border-color .15s ease, box-shadow .15s ease;
+    }
+
+    .tram-card:hover {
+      border-color: var(--brand);
+      box-shadow: var(--shadow-lg);
+    }
+
+    .tram-title {
+      font-family: 'Lato', sans-serif;
+      font-size: 18px;
+      font-weight: 700;
+      margin: 0 0 6px 0;
+      line-height: 1.3;
+      overflow-wrap: anywhere;
+    }
+
+    .tram-desc {
+      font-size: 14px;
+      color: var(--text-soft);
+      line-height: 1.5;
+      margin: 0 0 12px 0;
+    }
+
+    .tram-meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px 16px;
+      font-size: 13px;
+      color: var(--text-muted);
+      margin: 0 0 12px 0;
+      padding: 0;
+      list-style: none;
+    }
+
+    .tram-meta li {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      min-width: 0;
+    }
+
+    .tram-meta svg {
+      flex-shrink: 0;
+    }
+
+    .tram-meta b {
+      color: var(--text);
+    }
+
+    .tram-meta .is-warn {
+      color: var(--warn-fg);
+      font-weight: 600;
+    }
+
+    .tram-flow {
+      margin-top: auto;
+      padding-top: 12px;
+      border-top: 1px solid var(--border-soft);
+    }
+
+    .tram-flow-label {
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--text-muted);
+      margin: 0 0 8px 0;
+    }
+
+    .tram-card .flow-step {
+      max-width: calc(100% - 22px);
+    }
+
+    .tram-card .flow-txt b,
+    .tram-card .flow-txt small {
+      overflow-wrap: anywhere;
+    }
+
+    .tram-foot {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin-top: 14px;
+      padding-top: 14px;
+      border-top: 1px solid var(--border-soft);
+    }
+
+    .tram-price b {
+      display: block;
+      font-family: 'Lato', sans-serif;
+      font-size: 22px;
+      font-weight: 900;
+      color: var(--brand);
+      line-height: 1.1;
+    }
+
+    .tram-price span {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      font-size: 12.5px;
+      font-weight: 600;
+      color: var(--text-soft);
+      margin-top: 3px;
+    }
+
+    /* ---- Trámites no disponibles ---- */
+    .no-eleg {
+      margin-top: 28px;
+    }
+
+    .no-eleg-toggle {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      min-height: 40px;
+    }
+
+    .no-eleg-list {
+      margin-top: 12px;
+    }
+
+    .no-eleg-list .item-card {
+      background: var(--surface-2);
+    }
+
+    .no-eleg-list h3 {
+      font-family: 'Lato', sans-serif;
+      font-size: 15px;
+      font-weight: 700;
+      margin: 0;
+      color: var(--text-soft);
+      overflow-wrap: anywhere;
+    }
+
+    .no-eleg-list ul {
+      margin: 6px 0 0 0;
+      padding-left: 18px;
+      font-size: 13.5px;
+      color: var(--text-soft);
+    }
+
+    /* ---- Formulario de solicitud ---- */
+    .sol-field {
+      margin-bottom: 14px;
+    }
+
+    .sol-kv {
+      margin-bottom: 16px;
+    }
+
+    .sol-note {
+      font-size: 13px;
+      margin-top: 14px;
+    }
+
+    .req-mark {
+      color: #B91C1C;
+      font-weight: 700;
+    }
+
+    .file-dropzone:focus-within {
+      outline: 2px solid var(--brand);
+      outline-offset: 2px;
+    }
+
+    .tram-grid .empty-state {
+      grid-column: 1 / -1;
+    }
+
+    .file-text {
+      min-width: 0;
+    }
+
+    .dz-indicacion {
+      font-size: 13px;
+    }
+
+    .dz-ico {
+      display: flex;
+      justify-content: center;
+      margin-bottom: 6px;
+      color: var(--brand);
+    }
+
+    .dz-title {
+      font-weight: 600;
+      font-size: 13px;
+    }
+
+    .dz-sub {
+      font-size: 12px;
+      color: var(--text-muted);
+      margin-top: 2px;
+    }
+
+    .file-preview-card .btn {
+      color: #B91C1C;
+      flex-shrink: 0;
+    }
+
+    .cert-cursos {
+      background: var(--surface-2);
+      border: 1px solid var(--border-soft);
+      border-radius: 8px;
+      padding: 12px 14px;
+      margin-bottom: 14px;
+    }
+
+    .cert-cursos-title {
+      font-size: 12.5px;
+      font-weight: 700;
+      color: var(--text-muted);
+      margin: 0 0 8px 0;
+    }
+
+    .cert-cursos li {
+      justify-content: space-between;
+      font-size: 13px;
+    }
+
+    .cert-cursos .curso-nombre {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .cert-cursos .curso-nota {
+      white-space: nowrap;
+      font-weight: 700;
+    }
+
+    /* ---- Confirmación ---- */
+    .ok-head {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .ok-badge {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background: var(--ok-bg);
+      color: var(--ok-fg);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .ok-num {
+      font-family: 'Lato', sans-serif;
+      font-size: 22px;
+      font-weight: 900;
+      color: var(--brand-dark);
+      margin: 0 0 14px 0;
+    }
+
+    .ok-num small {
+      display: block;
+      font-family: 'Roboto', sans-serif;
+      font-size: 12.5px;
+      font-weight: 600;
+      color: var(--text-muted);
+    }
+
+    .ok-next {
+      margin-top: 16px;
+      font-size: 13.5px;
+      line-height: 1.5;
+    }
+
+    .ok-next b {
+      display: block;
+      margin-bottom: 2px;
+    }
+
+    .modal-foot.is-wrap {
+      flex-wrap: wrap;
+    }
+
+    @media (max-width: 920px) {
+      .tram-grid {
+        grid-template-columns: minmax(0, 1fr);
+      }
+    }
+
+    @media (max-width: 560px) {
+      .perfil-panel {
+        padding-left: 16px;
+      }
+
+      .perfil-mas span {
+        display: none;
+      }
+
+      .tram-foot .btn-row,
+      .tram-foot .btn-row .btn {
+        width: 100%;
+        justify-content: center;
+      }
+
+      .modal-foot.is-wrap .btn {
+        flex: 1 1 100%;
+        justify-content: center;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <script src="../js/data.js"></script>
+  <script src="../js/shell.js"></script>
+  <script src="../js/doc.js"></script>
+  <script>
+    const ctx = APP.renderShell('solicitar');
+    const me = (ctx && DB.getUsuario(ctx.session.id)) || {};
+    const perfil = me.perfil || {};
+    const E = APP.esc;
+
+    const svg = (inner, size) => `<svg width="${size || 14}" height="${size || 14}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${inner}</svg>`;
+    const ICO = {
+      arrow: '<line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline>',
+      clock: '<circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline>',
+      clip: '<path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"></path>',
+      check: '<polyline points="20 6 9 17 4 12"></polyline>',
+      x: '<line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line>',
+      search: '<circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line>',
+      card: '<rect x="2" y="5" width="20" height="14" rx="2"></rect><line x1="2" y1="10" x2="22" y2="10"></line>',
+      chev: '<polyline points="6 9 12 15 18 9"></polyline>',
+      upload: '<path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line>',
+      file: '<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline>',
+      folder: '<path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path>',
+      building: '<path d="M3 21h18"></path><path d="M5 21V7l7-4 7 4v14"></path><path d="M9 21v-6h6v6"></path>'
+    };
+
+    const MOTIVOS = ['Trámite bancario', 'Postulación laboral', 'Beca de estudios', 'Trámite migratorio / Visa', 'Continuidad de estudios', 'Otro'];
+    const MOTIVOS_CERT = ['Acreditación curricular y competencias', 'Postulación e inserción laboral', 'Convocatoria de tutoría / docencia', 'Beca o pasantía profesional', 'Trámite bancario / laboral', 'Otro'];
+    const TIPOS_ARCHIVO = ['pdf', 'jpg', 'jpeg', 'png'];
+    const MAX_ARCHIVO = 5 * 1024 * 1024;
+    const NOTA_MINIMA = 14;
+
+    let searchTxt = '';
+    let catSel = 'todos';
+    let FORM = nuevoForm(null);
+
+    function nuevoForm(tramiteId) {
+      return { tramiteId: tramiteId, motivo: '', motivoOtro: '', comentario: '', archivo: null, certId: '' };
+    }
+
+    // Los nombres del catálogo llegan en mayúsculas: se muestran en tipo oración
+    function enOracion(n) {
+      n = String(n || '');
+      if (n.length > 3 && n === n.toUpperCase() && /[A-ZÁÉÍÓÚÑ]/.test(n)) {
+        n = n.toLowerCase();
+        return n.charAt(0).toUpperCase() + n.slice(1);
+      }
+      return n;
+    }
+
+    function esCertProgresiva(t) {
+      return t.id === 'T-010' || (t.nombre || '').toLowerCase().includes('certificación progresiva');
+    }
+    function esInmediata(t) { return DB.esInmediato(t) || esCertProgresiva(t); }
+    function pagaAlSolicitar(t) { return DB.tienePago(t) && t.pagoMomento !== 'despues'; }
+    function diasTexto(t) {
+      if (esInmediata(t)) return 'Inmediata';
+      const n = Number(t.diasEntrega) || 0;
+      return n === 1 ? '1 día hábil' : n + ' días hábiles';
+    }
+    function cuandoPaga(t) {
+      if (!DB.tienePago(t)) return 'Sin costo';
+      return pagaAlSolicitar(t) ? 'Pagas al solicitar' : 'Pagas cuando se apruebe';
+    }
+    function nivelTexto() { return perfil.nivel === 'pregrado' ? 'Pregrado' : 'Postgrado'; }
+    function meritoTexto() { return perfil.tercioSuperior ? 'Tercio superior' : perfil.quintoSuperior ? 'Quinto superior' : 'Regular'; }
+
+    // =========================================================================
+    // CATÁLOGO
+    // =========================================================================
+    function categorias() { return [{ id: 'todos', label: 'Todos' }].concat(DB.CATEGORIAS); }
+    function enCategoria(t, c) { return c === 'todos' || (Array.isArray(t.intenciones) && t.intenciones.includes(c)); }
+
+    function setQ(val) {
+      searchTxt = (val || '').toLowerCase().trim();
+      renderCatalog();
+    }
+
+    function setCategoria(c) {
+      catSel = c;
+      renderCatalog();
+    }
+
+    function verTodos() {
+      const inp = document.getElementById('search-input');
+      if (inp) inp.value = '';
+      searchTxt = '';
+      catSel = 'todos';
+      renderCatalog();
+      if (inp) inp.focus();
+    }
+
+    function tarjetaHTML(t) {
+      const inmediata = esInmediata(t);
+      const genera = DOC.getPlantilla(t).generaDocumento;
+      return `
+        <article class="tram-card">
+          <h3 class="tram-title">${E(enOracion(t.nombre))}</h3>
+          <p class="tram-desc">${E(t.descripcion)}</p>
+          <ul class="tram-meta">
+            <li>${svg(ICO.clock)}<span>Entrega estimada: ${inmediata ? '<b>Inmediata</b>' : `<b>${E(APP.calcSLA(t.diasEntrega))}</b> (${E(diasTexto(t))})`}</span></li>
+            ${t.requiereAdjunto
+              ? `<li class="is-warn">${svg(ICO.clip)}<span>Debes adjuntar un documento</span></li>`
+              : `<li>${svg(ICO.check)}<span>Emisión 100% digital</span></li>`}
+            <li>${svg(ICO.folder)}<span>${E(t.tipo)}</span></li>
+            <li>${svg(ICO.building)}<span>Atiende: ${E(t.area)}</span></li>
+          </ul>
+          <div class="tram-flow">
+            <p class="tram-flow-label">Así avanza tu solicitud</p>
+            ${APP.flowHTML(t, { compact: true })}
+          </div>
+          <div class="tram-foot">
+            <div class="tram-price">
+              <b>${DB.tienePago(t) ? APP.money(t.costo) : 'Gratis'}</b>
+              <span>${svg(ICO.card, 13)} ${cuandoPaga(t)}${DB.tienePago(t) ? ' · Costo con IGV' : ''}</span>
+            </div>
+            <div class="btn-row">
+              ${genera ? `<button class="btn" type="button" onclick="verModelo('${E(t.id)}')">Ver modelo</button>` : ''}
+              <button class="btn btn-primary" type="button" onclick="abrirSolicitud('${E(t.id)}')">Solicitar ${svg(ICO.arrow, 15)}</button>
+            </div>
+          </div>
+        </article>`;
+    }
+
+    function renderCatalog() {
+      const elegibles = DB.tramites().filter(t => DB.elegible(t, perfil));
+      const porTexto = elegibles.filter(t => !searchTxt || (t.nombre + ' ' + t.descripcion + ' ' + t.tipo + ' ' + t.area).toLowerCase().includes(searchTxt));
+      const filtrados = porTexto.filter(t => enCategoria(t, catSel));
+
+      // Categorías: se actualizan en el sitio para no perder el foco
+      document.querySelectorAll('.cat-btn').forEach(b => {
+        const c = b.dataset.cat;
+        const activo = c === catSel;
+        b.classList.toggle('active', activo);
+        b.setAttribute('aria-pressed', String(activo));
+        b.querySelector('.tab-count').textContent = porTexto.filter(t => enCategoria(t, c)).length;
+      });
+
+      document.getElementById('result-count').textContent = filtrados.length === 1
+        ? '1 trámite disponible para ti'
+        : filtrados.length + ' trámites disponibles para ti';
+
+      document.getElementById('catalog-grid').innerHTML = filtrados.map(tarjetaHTML).join('') || `
+        <div class="empty-state">
+          <div class="ico">${svg(ICO.search, 36)}</div>
+          <h3>No encontramos trámites con esa búsqueda</h3>
+          <p>Prueba con otra palabra o elige otra categoría.</p>
+          <button class="btn btn-sm" type="button" onclick="verTodos()">Ver todos los trámites</button>
+        </div>`;
+    }
+
+    function togglePlegable(btn) {
+      const panel = document.getElementById(btn.getAttribute('aria-controls'));
+      const abrir = btn.getAttribute('aria-expanded') !== 'true';
+      btn.setAttribute('aria-expanded', String(abrir));
+      panel.hidden = !abrir;
+    }
+
+    function noElegiblesHTML() {
+      const noEleg = DB.tramites().filter(t => t.activo && !DB.elegible(t, perfil));
+      if (!noEleg.length) return '';
+      const n = noEleg.length;
+      return `
+        <section class="no-eleg" aria-label="Trámites no disponibles para ti">
+          <button class="btn no-eleg-toggle" type="button" aria-expanded="false" aria-controls="no-eleg-list" onclick="togglePlegable(this)">
+            ${n === 1 ? 'Ver 1 trámite que no está disponible para ti' : 'Ver ' + n + ' trámites que no están disponibles para ti'}
+            <span class="chev">${svg(ICO.chev, 16)}</span>
+          </button>
+          <div class="no-eleg-list" id="no-eleg-list" hidden>
+            ${noEleg.map(t => {
+              let motivos = DB.motivosNoElegible(t, perfil);
+              if (!motivos.length) motivos = DB.audienciaTexto(t.audiencia);
+              return `
+                <div class="item-card">
+                  <div class="list-card-head">
+                    <h3>${E(enOracion(t.nombre))}</h3>
+                    <span class="pill gray">No habilitado</span>
+                  </div>
+                  <div class="list-card-meta"><span>${E(t.tipo)}</span></div>
+                  <ul>${motivos.map(m => `<li>${E(m)}</li>`).join('')}</ul>
+                </div>`;
+            }).join('')}
+          </div>
+        </section>`;
+    }
+
+    function initView() {
+      const criterios = [nivelTexto(), 'ciclo ' + E(perfil.ciclo), E(perfil.creditos) + ' créditos'].join(', ');
+      ctx.mount.innerHTML = `
+        <div class="page-head">
+          <div>
+            <h1>Solicitar trámite</h1>
+            <p>Elige el trámite que necesitas. En cada uno verás cuánto cuesta, cuándo se paga y cómo avanza.</p>
+          </div>
+          <a class="btn" href="mis-tramites.html">Ver mis trámites ${svg(ICO.arrow, 16)}</a>
+        </div>
+
+        <section class="perfil-card" aria-label="Tus datos">
+          <button class="perfil-toggle" type="button" aria-expanded="false" aria-controls="perfil-panel" onclick="togglePlegable(this)">
+            <span class="perfil-avatar" aria-hidden="true">${E(APP.initials(me.nombre || 'A'))}</span>
+            <span class="perfil-resumen"><b>${E(me.nombre)}</b> · Ves los trámites para ${criterios}.</span>
+            <span class="perfil-mas"><span>Tus datos</span><span class="chev">${svg(ICO.chev, 16)}</span></span>
+          </button>
+          <div class="perfil-panel" id="perfil-panel" hidden>
+            <dl class="perfil-datos">
+              <div><dt>Programa</dt><dd>${E(perfil.programa)}</dd></div>
+              <div><dt>Nivel y ciclo</dt><dd>${nivelTexto()} (ciclo ${E(perfil.ciclo)})</dd></div>
+              <div><dt>Condición</dt><dd><span class="pill ok">Alumno regular</span></dd></div>
+              <div><dt>Código</dt><dd>${E(me.codigo)}</dd></div>
+              <div><dt>DNI</dt><dd>${E(me.dni)}</dd></div>
+              <div><dt>Correo</dt><dd>${E(me.email)}</dd></div>
+              <div><dt>Créditos aprobados</dt><dd>${E(perfil.creditos)}</dd></div>
+              <div><dt>Promedio</dt><dd>${E(perfil.promedio)}</dd></div>
+              <div><dt>Mérito</dt><dd>${meritoTexto()}</dd></div>
+            </dl>
+            <p class="help">Con estos datos decidimos qué trámites puedes pedir. Algunos exigen un nivel, un ciclo, un mínimo de créditos o de promedio, o estar en el tercio o quinto superior.</p>
+          </div>
+        </section>
+
+        <div class="catalog-tools">
+          <div class="input-wrap-icon-left">
+            <span class="input-icon-svg" aria-hidden="true">${svg(ICO.search, 17)}</span>
+            <label class="sr-only" for="search-input">Buscar trámite</label>
+            <input class="input" id="search-input" type="search" autocomplete="off" placeholder="Busca por nombre o palabra clave (ej. matrícula, certificado, carné)" oninput="setQ(this.value)">
+          </div>
+          <p class="cat-title" id="cat-title">¿Qué necesitas hacer?</p>
+          <div class="cat-bar" role="group" aria-labelledby="cat-title">
+            ${categorias().map(c => `
+              <button class="cat-btn" type="button" data-cat="${E(c.id)}" aria-pressed="false" onclick="setCategoria('${E(c.id)}')">
+                ${E(c.label)} <span class="tab-count">0</span>
+              </button>`).join('')}
+          </div>
+        </div>
+
+        <p class="result-count" id="result-count" role="status" aria-live="polite"></p>
+        <div class="tram-grid" id="catalog-grid"></div>
+        ${noElegiblesHTML()}
+      `;
+      renderCatalog();
+    }
+
+    function verModelo(id) {
+      DOC.preview(DB.getTramite(id), me, null, { modelo: true });
+    }
+
+    // =========================================================================
+    // FORMULARIO DE SOLICITUD
+    // =========================================================================
+    function setErr(id, msg) {
+      const el = document.getElementById(id);
+      if (!el) return;
+      el.textContent = msg || '';
+      el.hidden = !msg;
+    }
+
+    function pesoTexto(bytes) {
+      return bytes >= 1048576 ? (bytes / 1048576).toFixed(1) + ' MB' : Math.max(1, Math.round(bytes / 1024)) + ' KB';
+    }
+
+    function motivoCamposHTML(lista) {
+      return `
+        <div class="field full sol-field">
+          <label for="sol-motivo">Motivo de la solicitud <span class="req-mark" aria-hidden="true">*</span></label>
+          <div class="custom-select-container">
+            <select class="select" id="sol-motivo" required aria-describedby="err-motivo" onchange="onMotivoChange(this.value)">
+              <option value="" disabled ${FORM.motivo ? '' : 'selected'}>Selecciona un motivo</option>
+              ${lista.map(m => `<option value="${E(m)}" ${FORM.motivo === m ? 'selected' : ''}>${E(m)}</option>`).join('')}
+            </select>
+          </div>
+          <div class="field-error" id="err-motivo" role="alert" hidden></div>
+        </div>
+        <div class="field full sol-field" id="campo-motivo-otro" ${FORM.motivo === 'Otro' ? '' : 'hidden'}>
+          <label for="sol-motivo-otro">Cuéntanos el motivo <span class="req-mark" aria-hidden="true">*</span></label>
+          <input class="input" id="sol-motivo-otro" maxlength="120" value="${E(FORM.motivoOtro)}" aria-describedby="err-motivo-otro" placeholder="Ej. Trámite ante el colegio profesional">
+          <div class="field-error" id="err-motivo-otro" role="alert" hidden></div>
+        </div>`;
+    }
+
+    function onMotivoChange(val) {
+      FORM.motivo = val;
+      setErr('err-motivo', '');
+      const campo = document.getElementById('campo-motivo-otro');
+      if (campo) {
+        campo.hidden = val !== 'Otro';
+        if (val === 'Otro') document.getElementById('sol-motivo-otro').focus();
+      }
+    }
+
+    function leerForm() {
+      const v = id => { const el = document.getElementById(id); return el ? el.value : ''; };
+      FORM.motivo = v('sol-motivo') || FORM.motivo;
+      FORM.motivoOtro = v('sol-motivo-otro').trim();
+      FORM.comentario = v('sol-coment').trim();
+      if (document.getElementById('sol-cert-select')) FORM.certId = v('sol-cert-select') || FORM.certId;
+    }
+
+    function validarMotivo() {
+      let primero = null;
+      if (!FORM.motivo) {
+        setErr('err-motivo', 'Elige el motivo de tu solicitud.');
+        primero = document.querySelector('#sol-motivo').parentNode.querySelector('button, select');
+      } else setErr('err-motivo', '');
+      if (FORM.motivo === 'Otro' && !FORM.motivoOtro) {
+        setErr('err-motivo-otro', 'Escribe el motivo.');
+        primero = primero || document.getElementById('sol-motivo-otro');
+      } else setErr('err-motivo-otro', '');
+      return primero;
+    }
+
+    // ---- Adjunto ----
+    function pintarArchivo() {
+      const area = document.getElementById('file-preview-area');
+      if (!area) return;
+      area.innerHTML = FORM.archivo ? `
+        <div class="file-preview-card">
+          <div class="file-meta">
+            ${svg(ICO.file, 20)}
+            <div class="file-text">
+              <div class="file-name">${E(FORM.archivo.name)}</div>
+              <div class="file-size">${pesoTexto(FORM.archivo.size)} · Listo para enviar</div>
+            </div>
+          </div>
+          <button class="btn btn-sm btn-ghost" type="button" onclick="quitarArchivo()">${svg(ICO.x)} Quitar<span class="sr-only"> archivo ${E(FORM.archivo.name)}</span></button>
+        </div>` : '';
+    }
+
+    function tomarArchivo(file) {
+      const input = document.getElementById('file-input');
+      if (!file) return;
+      const ext = (file.name.split('.').pop() || '').toLowerCase();
+      if (!TIPOS_ARCHIVO.includes(ext)) {
+        setErr('err-archivo', 'No aceptamos ese tipo de archivo. Sube un PDF, JPG o PNG.');
+        if (input) input.value = '';
+        return;
+      }
+      if (file.size > MAX_ARCHIVO) {
+        setErr('err-archivo', 'El archivo pesa ' + pesoTexto(file.size) + '. El máximo es 5 MB.');
+        if (input) input.value = '';
+        return;
+      }
+      setErr('err-archivo', '');
+      FORM.archivo = { name: file.name, size: file.size };
+      pintarArchivo();
+    }
+
+    function quitarArchivo() {
+      FORM.archivo = null;
+      const input = document.getElementById('file-input');
+      if (input) { input.value = ''; input.focus(); }
+      pintarArchivo();
+    }
+
+    function prepararDropzone() {
+      const dz = document.getElementById('dropzone');
+      if (!dz) return;
+      ['dragenter', 'dragover'].forEach(ev => dz.addEventListener(ev, e => { e.preventDefault(); dz.classList.add('dragover'); }));
+      ['dragleave', 'dragend'].forEach(ev => dz.addEventListener(ev, () => dz.classList.remove('dragover')));
+      dz.addEventListener('drop', e => {
+        e.preventDefault();
+        dz.classList.remove('dragover');
+        const f = e.dataTransfer && e.dataTransfer.files && e.dataTransfer.files[0];
+        tomarArchivo(f);
+      });
+      pintarArchivo();
+    }
+
+    // ---- Certificación progresiva ----
+    function certsDelAlumno() {
+      const todas = DB.certificacionesProgresivas();
+      const propias = todas.filter(c => !c.programa || c.programa === perfil.programa);
+      return propias.length ? propias : todas;
+    }
+
+    function estadoCert(certId) {
+      const cert = certId ? DB.getCertificacion(certId) : null;
+      if (!cert) return null;
+      const hist = me.historialCursos || {};
+      const cursos = (cert.cursos || []).map(c => {
+        const h = hist[c.codigo] || hist[c.nombre];
+        const nota = h && h.nota != null ? Number(h.nota) : (c.nota != null ? Number(c.nota) : null);
+        return { nombre: c.nombre, nota: nota, cumple: nota != null && nota >= NOTA_MINIMA };
+      });
+      const cumpleNotas = cursos.every(c => c.cumple);
+      const deuda = !!DB.tieneDeuda(me);
+      return { cert, cursos, cumpleNotas, deuda, emitida: !!DB.certificacionEmitida(me.id, cert.id), apto: cumpleNotas && !deuda };
+    }
+
+    function cursosHTML(st) {
+      if (!st.cursos.length) return '';
+      return `
+        <div class="cert-cursos">
+          <p class="cert-cursos-title">Cursos que pide esta certificación (${st.cursos.length}). Nota mínima: ${NOTA_MINIMA}</p>
+          <ul class="checklist">
+            ${st.cursos.map(c => `
+              <li>
+                <span class="check-dot ${c.cumple ? 'is-ok' : 'is-err'}">${svg(c.cumple ? ICO.check : ICO.x, 12)}</span>
+                <span class="curso-nombre">${E(enOracion(c.nombre))}</span>
+                <span class="curso-nota">${c.nota == null ? 'Sin nota' : 'Nota ' + E(c.nota)} · ${c.cumple ? 'Cumple' : 'No cumple'}</span>
+              </li>`).join('')}
+          </ul>
+        </div>`;
+    }
+
+    function onCertSelectChange(certId) {
+      FORM.certId = certId || '';
+      const st = estadoCert(certId);
+      const $ = id => document.getElementById(id);
+      const btn = $('btn-solicitar-submit');
+      const ayuda = $('cert-btn-help');
+      setErr('err-cert', '');
+
+      $('cert-courses-preview').innerHTML = st ? cursosHTML(st) : '';
+      $('cert-already-emitted-alert').hidden = !(st && st.emitida);
+      $('cert-campos').hidden = !!(st && st.emitida);
+      const noApto = st && !st.emitida && !st.apto;
+      $('cert-no-apto').hidden = !noApto;
+      $('cert-niubiz-box').hidden = !(st && !st.emitida && st.apto);
+
+      if (!st) {
+        btn.disabled = true;
+        btn.textContent = 'Continuar al pago';
+        ayuda.textContent = 'Elige una certificación para continuar.';
+      } else if (st.emitida) {
+        btn.disabled = false;
+        btn.textContent = 'Ir a Mis documentos';
+        ayuda.textContent = '';
+      } else if (noApto) {
+        const motivos = [];
+        if (!st.cumpleNotas) motivos.push('tienes cursos con nota menor a ' + NOTA_MINIMA + ' o sin nota');
+        if (st.deuda) motivos.push('tienes una deuda pendiente con la universidad');
+        $('cert-no-apto').textContent = 'Todavía no puedes pedir esta certificación porque ' + motivos.join(' y ') + '.';
+        btn.disabled = true;
+        btn.textContent = 'Continuar al pago';
+        ayuda.textContent = 'El botón se activará cuando cumplas los requisitos de arriba.';
+      } else {
+        btn.disabled = false;
+        btn.textContent = 'Continuar al pago';
+        ayuda.textContent = '';
+      }
+    }
+
+    function abrirSolicitud(tramiteId, conservar) {
+      const t = DB.getTramite(tramiteId);
+      if (!t) return;
+      if (!conservar || FORM.tramiteId !== t.id) FORM = nuevoForm(t.id);
+
+      const esCert = esCertProgresiva(t);
+      const pagaAhora = pagaAlSolicitar(t);
+      const costo = APP.money(t.costo);
+
+      if (esCert) {
+        const certs = certsDelAlumno();
+        APP.openModal(`
+          <div class="modal-head">
+            <h3>Solicitar: Certificación progresiva</h3>
+            <button class="modal-close" type="button" aria-label="Cerrar" onclick="APP.closeModal()">&times;</button>
+          </div>
+          <div class="modal-body">
+            <dl class="kv sol-kv">
+              <dt>Tipo</dt><dd>Certificado modular oficial con firma digital</dd>
+              <dt>Emite</dt><dd>${E(t.area)} · Emisión digital</dd>
+              <dt>Costo</dt><dd>${costo}</dd>
+              <dt>Entrega estimada</dt><dd>Inmediata (al correo y en Mis documentos)</dd>
+              <dt>Pago</dt><dd>Pasarela Niubiz (tarjeta de crédito o débito)</dd>
+            </dl>
+
+            <div class="field full sol-field">
+              <label for="sol-cert-select">Certificación que quieres solicitar <span class="req-mark" aria-hidden="true">*</span></label>
+              <div class="custom-select-container">
+                <select class="select" id="sol-cert-select" required aria-describedby="err-cert" onchange="onCertSelectChange(this.value)">
+                  <option value="" disabled ${FORM.certId ? '' : 'selected'}>Selecciona la certificación</option>
+                  ${certs.map(c => `<option value="${E(c.id)}" ${FORM.certId === c.id ? 'selected' : ''}>${E(c.titulo)}</option>`).join('')}
+                </select>
+              </div>
+              <div class="field-error" id="err-cert" role="alert" hidden></div>
+            </div>
+
+            <div id="cert-courses-preview"></div>
+
+            <div id="cert-already-emitted-alert" class="alert warn sol-field" hidden>
+              <b>Ya tienes esta certificación.</b> Puedes verla y descargarla en <a href="mis-documentos.html">Mis documentos</a> sin pagar de nuevo.
+            </div>
+            <div id="cert-no-apto" class="alert err sol-field" role="alert" hidden></div>
+
+            <div id="cert-campos">
+              ${motivoCamposHTML(MOTIVOS_CERT)}
+              <div class="field full sol-field">
+                <label for="sol-coment">Comentario (opcional)</label>
+                <textarea class="input" id="sol-coment" rows="2" maxlength="500" placeholder="Algo que el área deba saber">${E(FORM.comentario)}</textarea>
+              </div>
+            </div>
+
+            <div id="cert-niubiz-box" class="alert info sol-note" hidden>
+              Al continuar pasarás a la pasarela de pago Niubiz para pagar <b>${costo}</b>. Si vuelves atrás, no perderás lo que escribiste.
+            </div>
+            <p class="help sol-note" id="cert-btn-help" aria-live="polite"></p>
+          </div>
+          <div class="modal-foot">
+            <button class="btn" type="button" onclick="APP.closeModal()">Cancelar</button>
+            <button class="btn btn-primary" type="button" id="btn-solicitar-submit" aria-describedby="cert-btn-help" disabled onclick="confirmarSolicitud('${E(t.id)}')">Continuar al pago</button>
+          </div>
+        `, { wide: false });
+        onCertSelectChange(FORM.certId);
+        return;
+      }
+
+      const pagoTexto = !DB.tienePago(t) ? 'Sin costo'
+        : pagaAhora ? 'Pago en línea con tarjeta vía Niubiz, al solicitar'
+        : 'Pago posterior a la aprobación';
+      const aviso = !DB.tienePago(t)
+        ? 'Este trámite no tiene costo. Tu solicitud entrará a revisión de ' + E(t.area) + '.'
+        : pagaAhora
+          ? 'Al continuar pasarás a la pasarela de pago Niubiz para pagar <b>' + costo + '</b>. Si vuelves atrás, no perderás lo que escribiste.'
+          : 'Tu solicitud entrará a revisión de ' + E(t.area) + '. Pagarás <b>' + costo + '</b> solo cuando sea aprobada.';
+
+      APP.openModal(`
+        <div class="modal-head">
+          <h3>Solicitar: ${E(enOracion(t.nombre))}</h3>
+          <button class="modal-close" type="button" aria-label="Cerrar" onclick="APP.closeModal()">&times;</button>
+        </div>
+        <div class="modal-body">
+          <dl class="kv sol-kv">
+            <dt>Tipo</dt><dd>${E(t.tipo)}</dd>
+            <dt>Costo</dt><dd>${DB.tienePago(t) ? costo : 'Gratis'}</dd>
+            <dt>Entrega estimada</dt><dd>${E(diasTexto(t))}</dd>
+            <dt>Pago</dt><dd>${pagoTexto}</dd>
+          </dl>
+
+          ${motivoCamposHTML(MOTIVOS)}
+
+          <div class="field full sol-field">
+            <label for="sol-coment">Comentario (opcional)</label>
+            <textarea class="input" id="sol-coment" rows="3" maxlength="500" placeholder="Información adicional para el área responsable">${E(FORM.comentario)}</textarea>
+          </div>
+
+          ${t.requiereAdjunto ? `
+            <div class="field full sol-field">
+              <label for="file-input">Documento de sustento <span class="req-mark">* (obligatorio)</span></label>
+              ${t.adjuntoIndicacion ? `<div class="alert warn dz-indicacion"><b>Indicación del área:</b> ${E(t.adjuntoIndicacion)}</div>` : ''}
+              <div class="file-dropzone" id="dropzone">
+                <input type="file" id="file-input" accept=".pdf,.jpg,.jpeg,.png" aria-describedby="err-archivo dz-sub" onchange="tomarArchivo(this.files && this.files[0])">
+                <div class="dz-ico">${svg(ICO.upload, 30)}</div>
+                <div class="dz-title">Haz clic para elegir un archivo o arrástralo aquí</div>
+                <div class="dz-sub" id="dz-sub">PDF, JPG o PNG. Máximo 5 MB.</div>
+              </div>
+              <div class="field-error" id="err-archivo" role="alert" hidden></div>
+              <div id="file-preview-area"></div>
+            </div>` : ''}
+
+          <div class="alert info sol-note">${aviso}</div>
+        </div>
+        <div class="modal-foot">
+          <button class="btn" type="button" onclick="APP.closeModal()">Cancelar</button>
+          <button class="btn btn-primary" type="button" onclick="confirmarSolicitud('${E(t.id)}')">${pagaAhora ? 'Continuar al pago' : 'Enviar solicitud'}</button>
+        </div>
+      `, { wide: false });
+      prepararDropzone();
+    }
+
+    function confirmarSolicitud(id) {
+      const t = DB.getTramite(id);
+      if (!t) return;
+      leerForm();
+      const esCert = esCertProgresiva(t);
+      let cert = null;
+      let primero = null;
+
+      if (esCert) {
+        const st = estadoCert(FORM.certId);
+        if (!st) {
+          setErr('err-cert', 'Elige una certificación para continuar.');
+          return;
+        }
+        if (st.emitida) { location.href = 'mis-documentos.html'; return; }
+        if (!st.apto) return;
+        cert = st.cert;
+        primero = validarMotivo();
+      } else {
+        primero = validarMotivo();
+        if (t.requiereAdjunto && !FORM.archivo) {
+          setErr('err-archivo', 'Falta el documento de sustento. ' + (t.adjuntoIndicacion || 'Adjunta el archivo que pide este trámite.'));
+          primero = primero || document.getElementById('file-input');
+        }
+      }
+      if (primero) { primero.focus(); return; }
+
+      const motivo = FORM.motivo === 'Otro' ? 'Otro: ' + FORM.motivoOtro : FORM.motivo;
+      const comentario = FORM.comentario;
+      const adjunto = !esCert && FORM.archivo ? FORM.archivo.name : null;
+
+      if (esCert || pagaAlSolicitar(t)) {
+        APP.niubizCheckout({
+          amount: t.costo,
+          concepto: esCert
+            ? `Certificación progresiva: ${E(cert.titulo)} - ${E(me.nombre)}`
+            : `${E(enOracion(t.nombre))} · ${E(me.nombre)} (${E(me.codigo)})`,
+          onSuccess: (pago) => procesarCreacion(t, pago, motivo, comentario, adjunto, cert),
+          // Volver desde la pasarela reabre el formulario con lo que el alumno ya había escrito
+          onCancel: () => abrirSolicitud(t.id, true)
+        });
+      } else {
+        procesarCreacion(t, null, motivo, comentario, adjunto, null);
+      }
+    }
+
+    function siguienteNumero() {
+      let num = DB.solicitudes().length + 201;
+      while (DB.getSolicitud('S-2026-0' + num)) num++;
+      return num;
+    }
+
+    function procesarCreacion(t, pago, motivo, comentario, adjunto, cert) {
+      const num = siguienteNumero();
+      const pagado = !!pago;
+      const gratis = !DB.tienePago(t);
+      const esCert = !!cert;
+      const estado = (esCert && pagado) ? 'Emitido' : 'En revisión';
+      const ahora = APP.nowStamp();
+      const nombre = cert ? `Certificación Progresiva: ${cert.titulo}` : t.nombre;
+
+      let proceso = DB.procesoParaSolicitud(t);
+      if (estado === 'Emitido') proceso = proceso.map(p => Object.assign({}, p, { estado: 'Atendido', fechaAtencion: ahora }));
+
+      const notaCert = `Certificado oficial generado con firma digital tras confirmación de pago y validación de notas (promedio modular: ${cert ? cert.promedio : '-'}).`;
+
+      const s = {
+        id: 'S-2026-0' + num,
+        ticket: '2026.' + (43600 + num),
+        tramiteId: t.id,
+        tramiteNombre: nombre,
+        certificacionId: cert ? cert.id : null,
+        certificacionTitulo: cert ? cert.titulo : null,
+        alumnoId: me.id,
+        alumnoNombre: me.nombre,
+        alumnoCodigo: me.codigo,
+        alumnoEmail: me.email,
+        fecha: APP.todayISO(),
+        fechaHora: APP.todayISO() + ' ' + (new Date().toLocaleTimeString('es-PE')),
+        estado,
+        activo: true,
+        costo: t.costo,
+        area: t.area,
+        pagoMomento: t.pagoMomento,
+        motivo: motivo,
+        comentarioAlumno: comentario || '',
+        observacion: esCert
+          ? notaCert + (comentario ? ' Comentario del alumno: ' + comentario : '')
+          : (comentario ? 'Comentario del alumno: ' + comentario : ''),
+        adjunto: adjunto || null,
+        proceso,
+        pago: pagado
+          ? { estado: 'pagado', obligacionGenerada: true, metodo: pago.metodo || 'Tarjeta de crédito o débito (Niubiz)', monto: pago.monto || t.costo, fecha: APP.todayISO(), operacion: pago.operacion || ('NB-' + Math.floor(100000 + Math.random() * 900000)) }
+          : gratis
+            ? { estado: 'pagado', obligacionGenerada: false, metodo: 'Sin costo', monto: 0, fecha: APP.todayISO(), operacion: '' }
+            : { estado: 'pendiente', obligacionGenerada: false, metodo: '-', monto: t.costo, fecha: '', operacion: '' },
+        historial: [
+          { estado: 'Solicitado', fecha: ahora, nota: esCert ? `Solicitud registrada para ${cert.titulo}` : 'Solicitud registrada por el alumno' + (adjunto ? ' (adjunto: ' + adjunto + ')' : '') }
+        ]
+      };
+
+      if (pagado) {
+        s.historial.push({ estado: 'En revisión', fecha: ahora, nota: 'Pago confirmado vía ' + s.pago.metodo + ' (Op. ' + s.pago.operacion + ')' });
+      } else {
+        s.historial.push({
+          estado: 'En revisión', fecha: ahora,
+          nota: gratis ? 'Trámite sin costo. Enviada a revisión de ' + t.area : 'Enviada a revisión de ' + t.area + '. El pago se hará cuando sea aprobada'
+        });
+      }
+      if (esCert && pagado) {
+        s.historial.push({ estado: 'Emitido', fecha: ahora, nota: 'Certificado oficial generado con firma digital y remitido a ' + me.email });
+      }
+
+      DB.addSolicitud(s);
+
+      APP.sendMail({
+        to: me.email,
+        cc: 'mesadepartes@uwiener.edu.pe',
+        subject: esCert ? `Certificación emitida - ${E(cert.titulo)} (${s.id})` : `Solicitud ${s.id} registrada - ${E(enOracion(t.nombre))}`,
+        lines: [
+          `Hola ${me.nombre}, registramos tu solicitud de ${nombre}.`,
+          `N° de solicitud: ${s.id}.`,
+          esCert ? 'Tu certificado ya está disponible en Mis documentos.' : `Fecha estimada de respuesta: ${APP.calcSLA(t.diasEntrega)}.`,
+          pagado ? `Pago confirmado: ${APP.money(pago.monto)}.` : gratis ? 'Este trámite no tiene costo.' : `Pagarás ${APP.money(t.costo)} cuando la solicitud sea aprobada.`
+        ]
+      });
+
+      mostrarConfirmacion(s, t, cert);
+    }
+
+    // Toda alta termina aquí: confirmación que no se cierra sola ni redirige
+    function mostrarConfirmacion(s, t, cert) {
+      const emitida = s.estado === 'Emitido';
+      const pagado = s.pago.estado === 'pagado' && Number(s.pago.monto) > 0;
+      const gratis = !DB.tienePago(t);
+      const fechaEst = esInmediata(t) ? 'Inmediata' : APP.calcSLA(t.diasEntrega) + ' (' + diasTexto(t) + ')';
+      const pagoTxt = pagado ? APP.money(s.pago.monto) + ' pagado (Op. ' + E(s.pago.operacion) + ')'
+        : gratis ? 'Sin costo'
+        : APP.money(t.costo) + ', lo pagarás cuando se apruebe';
+      const sigue = emitida
+        ? 'Tu certificado ya está en Mis documentos, listo para ver, descargar o imprimir. También enviamos una copia a ' + E(me.email) + '.'
+        : pagado || gratis
+          ? E(t.area) + ' revisará tu solicitud. Te avisaremos por correo a ' + E(me.email) + ' y podrás seguir el avance en Mis trámites.'
+          : E(t.area) + ' revisará tu solicitud. Si la aprueba, te avisaremos para que pagues ' + APP.money(t.costo) + ' desde Mis trámites.';
+
+      FORM = nuevoForm(null);
+      APP.openModal(`
+        <div class="modal-head">
+          <div class="ok-head">
+            <span class="ok-badge">${svg(ICO.check, 22)}</span>
+            <h3>${emitida ? 'Certificación emitida' : 'Solicitud registrada'}</h3>
+          </div>
+          <button class="modal-close" type="button" aria-label="Cerrar y seguir en el catálogo" onclick="solicitarOtro()">&times;</button>
+        </div>
+        <div class="modal-body">
+          <p class="ok-num"><small>N° de solicitud</small>${E(s.id)}</p>
+          <dl class="kv">
+            <dt>Trámite</dt><dd>${E(enOracion(s.tramiteNombre))}</dd>
+            <dt>Fecha estimada</dt><dd>${E(fechaEst)}</dd>
+            <dt>Pago</dt><dd>${pagoTxt}</dd>
+            ${emitida ? `<dt>Código del documento</dt><dd>${E('DOC-' + s.id.replace('S-', ''))}</dd>` : ''}
+            ${s.adjunto ? `<dt>Adjunto</dt><dd>${E(s.adjunto)}</dd>` : ''}
+          </dl>
+          <div class="alert info ok-next"><b>Qué sigue</b>${sigue}</div>
+        </div>
+        <div class="modal-foot is-wrap">
+          <button class="btn" type="button" onclick="solicitarOtro()">Solicitar otro</button>
+          ${emitida
+            ? `<a class="btn" href="mis-tramites.html?solicitud=${encodeURIComponent(s.id)}">Ver mi solicitud</a>
+               <a class="btn btn-primary" href="mis-documentos.html">Ir a Mis documentos ${svg(ICO.arrow, 15)}</a>`
+            : `<a class="btn btn-primary" href="mis-tramites.html?solicitud=${encodeURIComponent(s.id)}">Ver mi solicitud ${svg(ICO.arrow, 15)}</a>`}
+        </div>
+      `, { wide: false, locked: true });
+    }
+
+    function solicitarOtro() {
+      APP.closeModal();
+      renderCatalog();
+      const inp = document.getElementById('search-input');
+      if (inp) inp.focus();
+    }
+
+    // El overlay "Ver modelo" (doc.js) llama a window.abrirWizard
+    window.abrirSolicitud = abrirSolicitud;
+    window.abrirWizard = abrirSolicitud;
+
+    function abrirDesdeEnlace() {
+      const id = new URLSearchParams(location.search).get('tramite');
+      if (!id) return;
+      const t = DB.getTramite(id);
+      if (!t) return;
+      if (DB.elegible(t, perfil)) { abrirSolicitud(t.id); return; }
+      const motivos = DB.motivosNoElegible(t, perfil);
+      APP.toast({ icon: 'warn', title: 'Este trámite no está disponible para ti', body: E(motivos.join('. ') || 'No cumples las condiciones del trámite.') });
+    }
+
+    if (ctx) {
+      initView();
+      abrirDesdeEnlace();
+    }
+  </script>
+</body>
+
+</html>

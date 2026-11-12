@@ -1,0 +1,462 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Catálogo de trámites · Wiener Admin</title>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Lato:wght@400;700;900&family=Roboto:wght@400;500;700&display=swap"
+    rel="stylesheet">
+  <link rel="stylesheet" href="../css/styles.css">
+  <style>
+    /* Estilos propios del Catálogo de trámites. Solo tokens de :root. */
+    .cat-wrap [hidden] {
+      display: none !important;
+    }
+
+    .cat-tools {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 280px;
+      gap: 14px;
+      margin-bottom: 16px;
+    }
+
+    .cat-legend {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text-soft);
+      margin: 0 0 8px;
+    }
+
+    button.chip-check {
+      background: var(--surface);
+      font-family: inherit;
+    }
+
+    button.chip-check.checked {
+      background: var(--brand);
+    }
+
+    button.chip-check:focus-visible,
+    .kpi-filter:focus-visible,
+    .cat-toggle:focus-visible {
+      outline: 2px solid var(--brand);
+      outline-offset: 2px;
+    }
+
+    .chip-check.checked .tab-count {
+      background: var(--surface);
+      color: var(--brand-dark);
+    }
+
+    .cat-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 14px;
+      flex-wrap: wrap;
+      margin: 18px 0 14px;
+    }
+
+    .cat-bar p {
+      margin: 0;
+    }
+
+    .cat-main {
+      flex: 1 1 320px;
+      min-width: 0;
+    }
+
+    .cat-wrap .list-card-title {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+      overflow-wrap: anywhere;
+    }
+
+    .cat-wrap .list-card.is-off {
+      background: var(--surface-2);
+    }
+
+    .cat-desc {
+      margin: 6px 0 0;
+      font-size: 13.5px;
+      line-height: 1.5;
+      color: var(--text-soft);
+      overflow-wrap: anywhere;
+    }
+
+    .cat-cost {
+      font-family: 'Lato', sans-serif;
+      font-weight: 900;
+      color: var(--brand-dark);
+    }
+
+    .cat-wrap .flow-step {
+      max-width: calc(100% - 26px);
+    }
+
+    .cat-wrap .flow-txt b {
+      overflow-wrap: anywhere;
+    }
+
+    .cat-toggle {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      margin-top: 14px;
+      min-height: 32px;
+      font-size: 13.5px;
+      text-decoration: none;
+    }
+
+    .cat-toggle svg {
+      transition: transform .15s ease;
+    }
+
+    .cat-toggle[aria-expanded="true"] svg {
+      transform: rotate(180deg);
+    }
+
+    .cat-detail {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 18px 24px;
+      margin-top: 12px;
+      padding-top: 14px;
+      border-top: 1px solid var(--border-soft);
+      font-size: 13.5px;
+      line-height: 1.5;
+      color: var(--text-soft);
+      overflow-wrap: anywhere;
+    }
+
+    .cat-detail h3 {
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--text);
+      margin: 0 0 6px;
+    }
+
+    .cat-detail p {
+      margin: 0;
+    }
+
+    .cat-detail ul {
+      margin: 0;
+      padding-left: 18px;
+    }
+
+    .cat-detail li + li {
+      margin-top: 4px;
+    }
+
+    .cat-full {
+      grid-column: 1 / -1;
+    }
+
+    .cat-pre {
+      white-space: pre-line;
+    }
+
+    @media (max-width: 920px) {
+      .cat-tools,
+      .cat-detail {
+        grid-template-columns: minmax(0, 1fr);
+      }
+
+      .cat-wrap .list-card-head .btn {
+        flex: 1 1 100%;
+        justify-content: center;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <script src="../js/data.js"></script>
+  <script src="../js/shell.js"></script>
+  <script src="../js/doc.js"></script>
+  <script>
+    const ctx = APP.renderShell('catalogo');
+    const session = ctx ? ctx.session : null;
+    const esc = APP.esc;
+    const $ = id => document.getElementById(id);
+
+    const ICO = {
+      search: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>',
+      chevron: '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="6 9 12 15 18 9"/></svg>',
+      eye: '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>'
+    };
+
+    // Filtros de la vista. Las tarjetas abiertas se recuerdan al re-pintar la lista.
+    const F = { q: '', kpi: 'todos', cat: 'todos', area: '', ocultos: false };
+    const abiertos = new Set();
+
+    /* ---------- Datos derivados ---------- */
+    const norm = s => String(s || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+    function puedeRegistrar() {
+      if (!session) return false;
+      const u = DB.getUsuario(session.id);
+      return !!u && u.rol === 'administrativo' && (u.permisos || []).includes('registrar');
+    }
+    function reqsDe(t) {
+      return (t.requisitos || []).filter(r => r.activo !== false).slice().sort((a, b) => (a.orden || 0) - (b.orden || 0));
+    }
+    function pideAdjuntos(t) { return !!t.requiereAdjunto || reqsDe(t).some(r => r.adjuntarArchivo !== false); }
+    function generaDoc(t) { return !!DOC.getPlantilla(t).generaDocumento; }
+    function textoPlazo(t) {
+      const n = Number(t.diasEntrega) || 0;
+      return DB.esInmediato(t) ? 'Entrega inmediata' : n + (n === 1 ? ' día hábil' : ' días hábiles');
+    }
+    function textoPago(t) {
+      if (!DB.tienePago(t)) return 'No se paga';
+      return DB.momentoPagoTexto(t);
+    }
+    function descLimpia(t) { return String(t.descripcion || '').replace(/^\s*DESCRIPCI[ÓO]N:\s*/i, '').trim(); }
+    function descCorta(t) {
+      const d = descLimpia(t).replace(/\s+/g, ' ');
+      return d.length > 150 ? d.slice(0, 147).replace(/\s+\S*$/, '') + '...' : d;
+    }
+
+    const KPIS = [
+      { id: 'todos', label: 'Todos', test: () => true },
+      { id: 'adjuntos', label: 'Con adjuntos', test: pideAdjuntos },
+      { id: 'digital', label: '100% digital', test: t => !pideAdjuntos(t) },
+      { id: 'gratis', label: 'Sin costo', test: t => !DB.tienePago(t) },
+      { id: 'ocultos', label: 'No visibles', test: t => !t.activo }
+    ];
+
+    // Conjunto de partida: los no visibles solo entran si se pide verlos
+    function universo() {
+      const all = DB.tramites();
+      return F.ocultos ? all : all.filter(t => t.activo);
+    }
+    function sinCategoria() {
+      const k = KPIS.find(x => x.id === F.kpi) || KPIS[0];
+      const q = norm(F.q.trim());
+      return universo().filter(t =>
+        k.test(t) &&
+        (!F.area || t.area === F.area) &&
+        (!q || norm([t.nombre, t.descripcion, t.tipo, t.area].join(' ')).includes(q)));
+    }
+    // La categoría filtra solo por t.intenciones
+    function enCategoria(t, cat) { return cat === 'todos' || (t.intenciones || []).includes(cat); }
+    function hayFiltros() { return !!(F.q.trim() || F.kpi !== 'todos' || F.cat !== 'todos' || F.area); }
+
+    /* ---------- Pintado ---------- */
+    function pintarPagina() {
+      const areas = Array.from(new Set(DB.tramites().map(t => t.area).filter(Boolean))).sort((a, b) => a.localeCompare(b, 'es'));
+      ctx.mount.innerHTML = `
+        <div class="cat-wrap">
+          <div class="page-head">
+            <div>
+              <h1>Catálogo de trámites</h1>
+              <p>Consulta el costo, el plazo, los requisitos y el recorrido de cada trámite antes de registrarlo.</p>
+            </div>
+            ${puedeRegistrar() ? '<a class="btn btn-primary" href="registrar.html">Registrar solicitud</a>' : ''}
+          </div>
+
+          <div class="kpi-row" id="cat-kpis" role="group" aria-label="Filtrar por tipo de trámite"></div>
+
+          <div class="cat-tools">
+            <div class="field">
+              <label for="cat-q">Buscar trámite</label>
+              <div class="input-wrap-icon-left">
+                <span class="input-icon-svg" aria-hidden="true">${ICO.search}</span>
+                <input class="input" id="cat-q" type="search" autocomplete="off" placeholder="Nombre, descripción o área. Ejemplo: constancia" oninput="catSetQ(this.value)">
+              </div>
+            </div>
+            <div class="field">
+              <label for="cat-area">Área responsable</label>
+              <select class="select" id="cat-area" data-native="true" onchange="catSetArea(this.value)">
+                <option value="">Todas las áreas</option>
+                ${areas.map(a => `<option value="${esc(a)}">${esc(a)}</option>`).join('')}
+              </select>
+            </div>
+          </div>
+
+          <p class="cat-legend" id="cat-chips-t">Categoría</p>
+          <div class="chip-row" id="cat-chips" role="group" aria-labelledby="cat-chips-t"></div>
+
+          <div class="cat-bar">
+            <p class="help" id="cat-count" aria-live="polite"></p>
+            <label class="switch-row">
+              <span class="switch">
+                <input type="checkbox" id="cat-ocultos" onchange="catSetOcultos(this.checked)">
+                <span class="slider"></span>
+              </span>
+              <span><b>Mostrar trámites no visibles</b><span class="help">Los que hoy no aparecen para los alumnos</span></span>
+            </label>
+          </div>
+
+          <div id="cat-lista"></div>
+        </div>`;
+    }
+
+    function pintarKpis() {
+      const todos = DB.tramites();
+      const u = universo();
+      $('cat-kpis').innerHTML = KPIS.map(k => {
+        const n = k.id === 'ocultos' ? todos.filter(k.test).length : u.filter(k.test).length;
+        const activo = F.kpi === k.id;
+        return `
+          <button type="button" class="kpi-filter ${activo ? 'active' : ''}" aria-pressed="${activo}" data-fk="kpi-${k.id}" data-id="${k.id}" onclick="catSetKpi(this.dataset.id)">
+            <span class="k-label">${k.label}</span>
+            <span class="k-value">${n}</span>
+          </button>`;
+      }).join('');
+    }
+
+    function pintarChips() {
+      const base = sinCategoria();
+      const cats = [{ id: 'todos', label: 'Todas' }].concat(DB.CATEGORIAS);
+      $('cat-chips').innerHTML = cats.map(c => {
+        const n = base.filter(t => enCategoria(t, c.id)).length;
+        const activo = F.cat === c.id;
+        return `
+          <button type="button" class="chip-check ${activo ? 'checked' : ''}" aria-pressed="${activo}" data-fk="cat-${esc(c.id)}" data-id="${esc(c.id)}" onclick="catSetCat(this.dataset.id)">
+            ${esc(c.label)} <span class="tab-count">${n}</span>
+          </button>`;
+      }).join('');
+    }
+
+    function tarjeta(t, i) {
+      const reqs = reqsDe(t);
+      const abierto = abiertos.has(t.id);
+      const etapas = DB.flujoDe(t).filter(p => p.tipo === 'revision');
+      const corta = descCorta(t);
+      const larga = descLimpia(t);
+      return `
+        <article class="list-card ${t.activo ? '' : 'is-off'}">
+          <div class="list-card-head">
+            <div class="cat-main">
+              <h2 class="list-card-title">
+                <span>${esc(t.nombre)}</span>
+                ${t.activo ? '' : '<span class="pill gray">No visible para alumnos</span>'}
+              </h2>
+              ${corta ? `<p class="cat-desc">${esc(corta)}</p>` : ''}
+              <div class="list-card-meta">
+                <span class="cat-cost">${DB.tienePago(t) ? esc(APP.money(t.costo)) : 'Sin costo'}</span>
+                <span>${esc(textoPlazo(t))}</span>
+                <span>${esc(t.area || 'Sin área')}</span>
+                <span>${esc(textoPago(t))}</span>
+                <span>${esc(t.tipo || 'Trámite')}</span>
+              </div>
+            </div>
+            ${t.activo && puedeRegistrar() ? `<a class="btn btn-sm" href="registrar.html?tramite=${encodeURIComponent(t.id)}">Registrar este trámite</a>` : ''}
+          </div>
+          <div class="list-card-flow">${APP.flowHTML(t, { compact: true })}</div>
+          <button type="button" class="btn-link cat-toggle" aria-expanded="${abierto}" aria-controls="cat-det-${i}" data-id="${esc(t.id)}" onclick="catToggle(this)">
+            <span class="cat-toggle-txt">${abierto ? 'Ocultar detalle' : 'Ver requisitos y detalle'}</span><span class="sr-only"> de ${esc(t.nombre)}</span>${ICO.chevron}
+          </button>
+          <div class="cat-detail" id="cat-det-${i}" ${abierto ? '' : 'hidden'}>
+            ${larga && larga !== corta ? `<div class="cat-full"><h3>Descripción</h3><p class="cat-pre">${esc(larga)}</p></div>` : ''}
+            <div>
+              <h3>Requisitos y condiciones</h3>
+              ${reqs.length ? `
+                <ul>
+                  ${reqs.map(r => `<li><b>${esc(r.titulo)}</b>${r.condiciones ? ': ' + esc(r.condiciones) : ''}. ${r.adjuntarArchivo !== false ? 'Se adjunta archivo.' : 'No pide archivo.'}</li>`).join('')}
+                </ul>` : (t.requiereAdjunto
+                  ? `<p>Pide documentos de sustento${t.adjuntoIndicacion ? ': ' + esc(t.adjuntoIndicacion) : ''}.</p>`
+                  : '<p>No pide requisitos ni adjuntos: es 100% digital.</p>')}
+            </div>
+            <div>
+              <h3>A quién va dirigido</h3>
+              <p>${esc(DB.audienciaTexto(t.audiencia).join(', '))}</p>
+            </div>
+            <div>
+              <h3>Quién lo revisa</h3>
+              ${etapas.length ? `
+                <ul>
+                  ${etapas.map(p => `<li><b>${esc(p.titulo)}</b> (${esc(p.detalle)})${p.tarea ? ': ' + esc(p.tarea) : ''}</li>`).join('')}
+                </ul>` : `<p>${esc(t.area || 'El área responsable')}</p>`}
+            </div>
+            <div>
+              <h3>Entrega</h3>
+              <p>${DB.esInmediato(t) ? 'Inmediata, al terminar la solicitud.' : 'Si se pide hoy: ' + esc(APP.calcSLA(t.diasEntrega)) + ' (' + esc(textoPlazo(t)) + ').'}</p>
+            </div>
+            <div class="cat-full">
+              <h3>Documento</h3>
+              ${generaDoc(t)
+                ? `<button type="button" class="btn btn-sm" data-id="${esc(t.id)}" onclick="catVerModelo(this.dataset.id)">${ICO.eye} Ver modelo del documento</button>`
+                : '<p>No genera documento: es una gestión con respuesta.</p>'}
+            </div>
+          </div>
+        </article>`;
+    }
+
+    function pintarLista() {
+      const lista = sinCategoria().filter(t => enCategoria(t, F.cat));
+      const ocultosN = DB.tramites().filter(t => !t.activo).length;
+      $('cat-count').innerHTML =
+        (lista.length === 1 ? 'Se muestra 1 trámite' : 'Se muestran ' + lista.length + ' trámites') +
+        (!F.ocultos && ocultosN ? '. Hay ' + ocultosN + (ocultosN === 1 ? ' no visible' : ' no visibles') + ' sin mostrar' : '') + '.' +
+        (hayFiltros() ? ' <button type="button" class="btn-link" onclick="catVerTodos()">Ver todos</button>' : '');
+      $('cat-lista').innerHTML = lista.length ? lista.map(tarjeta).join('') : `
+        <div class="empty-state">
+          <h3>No hay trámites con esos filtros</h3>
+          <p>Prueba con otra palabra, otra categoría u otra área${!F.ocultos && ocultosN ? ', o activa "Mostrar trámites no visibles"' : ''}.</p>
+          <button type="button" class="btn" onclick="catVerTodos()">Ver todos</button>
+        </div>`;
+    }
+
+    // Re-pinta indicadores, categorías y lista; el buscador nunca se toca
+    function refrescar(fk) {
+      pintarKpis(); pintarChips(); pintarLista();
+      if (fk) {
+        const el = document.querySelector('[data-fk="' + fk + '"]');
+        if (el) el.focus();
+      }
+    }
+
+    /* ---------- Acciones ---------- */
+    function catSetQ(v) {
+      F.q = v || '';
+      pintarChips(); pintarLista();
+    }
+    function catSetArea(v) { F.area = v || ''; refrescar(); }
+    function catSetKpi(id) {
+      F.kpi = id;
+      if (id === 'ocultos' && !F.ocultos) { F.ocultos = true; $('cat-ocultos').checked = true; }
+      refrescar('kpi-' + id);
+    }
+    function catSetCat(id) { F.cat = id; refrescar('cat-' + id); }
+    function catSetOcultos(on) {
+      F.ocultos = !!on;
+      if (!F.ocultos && F.kpi === 'ocultos') F.kpi = 'todos';
+      refrescar();
+    }
+    function catVerTodos() {
+      F.q = ''; F.kpi = 'todos'; F.cat = 'todos'; F.area = '';
+      $('cat-q').value = '';
+      $('cat-area').value = '';
+      refrescar();
+      $('cat-q').focus();
+    }
+    function catToggle(btn) {
+      const det = $(btn.getAttribute('aria-controls'));
+      if (!det) return;
+      const abrir = det.hidden;
+      det.hidden = !abrir;
+      btn.setAttribute('aria-expanded', String(abrir));
+      btn.querySelector('.cat-toggle-txt').textContent = abrir ? 'Ocultar detalle' : 'Ver requisitos y detalle';
+      if (abrir) abiertos.add(btn.dataset.id); else abiertos.delete(btn.dataset.id);
+    }
+    function catVerModelo(id) {
+      const t = DB.getTramite(id);
+      if (t) DOC.preview(t, DOC.ALUMNO_DEMO, null, { modelo: true });
+    }
+
+    Object.assign(window, { catSetQ, catSetArea, catSetKpi, catSetCat, catSetOcultos, catVerTodos, catToggle, catVerModelo });
+
+    if (ctx) {
+      pintarPagina();
+      refrescar();
+    }
+  </script>
+</body>
+
+</html>

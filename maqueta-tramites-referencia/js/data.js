@@ -1,0 +1,3189 @@
+/* ==========================================================================
+   CAPA DE DATOS (mock) - persistida en localStorage
+   En producción esto se reemplaza por llamadas al backend (Node/Express).
+   ========================================================================== */
+(function () {
+  const KEY = 'tw_db_v3';
+
+  const TIPOS = ['Constancia', 'Certificado', 'Carné', 'Solicitud'];
+  const MODELOS = ['constancia', 'certificado', 'carne', 'oficio'];
+  const ESTADOS = ['Solicitado', 'Pendiente de pago', 'En revisión', 'Observado', 'Aprobado', 'Emitido', 'Rechazado', 'Cancelar'];
+
+  // Categorías con las que el alumno filtra el catálogo (campo `intenciones` del trámite)
+  const CATEGORIAS = [
+    { id: 'beca', label: 'Becas y descuentos' },
+    { id: 'matricula', label: 'Matrícula y modalidad' },
+    { id: 'certificaciones', label: 'Certificaciones' },
+    { id: 'practicas', label: 'Prácticas y empleo' },
+    { id: 'grado', label: 'Grados y egreso' },
+    { id: 'carne', label: 'Carné universitario' },
+    { id: 'otros', label: 'Otros' }
+  ];
+
+  // Catálogos para la disponibilidad por fechas (cronograma)
+  const CRONO = {
+    grados: ['Todos', 'CEPRE - Pre Wiener', 'Diplomatura', 'Extensión Universitaria', 'Idiomas', 'Posgrado', 'Pregrado', 'Programa de Especialización', 'Segunda Especialidad'],
+    modalidades: {
+      'Todos': ['Todas', 'Presencial', 'Semipresencial', 'A distancia'],
+      'Pregrado': ['Todas', 'Modalidad EPEX', 'Modalidad Ordinaria', 'Pregrado Semipresencial', 'Revalidación de Título Profesional Presencial'],
+      'Posgrado': ['Todas', 'Maestría Presencial', 'Maestría Semipresencial', 'Maestría A Distancia', 'Doctorado Presencial', 'Segunda Especialidad Médica'],
+      'CEPRE - Pre Wiener': ['Todas', 'Ciclo Regular Presencial', 'Ciclo Regular Virtual', 'Ciclo Intensivo', 'Ciclo Repaso'],
+      'Idiomas': ['Todas', 'Inglés Regular Virtual', 'Inglés Intensivo', 'Portugués Regular', 'Portugués Intensivo'],
+      'Diplomatura': ['Todas', 'Presencial', 'Semipresencial', 'A Distancia (Virtual)'],
+      'Extensión Universitaria': ['Todas', 'Presencial', 'Virtual'],
+      'Programa de Especialización': ['Todas', 'Presencial', 'Semipresencial', 'Virtual'],
+      'Segunda Especialidad': ['Todas', 'Presencial', 'Semipresencial']
+    },
+    facultades: ['Todas', 'Facultad de Ciencias de la Salud', 'Facultad de Farmacia y Bioquímica', 'Facultad de Ingeniería y Negocios', 'Facultad de Derecho y Ciencia Política'],
+    carreras: ['Todas', 'Medicina Humana', 'Enfermería', 'Obstetricia', 'Odontología', 'Tecnología Médica - Terapia Física', 'Tecnología Médica - Laboratorio Clínico', 'Psicología', 'Farmacia y Bioquímica', 'Derecho', 'Administración y Negocios Internacionales', 'Contabilidad y Auditoría', 'Ingeniería de Sistemas e Informática', 'Ingeniería Industrial'],
+    periodos: ['Todos', '2026-1', '2026-2', '2027-0', '2027-1']
+  };
+
+  const ESTADOS_CORREO = ['Aprobado', 'Rechazado', 'Observado', 'En revisión', 'Pendiente de pago', 'Finalizado'];
+
+  const POLITICAS_DEFAULT = { longitud: true, complejidad: true, caducidad: true, dosFactores: true, bloqueo: true, inactividad: false };
+
+  function siguienteId(lista, prefijo) {
+    let max = 0;
+    (lista || []).forEach(x => {
+      const m = String(x.id || '').match(/(\d+)\s*$/);
+      if (m) max = Math.max(max, parseInt(m[1], 10));
+    });
+    return prefijo + String(max + 1).padStart(3, '0');
+  }
+
+  function seed() {
+    return {
+      // ---- Catálogo de trámites configurables ----
+      tramites: [
+        {
+          id: 'T-001', nombre: 'BECA IMPULSA 30%', tipo: 'Solicitud', modelo: 'oficio',
+          descripcion: 'DESCRIPCIÓN:\n\nAplica a estudiantes de pregrado regular que acrediten excelencia académica y solvencia según las bases del programa institucional Impulsa.',
+          costo: 0.00, conceptoCodigo: '00000000', conceptoServicio: 'BECA IMPULSA 30% / COSTO CERO',
+          tiempoVigenciaHrs: 48, plazoRecojoDias: 3, observacion: '', tipoActivacion: 'Permanente',
+          envioCorreo: true, activo: true, fechaRegistro: '2026-07-19',
+          pagoMomento: 'despues', requiereAprobacion: true, diasEntrega: 3, area: 'Retención y Fidelización',
+          intenciones: ["beca"],
+          requiereAdjunto: true,
+          requisitos: [
+            { id: 'REQ-001', titulo: 'Certificado de voluntariado', adjuntarArchivo: true, activo: true, orden: 1 },
+            { id: 'REQ-002', titulo: 'DNI del paciente / solicitante', adjuntarArchivo: true, activo: true, orden: 2 }
+          ],
+          proceso: [
+            { id: 'P-1', orden: 1, area: 'Registros Académicos', descripcion: 'revisa las notas', observacion: '', duracionDias: 2, activo: true },
+            { id: 'P-2', orden: 2, area: 'Retención y Fidelización', descripcion: 'evaluación de condiciones socioeconómicas', observacion: '', duracionDias: 3, activo: true },
+            { id: 'P-3', orden: 3, area: 'Soluciones Financieras', descripcion: 'aplicar descuento en el sistema', observacion: '', duracionDias: 1, activo: true }
+          ],
+          cronogramas: [
+            { id: 'CR-01', grado: 'Pregrado', modalidad: 'Modalidad Ordinaria', facultad: 'Todas', carrera: 'Todas', periodo: '2026-1', fechaInicio: '2026-10-01', fechaFin: '2026-11-01', activo: true }
+          ],
+          audiencia: { niveles: ['pregrado'], ciclos: [], minCreditos: 0, tercioSuperior: false, quintoSuperior: false, promedioMin: 0 }
+        },
+        {
+          id: 'T-002', nombre: 'BECA IMPULSA 35%', tipo: 'Solicitud', modelo: 'oficio',
+          descripcion: 'DESCRIPCIÓN:\n\nAplica a estudiantes con rendimiento destacado en situación de vulnerabilidad evaluada por Bienestar y Retención.',
+          costo: 0.00, conceptoCodigo: '00000000', conceptoServicio: 'BECA IMPULSA 35% / COSTO CERO',
+          tiempoVigenciaHrs: 48, plazoRecojoDias: 3, observacion: '', tipoActivacion: 'Permanente',
+          envioCorreo: true, activo: true, fechaRegistro: '2026-07-19',
+          pagoMomento: 'despues', requiereAprobacion: true, diasEntrega: 3, area: 'Retención y Fidelización',
+          intenciones: ["beca"],
+          requiereAdjunto: true,
+          requisitos: [
+            { id: 'REQ-002', titulo: 'DNI del paciente / solicitante', adjuntarArchivo: true, activo: true, orden: 1 }
+          ],
+          proceso: [
+            { id: 'P-1', orden: 1, area: 'Registros Académicos', descripcion: 'Validación de récord de notas', observacion: '', duracionDias: 2, activo: true },
+            { id: 'P-2', orden: 2, area: 'Retención y Fidelización', descripcion: 'Evaluación de informe social', observacion: '', duracionDias: 2, activo: true }
+          ],
+          cronogramas: [
+            { id: 'CR-02', grado: 'Pregrado', modalidad: 'Modalidad Ordinaria', facultad: 'Todas', carrera: 'Todas', periodo: '2026-1', fechaInicio: '2026-10-01', fechaFin: '2026-11-01', activo: true }
+          ],
+          audiencia: { niveles: ['pregrado'], ciclos: [], minCreditos: 0, tercioSuperior: false, quintoSuperior: false, promedioMin: 0 }
+        },
+        {
+          id: 'T-003', nombre: 'CAMBIO DE MODALIDAD DE ESTUDIOS A DISTANCIA - POSGRADO', tipo: 'Solicitud', modelo: 'oficio',
+          descripcion: 'Procedimiento para traslado interno de modalidad presencial/semipresencial a modalidad a distancia en programas de maestría y posgrado.',
+          costo: 0.00, conceptoCodigo: '51040402', conceptoServicio: 'ADECUACIÓN POSGRADO',
+          tiempoVigenciaHrs: 72, plazoRecojoDias: 5, observacion: '', tipoActivacion: 'Cronograma',
+          envioCorreo: true, activo: true, fechaRegistro: '2023-03-19',
+          pagoMomento: 'despues', requiereAprobacion: true, diasEntrega: 5, area: 'Registros Académicos',
+          intenciones: ["otros","matricula"],
+          requiereAdjunto: false,
+          proceso: [
+            { id: 'P-1', orden: 1, area: 'Registros Académicos', descripcion: 'Validación de plan curricular posgrado', observacion: '', duracionDias: 2, activo: true }
+          ],
+          cronogramas: [
+            { id: 'CR-03', grado: 'Posgrado', modalidad: 'Maestría A Distancia', facultad: 'Todas', carrera: 'Todas', periodo: '2026-2', fechaInicio: '2026-08-01', fechaFin: '2026-09-15', activo: true }
+          ],
+          audiencia: { niveles: ['postgrado'], ciclos: [], minCreditos: 0, tercioSuperior: false, quintoSuperior: false, promedioMin: 0 }
+        },
+        {
+          id: 'T-004', nombre: 'CAMBIO DE MODALIDAD DE ESTUDIOS A PRESENCIAL - PREGRADO', tipo: 'Solicitud', modelo: 'oficio',
+          descripcion: 'Procedimiento de traslado interno a programas en modalidad presencial de pregrado según disponibilidad de vacantes curriculares.',
+          costo: 0.00, conceptoCodigo: '03030104', conceptoServicio: 'ADECUACION CURRICULAR - PREGRADO',
+          tiempoVigenciaHrs: 72, plazoRecojoDias: 5, observacion: '', tipoActivacion: 'Cronograma',
+          envioCorreo: true, activo: true, fechaRegistro: '2023-07-18',
+          pagoMomento: 'despues', requiereAprobacion: true, diasEntrega: 5, area: 'Registros Académicos',
+          intenciones: ["otros","matricula"],
+          requiereAdjunto: false,
+          proceso: [
+            { id: 'P-1', orden: 1, area: 'Registros Académicos', descripcion: 'Validación de vacantes y convalidación', observacion: '', duracionDias: 3, activo: true }
+          ],
+          cronogramas: [
+            { id: 'CR-04', grado: 'Pregrado', modalidad: 'Modalidad Ordinaria', facultad: 'Todas', carrera: 'Todas', periodo: '2026-2', fechaInicio: '2026-08-01', fechaFin: '2026-09-15', activo: true }
+          ],
+          audiencia: { niveles: ['pregrado'], ciclos: [], minCreditos: 0, tercioSuperior: false, quintoSuperior: false, promedioMin: 0 }
+        },
+        {
+          id: 'T-005', nombre: 'CAMBIO DE MODALIDAD DE ESTUDIOS A PRESENCIAL - SEGUNDA ESPECIALIDAD', tipo: 'Solicitud', modelo: 'oficio',
+          descripcion: 'Trámite de adecuación y cambio de modalidad para estudiantes de programas de segunda especialidad profesional.',
+          costo: 0.00, conceptoCodigo: '03070322', conceptoServicio: 'ADECUACION CURRICULAR - SEGUNDA ESPECIALIDAD',
+          tiempoVigenciaHrs: 72, plazoRecojoDias: 5, observacion: '', tipoActivacion: 'Cronograma',
+          envioCorreo: true, activo: true, fechaRegistro: '2023-09-20',
+          pagoMomento: 'despues', requiereAprobacion: true, diasEntrega: 5, area: 'Registros Académicos',
+          intenciones: ["otros","matricula"],
+          requiereAdjunto: false,
+          proceso: [
+            { id: 'P-1', orden: 1, area: 'Registros Académicos', descripcion: 'Validación académica', observacion: '', duracionDias: 2, activo: true }
+          ],
+          cronogramas: [
+            { id: 'CR-05', grado: 'Segunda Especialidad', modalidad: 'Presencial', facultad: 'Todas', carrera: 'Todas', periodo: '2026-2', fechaInicio: '2026-08-01', fechaFin: '2026-09-20', activo: true }
+          ],
+          audiencia: { niveles: ['postgrado'], ciclos: [], minCreditos: 0, tercioSuperior: false, quintoSuperior: false, promedioMin: 0 }
+        },
+        {
+          id: 'T-006', nombre: 'Constancia de Matrícula', tipo: 'Constancia', modelo: 'constancia',
+          descripcion: 'Acredita tu condición de matrícula vigente en el periodo académico regular actual.',
+          costo: 25.00, conceptoCodigo: '01010025', conceptoServicio: 'CONSTANCIA DE MATRÍCULA',
+          tiempoVigenciaHrs: 48, plazoRecojoDias: 2, observacion: 'Emisión con firma digital.', tipoActivacion: 'Permanente',
+          envioCorreo: true, activo: true, fechaRegistro: '2022-06-10',
+          pagoMomento: 'antes', requiereAprobacion: true, diasEntrega: 2, area: 'Registros Académicos',
+          intenciones: ["otros","matricula","practicas"],
+          requiereAdjunto: false,
+          proceso: [
+            { id: 'P-1', orden: 1, area: 'Registros Académicos', descripcion: 'Validación de matrícula y asignaturas registradas', observacion: '', duracionDias: 1, activo: true },
+            { id: 'P-2', orden: 2, area: 'Soluciones Financieras', descripcion: 'Validación de pago en caja Niubiz', observacion: '', duracionDias: 1, activo: true }
+          ],
+          cronogramas: [],
+          audiencia: { niveles: ['pregrado'], ciclos: [], minCreditos: 0, tercioSuperior: false, quintoSuperior: false, promedioMin: 0 }
+        },
+        {
+          id: 'T-007', nombre: 'Constancia de Tercio Superior', tipo: 'Constancia', modelo: 'constancia',
+          descripcion: 'Acredita tu pertenencia al tercio superior de tu promoción o carrera académica.',
+          costo: 40.00, conceptoCodigo: '01010040', conceptoServicio: 'CONSTANCIA DE TERCIO SUPERIOR',
+          tiempoVigenciaHrs: 72, plazoRecojoDias: 3, observacion: '', tipoActivacion: 'Permanente',
+          envioCorreo: true, activo: true, fechaRegistro: '2022-06-10',
+          pagoMomento: 'antes', requiereAprobacion: true, diasEntrega: 3, area: 'Registros Académicos',
+          intenciones: ["beca","practicas","otros"],
+          requiereAdjunto: false,
+          cronogramas: [],
+          audiencia: { niveles: ['pregrado'], ciclos: [], minCreditos: 0, tercioSuperior: true, quintoSuperior: false, promedioMin: 0 }
+        },
+        {
+          id: 'T-008', nombre: 'Certificado de Estudios', tipo: 'Certificado', modelo: 'certificado',
+          descripcion: 'Certificado oficial con el detalle de asignaturas, calificaciones y créditos cursados.',
+          costo: 120.00, conceptoCodigo: '01010120', conceptoServicio: 'CERTIFICADO DE ESTUDIOS',
+          tiempoVigenciaHrs: 120, plazoRecojoDias: 7, observacion: 'Requiere DNI legible escaneado.', tipoActivacion: 'Permanente',
+          envioCorreo: true, activo: true, fechaRegistro: '2022-05-15',
+          pagoMomento: 'antes', requiereAprobacion: true, diasEntrega: 7, area: 'Grados y Títulos',
+          intenciones: ["grado","certificaciones","otros"],
+          requiereAdjunto: true,
+          requisitos: [
+            { id: 'REQ-002', titulo: 'Documento de Identidad Vigente (DNI / CE)', condiciones: 'Copia nítida y legible por ambas caras del DNI o Carné de Extranjería vigente en un solo archivo PDF o JPG. Peso máximo: 5 MB.', adjuntarArchivo: true, activo: true, orden: 1 },
+            { id: 'REQ-005', titulo: 'Constancia de no adeudo institucional', condiciones: 'Constancia expedida por Soluciones Financieras o declaración jurada de no adeudo administrativo ni arancelario. Formato PDF, máx. 5 MB.', adjuntarArchivo: true, activo: true, orden: 2 }
+          ],
+          proceso: [
+            { id: 'P-1', orden: 1, area: 'Registros Académicos', descripcion: 'Cierre y consolidación de actas oficiales', observacion: '', duracionDias: 3, activo: true },
+            { id: 'P-2', orden: 2, area: 'Grados y Títulos', descripcion: 'Emisión e impresión en papel membretado', observacion: '', duracionDias: 4, activo: true }
+          ],
+          cronogramas: [],
+          audiencia: { niveles: ['pregrado'], ciclos: [], minCreditos: 100, tercioSuperior: false, quintoSuperior: false, promedioMin: 0 }
+        },
+        {
+          id: 'T-009', nombre: 'Carné Universitario (Duplicado)', tipo: 'Carné', modelo: 'carne',
+          descripcion: 'Reposición oficial del carné universitario por extravío, robo o deterioro.',
+          costo: 35.00, conceptoCodigo: '01010035', conceptoServicio: 'CARNÉ UNIVERSITARIO (DUPLICADO)',
+          tiempoVigenciaHrs: 240, plazoRecojoDias: 10, observacion: 'Trámite SUNEDU', tipoActivacion: 'Permanente',
+          envioCorreo: true, activo: true, fechaRegistro: '2022-07-01',
+          pagoMomento: 'antes', requiereAprobacion: false, diasEntrega: 10, area: 'Dirección de Bienestar Universitario',
+          intenciones: ["carne"],
+          requiereAdjunto: true,
+          requisitos: [
+            { id: 'REQ-003', titulo: 'Fotografía formal tamaño pasaporte', condiciones: 'Fotografía a color, tamaño pasaporte (35 x 45 mm), fondo blanco liso e iluminación uniforme, vestimenta formal (camisa/blusa), sin lentes oscuros o monturas gruesas, sin gorra ni piercings, ángulo frontal y nítido, tomada en los últimos 3 meses. Formato JPG o PNG (máx. 2 MB).', adjuntarArchivo: true, activo: true, orden: 1 },
+            { id: 'REQ-002', titulo: 'Documento Nacional de Identidad (DNI)', condiciones: 'Copia legible y vigente de ambas caras del DNI o documento de identidad en un solo archivo PDF o JPG. Peso máximo 5 MB.', adjuntarArchivo: true, activo: true, orden: 2 }
+          ],
+          cronogramas: [],
+          audiencia: { niveles: ['pregrado', 'postgrado'], ciclos: [], minCreditos: 0, tercioSuperior: false, quintoSuperior: false, promedioMin: 0 }
+        },
+        {
+          id: 'T-010', nombre: 'Certificación Progresiva', tipo: 'Certificado', modelo: 'certificado',
+          descripcion: 'Acredita competencias y módulos formativos aprobados durante el avance curricular de tu carrera profesional con notas destacadas (Tutor STEM, Algorítmica, Ofimática, Soporte TI).',
+          costo: 120.00, conceptoCodigo: '01020120', conceptoServicio: 'CERTIFICACIÓN PROGRESIVA - MODULAR',
+          tiempoVigenciaHrs: 48, plazoRecojoDias: 1, observacion: 'Emisión electrónica inmediata tras confirmación de pago y validación de requisitos académicos.',
+          tipoActivacion: 'Permanente',
+          envioCorreo: true, activo: true, fechaRegistro: '2026-08-01',
+          pagoMomento: 'antes', requiereAprobacion: false, diasEntrega: 0, area: 'Registros Académicos',
+          intenciones: ["certificaciones","grado","practicas","otros"],
+          requiereAdjunto: false,
+          requisitos: [],
+          proceso: [
+            { id: 'P-1', orden: 1, area: 'Registros Académicos', descripcion: 'Validación de cursos aprobados con nota mínima de 14 y verificación de estado financiero sin deuda', observacion: '', duracionDias: 1, activo: true },
+            { id: 'P-2', orden: 2, area: 'Soluciones Financieras', descripcion: 'Confirmación de pago en pasarela Niubiz', observacion: '', duracionDias: 1, activo: true }
+          ],
+          cronogramas: [],
+          audiencia: { niveles: ['pregrado'], ciclos: [], minCreditos: 0, tercioSuperior: false, quintoSuperior: false, promedioMin: 14.0 },
+          plantilla: {
+            generaDocumento: true,
+            emisor: 'Dirección de Registros y Asuntos Académicos',
+            firmante: 'Dr. Augusto Salcedo Vílchez',
+            cargo: 'Secretario General',
+            titulo: 'CERTIFICADO DE COMPETENCIA MODULAR',
+            cuerpo: 'Que, {nombre}, identificado(a) con DNI N° {dni} y código de matrícula {codigo}, estudiante regular del programa de {programa} ({nivel}), ha culminado y aprobado la totalidad de las asignaturas formativas correspondientes a la certificación «{certificacion}» con una calificación mínima aprobatoria de 14.00 y encontrándose al día en sus obligaciones económicas. Se expide la presente CERTIFICACIÓN PROGRESIVA con firma digital para los fines laborales y académicos pertinentes.'
+          }
+        }
+      ],
+
+      // ---- Catálogo de Certificaciones Progresivas (Propuesta Institucional) ----
+      certificacionesProgresivas: [
+        // ---- INGENIERÍA DE SISTEMAS E INFORMÁTICA (Presencial: 59 / Semipresencial: 2120) ----
+        {
+          id: 'CP-ISI-01',
+          codigo: 'CP-ISI-01',
+          programaId: 'PROG-ISI',
+          programa: 'Ingeniería de Sistemas e Informática',
+          carrera: 'Ingeniería de Sistemas e Informática',
+          codigoPresencial: '59',
+          codigoSemipresencial: '2120',
+          competencia: 'Gestión de Procesos, Datos y Recursos Informáticos',
+          nombreCompetencial: 'Gestión de Procesos, Datos y Recursos Informáticos',
+          titulo: 'Certificación en "Gestión de Procesos y Datos Digitales"',
+          nombreFinal: 'Certificación en "Gestión de Procesos y Datos Digitales"',
+          nombreConocimientos: 'Certificación en "Gestión de Procesos y Datos Digitales"',
+          cicloOtorgamiento: 'Ciclo VI',
+          ciclo: 6,
+          area: 'Gestión de Procesos y Datos Digitales',
+          descripcion: 'Acredita competencias en optimización de procesos de negocio, modelado y administración de bases de datos, arquitectura de computadoras y redes de comunicación de datos.',
+          promedioMinimoRequerido: 14.0,
+          costo: 0.00,
+          gratuito: true,
+          cursos: [
+            { codigo: 'IG7062', nombre: 'GESTIÓN DE PROCESOS DE NEGOCIO', ciclo: 3, tipo: 'O', creditaje: 4, nota: 16, cumple: true },
+            { codigo: 'IS6032', nombre: 'BASE DE DATOS', ciclo: 4, tipo: 'O', creditaje: 4, nota: 17, cumple: true },
+            { codigo: 'IS6051', nombre: 'SISTEMAS OPERATIVOS Y PROGRAMACIÓN', ciclo: 5, tipo: 'O', creditaje: 4, nota: 15, cumple: true },
+            { codigo: 'IS6053', nombre: 'ARQUITECTURA DE COMPUTADORAS', ciclo: 5, tipo: 'O', creditaje: 4, nota: 16, cumple: true },
+            { codigo: 'IS6066', nombre: 'REDES DE COMUNICACIÓN DE DATOS', ciclo: 6, tipo: 'O', creditaje: 4, nota: 18, cumple: true }
+          ],
+          promedio: 16.4
+        },
+        {
+          id: 'CP-ISI-02',
+          codigo: 'CP-ISI-02',
+          programaId: 'PROG-ISI',
+          programa: 'Ingeniería de Sistemas e Informática',
+          carrera: 'Ingeniería de Sistemas e Informática',
+          codigoPresencial: '59',
+          codigoSemipresencial: '2120',
+          competencia: 'Desarrollo de Aplicaciones Multiplataforma',
+          nombreCompetencial: 'Desarrollo de Aplicaciones Multiplataforma',
+          titulo: 'Certificación en "Tecnologías para Aplicaciones"',
+          nombreFinal: 'Certificación en "Tecnologías para Aplicaciones"',
+          nombreConocimientos: 'Certificación en "Tecnologías para Aplicaciones"',
+          cicloOtorgamiento: 'Ciclo VII',
+          ciclo: 7,
+          area: 'Desarrollo de Software Multiplataforma',
+          descripcion: 'Acredita capacidades sólidas en programación moderna, desarrollo web fullstack, aplicaciones móviles multiplataforma, circuitos electrónicos e integración con dispositivos IoT.',
+          promedioMinimoRequerido: 14.0,
+          costo: 0.00,
+          gratuito: true,
+          cursos: [
+            { codigo: 'IS6041', nombre: 'INTRODUCCIÓN A LOS LENGUAJES DE PROGRAMACIÓN', ciclo: 5, tipo: 'O', creditaje: 4, nota: 17, cumple: true },
+            { codigo: 'IS6074', nombre: 'DESARROLLO DE APLICACIONES WEB', ciclo: 6, tipo: 'O', creditaje: 4, nota: 16, cumple: true },
+            { codigo: 'IS6081', nombre: 'DESARROLLO DE APLICACIONES MÓVILES', ciclo: 7, tipo: 'O', creditaje: 4, nota: 17, cumple: true },
+            { codigo: 'IS6065', nombre: 'CIRCUITOS DIGITALES Y ELECTRÓNICOS', ciclo: 6, tipo: 'O', creditaje: 4, nota: 15, cumple: true },
+            { codigo: 'IS6071', nombre: 'INTERNET DE LAS COSAS', ciclo: 7, tipo: 'O', creditaje: 4, nota: 16, cumple: true }
+          ],
+          promedio: 16.2
+        },
+        {
+          id: 'CP-ISI-03',
+          codigo: 'CP-ISI-03',
+          programaId: 'PROG-ISI',
+          programa: 'Ingeniería de Sistemas e Informática',
+          carrera: 'Ingeniería de Sistemas e Informática',
+          codigoPresencial: '59',
+          codigoSemipresencial: '2120',
+          competencia: 'Ingeniería de Software',
+          nombreCompetencial: 'Ingeniería de Software',
+          titulo: 'Certificación en "Dirección de Proyectos Tecnológicos"',
+          nombreFinal: 'Certificación en "Dirección de Proyectos Tecnológicos"',
+          nombreConocimientos: 'Certificación en "Dirección de Proyectos Tecnológicos"',
+          cicloOtorgamiento: 'Ciclo VIII',
+          ciclo: 8,
+          area: 'Ingeniería y Dirección de Proyectos TI',
+          descripcion: 'Acredita competencias integrales en el ciclo de vida del software, calidad y procesos personales, diseño y construcción ágil, y liderazgo de proyectos tecnológicos integradores.',
+          promedioMinimoRequerido: 14.0,
+          costo: 0.00,
+          gratuito: true,
+          cursos: [
+            { codigo: 'IS6052', nombre: 'SOFTWARE I: PROCESO PERSONAL Y CALIDAD', ciclo: 4, tipo: 'O', creditaje: 4, nota: 16, cumple: true },
+            { codigo: 'IS6063', nombre: 'SOFTWARE II: DISEÑO Y PROCESO', ciclo: 5, tipo: 'O', creditaje: 4, nota: 17, cumple: true },
+            { codigo: 'IS6064', nombre: 'SOFTWARE III: CONSTRUCCIÓN Y TRANSICIÓN', ciclo: 6, tipo: 'O', creditaje: 4, nota: 16, cumple: true },
+            { codigo: 'IS6077', nombre: 'SOFTWARE IV: PROYECTO INTEGRADOR', ciclo: 7, tipo: 'O', creditaje: 4, nota: 18, cumple: true },
+            { codigo: 'IS6082', nombre: 'SOFTWARE V: PROCESOS Y GESTIÓN DE PROYECTOS', ciclo: 8, tipo: 'O', creditaje: 4, nota: 17, cumple: true }
+          ],
+          promedio: 16.8
+        },
+        {
+          id: 'CP-ISI-04',
+          codigo: 'CP-ISI-04',
+          programaId: 'PROG-ISI',
+          programa: 'Ingeniería de Sistemas e Informática',
+          carrera: 'Ingeniería de Sistemas e Informática',
+          codigoPresencial: '59',
+          codigoSemipresencial: '2120',
+          competencia: 'Arquitectura Cloud y Sistemas Distribuidos',
+          nombreCompetencial: 'Arquitectura Cloud y Sistemas Distribuidos',
+          titulo: 'Certificación en "Cloud Computing y Arquitectura Digital"',
+          nombreFinal: 'Certificación en "Cloud Computing y Arquitectura Digital"',
+          nombreConocimientos: 'Certificación en "Cloud Computing y Arquitectura Digital"',
+          cicloOtorgamiento: 'Ciclo IX',
+          ciclo: 9,
+          area: 'Cloud Computing y Arquitectura Digital',
+          descripcion: 'Acredita dominio en despliegue y arquitectura tecnológica sobre la nube, servicios cognitivos e inteligencia artificial distribuida, y diseño de ingeniería de software seguro.',
+          promedioMinimoRequerido: 14.0,
+          costo: 0.00,
+          gratuito: true,
+          cursos: [
+            { codigo: 'IS6054', nombre: 'ARQUITECTURA TECNOLÓGICA EN LA NUBE', ciclo: 7, tipo: 'O', creditaje: 4, nota: 16, cumple: true },
+            { codigo: 'IS6061', nombre: 'SERVICIOS COGNITIVOS IN CLOUD', ciclo: 8, tipo: 'O', creditaje: 4, nota: 16, cumple: true },
+            { codigo: 'IS6073', nombre: 'INGENIERÍA DE SOFTWARE SEGURO', ciclo: 9, tipo: 'O', creditaje: 4, nota: 17, cumple: true },
+            { codigo: 'IS6085', nombre: 'PRINCIPIOS DE LOS SISTEMAS DISTRIBUIDOS', ciclo: 8, tipo: 'O', creditaje: 4, nota: 15, cumple: true },
+            { codigo: 'IS6093', nombre: 'COMPUTACIÓN DISTRIBUIDA', ciclo: 9, tipo: 'O', creditaje: 4, nota: 16, cumple: true }
+          ],
+          promedio: 16.0
+        },
+        {
+          id: 'CP-ISI-05',
+          codigo: 'CP-ISI-05',
+          programaId: 'PROG-ISI',
+          programa: 'Ingeniería de Sistemas e Informática',
+          carrera: 'Ingeniería de Sistemas e Informática',
+          codigoPresencial: '59',
+          codigoSemipresencial: '2120',
+          competencia: 'Sistemas Inteligentes y Ciencia de Datos',
+          nombreCompetencial: 'Sistemas Inteligentes y Ciencia de Datos',
+          titulo: 'Certificación en "Analítica e Inteligencia Artificial"',
+          nombreFinal: 'Certificación en "Analítica e Inteligencia Artificial"',
+          nombreConocimientos: 'Certificación en "Analítica e Inteligencia Artificial"',
+          cicloOtorgamiento: 'Ciclo X',
+          ciclo: 10,
+          area: 'Analítica e Inteligencia Artificial',
+          descripcion: 'Acredita competencias avanzadas en visualización masiva de datos, gestión y pipelines de ciencia de datos in cloud, computación distribuida e IA generativa orientada a negocios.',
+          promedioMinimoRequerido: 14.0,
+          costo: 0.00,
+          gratuito: true,
+          cursos: [
+            { codigo: 'IS6086', nombre: 'ANÁLISIS Y VISUALIZACIÓN DE DATOS', ciclo: 8, tipo: 'O', creditaje: 4, nota: 17, cumple: true },
+            { codigo: 'IS6072', nombre: 'GESTIÓN DE CIENCIA Y DATOS IN CLOUD', ciclo: 9, tipo: 'O', creditaje: 4, nota: 16, cumple: true },
+            { codigo: 'IS6093', nombre: 'COMPUTACIÓN DISTRIBUIDA', ciclo: 9, tipo: 'O', creditaje: 4, nota: 16, cumple: true },
+            { codigo: 'IS6104', nombre: 'IA GENERATIVA PARA LOS NEGOCIOS', ciclo: 10, tipo: 'O', creditaje: 4, nota: 18, cumple: true }
+          ],
+          promedio: 16.75
+        },
+        // Certificaciones de referencia complementarias
+        {
+          id: 'CP-001',
+          codigo: 'CP-STEM-MAT',
+          titulo: 'Tutor STEM Matemática',
+          carrera: 'Ingeniería de Sistemas',
+          area: 'Ciencias e Ingeniería',
+          descripcion: 'Acredita dominio analítico y pedagógico en asignaturas fundamentales de ciencias matemáticas para ingeniería.',
+          cursos: [
+            { nombre: 'Introducción a la matemática para ingeniería', nota: 19, cumple: true },
+            { nombre: 'Matemática para ingenieros I', nota: 20, cumple: true },
+            { nombre: 'Matemática para ingenieros II', nota: 19, cumple: true }
+          ],
+          promedio: 15.0,
+          costo: 120.00
+        },
+        {
+          id: 'CP-002',
+          codigo: 'CP-STEM-ALG',
+          titulo: 'Tutor STEM - Algorítmica',
+          carrera: 'Ingeniería de Sistemas',
+          area: 'Tecnologías de la Información',
+          descripcion: 'Acredita competencias sólidas en lógica computacional, estructura de datos y programación modular.',
+          cursos: [
+            { nombre: 'Algoritmos y Estructura de Datos', nota: 16, cumple: true },
+            { nombre: 'Fundamentos de Programación', nota: 15, cumple: true },
+            { nombre: 'Programación Orientada a Objetos', nota: 16, cumple: true }
+          ],
+          promedio: 15.7,
+          costo: 120.00
+        },
+        {
+          id: 'CP-003',
+          codigo: 'CP-OFI-EXC',
+          titulo: 'Excel Intermedio',
+          carrera: 'Ingeniería de Sistemas',
+          area: 'Herramientas de Productividad',
+          descripcion: 'Acredita destrezas en gestión de hojas de cálculo avanzadas, análisis de datos, tablas dinámicas y reportería.',
+          cursos: [
+            { nombre: 'Herramientas Informáticas', nota: 15, cumple: true },
+            { nombre: 'Ofimática para la Gestión', nota: 14, cumple: true }
+          ],
+          promedio: 14.5,
+          costo: 120.00
+        },
+        {
+          id: 'CP-004',
+          codigo: 'CP-TEC-SOP',
+          titulo: 'Soporte Técnico de Computadoras',
+          carrera: 'Ingeniería de Sistemas',
+          area: 'Infraestructura Tecnológica',
+          descripcion: 'Acredita destrezas técnicas en mantenimiento de hardware, configuración de redes y administración de sistemas operativos.',
+          cursos: [
+            { nombre: 'Arquitectura de Computadoras', nota: 15, cumple: true },
+            { nombre: 'Redes y Conectividad', nota: 14, cumple: true },
+            { nombre: 'Sistemas Operativos', nota: 16, cumple: true }
+          ],
+          promedio: 15.0,
+          costo: 120.00
+        }
+      ],
+
+      // ---- Catálogo de Programas Académicos (Referencia Tabla Institucional) ----
+      programasCertificaciones: [
+        {
+          id: 'PROG-ISI',
+          nombre: 'Ingeniería de Sistemas e Informática',
+          facultad: 'Facultad de Ingeniería y Negocios',
+          codigoPresencial: '59',
+          codigoSemipresencial: '2120',
+          activo: true,
+          certificacionesIds: ['CP-ISI-01', 'CP-ISI-02', 'CP-ISI-03', 'CP-ISI-04', 'CP-ISI-05']
+        },
+        {
+          id: 'PROG-IND',
+          nombre: 'Ingeniería Industrial y de Gestión Empresarial',
+          facultad: 'Facultad de Ingeniería y Negocios',
+          codigoPresencial: '68',
+          codigoSemipresencial: '2121',
+          activo: true,
+          certificacionesIds: []
+        },
+        {
+          id: 'PROG-CIV',
+          nombre: 'Ingeniería Civil',
+          facultad: 'Facultad de Ingeniería y Negocios',
+          codigoPresencial: '2321',
+          codigoSemipresencial: null,
+          activo: true,
+          certificacionesIds: []
+        },
+        {
+          id: 'PROG-ARQ',
+          nombre: 'Arquitectura',
+          facultad: 'Facultad de Ingeniería y Negocios',
+          codigoPresencial: '2319',
+          codigoSemipresencial: null,
+          activo: true,
+          certificacionesIds: []
+        },
+        {
+          id: 'PROG-BIO',
+          nombre: 'Ingeniería Biomédica',
+          facultad: 'Facultad de Ingeniería y Negocios',
+          codigoPresencial: '2410',
+          codigoSemipresencial: null,
+          activo: true,
+          certificacionesIds: []
+        },
+        {
+          id: 'PROG-ADNI',
+          nombre: 'Administración y Negocios Internacionales',
+          facultad: 'Facultad de Ciencias Empresariales',
+          codigoPresencial: '1',
+          codigoSemipresencial: '2118',
+          activo: true,
+          certificacionesIds: []
+        },
+        {
+          id: 'PROG-ADE',
+          nombre: 'Administración y Dirección de Empresas',
+          facultad: 'Facultad de Ciencias Empresariales',
+          codigoPresencial: '1568',
+          codigoSemipresencial: '2117',
+          activo: true,
+          certificacionesIds: []
+        },
+        {
+          id: 'PROG-CON',
+          nombre: 'Contabilidad y Auditoría',
+          facultad: 'Facultad de Ciencias Empresariales',
+          codigoPresencial: '44',
+          codigoSemipresencial: '2119',
+          activo: true,
+          certificacionesIds: []
+        },
+        {
+          id: 'PROG-MKT',
+          nombre: 'Administración y Marketing',
+          facultad: 'Facultad de Ciencias Empresariales',
+          codigoPresencial: '1569',
+          codigoSemipresencial: '2275',
+          activo: true,
+          certificacionesIds: []
+        },
+        {
+          id: 'PROG-DER',
+          nombre: 'Derecho y Ciencia Política',
+          facultad: 'Facultad de Derecho y Ciencia Política',
+          codigoPresencial: '65',
+          codigoSemipresencial: '2115',
+          activo: true,
+          certificacionesIds: []
+        }
+      ],
+
+      // ---- Programaciones Automáticas de Cierre de Ciclo ----
+      programacionesEmision: [
+        {
+          id: 'PROG-2026-II-01',
+          nombre: 'Cierre Académico 2026-II - Sistemas Módulo I (Ciclo VI)',
+          programaId: 'PROG-ISI',
+          programaNombre: 'Ingeniería de Sistemas e Informática',
+          certificacionId: 'CP-ISI-01',
+          certificacionTitulo: 'Certificación en "Gestión de Procesos y Datos Digitales"',
+          cicloOtorgamiento: 'Ciclo VI',
+          periodo: '2026-II',
+          fechaEjecucion: '2026-12-15T23:59',
+          estado: 'Programado',
+          creadoPor: 'Carlos Mendoza Ríos (Registros Académicos)',
+          fechaCreacion: '2026-11-01',
+          alumnosEstimados: 45,
+          reglas: { notaMinima: 14.0, exigirSinDeuda: true, omitirYaEmitidos: true },
+          canalDespacho: 'Correo institucional @uwiener.edu.pe',
+          frecuencia: 'Única al cierre de ciclo',
+          observacion: 'Cierre regular de notas semestrales y emisión masiva automática.'
+        },
+        {
+          id: 'PROG-2026-II-02',
+          nombre: 'Cierre Académico 2026-II - Sistemas Módulo II (Ciclo VII)',
+          programaId: 'PROG-ISI',
+          programaNombre: 'Ingeniería de Sistemas e Informática',
+          certificacionId: 'CP-ISI-02',
+          certificacionTitulo: 'Certificación en "Tecnologías para Aplicaciones"',
+          cicloOtorgamiento: 'Ciclo VII',
+          periodo: '2026-II',
+          fechaEjecucion: '2026-12-16T23:59',
+          estado: 'Programado',
+          creadoPor: 'Carlos Mendoza Ríos (Registros Académicos)',
+          fechaCreacion: '2026-11-01',
+          alumnosEstimados: 38,
+          reglas: { notaMinima: 14.0, exigirSinDeuda: true, omitirYaEmitidos: true },
+          canalDespacho: 'Correo institucional @uwiener.edu.pe',
+          frecuencia: 'Única al cierre de ciclo',
+          observacion: 'Emisión para estudiantes con asignaturas del módulo II completas.'
+        },
+        {
+          id: 'PROG-2026-II-EXT',
+          nombre: 'Cierre Extemporáneo y Subsanaciones 2026-II',
+          programaId: 'PROG-ISI',
+          programaNombre: 'Ingeniería de Sistemas e Informática',
+          certificacionId: 'TODAS',
+          certificacionTitulo: 'Todas las Certificaciones del Programa (Ciclos VI a X)',
+          cicloOtorgamiento: 'Ciclos VI al X',
+          periodo: '2026-II',
+          fechaEjecucion: '2026-12-28T18:00',
+          estado: 'Programado',
+          creadoPor: 'Carlos Mendoza Ríos (Registros Académicos)',
+          fechaCreacion: '2026-11-03',
+          alumnosEstimados: 20,
+          reglas: { notaMinima: 14.0, exigirSinDeuda: true, omitirYaEmitidos: true },
+          canalDespacho: 'Correo institucional @uwiener.edu.pe',
+          frecuencia: 'Extemporánea de regularización',
+          observacion: 'Procesamiento de alumnos con actas extemporáneas o sustitutorios.'
+        }
+      ],
+
+      // ---- Historial de Lotes de Emisión Masiva ----
+      lotesEmision: [
+        {
+          id: 'LOTE-2026-I-ISI-01',
+          fecha: '2026-07-22 17:45:10',
+          fechaFormato: '22/07/2026 17:45 hrs',
+          programa: 'Ingeniería de Sistemas e Informática',
+          programaId: 'PROG-ISI',
+          certificacionId: 'CP-ISI-01',
+          certificacionTitulo: 'Certificación en "Gestión de Procesos y Datos Digitales"',
+          cicloOtorgamiento: 'Ciclo VI',
+          periodo: '2026-I',
+          totalAlumnos: 42,
+          tasaEntrega: '100% (42/42)',
+          canalDespacho: 'Correo Institucional (@uwiener.edu.pe)',
+          estado: 'Despachado',
+          usuario: 'Carlos Mendoza Ríos (Registros Académicos)',
+          tipo: 'Cierre de Ciclo Masivo Gratuito',
+          alumnosEmitidos: [
+            { codigo: '2020100589', nombre: 'Sebastián Torres Vega', email: 'a2020100589@uwiener.edu.pe', folio: '2026.11024', fecha: '22/07/2026 17:45' },
+            { codigo: '2021100342', nombre: 'Camila Alessandra Castro Morales', email: 'a2021100342@uwiener.edu.pe', folio: '2026.11025', fecha: '22/07/2026 17:45' },
+            { codigo: '2021100411', nombre: 'Mateo Alejandro Rivas Delgado', email: 'a2021100411@uwiener.edu.pe', folio: '2026.11026', fecha: '22/07/2026 17:45' },
+            { codigo: '2020100912', nombre: 'Valeria Lucía Méndez Salazar', email: 'a2020100912@uwiener.edu.pe', folio: '2026.11027', fecha: '22/07/2026 17:45' },
+            { codigo: '2020100885', nombre: 'Rodrigo Alonso Tapia Quispe', email: 'a2020100885@uwiener.edu.pe', folio: '2026.11028', fecha: '22/07/2026 17:45' }
+          ]
+        },
+        {
+          id: 'LOTE-2026-I-ISI-02',
+          fecha: '2026-07-23 11:20:05',
+          fechaFormato: '23/07/2026 11:20 hrs',
+          programa: 'Ingeniería de Sistemas e Informática',
+          programaId: 'PROG-ISI',
+          certificacionId: 'CP-ISI-02',
+          certificacionTitulo: 'Certificación en "Tecnologías para Aplicaciones"',
+          cicloOtorgamiento: 'Ciclo VII',
+          periodo: '2026-I',
+          totalAlumnos: 38,
+          tasaEntrega: '100% (38/38)',
+          canalDespacho: 'Correo Institucional (@uwiener.edu.pe)',
+          estado: 'Despachado',
+          usuario: 'Carlos Mendoza Ríos (Registros Académicos)',
+          tipo: 'Cierre de Ciclo Masivo Gratuito',
+          alumnosEmitidos: [
+            { codigo: '2019200115', nombre: 'Gonzalo Andrés Paredes Ruiz', email: 'a2019200115@uwiener.edu.pe', folio: '2026.11090', fecha: '23/07/2026 11:20' },
+            { codigo: '2020100780', nombre: 'Andrea Nicole Chávez Huamán', email: 'a2020100780@uwiener.edu.pe', folio: '2026.11091', fecha: '23/07/2026 11:20' },
+            { codigo: '2019100552', nombre: 'Renato Luis Carrillo Benites', email: 'a2019100552@uwiener.edu.pe', folio: '2026.11092', fecha: '23/07/2026 11:20' }
+          ]
+        },
+        {
+          id: 'LOTE-2025-II-ISI-01',
+          fecha: '2025-12-19 18:00:00',
+          fechaFormato: '19/12/2025 18:00 hrs',
+          programa: 'Ingeniería de Sistemas e Informática',
+          programaId: 'PROG-ISI',
+          certificacionId: 'CP-ISI-01',
+          certificacionTitulo: 'Certificación en "Gestión de Procesos y Datos Digitales"',
+          cicloOtorgamiento: 'Ciclo VI',
+          periodo: '2025-II',
+          totalAlumnos: 54,
+          tasaEntrega: '100% (54/54)',
+          canalDespacho: 'Correo Institucional (@uwiener.edu.pe)',
+          estado: 'Despachado',
+          usuario: 'Carlos Mendoza Ríos (Registros Académicos)',
+          tipo: 'Cierre de Ciclo Masivo Gratuito',
+          alumnosEmitidos: [
+            { codigo: '2019100234', nombre: 'Diego Alonso Flores Ramos', email: 'a2019100234@uwiener.edu.pe', folio: '2025.99042', fecha: '19/12/2025 18:00' },
+            { codigo: '2018200671', nombre: 'Luciana Beatriz Navarro Silva', email: 'a2018200671@uwiener.edu.pe', folio: '2025.99043', fecha: '19/12/2025 18:00' }
+          ]
+        }
+      ],
+      sedesCatalogo: [
+        '7803-2 --> LOCAL 1 / Jr. Larrabure y Unanue 110 Santa Beatriz, Lima',
+        '7803-1 --> LOCAL 2 / Av. Arequipa 440 Lima Centro',
+        '7803-3 --> LOCAL 3 / Av. Arequipa 444 Lima Centro',
+        '7803-4 --> CAMPUS VIRTUAL / Ventanilla Digital'
+      ],
+
+      // ---- Catálogo de Colaboradores / Personal Administrativo ----
+      colaboradores: [
+        { personal: '665092', paterno: 'ZORRILLA', materno: 'MORRIS', nombres: 'PAULA MAYRA JACKELINE', gerencia: 'Dirección de Bienestar Universitario', gerCodigo: 'W012', obs: '' },
+        { personal: '800251', paterno: 'SANTA CRUZ', materno: 'CCORAHUA', nombres: 'ESTEFANY', gerencia: 'Jefatura De Call Center', gerCodigo: 'W045', obs: '' },
+        { personal: '794673', paterno: 'SANTA CRUZ', materno: 'JARA', nombres: 'NAHUM', gerencia: 'Medicina Humana', gerCodigo: 'W093', obs: '' },
+        { personal: '712149', paterno: 'SANTA CRUZ', materno: 'SALAZAR', nombres: 'JORGE ALFONSO', gerencia: 'Coord. Escuela De Posgrado', gerCodigo: 'W089', obs: '' },
+        { personal: '722486', paterno: 'SANTAMARIA', materno: 'CALDERON', nombres: 'JHAN KARLO', gerencia: 'Project Manager Academico', gerCodigo: 'W157', obs: '' },
+        { personal: '634370', paterno: 'CASTILLO', materno: 'DIAZ', nombres: 'YULL ADRIAN', gerencia: 'Registros Académicos', gerCodigo: 'W010', obs: '' },
+        { personal: '494220', paterno: 'CHAVEZ', materno: 'CAPACOILA', nombres: 'CAROLINE MARTHA', gerencia: 'Registros Académicos', gerCodigo: 'W010', obs: '' },
+        { personal: '589340', paterno: 'DOMINGUEZ', materno: 'LOPE', nombres: 'JUAN DAVID', gerencia: 'Registros Académicos', gerCodigo: 'W010', obs: '' },
+        { personal: '543351', paterno: 'DURAND', materno: 'HUAMANI', nombres: 'CRISTIAN ALBERTO', gerencia: 'Registros Académicos', gerCodigo: 'W010', obs: '' },
+        { personal: '611901', paterno: 'FAUSTOR', materno: 'MÜLLER', nombres: 'MIGUEL ANGEL', gerencia: 'Registros Académicos', gerCodigo: 'W010', obs: '' },
+        { personal: '371258', paterno: 'GARAY', materno: 'ORBEGOSO', nombres: 'CARLA ANDREA', gerencia: 'Registros Académicos', gerCodigo: 'W010', obs: '' },
+        { personal: '636671', paterno: 'GARCIA', materno: 'GRANDEZ', nombres: 'GIANELLA MAGDALENA', gerencia: 'Registros Académicos', gerCodigo: 'W010', obs: '' },
+        { personal: '409812', paterno: 'MENDOZA', materno: 'RÍOS', nombres: 'CARLOS ALBERTO', gerencia: 'Registros Académicos', gerCodigo: 'W010', obs: '' },
+        { personal: '412236', paterno: 'PAREDES', materno: 'SOTO', nombres: 'LUCÍA MARGARITA', gerencia: 'Grados y Títulos', gerCodigo: 'W014', obs: '' },
+        { personal: '512903', paterno: 'QUISPE', materno: 'RODRIGUEZ', nombres: 'ANA MARÍA', gerencia: 'Soluciones Financieras', gerCodigo: 'W018', obs: '' }
+      ],
+
+      // ---- Áreas responsables del flujo de atención ----
+      areas: [
+        {
+          id: 'A-001',
+          codigo: 'A-001',
+          institucion: 'Universidad Privada Norbert Wiener S.A.',
+          nombre: 'Dirección de Bienestar Universitario',
+          observacion: 'Gestión de servicios de salud, becas, deporte y acompañamiento estudiantil.',
+          activo: true,
+          fechaRegistro: '2022-06-10',
+          sedes: [
+            { id: 'SED-1', nombre: '7803-2 --> LOCAL 1 / Jr. Larrabure y Unanue 110 Santa Beatriz, Lima', activo: true }
+          ],
+          responsables: [
+            { id: 'RESP-01', personal: '665092', nombre: 'ZORRILLA MORRIS, PAULA MAYRA JACKELINE', sede: '7803-2 --> LOCAL 1 / Jr. Larrabure y Unanue 110 Santa Beatriz, Lima', cargo: 'Responsable', activo: true }
+          ]
+        },
+        {
+          id: 'A-002',
+          codigo: 'A-002',
+          institucion: 'Universidad Privada Norbert Wiener S.A.',
+          nombre: 'Jefatura de Responsabilidad Social',
+          observacion: 'Supervisión de actividades de extensión comunitaria y voluntariado.',
+          activo: true,
+          fechaRegistro: '2022-06-10',
+          sedes: [
+            { id: 'SED-1', nombre: '7803-2 --> LOCAL 1 / Jr. Larrabure y Unanue 110 Santa Beatriz, Lima', activo: true }
+          ],
+          responsables: [
+            { id: 'RESP-02', personal: '412236', nombre: 'PAREDES SOTO, LUCÍA MARGARITA', sede: '7803-2 --> LOCAL 1 / Jr. Larrabure y Unanue 110 Santa Beatriz, Lima', cargo: 'Coordinador', activo: true }
+          ]
+        },
+        {
+          id: 'A-003',
+          codigo: 'A-003',
+          institucion: 'Universidad Privada Norbert Wiener S.A.',
+          nombre: 'Registros Académicos',
+          observacion: 'Emisión de documentos oficiales, actas, convalidaciones y constancias.',
+          activo: true,
+          fechaRegistro: '2023-02-19',
+          sedes: [
+            { id: 'SED-1', nombre: '7803-2 --> LOCAL 1 / Jr. Larrabure y Unanue 110 Santa Beatriz, Lima', activo: true },
+            { id: 'SED-2', nombre: '7803-1 --> LOCAL 2 / Av. Arequipa 440 Lima Centro', activo: true }
+          ],
+          responsables: [
+            { id: 'RESP-03', personal: '634370', nombre: 'CASTILLO DIAZ, YULL ADRIAN', sede: '7803-2 --> LOCAL 1 / Jr. Larrabure y Unanue 110 Santa Beatriz, Lima', cargo: 'Responsable', activo: true },
+            { id: 'RESP-04', personal: '494220', nombre: 'CHAVEZ CAPACOILA, CAROLINE MARTHA', sede: '7803-2 --> LOCAL 1 / Jr. Larrabure y Unanue 110 Santa Beatriz, Lima', cargo: 'Responsable', activo: true },
+            { id: 'RESP-05', personal: '589340', nombre: 'DOMINGUEZ LOPE, JUAN DAVID', sede: '7803-2 --> LOCAL 1 / Jr. Larrabure y Unanue 110 Santa Beatriz, Lima', cargo: 'Responsable', activo: true },
+            { id: 'RESP-06', personal: '543351', nombre: 'DURAND HUAMANI, CRISTIAN ALBERTO', sede: '7803-2 --> LOCAL 1 / Jr. Larrabure y Unanue 110 Santa Beatriz, Lima', cargo: 'Responsable', activo: true },
+            { id: 'RESP-07', personal: '611901', nombre: 'FAUSTOR MÜLLER, MIGUEL ANGEL', sede: '7803-2 --> LOCAL 1 / Jr. Larrabure y Unanue 110 Santa Beatriz, Lima', cargo: 'Responsable', activo: true },
+            { id: 'RESP-08', personal: '371258', nombre: 'GARAY ORBEGOSO, CARLA ANDREA', sede: '7803-2 --> LOCAL 1 / Jr. Larrabure y Unanue 110 Santa Beatriz, Lima', cargo: 'Responsable', activo: true },
+            { id: 'RESP-09', personal: '636671', nombre: 'GARCIA GRANDEZ, GIANELLA MAGDALENA', sede: '7803-2 --> LOCAL 1 / Jr. Larrabure y Unanue 110 Santa Beatriz, Lima', cargo: 'Responsable', activo: true }
+          ]
+        },
+        {
+          id: 'A-004',
+          codigo: 'A-004',
+          institucion: 'Universidad Privada Norbert Wiener S.A.',
+          nombre: 'Representante de Unidades Académicas',
+          observacion: 'Validación de planes de estudio, directores de escuela y coordinadores.',
+          activo: true,
+          fechaRegistro: '2022-08-25',
+          sedes: [
+            { id: 'SED-1', nombre: '7803-2 --> LOCAL 1 / Jr. Larrabure y Unanue 110 Santa Beatriz, Lima', activo: true }
+          ],
+          responsables: []
+        },
+        {
+          id: 'A-005',
+          codigo: 'A-005',
+          institucion: 'Universidad Privada Norbert Wiener S.A.',
+          nombre: 'Retención y Fidelización',
+          observacion: 'Evaluación de beneficios socioeconómicos, becas y continuidad.',
+          activo: true,
+          fechaRegistro: '2022-06-10',
+          sedes: [
+            { id: 'SED-1', nombre: '7803-2 --> LOCAL 1 / Jr. Larrabure y Unanue 110 Santa Beatriz, Lima', activo: true }
+          ],
+          responsables: [
+            { id: 'RESP-10', personal: '722486', nombre: 'SANTAMARIA CALDERON, JHAN KARLO', sede: '7803-2 --> LOCAL 1 / Jr. Larrabure y Unanue 110 Santa Beatriz, Lima', cargo: 'Responsable', activo: true }
+          ]
+        },
+        {
+          id: 'A-006',
+          codigo: 'A-006',
+          institucion: 'Universidad Privada Norbert Wiener S.A.',
+          nombre: 'Soluciones Financieras',
+          observacion: 'Validación de estado de cuenta, no adeudo, pasarela y aplicaciones de descuento.',
+          activo: true,
+          fechaRegistro: '2020-07-25',
+          sedes: [
+            { id: 'SED-1', nombre: '7803-2 --> LOCAL 1 / Jr. Larrabure y Unanue 110 Santa Beatriz, Lima', activo: true }
+          ],
+          responsables: [
+            { id: 'RESP-11', personal: '512903', nombre: 'QUISPE RODRIGUEZ, ANA MARÍA', sede: '7803-2 --> LOCAL 1 / Jr. Larrabure y Unanue 110 Santa Beatriz, Lima', cargo: 'Responsable', activo: true }
+          ]
+        },
+        {
+          id: 'A-007',
+          codigo: 'A-007',
+          institucion: 'Universidad Privada Norbert Wiener S.A.',
+          nombre: 'Grados y Títulos',
+          observacion: 'Expedición de certificados integrales, constancias de egreso y títulos profesionales.',
+          activo: true,
+          fechaRegistro: '2022-05-15',
+          sedes: [
+            { id: 'SED-1', nombre: '7803-2 --> LOCAL 1 / Jr. Larrabure y Unanue 110 Santa Beatriz, Lima', activo: true }
+          ],
+          responsables: [
+            { id: 'RESP-12', personal: '412236', nombre: 'PAREDES SOTO, LUCÍA MARGARITA', sede: '7803-2 --> LOCAL 1 / Jr. Larrabure y Unanue 110 Santa Beatriz, Lima', cargo: 'Responsable', activo: true }
+          ]
+        }
+      ],
+
+      // ---- Catálogo maestro de requisitos ----
+      requisitos: [
+        {
+          id: 'REQ-001',
+          codigo: 'REQ-001',
+          titulo: 'Certificado de voluntariado',
+          observacion: 'Constancia de horas de voluntariado emitida por la institución correspondiente.',
+          requiereAdjunto: true,
+          adjuntoNombre: 'Certificado_Voluntariado',
+          formato: 'PDF',
+          activo: true,
+          fechaRegistro: '2026-06-10'
+        },
+        {
+          id: 'REQ-002',
+          codigo: 'REQ-002',
+          titulo: 'DNI del paciente / solicitante',
+          observacion: 'Debe ser nítido. Copia legible de ambas caras del documento de identidad.',
+          requiereAdjunto: true,
+          adjuntoNombre: 'DNI_Solicitante',
+          formato: 'PDF',
+          activo: true,
+          fechaRegistro: '2026-06-12'
+        },
+        {
+          id: 'REQ-003',
+          codigo: 'REQ-003',
+          titulo: 'Fotografía formal fondo blanco',
+          observacion: 'Fotografía tamaño carné en fondo blanco, vestimenta formal sin accesorios.',
+          requiereAdjunto: true,
+          adjuntoNombre: 'Foto_Carne',
+          formato: 'JPG',
+          activo: true,
+          fechaRegistro: '2026-06-15'
+        },
+        {
+          id: 'REQ-004',
+          codigo: 'REQ-004',
+          titulo: 'Declaración jurada de no adeudo',
+          observacion: 'Acreditación de solvencia y regularización financiera ante tesorería.',
+          requiereAdjunto: false,
+          adjuntoNombre: '',
+          formato: '',
+          activo: true,
+          fechaRegistro: '2026-06-18'
+        },
+        {
+          id: 'REQ-005',
+          codigo: 'REQ-005',
+          titulo: 'Constancia de prácticas preprofesionales',
+          observacion: 'Documento acreditativo validado por la dirección de escuela.',
+          requiereAdjunto: true,
+          adjuntoNombre: 'Constancia_Practicas',
+          formato: 'PDF',
+          activo: true,
+          fechaRegistro: '2026-06-20'
+        }
+      ],
+
+      // ---- Catálogo de Conceptos de Caja / Facturación ----
+      conceptos: [
+        { codigo: '01010025', servicio: 'CONSTANCIA DE MATRÍCULA', monto: 25.00, obs: 'Caja regular' },
+        { codigo: '01010040', servicio: 'CONSTANCIA DE TERCIO SUPERIOR', monto: 40.00, obs: 'Académico' },
+        { codigo: '01010120', servicio: 'CERTIFICADO DE ESTUDIOS', monto: 120.00, obs: 'Por ciclo o global' },
+        { codigo: '01010035', servicio: 'CARNÉ UNIVERSITARIO (DUPLICADO)', monto: 35.00, obs: 'Trámite SUNEDU' },
+        { codigo: '51040115', servicio: 'ACTA DE SUSTENTACION DE TESIS', monto: 260.00, obs: 'US$ 70 aprox' },
+        { codigo: '68010122', servicio: 'ACTUALIZACION EN NUTRICION CLINICA', monto: 0.00, obs: 'Informativo' },
+        { codigo: '03030104', servicio: 'ADECUACION CURRICULAR - PREGRADO', monto: 153.00, obs: 'Fact. General' },
+        { codigo: '03070322', servicio: 'ADECUACION CURRICULAR - SEGUNDA ESPECIALIDAD', monto: 155.00, obs: 'Fact. Público General' },
+        { codigo: '51040402', servicio: 'ADECUACIÓN POSGRADO', monto: 120.00, obs: '' },
+        { codigo: '08060120', servicio: 'ADECUACIÓN POSGRADO PRESENCIAL', monto: 120.00, obs: '' },
+        { codigo: '07020111', servicio: 'ADMINISTRACIÓN DE LA CARRERA LABORAL', monto: 600.00, obs: '' },
+        { codigo: '51020103', servicio: 'ADMISIÓN DOCTORADO', monto: 190.00, obs: 'US$ 50.47' },
+        { codigo: '00000000', servicio: 'BECA IMPULSA 30% / COSTO CERO', monto: 0.00, obs: 'Trámite sin costo' }
+      ],
+
+      // ---- Usuarios del sistema ----
+      usuarios: [
+        {
+          id: 'U-ALU-1', rol: 'alumno', nombre: 'María Fernanda Quispe', codigo: '2021100345',
+          email: 'a2021100345@uwiener.edu.pe', dni: '72845109', telefono: '945112233', celular: '51945112233',
+          institucion: 'Universidad Privada Norbert Wiener',
+          carreras: ['Ingeniería de Sistemas e Informática', 'Ingeniería Industrial'],
+          estado: 'activo',
+          perfil: {
+            nivel: 'pregrado',
+            programa: 'Ingeniería de Sistemas e Informática',
+            modalidad: 'Presencial',
+            codigoPresencial: '59',
+            ciclo: 8,
+            creditos: 168,
+            tercioSuperior: true,
+            quintoSuperior: false,
+            promedio: 16.8,
+            deuda: 0.00,
+            detalleDeuda: null
+          },
+          historialCursos: {
+            // Módulo 1 (Ciclo VI): Gestión de Procesos y Datos Digitales
+            IG7062: { codigo: 'IG7062', nombre: 'GESTIÓN DE PROCESOS DE NEGOCIO', ciclo: 3, creditaje: 4, tipo: 'O', nota: 16, estado: 'Aprobado' },
+            IS6032: { codigo: 'IS6032', nombre: 'BASE DE DATOS', ciclo: 4, creditaje: 4, tipo: 'O', nota: 17, estado: 'Aprobado' },
+            IS6051: { codigo: 'IS6051', nombre: 'SISTEMAS OPERATIVOS Y PROGRAMACIÓN', ciclo: 5, creditaje: 4, tipo: 'O', nota: 15, estado: 'Aprobado' },
+            IS6053: { codigo: 'IS6053', nombre: 'ARQUITECTURA DE COMPUTADORAS', ciclo: 5, creditaje: 4, tipo: 'O', nota: 16, estado: 'Aprobado' },
+            IS6066: { codigo: 'IS6066', nombre: 'REDES DE COMUNICACIÓN DE DATOS', ciclo: 6, creditaje: 4, tipo: 'O', nota: 18, estado: 'Aprobado' },
+            // Módulo 2 (Ciclo VII): Tecnologías para Aplicaciones
+            IS6041: { codigo: 'IS6041', nombre: 'INTRODUCCIÓN A LOS LENGUAJES DE PROGRAMACIÓN', ciclo: 5, creditaje: 4, tipo: 'O', nota: 17, estado: 'Aprobado' },
+            IS6074: { codigo: 'IS6074', nombre: 'DESARROLLO DE APLICACIONES WEB', ciclo: 6, creditaje: 4, tipo: 'O', nota: 16, estado: 'Aprobado' },
+            IS6081: { codigo: 'IS6081', nombre: 'DESARROLLO DE APLICACIONES MÓVILES', ciclo: 7, creditaje: 4, tipo: 'O', nota: 17, estado: 'Aprobado' },
+            IS6065: { codigo: 'IS6065', nombre: 'CIRCUITOS DIGITALES Y ELECTRÓNICOS', ciclo: 6, creditaje: 4, tipo: 'O', nota: 15, estado: 'Aprobado' },
+            IS6071: { codigo: 'IS6071', nombre: 'INTERNET DE LAS COSAS', ciclo: 7, creditaje: 4, tipo: 'O', nota: 16, estado: 'Aprobado' },
+            // Módulo 3 (Ciclo VIII): Dirección de Proyectos Tecnológicos
+            IS6052: { codigo: 'IS6052', nombre: 'SOFTWARE I: PROCESO PERSONAL Y CALIDAD', ciclo: 4, creditaje: 4, tipo: 'O', nota: 16, estado: 'Aprobado' },
+            IS6063: { codigo: 'IS6063', nombre: 'SOFTWARE II: DISEÑO Y PROCESO', ciclo: 5, creditaje: 4, tipo: 'O', nota: 17, estado: 'Aprobado' },
+            IS6064: { codigo: 'IS6064', nombre: 'SOFTWARE III: CONSTRUCCIÓN Y TRANSICIÓN', ciclo: 6, creditaje: 4, tipo: 'O', nota: 16, estado: 'Aprobado' },
+            IS6077: { codigo: 'IS6077', nombre: 'SOFTWARE IV: PROYECTO INTEGRADOR', ciclo: 7, creditaje: 4, tipo: 'O', nota: 18, estado: 'Aprobado' },
+            IS6082: { codigo: 'IS6082', nombre: 'SOFTWARE V: PROCESOS Y GESTIÓN DE PROYECTOS', ciclo: 8, creditaje: 4, tipo: 'O', nota: 17, estado: 'Aprobado' }
+          }
+        },
+        {
+          id: 'U-ALU-ISI-2', rol: 'alumno', nombre: 'HUAMÁN CASTRO, Rodrigo Alonso', codigo: '2021200412',
+          email: 'a2021200412@uwiener.edu.pe', dni: '73019284', telefono: '984120934', celular: '51984120934',
+          institucion: 'Universidad Privada Norbert Wiener',
+          carreras: ['Ingeniería de Sistemas e Informática'],
+          estado: 'activo',
+          perfil: {
+            nivel: 'pregrado',
+            programa: 'Ingeniería de Sistemas e Informática',
+            modalidad: 'Presencial',
+            codigoPresencial: '59',
+            ciclo: 8,
+            creditos: 164,
+            tercioSuperior: false,
+            quintoSuperior: false,
+            promedio: 15.8,
+            deuda: 480.00,
+            detalleDeuda: 'Cuotas 4 y 5 de pensión académica vencidas (S/ 480.00)'
+          },
+          historialCursos: {
+            IG7062: { codigo: 'IG7062', nombre: 'GESTIÓN DE PROCESOS DE NEGOCIO', ciclo: 3, creditaje: 4, tipo: 'O', nota: 15, estado: 'Aprobado' },
+            IS6032: { codigo: 'IS6032', nombre: 'BASE DE DATOS', ciclo: 4, creditaje: 4, tipo: 'O', nota: 16, estado: 'Aprobado' },
+            IS6051: { codigo: 'IS6051', nombre: 'SISTEMAS OPERATIVOS Y PROGRAMACIÓN', ciclo: 5, creditaje: 4, tipo: 'O', nota: 17, estado: 'Aprobado' },
+            IS6053: { codigo: 'IS6053', nombre: 'ARQUITECTURA DE COMPUTADORAS', ciclo: 5, creditaje: 4, tipo: 'O', nota: 16, estado: 'Aprobado' },
+            IS6066: { codigo: 'IS6066', nombre: 'REDES DE COMUNICACIÓN DE DATOS', ciclo: 6, creditaje: 4, tipo: 'O', nota: 15, estado: 'Aprobado' }
+          }
+        },
+        {
+          id: 'U-ALU-ISI-3', rol: 'alumno', nombre: 'MÉNDEZ TELLO, Valeria Lucía', codigo: '2022100874',
+          email: 'a2022100874@uwiener.edu.pe', dni: '75920145', telefono: '976341209', celular: '51976341209',
+          institucion: 'Universidad Privada Norbert Wiener',
+          carreras: ['Ingeniería de Sistemas e Informática'],
+          estado: 'activo',
+          perfil: {
+            nivel: 'pregrado',
+            programa: 'Ingeniería de Sistemas e Informática',
+            modalidad: 'Presencial',
+            codigoPresencial: '59',
+            ciclo: 7,
+            creditos: 142,
+            tercioSuperior: false,
+            quintoSuperior: false,
+            promedio: 14.2,
+            deuda: 0.00,
+            detalleDeuda: null
+          },
+          historialCursos: {
+            IG7062: { codigo: 'IG7062', nombre: 'GESTIÓN DE PROCESOS DE NEGOCIO', ciclo: 3, creditaje: 4, tipo: 'O', nota: 12, estado: 'Aprobado con observación (Nota < 14)' },
+            IS6032: { codigo: 'IS6032', nombre: 'BASE DE DATOS', ciclo: 4, creditaje: 4, tipo: 'O', nota: 16, estado: 'Aprobado' },
+            IS6051: { codigo: 'IS6051', nombre: 'SISTEMAS OPERATIVOS Y PROGRAMACIÓN', ciclo: 5, creditaje: 4, tipo: 'O', nota: 14, estado: 'Aprobado' },
+            IS6053: { codigo: 'IS6053', nombre: 'ARQUITECTURA DE COMPUTADORAS', ciclo: 5, creditaje: 4, tipo: 'O', nota: 15, estado: 'Aprobado' },
+            IS6066: { codigo: 'IS6066', nombre: 'REDES DE COMUNICACIÓN DE DATOS', ciclo: 6, creditaje: 4, tipo: 'O', nota: 16, estado: 'Aprobado' }
+          }
+        },
+        {
+          id: 'U-ALU-ISI-4', rol: 'alumno', nombre: 'TORRES VEGA, Sebastián Andrés', codigo: '2020100589',
+          email: 'a2020100589@uwiener.edu.pe', dni: '71829034', telefono: '933221100', celular: '51933221100',
+          institucion: 'Universidad Privada Norbert Wiener',
+          carreras: ['Ingeniería de Sistemas e Informática'],
+          estado: 'activo',
+          perfil: {
+            nivel: 'pregrado',
+            programa: 'Ingeniería de Sistemas e Informática',
+            modalidad: 'Presencial',
+            codigoPresencial: '59',
+            ciclo: 9,
+            creditos: 190,
+            tercioSuperior: true,
+            quintoSuperior: false,
+            promedio: 16.0,
+            deuda: 0.00,
+            detalleDeuda: null
+          },
+          historialCursos: {
+            IG7062: { codigo: 'IG7062', nombre: 'GESTIÓN DE PROCESOS DE NEGOCIO', ciclo: 3, creditaje: 4, tipo: 'O', nota: 16, estado: 'Aprobado' },
+            IS6032: { codigo: 'IS6032', nombre: 'BASE DE DATOS', ciclo: 4, creditaje: 4, tipo: 'O', nota: 17, estado: 'Aprobado' },
+            IS6051: { codigo: 'IS6051', nombre: 'SISTEMAS OPERATIVOS Y PROGRAMACIÓN', ciclo: 5, creditaje: 4, tipo: 'O', nota: 15, estado: 'Aprobado' },
+            IS6053: { codigo: 'IS6053', nombre: 'ARQUITECTURA DE COMPUTADORAS', ciclo: 5, creditaje: 4, tipo: 'O', nota: 16, estado: 'Aprobado' },
+            IS6066: { codigo: 'IS6066', nombre: 'REDES DE COMUNICACIÓN DE DATOS', ciclo: 6, creditaje: 4, tipo: 'O', nota: 18, estado: 'Aprobado' }
+          }
+        },
+        {
+          id: 'U-ALU-ISI-5', rol: 'alumno', nombre: 'PAREDES NÚÑEZ, Andrea Jimena', codigo: '2021100998',
+          email: 'a2021100998@uwiener.edu.pe', dni: '74819203', telefono: '955102938', celular: '51955102938',
+          institucion: 'Universidad Privada Norbert Wiener',
+          carreras: ['Ingeniería de Sistemas e Informática'],
+          estado: 'activo',
+          perfil: {
+            nivel: 'pregrado',
+            programa: 'Ingeniería de Sistemas e Informática',
+            modalidad: 'Semipresencial',
+            codigoSemipresencial: '2120',
+            ciclo: 8,
+            creditos: 168,
+            tercioSuperior: true,
+            quintoSuperior: true,
+            promedio: 17.4,
+            deuda: 0.00,
+            detalleDeuda: null
+          },
+          historialCursos: {
+            IG7062: { codigo: 'IG7062', nombre: 'GESTIÓN DE PROCESOS DE NEGOCIO', ciclo: 3, creditaje: 4, tipo: 'O', nota: 18, estado: 'Aprobado' },
+            IS6032: { codigo: 'IS6032', nombre: 'BASE DE DATOS', ciclo: 4, creditaje: 4, tipo: 'O', nota: 16, estado: 'Aprobado' },
+            IS6051: { codigo: 'IS6051', nombre: 'SISTEMAS OPERATIVOS Y PROGRAMACIÓN', ciclo: 5, creditaje: 4, tipo: 'O', nota: 17, estado: 'Aprobado' },
+            IS6053: { codigo: 'IS6053', nombre: 'ARQUITECTURA DE COMPUTADORAS', ciclo: 5, creditaje: 4, tipo: 'O', nota: 19, estado: 'Aprobado' },
+            IS6066: { codigo: 'IS6066', nombre: 'REDES DE COMUNICACIÓN DE DATOS', ciclo: 6, creditaje: 4, tipo: 'O', nota: 17, estado: 'Aprobado' }
+          }
+        },
+        {
+          id: 'U-ALU-ISI-6', rol: 'alumno', nombre: 'CHAUCA MORALES, Kevin Joel', codigo: '2023101230',
+          email: 'a2023101230@uwiener.edu.pe', dni: '76102938', telefono: '940129481', celular: '51940129481',
+          institucion: 'Universidad Privada Norbert Wiener',
+          carreras: ['Ingeniería de Sistemas e Informática'],
+          estado: 'activo',
+          perfil: {
+            nivel: 'pregrado',
+            programa: 'Ingeniería de Sistemas e Informática',
+            modalidad: 'Presencial',
+            codigoPresencial: '59',
+            ciclo: 5,
+            creditos: 104,
+            tercioSuperior: false,
+            quintoSuperior: false,
+            promedio: 15.2,
+            deuda: 0.00,
+            detalleDeuda: null
+          },
+          historialCursos: {
+            IG7062: { codigo: 'IG7062', nombre: 'GESTIÓN DE PROCESOS DE NEGOCIO', ciclo: 3, creditaje: 4, tipo: 'O', nota: 15, estado: 'Aprobado' },
+            IS6032: { codigo: 'IS6032', nombre: 'BASE DE DATOS', ciclo: 4, creditaje: 4, tipo: 'O', nota: 16, estado: 'Aprobado' },
+            IS6051: { codigo: 'IS6051', nombre: 'SISTEMAS OPERATIVOS Y PROGRAMACIÓN', ciclo: 5, creditaje: 4, tipo: 'O', nota: 15, estado: 'Aprobado' },
+            IS6053: { codigo: 'IS6053', nombre: 'ARQUITECTURA DE COMPUTADORAS', ciclo: 5, creditaje: 4, tipo: 'O', nota: 14, estado: 'Aprobado' }
+            // IS6066 no cursado aún (pertenece a ciclo 6)
+          }
+        },
+        {
+          id: 'U-ADM-1', rol: 'administrativo', nombre: 'Carlos Mendoza Ríos', codigo: 'ADM-0091',
+          email: 'c.mendoza@uwiener.edu.pe', dni: '40981233', estado: 'activo', area: 'Registros Académicos',
+          permisos: ['tramites', 'solicitudes', 'flujos', 'procesar', 'reportes', 'usuarios', 'seguridad', 'registrar', 'certificaciones']
+        },
+        {
+          id: 'U-ALU-2', rol: 'alumno', nombre: 'José Antonio Ramos', codigo: '2019054420',
+          email: 'a2019054420@uwiener.edu.pe', dni: '70112458', telefono: '987654321', celular: '51987654321',
+          institucion: 'Universidad Privada Norbert Wiener',
+          carreras: ['Administración'],
+          estado: 'activo',
+          perfil: { nivel: 'pregrado', programa: 'Administración', ciclo: 10, creditos: 210, tercioSuperior: false, quintoSuperior: false, promedio: 13.8 }
+        },
+        {
+          id: 'U-ALU-3', rol: 'alumno', nombre: 'RODRIGUEZ LOPEZ, Camila Fernanda', codigo: '2025101851',
+          email: 'camilarodriguez040607@gmail.com', dni: '70703892', telefono: '976220435', celular: '51970530682',
+          institucion: 'Universidad Privada Norbert Wiener',
+          carreras: ['Administración Y Marketing', 'Negocios Internacionales'],
+          estado: 'activo',
+          perfil: { nivel: 'pregrado', programa: 'Administración Y Marketing', ciclo: 4, creditos: 82, tercioSuperior: false, quintoSuperior: false, promedio: 14.8 }
+        },
+        {
+          id: 'U-ALU-4', rol: 'alumno', nombre: 'RAYME ORE, Karina Anali', codigo: 'C03AE04204',
+          email: 'karyray8@gmail.com', dni: '42579879', telefono: '977812174', celular: '977812174',
+          institucion: 'Instituto de Educación Superior Daniel Alcides Carrión',
+          carreras: ['Drenaje Linfático', 'Podología Clínica y Estética Avanzada'],
+          estado: 'activo',
+          perfil: { nivel: 'pregrado', programa: 'Drenaje Linfático', ciclo: 4, creditos: 72, tercioSuperior: false, quintoSuperior: false, promedio: 15.0 }
+        },
+        {
+          id: 'U-ALU-5', rol: 'alumno', nombre: 'VALVERDE SOTO, Brandon Alexis', codigo: 'C02TF01982',
+          email: 'b.valverde@carrion.edu.pe', dni: '74892110', telefono: '961234567', celular: '51961234567',
+          institucion: 'Instituto de Educación Superior Daniel Alcides Carrión',
+          carreras: ['Enfermería Técnica', 'Farmacia Técnica'],
+          estado: 'activo',
+          perfil: { nivel: 'pregrado', programa: 'Enfermería Técnica', ciclo: 6, creditos: 110, tercioSuperior: true, quintoSuperior: false, promedio: 16.8 }
+        },
+        {
+          id: 'U-ALU-6', rol: 'alumno', nombre: 'SALAZAR CORDOVA, Patricia Elena', codigo: '2023104512',
+          email: 'p.salazar@uwiener.edu.pe', dni: '71239845', telefono: '955443322', celular: '51955443322',
+          institucion: 'Universidad Privada Norbert Wiener',
+          carreras: ['Medicina Humana'],
+          estado: 'activo',
+          perfil: { nivel: 'pregrado', programa: 'Medicina Humana', ciclo: 5, creditos: 118, tercioSuperior: true, quintoSuperior: false, promedio: 16.0 }
+        },
+        {
+          id: 'U-ADM-2', rol: 'administrativo', nombre: 'Lucía Paredes Soto', codigo: 'ADM-0102',
+          email: 'l.paredes@uwiener.edu.pe', dni: '41223678', estado: 'inactivo', area: 'Grados y Títulos',
+          permisos: ['tramites', 'solicitudes']
+        },
+        {
+          id: 'U-ADM-3', rol: 'administrativo', nombre: 'Giancarlo Santa María Calderón', codigo: 'ADM-0115',
+          email: 'g.santamaria@uwiener.edu.pe', dni: '45678901', estado: 'activo', area: 'Retención y Fidelización',
+          permisos: ['tramites', 'solicitudes']
+        }
+      ],
+
+      // ---- Solicitudes realizadas por alumnos (Catálogo Vista de Trámites) ----
+      solicitudes: [
+        {
+          id: '2026.11024',
+          ticket: '2026.11024',
+          sedeCodigo: '7803-2',
+          sede: '7803-2 - Jr. Larrabure y Unanue 110 Santa Beatriz, Lima',
+          institucion: 'Universidad Norbert Wiener',
+          tramiteId: 'T-010',
+          tramiteNombre: 'Certificación Progresiva: Certificación en "Gestión de Procesos y Datos Digitales"',
+          certificacionId: 'CP-ISI-01',
+          certificacionTitulo: 'Certificación en "Gestión de Procesos y Datos Digitales"',
+          carrera: 'Ingeniería de Sistemas e Informática',
+          periodo: '2026-I',
+          seccion: '6SI01',
+          alumnoId: 'U-ALU-ISI-4',
+          alumnoCodigo: '2020100589',
+          alumnoNombre: 'TORRES VEGA, Sebastián Andrés',
+          alumnoDni: '71829034',
+          alumnoEmail: 'a2020100589@uwiener.edu.pe',
+          alumnoTelefono: '933221100',
+          alumnoCelular: '51933221100',
+          estado: 'Emitido',
+          activo: true,
+          fecha: '2026-07-15',
+          fechaHora: '2026-07-15 04:30:00 PM',
+          costo: 0.00,
+          conceptoCodigo: '01020120',
+          origen: 'Emisión Masiva Admin - Gratuita',
+          loteId: 'LOTE-2026-I-ISI',
+          pago: {
+            estado: 'exonerado',
+            obligacionGenerada: false,
+            monto: 0.00,
+            metodo: 'Gratuito - Emisión Institucional Masiva',
+            carrera: 'Ingeniería de Sistemas e Informática',
+            nroDocumento: 'GRATUITO-MASIVO-2026-I',
+            operacion: 'INST-2026-CP-11024'
+          },
+          detalle: 'Emisión masiva institucional de cierre de ciclo 2026-I.',
+          requisitos: [],
+          proceso: [
+            { orden: 1, area: 'Registros Académicos', plazoHoras: 0, diasRetraso: 0, observacionInterna: 'Emisión masiva de cierre de ciclo aprobada.', estado: 'Atendido', fechaAtencion: '2026-07-15' }
+          ],
+          mensajeSolicitante: 'Tu Certificación Progresiva fue emitida de forma gratuita institucional y enviada a tu correo a2020100589@uwiener.edu.pe.',
+          historial: [
+            { estado: 'Emitido', fecha: '2026-07-15 04:30', nota: 'Emisión masiva de cierre de ciclo 2026-I. Enviado a correo a2020100589@uwiener.edu.pe', usuario: 'Carlos Mendoza Ríos (Registros Académicos)' }
+          ]
+        },
+        {
+          id: '2026.43545',
+          ticket: '2026.43545',
+          sedeCodigo: '7803-2',
+          sede: '7803-2 - Jr. Larrabure y Unanue 110 Santa Beatriz, Lima',
+          institucion: 'Universidad Norbert Wiener',
+          tramiteId: 'T-010',
+          tramiteNombre: 'Certificación Progresiva: Excel Intermedio',
+          certificacionId: 'CP-003',
+          certificacionTitulo: 'Excel Intermedio',
+          carrera: 'INGENIERÍA DE SISTEMAS',
+          periodo: '2026-1',
+          seccion: '8SI01',
+          alumnoId: 'U-ALU-1',
+          alumnoCodigo: '2021100345',
+          alumnoNombre: 'María Fernanda Quispe',
+          alumnoDni: '72845109',
+          alumnoEmail: 'a2021100345@uwiener.edu.pe',
+          alumnoTelefono: '945112233',
+          alumnoCelular: '51945112233',
+          estado: 'Emitido',
+          activo: true,
+          fecha: '2026-08-20',
+          fechaHora: '2026-08-20 11:30:00 AM',
+          costo: 120.00,
+          conceptoCodigo: '01020120',
+          pago: {
+            estado: 'pagado',
+            obligacionGenerada: true,
+            monto: 120.00,
+            metodo: 'Tarjeta de Crédito / Débito (Niubiz)',
+            carrera: 'Ingeniería de Sistemas',
+            nroDocumento: 'NB-889104',
+            operacion: 'NB-889104',
+            fechaPago: '2026-08-20'
+          },
+          detalle: 'Certificación progresiva modular de competencias en Excel Intermedio.',
+          requisitos: [],
+          proceso: [
+            { orden: 1, area: 'Registros Académicos', plazoHoras: 24, diasRetraso: 0, observacionInterna: 'Requisitos y notas validadas.', estado: 'Atendido', fechaAtencion: '2026-08-20' }
+          ],
+          mensajeSolicitante: 'Tu Certificación Progresiva ha sido emitida y enviada a tu correo institucional. Ya se encuentra disponible para descarga en Mis documentos.',
+          historial: [
+            { estado: 'Pendiente de pago', fecha: '2026-08-20 11:25', nota: 'Solicitud registrada por el alumno' },
+            { estado: 'En revisión', fecha: '2026-08-20 11:28', nota: 'Pago confirmado vía Niubiz (Op. NB-889104)' },
+            { estado: 'Emitido', fecha: '2026-08-20 11:30', nota: 'Certificado oficial generado con firma digital y enviado a a2021100345@uwiener.edu.pe' }
+          ]
+        },
+
+        {
+          id: '2026.43532',
+          ticket: '2026.43532',
+          sedeCodigo: '7808',
+          sede: '7808 - Av. Petit Thouars Nº 397 Lima',
+          institucion: 'I.E.S. Particular Daniel Alcides Carrión',
+          tramiteId: 'T-008',
+          tramiteNombre: 'Certificado de Formación Continua (S1)',
+          carrera: 'DRENAJE LINFÁTICO',
+          periodo: '2026-2',
+          seccion: '4DL12',
+          alumnoId: 'C03AE04204',
+          alumnoCodigo: 'C03AE04204',
+          alumnoNombre: 'RAYME ORE, Karina Anali',
+          alumnoDni: '42579879',
+          alumnoEmail: 'karyray8@gmail.com',
+          alumnoTelefono: '977812174',
+          alumnoCelular: '977812174',
+          estado: 'Solicitado',
+          activo: true,
+          fecha: '2026-09-25',
+          fechaHora: '2026-09-25 10:15:20 PM',
+          costo: 150.00,
+          conceptoCodigo: '33020109',
+          pago: {
+            estado: 'pendiente',
+            obligacionGenerada: false,
+            monto: 150.00,
+            carrera: 'Drenaje Linfático',
+            nroDocumento: '-',
+            fechaPago: null,
+            fechaObligacion: null
+          },
+          detalle: 'Solicito la expedición de mi certificado de formación continua del módulo de drenaje linfático.',
+          requisitos: [
+            {
+              id: 'REQ-01',
+              orden: 1,
+              titulo: 'Fotografía, tamaño pasaporte, papel mate, fondo blanco, con la indumentaria de la especialidad o vestimenta formal, ángulo frontal/normal, no selfi, no lentes, no gorra, no piercing.',
+              archivo: 'FOTO.jpg',
+              tipoArchivo: 'JPG',
+              cumple: false,
+              especificacion: 'Tamaño: máximo 1MB, Tipo: JPG, Nombre: FOTO.jpg'
+            },
+            {
+              id: 'REQ-02',
+              orden: 2,
+              titulo: 'Documento de Identidad Vigente',
+              archivo: 'DNI.pdf',
+              tipoArchivo: 'PDF',
+              cumple: false,
+              especificacion: 'Tamaño: máximo 2MB, Tipo: PDF, Nombre: DNI.pdf'
+            }
+          ],
+          proceso: [
+            { orden: 1, area: 'Registros Académicos', plazoHoras: 48, diasRetraso: 0, observacionInterna: '', estado: 'Pendiente', fechaAtencion: null }
+          ],
+          mensajeSolicitante: '',
+          historial: [
+            { estado: 'Solicitado', fecha: '2026-09-25 10:15', nota: 'Solicitud registrada por el alumno' }
+          ]
+        },
+        {
+          id: '2026.43531',
+          ticket: '2026.43531',
+          sedeCodigo: '7808',
+          sede: '7808 - Av. Petit Thouars Nº 397 Lima',
+          institucion: 'I.E.S. Particular Daniel Alcides Carrión',
+          tramiteId: 'T-008',
+          tramiteNombre: 'Certificado de Formación Continua (S1)',
+          carrera: 'PODOLOGÍA CLÍNICA Y ESTÉTICA AVANZADA',
+          periodo: '2026-2',
+          seccion: '6ME42',
+          alumnoId: 'C03AE04204',
+          alumnoCodigo: 'C03AE04204',
+          alumnoNombre: 'RAYME ORE, Karina Anali',
+          alumnoDni: '42579879',
+          alumnoEmail: 'karyray8@gmail.com',
+          alumnoTelefono: '977812174',
+          alumnoCelular: '977812174',
+          estado: 'Solicitado',
+          activo: true,
+          fecha: '2026-09-25',
+          fechaHora: '2026-09-25 10:03:27 PM',
+          costo: 150.00,
+          conceptoCodigo: '33020109',
+          pago: {
+            estado: 'pendiente',
+            obligacionGenerada: false,
+            monto: 150.00,
+            carrera: 'Podología Clínica Y Estética Avanzada',
+            nroDocumento: '-',
+            fechaPago: null,
+            fechaObligacion: null
+          },
+          detalle: 'Requiere validación de módulos de estética avanzada para convalidación profesional.',
+          requisitos: [
+            {
+              id: 'REQ-01',
+              orden: 1,
+              titulo: 'Fotografía, tamaño pasaporte, papel mate, fondo blanco, con la indumentaria de la especialidad o vestimenta formal, ángulo frontal/normal, no selfi, no lentes, no gorra, no piercing.',
+              archivo: 'FOTO.jpg',
+              tipoArchivo: 'JPG',
+              cumple: false,
+              especificacion: 'Tamaño: máximo 1MB, Tipo: JPG, Nombre: FOTO.jpg'
+            },
+            {
+              id: 'REQ-02',
+              orden: 2,
+              titulo: 'Documento de Identidad Vigente',
+              archivo: 'DNI.pdf',
+              tipoArchivo: 'PDF',
+              cumple: false,
+              especificacion: 'Tamaño: máximo 2MB, Tipo: PDF, Nombre: DNI.pdf'
+            }
+          ],
+          proceso: [
+            { orden: 1, area: 'Registros Académicos', plazoHoras: 48, diasRetraso: 0, observacionInterna: '', estado: 'Pendiente', fechaAtencion: null }
+          ],
+          mensajeSolicitante: '',
+          historial: [
+            { estado: 'Solicitado', fecha: '2026-09-25 10:03', nota: 'Solicitud registrada por el alumno' }
+          ]
+        },
+        {
+          id: '2026.43530',
+          ticket: '2026.43530',
+          sedeCodigo: '7818',
+          sede: '7818 - Av. Arequipa 440 Lima',
+          institucion: 'I.E.S. Particular Daniel Alcides Carrión',
+          tramiteId: 'T-007',
+          tramiteNombre: 'Diploma de Egresado Malla Licenciamiento',
+          carrera: 'NUTRICIÓN Y DIETÉTICA',
+          periodo: '2026-1',
+          seccion: '8ND01',
+          alumnoId: 'C22AN02246',
+          alumnoCodigo: 'C22AN02246',
+          alumnoNombre: 'CALDERON ESPINAL, Junior Cesar',
+          alumnoDni: '70291845',
+          alumnoEmail: 'junior.calderon@carrion.edu.pe',
+          alumnoTelefono: '984512390',
+          alumnoCelular: '984512390',
+          estado: 'Solicitado',
+          activo: true,
+          fecha: '2026-09-25',
+          fechaHora: '2026-09-25 09:45:10 PM',
+          costo: 350.00,
+          conceptoCodigo: '33020115',
+          pago: {
+            estado: 'pendiente',
+            obligacionGenerada: false,
+            monto: 350.00,
+            carrera: 'Nutrición y Dietética',
+            nroDocumento: '-',
+            fechaPago: null,
+            fechaObligacion: null
+          },
+          detalle: 'Diploma de egresado para trámite de colegiatura y prácticas avanzadas.',
+          requisitos: [
+            {
+              id: 'REQ-02',
+              orden: 1,
+              titulo: 'Documento de Identidad Vigente',
+              archivo: 'DNI_CALDERON.pdf',
+              tipoArchivo: 'PDF',
+              cumple: true,
+              especificacion: 'Formato PDF'
+            },
+            {
+              id: 'REQ-03',
+              orden: 2,
+              titulo: 'Constancia de no adeudo bibliográfico',
+              archivo: 'NO_ADEUDO.pdf',
+              tipoArchivo: 'PDF',
+              cumple: false,
+              especificacion: 'Formato PDF'
+            }
+          ],
+          proceso: [
+            { orden: 1, area: 'Registros Académicos', plazoHoras: 48, diasRetraso: 0, observacionInterna: '', estado: 'Pendiente', fechaAtencion: null },
+            { orden: 2, area: 'Grados y Títulos', plazoHoras: 72, diasRetraso: 0, observacionInterna: '', estado: 'Pendiente', fechaAtencion: null }
+          ],
+          mensajeSolicitante: '',
+          historial: [
+            { estado: 'Solicitado', fecha: '2026-09-25 09:45', nota: 'Solicitud registrada por el alumno' }
+          ]
+        },
+        {
+          id: '2026.43529',
+          ticket: '2026.43529',
+          sedeCodigo: '7818',
+          sede: '7818 - Av. Arequipa 440 Lima',
+          institucion: 'I.E.S. Particular Daniel Alcides Carrión',
+          tramiteId: 'T-008',
+          tramiteNombre: 'Grado de Bachiller Técnico',
+          carrera: 'FARMACIA TÉCNICA',
+          periodo: '2026-2',
+          seccion: '6FT12',
+          alumnoId: 'C23BB08206',
+          alumnoCodigo: 'C23BB08206',
+          alumnoNombre: 'ADRIANZEN PEÑA, Lidia',
+          alumnoDni: '46891234',
+          alumnoEmail: 'lidia.adrianzen@carrion.edu.pe',
+          alumnoTelefono: '912345678',
+          alumnoCelular: '912345678',
+          estado: 'Solicitado',
+          activo: true,
+          fecha: '2026-09-25',
+          fechaHora: '2026-09-25 09:12:00 PM',
+          costo: 600.00,
+          conceptoCodigo: '33020112',
+          pago: {
+            estado: 'pendiente',
+            obligacionGenerada: false,
+            monto: 600.00,
+            carrera: 'Farmacia Técnica',
+            nroDocumento: '-',
+            fechaPago: null,
+            fechaObligacion: null
+          },
+          detalle: 'Expediente de bachiller técnico convalidado.',
+          requisitos: [
+            {
+              id: 'REQ-01',
+              orden: 1,
+              titulo: 'Fotografía formal fondo blanco',
+              archivo: 'FOTO_LIDIA.jpg',
+              tipoArchivo: 'JPG',
+              cumple: true,
+              especificacion: 'Fondo blanco'
+            }
+          ],
+          proceso: [
+            { orden: 1, area: 'Grados y Títulos', plazoHoras: 48, diasRetraso: 0, observacionInterna: '', estado: 'Pendiente', fechaAtencion: null }
+          ],
+          mensajeSolicitante: '',
+          historial: [
+            { estado: 'Solicitado', fecha: '2026-09-25 09:12', nota: 'Solicitud registrada por el alumno' }
+          ]
+        },
+        {
+          id: '2026.43528',
+          ticket: '2026.43528',
+          sedeCodigo: '7818',
+          sede: '7818 - Av. Arequipa 440 Lima',
+          institucion: 'I.E.S. Particular Daniel Alcides Carrión',
+          tramiteId: 'T-009',
+          tramiteNombre: 'Título Profesional Técnico (MALLA LICENCIAMIENTO)',
+          carrera: 'ENFERMERÍA TÉCNICA',
+          periodo: '2026-2',
+          seccion: '6ET31',
+          alumnoId: 'C23AE02615',
+          alumnoCodigo: 'C23AE02615',
+          alumnoNombre: 'LARA FABIAN, Jenifer',
+          alumnoDni: '74128956',
+          alumnoEmail: 'jennifer.lara@carrion.edu.pe',
+          alumnoTelefono: '945671234',
+          alumnoCelular: '945671234',
+          estado: 'Solicitado',
+          activo: true,
+          fecha: '2026-09-25',
+          fechaHora: '2026-09-25 08:30:00 PM',
+          costo: 900.00,
+          conceptoCodigo: '33020109',
+          pago: {
+            estado: 'pendiente',
+            obligacionGenerada: true,
+            monto: 900.00,
+            carrera: 'Enfermería Técnica',
+            nroDocumento: '-',
+            fechaPago: null,
+            fechaObligacion: '2026-09-25 08:35:00'
+          },
+          detalle: 'Trámite de titulación profesional técnica.',
+          requisitos: [
+            {
+              id: 'REQ-01',
+              orden: 1,
+              titulo: 'Grado de bachiller (ambos lados)',
+              archivo: 'BACHILLER_LARA.pdf',
+              tipoArchivo: 'PDF',
+              cumple: true,
+              especificacion: 'Documento escaneado nítido'
+            },
+            {
+              id: 'REQ-02',
+              orden: 2,
+              titulo: 'Foto con la indumentaria de la especialidad con fondo blanco (nítida y vigente)',
+              archivo: 'FOTO_TITULO.jpg',
+              tipoArchivo: 'JPG',
+              cumple: true,
+              especificacion: 'Tamaño pasaporte'
+            },
+            {
+              id: 'REQ-03',
+              orden: 3,
+              titulo: 'Información Laboral',
+              archivo: 'CONSTANCIA_LABORAL.pdf',
+              tipoArchivo: 'PDF',
+              cumple: true,
+              especificacion: 'Constancia de prácticas'
+            },
+            {
+              id: 'REQ-04',
+              orden: 4,
+              titulo: 'Declaración Jurada para Título Malla Licenciamiento (descargar, completar con firma igual que el DNI y adjuntar)',
+              archivo: 'DJ_TITULO.pdf',
+              tipoArchivo: 'PDF',
+              cumple: true,
+              especificacion: 'Formato institucional firmado'
+            }
+          ],
+          proceso: [
+            {
+              orden: 1,
+              area: 'Dirección Académica',
+              plazoHoras: 48,
+              diasRetraso: 0,
+              observacionInterna: 'Pendiente de pago previo para iniciar atención',
+              estado: 'Pendiente',
+              fechaAtencion: null
+            }
+          ],
+          mensajeSolicitante: 'Una vez aprobada la solicitud, deberá realizar el pago en BCP, BBVA, Interbank o Scotiabank dentro del plazo máximo de 3 días. Puede realizar su pago en los bancos autorizados y yape, opción Trámites académicos con su código de alumno en mayúscula, pasos en el siguiente link: https://www.youtube.com/watch?v=CE2ZASixxYk',
+          historial: [
+            { estado: 'Solicitado', fecha: '2026-09-25 08:30', nota: 'Solicitud registrada por el alumno' },
+            { estado: 'Solicitado', fecha: '2026-09-25 08:35', nota: 'Obligación de pago de S/ 900 generada' }
+          ]
+        },
+        {
+          id: '2026.43527',
+          ticket: '2026.43527',
+          sedeCodigo: '7818',
+          sede: '7818 - Av. Arequipa 440 Lima',
+          institucion: 'I.E.S. Particular Daniel Alcides Carrión',
+          tramiteId: 'T-008',
+          tramiteNombre: 'Grado de Bachiller Técnico',
+          carrera: 'FARMACIA TÉCNICA',
+          periodo: '2026-2',
+          seccion: '6FT12',
+          alumnoId: 'C23BB08206',
+          alumnoCodigo: 'C23BB08206',
+          alumnoNombre: 'ADRIANZEN PEÑA, Lidia',
+          alumnoDni: '46891234',
+          alumnoEmail: 'lidia.adrianzen@carrion.edu.pe',
+          alumnoTelefono: '912345678',
+          alumnoCelular: '912345678',
+          estado: 'Cancelar',
+          activo: false,
+          fecha: '2026-09-25',
+          fechaHora: '2026-09-25 07:15:00 PM',
+          costo: 450.00,
+          conceptoCodigo: '33020112',
+          pago: {
+            estado: 'pendiente',
+            obligacionGenerada: false,
+            monto: 450.00,
+            carrera: 'Farmacia Técnica',
+            nroDocumento: '-',
+            fechaPago: null
+          },
+          detalle: 'Cancelado por el alumno.',
+          requisitos: [],
+          proceso: [],
+          mensajeSolicitante: 'Trámite cancelado a solicitud del estudiante.',
+          historial: [
+            { estado: 'Solicitado', fecha: '2026-09-25 07:00', nota: 'Solicitud registrada' },
+            { estado: 'Cancelar', fecha: '2026-09-25 07:15', nota: 'Cancelado por el estudiante' }
+          ]
+        },
+        {
+          id: '2026.43526',
+          ticket: '2026.43526',
+          sedeCodigo: '7818',
+          sede: '7818 - Av. Arequipa 440 Lima',
+          institucion: 'I.E.S. Particular Daniel Alcides Carrión',
+          tramiteId: 'T-007',
+          tramiteNombre: 'Diploma de Egresado Malla Licenciamiento',
+          carrera: 'FARMACIA TÉCNICA',
+          periodo: '2026-1',
+          seccion: '6FT01',
+          alumnoId: 'C22AF02736',
+          alumnoCodigo: 'C22AF02736',
+          alumnoNombre: 'LEON REY, Marcelo Francesco',
+          alumnoDni: '71928341',
+          alumnoEmail: 'marcelo.leon@carrion.edu.pe',
+          alumnoTelefono: '984127890',
+          alumnoCelular: '984127890',
+          estado: 'Solicitado',
+          activo: true,
+          fecha: '2026-09-25',
+          fechaHora: '2026-09-25 06:40:00 PM',
+          costo: 350.00,
+          conceptoCodigo: '33020115',
+          pago: {
+            estado: 'pendiente',
+            obligacionGenerada: false,
+            monto: 350.00,
+            carrera: 'Farmacia Técnica',
+            nroDocumento: '-',
+            fechaPago: null
+          },
+          detalle: 'Egresado de la carrera técnica de farmacia.',
+          requisitos: [
+            { id: 'REQ-02', orden: 1, titulo: 'Documento de Identidad Vigente', archivo: 'DNI_LEON.pdf', tipoArchivo: 'PDF', cumple: true, especificacion: 'Formato PDF' }
+          ],
+          proceso: [
+            { orden: 1, area: 'Registros Académicos', plazoHoras: 48, diasRetraso: 0, observacionInterna: '', estado: 'Pendiente', fechaAtencion: null }
+          ],
+          mensajeSolicitante: '',
+          historial: [
+            { estado: 'Solicitado', fecha: '2026-09-25 06:40', nota: 'Solicitud registrada por el alumno' }
+          ]
+        },
+        {
+          id: '2026.43525',
+          ticket: '2026.43525',
+          sedeCodigo: '7808',
+          sede: '7808 - Av. Petit Thouars Nº 397 Lima',
+          institucion: 'I.E.S. Particular Daniel Alcides Carrión',
+          tramiteId: 'T-008',
+          tramiteNombre: 'Certificado de Formación Continua (S1)',
+          carrera: 'PODOLOGÍA CLÍNICA Y ESTÉTICA - F1',
+          periodo: '2026-2',
+          seccion: '4PC02',
+          alumnoId: 'C24S103156',
+          alumnoCodigo: 'C24S103156',
+          alumnoNombre: 'VASQUEZ CHUQUI, Naomi',
+          alumnoDni: '73948512',
+          alumnoEmail: 'naomi.vasquez@carrion.edu.pe',
+          alumnoTelefono: '934567123',
+          alumnoCelular: '934567123',
+          estado: 'Solicitado',
+          activo: true,
+          fecha: '2026-09-25',
+          fechaHora: '2026-09-25 05:22:00 PM',
+          costo: 150.00,
+          conceptoCodigo: '33020109',
+          pago: {
+            estado: 'pendiente',
+            obligacionGenerada: false,
+            monto: 150.00,
+            carrera: 'Podología Clínica y Estética',
+            nroDocumento: '-',
+            fechaPago: null
+          },
+          detalle: 'Certificado modular formativo.',
+          requisitos: [
+            { id: 'REQ-01', orden: 1, titulo: 'Fotografía formal fondo blanco', archivo: 'FOTO_VASQUEZ.jpg', tipoArchivo: 'JPG', cumple: false, especificacion: 'Fondo blanco' }
+          ],
+          proceso: [
+            { orden: 1, area: 'Registros Académicos', plazoHoras: 48, diasRetraso: 0, observacionInterna: '', estado: 'Pendiente', fechaAtencion: null }
+          ],
+          mensajeSolicitante: '',
+          historial: [
+            { estado: 'Solicitado', fecha: '2026-09-25 05:22', nota: 'Solicitud registrada' }
+          ]
+        },
+        {
+          id: '2026.43524',
+          ticket: '2026.43524',
+          sedeCodigo: '7808',
+          sede: '7808 - Av. Petit Thouars Nº 397 Lima',
+          institucion: 'I.E.S. Particular Daniel Alcides Carrión',
+          tramiteId: 'T-006',
+          tramiteNombre: 'Constancia de Estudios',
+          carrera: 'TÉCNICA EN FISIOTERAPIA Y REHABILITACIÓN',
+          periodo: '2026-2',
+          seccion: '2FR01',
+          alumnoId: 'C26BR08408',
+          alumnoCodigo: 'C26BR08408',
+          alumnoNombre: 'CUBAS DIAZ, Luselina',
+          alumnoDni: '74829103',
+          alumnoEmail: 'luselina.cubas@carrion.edu.pe',
+          alumnoTelefono: '981234567',
+          alumnoCelular: '981234567',
+          estado: 'Solicitado',
+          activo: true,
+          fecha: '2026-09-25',
+          fechaHora: '2026-09-25 04:10:00 PM',
+          costo: 50.00,
+          conceptoCodigo: '33020101',
+          pago: {
+            estado: 'pendiente',
+            obligacionGenerada: false,
+            monto: 50.00,
+            carrera: 'Fisioterapia y Rehabilitación',
+            nroDocumento: '-',
+            fechaPago: null
+          },
+          detalle: 'Constancia para presentación de seguro estudiantil.',
+          requisitos: [],
+          proceso: [
+            { orden: 1, area: 'Registros Académicos', plazoHoras: 48, diasRetraso: 0, observacionInterna: '', estado: 'Pendiente', fechaAtencion: null }
+          ],
+          mensajeSolicitante: '',
+          historial: [
+            { estado: 'Solicitado', fecha: '2026-09-25 04:10', nota: 'Solicitud registrada' }
+          ]
+        },
+        {
+          id: '2026.43515',
+          ticket: '2026.43515',
+          sedeCodigo: '7803-2',
+          sede: '7803-2 - Jr. Larrabure y Unanue 110 Santa Beatriz, Lima',
+          institucion: 'Universidad Norbert Wiener',
+          tramiteId: 'T-009',
+          tramiteNombre: 'Título Profesional Técnico (MALLA LICENCIAMIENTO)',
+          carrera: 'ENFERMERÍA TÉCNICA',
+          periodo: '2026-1',
+          seccion: '6ET01',
+          alumnoId: 'C22AE01192',
+          alumnoCodigo: 'C22AE01192',
+          alumnoNombre: 'HUAMAN PAREDES, Rosa María',
+          alumnoDni: '72341908',
+          alumnoEmail: 'rosa.huaman@uwiener.edu.pe',
+          alumnoTelefono: '987654321',
+          alumnoCelular: '987654321',
+          estado: 'Aprobado',
+          activo: true,
+          fecha: '2026-09-20',
+          fechaHora: '2026-09-20 04:47:00 PM',
+          costo: 900.00,
+          conceptoCodigo: '33020109',
+          pago: {
+            estado: 'pagado',
+            obligacionGenerada: true,
+            monto: 900.00,
+            carrera: 'Enfermería Técnica',
+            nroDocumento: 'REC-2026-094182',
+            fechaPago: '2026-09-20 16:48:15',
+            fechaObligacion: '2026-09-20 16:47:00'
+          },
+          detalle: 'Expediente completo validado para expedición de diploma de título.',
+          requisitos: [
+            {
+              id: 'REQ-01',
+              orden: 1,
+              titulo: 'Grado de bachiller (ambos lados)',
+              archivo: 'BACHILLER_HUAMAN.pdf',
+              tipoArchivo: 'PDF',
+              cumple: true,
+              especificacion: 'Documento escaneado nítido'
+            },
+            {
+              id: 'REQ-02',
+              orden: 2,
+              titulo: 'Foto con indumentaria reglamentaria',
+              archivo: 'FOTO_ROSA.jpg',
+              tipoArchivo: 'JPG',
+              cumple: true,
+              especificacion: 'Fondo blanco'
+            }
+          ],
+          proceso: [
+            {
+              orden: 1,
+              area: 'Grados y Títulos',
+              plazoHoras: 48,
+              diasRetraso: 0,
+              observacionInterna: 'Atendido conforme. Expediente validado y carpetilla completa.',
+              estado: 'Atendido',
+              fechaAtencion: '2026-09-21 11:20 AM'
+            },
+            {
+              orden: 2,
+              area: 'Dirección Académica',
+              plazoHoras: 48,
+              diasRetraso: 0,
+              observacionInterna: 'Procede emisión de título profesional técnico.',
+              estado: 'Procede',
+              fechaAtencion: '2026-09-22 09:15 AM'
+            }
+          ],
+          mensajeSolicitante: 'Estimada estudiante, su trámite ha procedido satisfactoriamente. Se le notificará la fecha de entrega de diploma oficial.',
+          historial: [
+            { estado: 'Solicitado', fecha: '2026-09-20 16:47', nota: 'Solicitud registrada por el alumno' },
+            { estado: 'Solicitado', fecha: '2026-09-20 16:48', nota: 'Pago confirmado S/ 900 (REC-2026-094182)' },
+            { estado: 'En proceso', fecha: '2026-09-21 11:20', nota: 'Grados y Títulos: Atendido' },
+            { estado: 'Aprobado', fecha: '2026-09-22 09:15', nota: 'Dirección Académica: Procede' }
+          ]
+        },
+        {
+          id: '2026.43540',
+          ticket: '2026.43540',
+          sedeCodigo: '7803-2',
+          sede: '7803-2 - Jr. Larrabure y Unanue 110 Santa Beatriz, Lima',
+          institucion: 'Universidad Norbert Wiener',
+          tramiteId: 'T-004',
+          tramiteNombre: 'Constancia de Matrícula',
+          carrera: 'INGENIERÍA DE SISTEMAS E INFORMÁTICA',
+          periodo: '2026-2',
+          seccion: '8SI01',
+          alumnoId: 'U-ALU-1',
+          alumnoCodigo: '2021100345',
+          alumnoNombre: 'María Fernanda Quispe',
+          alumnoDni: '72845109',
+          alumnoEmail: 'a2021100345@uwiener.edu.pe',
+          alumnoTelefono: '984512390',
+          alumnoCelular: '984512390',
+          estado: 'Solicitado',
+          activo: true,
+          fecha: '2026-10-18',
+          fechaHora: '2026-10-18 09:30:00 AM',
+          costo: 25.00,
+          conceptoCodigo: '01010025',
+          pago: {
+            estado: 'pendiente',
+            obligacionGenerada: true,
+            monto: 25.00,
+            carrera: 'Ingeniería de Sistemas e Informática',
+            nroDocumento: 'NB-PENDIENTE',
+            fechaPago: null
+          },
+          detalle: 'Constancia oficial de matrícula para trámite administrativo y seguro médico.',
+          requisitos: [],
+          proceso: [
+            {
+              orden: 1,
+              area: 'Registros Académicos',
+              plazoHoras: 24,
+              diasRetraso: 0,
+              observacionInterna: 'Solicitud recién recibida en cola.',
+              estado: 'Pendiente',
+              fechaAtencion: null
+            }
+          ],
+          mensajeSolicitante: 'Tu solicitud ha sido registrada exitosamente y se encuentra en estado Solicitado a la espera de inicio de trámite.',
+          historial: [
+            { estado: 'Solicitado', fecha: '2026-10-18 09:30', nota: 'Solicitud registrada por el alumno' }
+          ]
+        },
+        {
+          id: '2026.43510',
+          ticket: '2026.43510',
+          sedeCodigo: '7803-2',
+          sede: '7803-2 - Jr. Larrabure y Unanue 110 Santa Beatriz, Lima',
+          institucion: 'Universidad Norbert Wiener',
+          tramiteId: 'T-001',
+          tramiteNombre: 'BECA IMPULSA 30%',
+          carrera: 'INGENIERÍA DE SISTEMAS E INFORMÁTICA',
+          periodo: '2026-2',
+          seccion: '8SI01',
+          alumnoId: 'U-ALU-1',
+          alumnoCodigo: '2021100345',
+          alumnoNombre: 'María Fernanda Quispe',
+          alumnoDni: '75481920',
+          alumnoEmail: 'a2021100345@uwiener.edu.pe',
+          alumnoTelefono: '984512390',
+          alumnoCelular: '984512390',
+          estado: 'En revisión',
+          activo: true,
+          fecha: '2026-09-18',
+          fechaHora: '2026-09-18 10:20:00 AM',
+          costo: 0.00,
+          conceptoCodigo: '00000000',
+          pago: {
+            estado: 'pagado',
+            obligacionGenerada: true,
+            monto: 0.00,
+            carrera: 'Ingeniería de Sistemas e Informática',
+            nroDocumento: 'COSTO CERO',
+            fechaPago: '2026-09-18 10:20:00'
+          },
+          detalle: 'Solicitud de beca institucional por excelencia académica en tercio superior.',
+          requisitos: [
+            { id: 'REQ-01', orden: 1, titulo: 'Certificado de voluntariado', archivo: 'CERT_VOLUNTARIADO.pdf', tipoArchivo: 'PDF', cumple: true, especificacion: 'Formato PDF' },
+            { id: 'REQ-02', orden: 2, titulo: 'DNI del solicitante', archivo: 'DNI_QUISPE.pdf', tipoArchivo: 'PDF', cumple: true, especificacion: 'Formato PDF' }
+          ],
+          proceso: [
+            { orden: 1, area: 'Registros Académicos', plazoHoras: 48, diasRetraso: 0, observacionInterna: 'Récord de notas validado: promedio ponderado 16.80.', estado: 'Atendido', fechaAtencion: '2026-09-19 14:00' },
+            { orden: 2, area: 'Retención y Fidelización', plazoHoras: 72, diasRetraso: 0, observacionInterna: 'Evaluación socioeconómica en curso.', estado: 'Pendiente', fechaAtencion: null }
+          ],
+          mensajeSolicitante: 'Estimada María Fernanda, tu expediente de Beca Impulsa está siendo evaluado por Retención y Fidelización.',
+          historial: [
+            { estado: 'Solicitado', fecha: '2026-09-18 10:20', nota: 'Solicitud registrada por el alumno' },
+            { estado: 'En revisión', fecha: '2026-09-19 14:00', nota: 'Registros Académicos: Validación de notas conforme' }
+          ]
+        },
+        {
+          id: '2026.43490',
+          ticket: '2026.43490',
+          sedeCodigo: '7803-1',
+          sede: '7803-1 - Av. Arequipa 440 Lima Centro',
+          institucion: 'Universidad Norbert Wiener',
+          tramiteId: 'T-007',
+          tramiteNombre: 'Constancia de Tercio Superior',
+          carrera: 'ADMINISTRACIÓN Y DIRECCIÓN DE EMPRESAS',
+          periodo: '2026-1',
+          seccion: '7AD02',
+          alumnoId: 'U-ALU-1',
+          alumnoCodigo: '2021100345',
+          alumnoNombre: 'María Fernanda Quispe',
+          alumnoDni: '72845109',
+          alumnoEmail: 'a2021100345@uwiener.edu.pe',
+          alumnoTelefono: '912345678',
+          alumnoCelular: '912345678',
+          estado: 'Emitido',
+          activo: true,
+          fecha: '2026-09-15',
+          fechaHora: '2026-09-15 08:30:00 AM',
+          costo: 40.00,
+          conceptoCodigo: '01010040',
+          pago: {
+            estado: 'pagado',
+            obligacionGenerada: true,
+            monto: 40.00,
+            carrera: 'Administración y Dirección de Empresas',
+            nroDocumento: 'NB-90370045',
+            fechaPago: '2026-09-15 08:35:10'
+          },
+          detalle: 'Constancia oficial para trámite de prácticas preprofesionales en entidad financiera.',
+          requisitos: [],
+          proceso: [
+            { orden: 1, area: 'Registros Académicos', plazoHoras: 24, diasRetraso: 0, observacionInterna: 'Verificado cuadro de méritos. Tercio superior confirmado.', estado: 'Atendido', fechaAtencion: '2026-09-15 11:00' },
+            { orden: 2, area: 'Dirección Académica', plazoHoras: 24, diasRetraso: 0, observacionInterna: 'Firma digital aplicada. Constancia emitida.', estado: 'Procede', fechaAtencion: '2026-09-15 14:20' }
+          ],
+          mensajeSolicitante: 'Tu constancia de tercio superior ya se encuentra disponible para su descarga en la intranet con firma digital válida.',
+          historial: [
+            { estado: 'Solicitado', fecha: '2026-09-15 08:30', nota: 'Solicitud registrada' },
+            { estado: 'Solicitado', fecha: '2026-09-15 08:35', nota: 'Pago confirmado vía Niubiz (NB-90370045)' },
+            { estado: 'Emitido', fecha: '2026-09-15 14:20', nota: 'Documento emitido con firma digital' }
+          ]
+        }
+      ]
+    };
+  }
+
+  function load() {
+    let raw = localStorage.getItem(KEY);
+    let s;
+    if (!raw) { localStorage.setItem(KEY, JSON.stringify(seed())); return load(); }
+    try { s = JSON.parse(raw); } catch (e) { s = seed(); localStorage.setItem(KEY, JSON.stringify(s)); return s; }
+
+    // Auto-migración si faltan áreas, requisitos o conceptos en el almacenamiento existente
+    let dirty = false;
+    const defaults = seed();
+    if (!s.areas || !Array.isArray(s.areas) || s.areas.length === 0) {
+      s.areas = defaults.areas;
+      dirty = true;
+    }
+    if (!s.requisitos || !Array.isArray(s.requisitos) || s.requisitos.length === 0) {
+      s.requisitos = defaults.requisitos;
+      dirty = true;
+    }
+    if (!s.conceptos || !Array.isArray(s.conceptos)) {
+      s.conceptos = defaults.conceptos;
+      dirty = true;
+    }
+    if (!s.sedesCatalogo || !Array.isArray(s.sedesCatalogo)) {
+      s.sedesCatalogo = defaults.sedesCatalogo;
+      dirty = true;
+    }
+    if (!s.colaboradores || !Array.isArray(s.colaboradores)) {
+      s.colaboradores = defaults.colaboradores;
+      dirty = true;
+    }
+
+    // Normalizar áreas existentes
+    if (s.areas) {
+      s.areas.forEach((a, idx) => {
+        if (!a.codigo) { a.codigo = a.id; dirty = true; }
+        if (!a.institucion) { a.institucion = 'Universidad Privada Norbert Wiener S.A.'; dirty = true; }
+        if (!a.fechaRegistro) { a.fechaRegistro = '2022-06-10'; dirty = true; }
+        if (!Array.isArray(a.sedes) || a.sedes.length === 0) {
+          a.sedes = [
+            { id: 'SED-1', nombre: '7803-2 --> LOCAL 1 / Jr. Larrabure y Unanue 110 Santa Beatriz, Lima', activo: true }
+          ];
+          dirty = true;
+        } else if (typeof a.sedes[0] === 'string') {
+          a.sedes = a.sedes.map((sNom, sIdx) => ({
+            id: 'SED-' + (sIdx + 1),
+            nombre: sNom.includes('-->') ? sNom : `7803-${sIdx + 1} --> ${sNom}`,
+            activo: true
+          }));
+          dirty = true;
+        }
+        if (!Array.isArray(a.responsables)) {
+          a.responsables = [];
+          dirty = true;
+        } else {
+          a.responsables.forEach((r, rIdx) => {
+            if (!r.personal) { r.personal = String(600000 + idx * 1000 + rIdx); dirty = true; }
+            if (!r.sede) {
+              r.sede = a.sedes && a.sedes[0] ? (typeof a.sedes[0] === 'string' ? a.sedes[0] : a.sedes[0].nombre) : '7803-2 --> LOCAL 1 / Jr. Larrabure y Unanue 110 Santa Beatriz, Lima';
+              dirty = true;
+            }
+            if (!r.cargo) { r.cargo = 'Responsable'; dirty = true; }
+            if (r.activo === undefined) { r.activo = true; dirty = true; }
+          });
+        }
+      });
+    }
+
+    // Asegurar compatibilidad en trámites existentes
+    if (s.tramites) {
+      // Si no están los trámites de referencia de producción, integrarlos
+      const tieneBeca30 = s.tramites.some(t => t.nombre && t.nombre.includes('BECA IMPULSA 30%'));
+      if (!tieneBeca30 && !s._catalogoBase) {
+        const seedTs = seed().tramites;
+        s.tramites = seedTs;
+        dirty = true;
+      }
+      if (!s._catalogoBase) { s._catalogoBase = true; dirty = true; }
+
+      s.tramites.forEach((t, idx) => {
+        if (!t.codigo) { t.codigo = t.id; dirty = true; }
+        if (t.tipoActivacion === undefined) { t.tipoActivacion = 'Permanente'; dirty = true; }
+        if (t.tiempoVigenciaHrs === undefined) { t.tiempoVigenciaHrs = 72; dirty = true; }
+        if (t.plazoRecojoDias === undefined) { t.plazoRecojoDias = t.diasEntrega || 3; dirty = true; }
+        if (t.envioCorreo === undefined) { t.envioCorreo = true; dirty = true; }
+        if (!t.fechaRegistro) { t.fechaRegistro = '2026-07-' + String(15 + (idx % 10)).padStart(2, '0'); dirty = true; }
+        if (t.observacion === undefined) { t.observacion = ''; dirty = true; }
+        if (!Array.isArray(t.requisitos)) {
+          t.requisitos = t.requiereAdjunto ? [
+            { id: 'REQ-002', titulo: 'DNI del paciente / solicitante', adjuntarArchivo: true, formato: 'PDF', activo: true, orden: 1 }
+          ] : [];
+          dirty = true;
+        }
+        if (!Array.isArray(t.proceso) || t.proceso.length === 0) {
+          t.proceso = [
+            { id: 'P-1', orden: 1, area: t.area || 'Registros Académicos', descripcion: 'revisa las notas', observacion: '', duracionDias: t.diasEntrega || 2, activo: true }
+          ];
+          if (t.area && t.area !== 'Soluciones Financieras') {
+            t.proceso.push({
+              id: 'P-2', orden: 2, area: 'Soluciones Financieras', descripcion: 'Validación de derechos de trámite y comprobante', observacion: '', duracionDias: 1, activo: true
+            });
+          }
+          dirty = true;
+        }
+        if (!Array.isArray(t.cronogramas)) {
+          t.cronogramas = [
+            { id: 'CR-01', grado: 'Pregrado', modalidad: 'Modalidad Ordinaria', facultad: 'Todas', carrera: 'Todas', periodo: '2026-1', fechaInicio: '2026-10-01', fechaFin: '2026-11-01', activo: true }
+          ];
+          dirty = true;
+        } else {
+          t.cronogramas.forEach((c, cIdx) => {
+            if (!c.id) { c.id = 'CR-' + (cIdx + 1); dirty = true; }
+            if (!c.grado) { c.grado = 'Pregrado'; dirty = true; }
+            if (!c.modalidad) { c.modalidad = 'Modalidad Ordinaria'; dirty = true; }
+            if (!c.facultad) { c.facultad = 'Todas'; dirty = true; }
+            if (!c.carrera) { c.carrera = 'Todas'; dirty = true; }
+            if (!c.periodo) { c.periodo = '2026-1'; dirty = true; }
+            if (!c.fechaInicio) { c.fechaInicio = '2026-10-01'; dirty = true; }
+            if (!c.fechaFin) { c.fechaFin = '2026-11-01'; dirty = true; }
+            if (c.activo === undefined) { c.activo = true; dirty = true; }
+          });
+        }
+        if (!Array.isArray(t.correos)) {
+          t.correos = [
+            {
+              id: 'MAIL-' + (t.id || 'T') + '-1',
+              tipoEstado: 'Aprobado',
+              remitente: 'cobranzas@uwiener.edu.pe',
+              password: '••••••••',
+              asunto: `CONFIRMACIÓN TRAMITE ${t.nombre.toUpperCase()}`,
+              cc: 'registros@uwiener.edu.pe',
+              contenido: `<div>Estimado estudiante:</div><br><div>Agradecemos su atención y le informamos que el trámite de <b>«${t.nombre}»</b> se realizó con éxito. Recuerde que podrá verificar su constancia o estado a través del portal institucional.</div>`,
+              activo: true
+            },
+            {
+              id: 'MAIL-' + (t.id || 'T') + '-2',
+              tipoEstado: 'Rechazado',
+              remitente: 'cobranzas@uwiener.edu.pe',
+              password: '••••••••',
+              asunto: `CONFIRMACIÓN TRAMITE ${t.nombre.toUpperCase()}`,
+              cc: 'registros@uwiener.edu.pe',
+              contenido: `<div>Estimado estudiante:</div><br><div>Le informamos que su trámite de <b>«${t.nombre}»</b> no ha cumplido con los requisitos y fue <b>RECHAZADO</b>. Ingrese a la plataforma para conocer las observaciones correspondientes.</div>`,
+              activo: true
+            },
+            {
+              id: 'MAIL-' + (t.id || 'T') + '-3',
+              tipoEstado: 'Observado',
+              remitente: 'cobranzas@uwiener.edu.pe',
+              password: '••••••••',
+              asunto: `CONFIRMACIÓN TRAMITE ${t.nombre.toUpperCase()}`,
+              cc: 'registros@uwiener.edu.pe',
+              contenido: `<div>Estimado estudiante:</div><br><div>Su trámite de <b>«${t.nombre}»</b> cuenta con observaciones pendientes. Por favor ingrese a su intranet para regularizar la documentación requerida dentro del plazo.</div>`,
+              activo: true
+            }
+          ];
+          dirty = true;
+        }
+        if (!t.correoConfig && t.correos[0]) {
+          t.correoConfig = {
+            remitente: t.correos[0].remitente,
+            asunto: t.correos[0].asunto,
+            mensaje: t.correos[0].contenido
+          };
+          dirty = true;
+        }
+      });
+    }
+
+    // Normalizar requisitos existentes
+    if (s.requisitos) {
+      s.requisitos.forEach((r, idx) => {
+        if (!r.codigo) { r.codigo = r.id; dirty = true; }
+        if (!r.fechaRegistro) { r.fechaRegistro = '2026-06-' + String(10 + idx).padStart(2, '0'); dirty = true; }
+        if (r.formato === 'PDF o JPG' || r.formato === 'ZIP o PDF') { r.formato = 'PDF'; dirty = true; }
+        if (r.formato === 'JPG o PNG') { r.formato = 'JPG'; dirty = true; }
+        if (!r.formato && r.requiereAdjunto) { r.formato = 'PDF'; dirty = true; }
+      });
+    }
+
+    // Normalizar solicitudes existentes (actualización a esquema Vista de Trámites)
+    if (!s.solicitudes || s.solicitudes.length < 8 || !s.solicitudes.some(x => x.ticket)) {
+      s.solicitudes = defaults.solicitudes;
+      dirty = true;
+    } else {
+      s.solicitudes.forEach((sol, idx) => {
+        if (!sol.ticket) { sol.ticket = sol.id || ('2026.' + (43530 - idx)); dirty = true; }
+        if (!sol.sedeCodigo) { sol.sedeCodigo = sol.sede ? sol.sede.slice(0, 4) : '7803'; dirty = true; }
+        if (!sol.sede) { sol.sede = '7803-2 - Jr. Larrabure y Unanue 110 Santa Beatriz, Lima'; dirty = true; }
+        if (!sol.institucion) {
+          sol.institucion = (sol.carrera && sol.carrera.toUpperCase().includes('TÉCNIC')) ? 'I.E.S. Particular Daniel Alcides Carrión' : 'Universidad Norbert Wiener';
+          dirty = true;
+        }
+        if (sol.activo === undefined) { sol.activo = sol.estado !== 'Cancelar'; dirty = true; }
+        if (!sol.pago) {
+          sol.pago = { estado: 'pendiente', obligacionGenerada: false, monto: sol.costo || 0, carrera: sol.carrera || '', nroDocumento: '-', fechaPago: null };
+          dirty = true;
+        }
+        if (sol.pago.obligacionGenerada === undefined) { sol.pago.obligacionGenerada = sol.pago.estado === 'pagado'; dirty = true; }
+        if (!Array.isArray(sol.requisitos)) { sol.requisitos = []; dirty = true; }
+        if (!Array.isArray(sol.proceso)) { sol.proceso = []; dirty = true; }
+        if (sol.mensajeSolicitante === undefined) { sol.mensajeSolicitante = sol.observacion || ''; dirty = true; }
+        if (!sol.fechaHora) { sol.fechaHora = sol.fecha + ' 10:00:00 AM'; dirty = true; }
+      });
+
+      // Asegurar que el trámite 'Solicitado' para María Fernanda Quispe exista en solicitudes
+      const tieneSolicitadoAlu1 = s.solicitudes.some(sol => sol.alumnoId === 'U-ALU-1' && (sol.estado === 'Solicitado' || sol.id === '2026.43540'));
+      if (!tieneSolicitadoAlu1) {
+        const tramiteSolicitado = defaults.solicitudes.find(sol => sol.id === '2026.43540') || {
+          id: '2026.43540',
+          ticket: '2026.43540',
+          sedeCodigo: '7803-2',
+          sede: '7803-2 - Jr. Larrabure y Unanue 110 Santa Beatriz, Lima',
+          institucion: 'Universidad Norbert Wiener',
+          tramiteId: 'T-004',
+          tramiteNombre: 'Constancia de Matrícula',
+          carrera: 'INGENIERÍA DE SISTEMAS E INFORMÁTICA',
+          periodo: '2026-2',
+          seccion: '8SI01',
+          alumnoId: 'U-ALU-1',
+          alumnoCodigo: '2021100345',
+          alumnoNombre: 'María Fernanda Quispe',
+          alumnoDni: '72845109',
+          alumnoEmail: 'a2021100345@uwiener.edu.pe',
+          alumnoTelefono: '984512390',
+          alumnoCelular: '984512390',
+          estado: 'Solicitado',
+          activo: true,
+          fecha: '2026-10-18',
+          fechaHora: '2026-10-18 09:30:00 AM',
+          costo: 25.00,
+          conceptoCodigo: '01010025',
+          pago: {
+            estado: 'pendiente',
+            obligacionGenerada: true,
+            monto: 25.00,
+            carrera: 'Ingeniería de Sistemas e Informática',
+            nroDocumento: 'NB-PENDIENTE',
+            fechaPago: null
+          },
+          detalle: 'Constancia oficial de matrícula para trámite administrativo y seguro médico.',
+          requisitos: [],
+          proceso: [
+            {
+              orden: 1,
+              area: 'Registros Académicos',
+              plazoHoras: 24,
+              diasRetraso: 0,
+              observacionInterna: 'Solicitud recién recibida en cola.',
+              estado: 'Pendiente',
+              fechaAtencion: null
+            }
+          ],
+          mensajeSolicitante: 'Tu solicitud ha sido registrada exitosamente y se encuentra en estado Solicitado a la espera de inicio de trámite.',
+          historial: [
+            { estado: 'Solicitado', fecha: '2026-10-18 09:30', nota: 'Solicitud registrada por el alumno' }
+          ]
+        };
+        s.solicitudes.unshift(tramiteSolicitado);
+        dirty = true;
+      }
+
+      // Asegurar que 2026.43490 pertenezca a U-ALU-1 para completar los 3 trámites
+      const solTercio = s.solicitudes.find(sol => sol.id === '2026.43490');
+      if (solTercio && solTercio.alumnoId !== 'U-ALU-1') {
+        solTercio.alumnoId = 'U-ALU-1';
+        solTercio.alumnoCodigo = '2021100345';
+        solTercio.alumnoNombre = 'María Fernanda Quispe';
+        solTercio.alumnoEmail = 'a2021100345@uwiener.edu.pe';
+        dirty = true;
+      }
+    }
+
+    // Normalizar usuarios y permisos
+    if (!s.usuarios || !Array.isArray(s.usuarios) || s.usuarios.length < 5) {
+      s.usuarios = defaults.usuarios;
+      dirty = true;
+    } else {
+      const uAdm1 = s.usuarios.find(u => u.codigo === 'ADM-0091' || u.id === 'U-ADM-1');
+      if (uAdm1) {
+        if (!uAdm1.permisos) uAdm1.permisos = ['tramites', 'solicitudes'];
+        if (!s._permisosBase && !uAdm1.permisos.includes('registrar')) {
+          uAdm1.permisos.push('registrar');
+          dirty = true;
+        }
+      }
+      defaults.usuarios.forEach(defU => {
+        const exist = s.usuarios.find(u => u.codigo === defU.codigo || u.id === defU.id);
+        if (!exist) {
+          s.usuarios.push(defU);
+          dirty = true;
+        } else if (defU.rol === 'alumno') {
+          if (!exist.carreras && defU.carreras) { exist.carreras = defU.carreras; dirty = true; }
+          if (!exist.telefono && defU.telefono) { exist.telefono = defU.telefono; dirty = true; }
+          if (!exist.celular && defU.celular) { exist.celular = defU.celular; dirty = true; }
+          if (!exist.institucion && defU.institucion) { exist.institucion = defU.institucion; dirty = true; }
+        }
+      });
+    }
+
+
+    // Migrar correos de alumnos al formato institucional: a{codigo}@uwiener.edu.pe
+    if (s.usuarios) {
+      s.usuarios.forEach(u => {
+        if (u.rol === 'alumno' && u.codigo && (!u.institucion || u.institucion.includes('Wiener'))) {
+          const expectedMail = 'a' + u.codigo + '@uwiener.edu.pe';
+          if (u.email !== expectedMail) {
+            u.email = expectedMail;
+            dirty = true;
+          }
+        }
+      });
+    }
+
+    if (s.solicitudes) {
+      s.solicitudes.forEach(sol => {
+        if (sol.alumnoCodigo === '2021100345' || sol.alumnoId === 'U-ALU-1') {
+          if (sol.alumnoEmail !== 'a2021100345@uwiener.edu.pe') {
+            sol.alumnoEmail = 'a2021100345@uwiener.edu.pe';
+            dirty = true;
+          }
+          if (sol.historial) {
+            sol.historial.forEach(h => {
+              if (h.nota && (h.nota.includes('mf.quispe@uwiener.edu.pe') || h.nota.includes('2021100345@uwiener.edu.pe'))) {
+                h.nota = h.nota.replace(/mf.quispe@uwiener.edu.pe/g, 'a2021100345@uwiener.edu.pe')
+                               .replace(/2021100345@uwiener.edu.pe/g, 'a2021100345@uwiener.edu.pe');
+                dirty = true;
+              }
+            });
+          }
+        }
+      });
+    }
+
+    // Asegurar intenciones en trámites para filtrado por categorías
+    if (s.tramites) {
+      const defIntenciones = {
+        'T-001': ['beca'],
+        'T-002': ['beca'],
+        'T-003': ['otros', 'matricula'],
+        'T-004': ['otros', 'matricula'],
+        'T-005': ['otros', 'matricula'],
+        'T-006': ['otros', 'matricula', 'practicas'],
+        'T-007': ['beca', 'practicas', 'otros'],
+        'T-008': ['grado', 'certificaciones', 'otros'],
+        'T-009': ['carne'],
+        'T-010': ['certificaciones', 'grado', 'practicas', 'otros']
+      };
+      s.tramites.forEach(t => {
+        if (!t.intenciones || !Array.isArray(t.intenciones) || t.intenciones.length === 0) {
+          t.intenciones = defIntenciones[t.id] || ['otros'];
+          dirty = true;
+        } else if (t.intenciones.includes('todos')) {
+          // 'todos' no es una categoría: era el valor por defecto del editor anterior
+          t.intenciones = t.intenciones.filter(x => x !== 'todos');
+          if (!t.intenciones.length) t.intenciones = ['otros'];
+          dirty = true;
+        }
+      });
+    }
+
+    // Asegurar que el trámite T-010 de Certificación Progresiva esté en s.tramites y con diasEntrega = 0
+    if (s.tramites) {
+      const certT = s.tramites.find(t => t.id === 'T-010' || (t.nombre && t.nombre.toLowerCase().includes('certificación progresiva')));
+      if (!certT) {
+        const seedCertT = seed().tramites.find(t => t.id === 'T-010');
+        if (seedCertT) {
+          s.tramites.push(seedCertT);
+          dirty = true;
+        }
+      } else if (certT.diasEntrega === undefined) {
+        certT.diasEntrega = 0;
+        dirty = true;
+      }
+    }
+    // Asegurar que el catálogo de certificaciones progresivas exista y tenga las de ISI
+    if (!s.certificacionesProgresivas || !Array.isArray(s.certificacionesProgresivas) || !s.certificacionesProgresivas.some(c => c.id === 'CP-ISI-01')) {
+      s.certificacionesProgresivas = seed().certificacionesProgresivas;
+      dirty = true;
+    }
+    // Asegurar colecciones complementarias
+    if (!s.programasCertificaciones) { s.programasCertificaciones = seed().programasCertificaciones; dirty = true; }
+    if (!s.programacionesEmision || s.programacionesEmision.length <= 1) { s.programacionesEmision = seed().programacionesEmision; dirty = true; }
+    if (!s.lotesEmision || s.lotesEmision.length <= 1) { s.lotesEmision = seed().lotesEmision; dirty = true; }
+
+    // Asegurar alumnos de ISI para auditoría
+    if (!s.usuarios.some(u => u.id === 'U-ALU-ISI-2')) {
+      const newUsers = seed().usuarios.filter(u => u.id.startsWith('U-ALU-ISI-'));
+      s.usuarios.push(...newUsers);
+      dirty = true;
+    }
+
+    // Actualizar perfil de U-ALU-1 si no tiene historialCursos
+    const alu1 = s.usuarios.find(u => u.id === 'U-ALU-1');
+    if (alu1 && (!alu1.historialCursos || !alu1.historialCursos.IG7062)) {
+      const seedAlu1 = seed().usuarios.find(u => u.id === 'U-ALU-1');
+      if (seedAlu1) {
+        alu1.historialCursos = seedAlu1.historialCursos;
+        alu1.perfil = Object.assign({}, alu1.perfil, seedAlu1.perfil);
+        dirty = true;
+      }
+    }
+
+    // Asegurar permiso de certificaciones para U-ADM-1
+    const adm1 = s.usuarios.find(u => u.id === 'U-ADM-1');
+    if (adm1 && adm1.permisos && !s._permisosBase && !adm1.permisos.includes('certificaciones')) {
+      adm1.permisos.push('certificaciones');
+      dirty = true;
+    }
+
+    // Asegurar solicitud de Sebastián Torres Vega como emitida para prueba de no duplicidad
+    if (!s.solicitudes.some(sol => sol.id === '2026.11024')) {
+      const solSebas = seed().solicitudes.find(sol => sol.id === '2026.11024');
+      if (solSebas) {
+        s.solicitudes.unshift(solSebas);
+        dirty = true;
+      }
+    }
+
+    // Asegurar que la solicitud pre-emitida exista para U-ALU-1
+    if (s.solicitudes && !s.solicitudes.some(sol => sol.certificacionId === 'CP-003' || (sol.tramiteNombre && sol.tramiteNombre.includes('Excel Intermedio')))) {
+      const solExcel = seed().solicitudes.find(sol => sol.id === '2026.43545');
+      if (solExcel) {
+        s.solicitudes.unshift(solExcel);
+        dirty = true;
+      }
+    }
+
+    // Los permisos de fábrica se reponen una sola vez: después manda lo que se asigne en Usuarios
+    if (!s._permisosBase) { s._permisosBase = true; dirty = true; }
+
+    if (dirty) save(s);
+    return s;
+  }
+  function save(db) { localStorage.setItem(KEY, JSON.stringify(db)); }
+
+  // -------- Reglas de elegibilidad (¿a quién se le muestra el trámite?) --------
+  function elegible(tramite, perfil) {
+    if (!tramite.activo) return false;
+    const a = tramite.audiencia || {};
+    if (a.niveles && a.niveles.length && !a.niveles.includes(perfil.nivel)) return false;
+    if (a.ciclos && a.ciclos.length && !a.ciclos.includes(perfil.ciclo)) return false;
+    if (a.minCreditos && perfil.creditos < a.minCreditos) return false;
+    if (a.promedioMin && perfil.promedio < a.promedioMin) return false;
+    if (a.tercioSuperior && !perfil.tercioSuperior) return false;
+    if (a.quintoSuperior && !perfil.quintoSuperior) return false;
+    return true;
+  }
+
+  // Texto legible de la audiencia configurada
+  function audienciaTexto(a) {
+    if (!a) return ['Todos los alumnos'];
+    const out = [];
+    if (a.niveles && a.niveles.length) out.push(a.niveles.map(n => n === 'pregrado' ? 'Pregrado' : 'Postgrado').join(' / '));
+    else out.push('Todos los niveles');
+    if (a.ciclos && a.ciclos.length) out.push('Ciclos: ' + a.ciclos.join(', '));
+    if (a.minCreditos) out.push('≥ ' + a.minCreditos + ' créditos');
+    if (a.promedioMin) out.push('Promedio ≥ ' + a.promedioMin);
+    if (a.tercioSuperior) out.push('Tercio superior');
+    if (a.quintoSuperior) out.push('Quinto superior');
+    return out;
+  }
+
+  // -------- Motivos por los que un alumno NO ve un trámite (texto llano) --------
+  function motivosNoElegible(tramite, perfil) {
+    const a = tramite.audiencia || {};
+    const p = perfil || {};
+    const out = [];
+    if (!tramite.activo) out.push('El trámite no está disponible por ahora');
+    if (a.niveles && a.niveles.length && !a.niveles.includes(p.nivel)) out.push('Solo para ' + a.niveles.map(n => n === 'pregrado' ? 'pregrado' : 'postgrado').join(' y '));
+    if (a.ciclos && a.ciclos.length && !a.ciclos.includes(p.ciclo)) out.push('Solo para los ciclos ' + a.ciclos.join(', ') + ' (estás en el ciclo ' + (p.ciclo || '-') + ')');
+    if (a.minCreditos && (p.creditos || 0) < a.minCreditos) out.push('Necesitas ' + a.minCreditos + ' créditos aprobados (tienes ' + (p.creditos || 0) + ')');
+    if (a.promedioMin && (p.promedio || 0) < a.promedioMin) out.push('Necesitas promedio de ' + a.promedioMin + ' o más (tienes ' + (p.promedio || 0) + ')');
+    if (a.tercioSuperior && !p.tercioSuperior) out.push('Solo para alumnos del tercio superior');
+    if (a.quintoSuperior && !p.quintoSuperior) out.push('Solo para alumnos del quinto superior');
+    return out;
+  }
+
+  // -------- Recorrido del trámite: única fuente para dibujar el flujo en todas las pantallas --------
+  function esInmediato(t) { return Number(t.diasEntrega) === 0; }
+  function tienePago(t) { return Number(t.costo) > 0; }
+  function etapasActivas(t) { return (t.proceso || []).filter(p => p.activo !== false).slice().sort((a, b) => (a.orden || 0) - (b.orden || 0)); }
+  function generaDocumento(t) { return t.plantilla && t.plantilla.generaDocumento !== undefined ? !!t.plantilla.generaDocumento : t.tipo !== 'Solicitud'; }
+
+  // Índice (entre las etapas activas) de la revisión tras la cual se cobra; -1 si se cobra al final.
+  // Solo aplica con pagoMomento 'despues' y pagoTrasEtapa = id de una etapa activa.
+  function etapaDePago(t) {
+    if (!tienePago(t) || t.pagoMomento !== 'despues' || !t.pagoTrasEtapa) return -1;
+    return etapasActivas(t).findIndex(p => p.id === t.pagoTrasEtapa);
+  }
+  function momentoPagoTexto(t) {
+    if (!tienePago(t)) return 'Sin costo';
+    if (t.pagoMomento !== 'despues') return 'Se paga al solicitar';
+    const i = etapaDePago(t);
+    return i >= 0 ? 'Se paga tras la revisión de ' + (etapasActivas(t)[i].area || 'un área') : 'Se paga después de la aprobación';
+  }
+
+  function flujoDe(t) {
+    const pasos = [];
+    const reqs = (t.requisitos || []).filter(r => r.activo !== false);
+    pasos.push({ tipo: 'solicitud', titulo: 'Solicitud', detalle: reqs.length ? reqs.length + (reqs.length === 1 ? ' requisito' : ' requisitos') : 'Sin requisitos' });
+    const pago = tienePago(t) ? { tipo: 'pago', titulo: 'Pago', detalle: 'S/ ' + Number(t.costo).toFixed(2) } : null;
+    if (pago && t.pagoMomento !== 'despues') pasos.push(pago);
+    const tras = etapaDePago(t);
+    etapasActivas(t).forEach((p, i) => {
+      pasos.push({
+        tipo: 'revision', indice: i, titulo: p.area || 'Área sin definir',
+        detalle: (p.duracionDias || 0) + (Number(p.duracionDias) === 1 ? ' día' : ' días'), tarea: p.descripcion || ''
+      });
+      if (pago && tras === i) pasos.push(pago);
+    });
+    if (t.requiereAprobacion) pasos.push({ tipo: 'aprobacion', titulo: 'Aprobación', detalle: t.area || 'Responsable' });
+    if (pago && t.pagoMomento === 'despues' && tras < 0) pasos.push(pago);
+    pasos.push({
+      tipo: 'entrega', titulo: generaDocumento(t) ? 'Entrega del documento' : 'Respuesta al alumno',
+      detalle: esInmediato(t) ? 'Inmediata' : (t.diasEntrega || 0) + (Number(t.diasEntrega) === 1 ? ' día hábil' : ' días hábiles')
+    });
+    return pasos;
+  }
+
+  // -------- Revisión de un trámite antes de publicarlo --------
+  // Devuelve [{ nivel: 'error' | 'aviso', paso, msg }]. 'paso' es el id de sección del diseñador.
+  function validarTramite(t) {
+    const out = [];
+    const add = (nivel, paso, msg) => out.push({ nivel, paso, msg });
+    if (!(t.nombre || '').trim()) add('error', 'basico', 'Falta el nombre del trámite');
+    if (!(t.descripcion || '').trim()) add('aviso', 'basico', 'Sin descripción: el alumno no sabrá para qué sirve');
+    if (!(t.intenciones || []).length) add('aviso', 'basico', 'Sin categoría: solo aparecerá en "Todos"');
+    const a = t.audiencia || {};
+    if (a.tercioSuperior && a.quintoSuperior) add('aviso', 'publico', 'Pide tercio y quinto superior a la vez: basta con quinto superior');
+    if (t.tipoActivacion === 'Cronograma') {
+      const cr = (t.cronogramas || []).filter(c => c.activo !== false);
+      if (!cr.length) add('error', 'publico', 'Disponible solo en fechas, pero no hay ninguna fecha activa');
+      (t.cronogramas || []).forEach((c, i) => {
+        if (c.fechaInicio && c.fechaFin && c.fechaFin < c.fechaInicio) add('error', 'publico', 'Fechas ' + (i + 1) + ': el fin es anterior al inicio');
+      });
+    }
+    (t.requisitos || []).forEach((r, i) => { if (!(r.titulo || '').trim()) add('error', 'requisitos', 'El requisito ' + (i + 1) + ' no tiene nombre'); });
+    if (tienePago(t) && !(t.conceptoCodigo || '').trim()) add('aviso', 'pago', 'Tiene costo pero no un concepto de cobro asociado');
+    if (tienePago(t) && !t.pagoMomento) add('error', 'pago', 'Falta indicar cuándo paga el alumno');
+    const et = etapasActivas(t);
+    if (!et.length && !esInmediato(t)) add('error', 'revision', 'Ningún área revisa este trámite. Agrega al menos una, o marca la entrega como inmediata');
+    (t.proceso || []).forEach((p, i) => {
+      if (!(p.area || '').trim()) add('error', 'revision', 'La etapa ' + (i + 1) + ' no tiene área');
+      if (!(p.descripcion || '').trim()) add('aviso', 'revision', 'La etapa ' + (i + 1) + ' no dice qué debe hacer el área');
+    });
+    const dias = et.reduce((n, p) => n + (Number(p.duracionDias) || 0), 0);
+    if (!esInmediato(t) && dias > (Number(t.diasEntrega) || 0)) add('aviso', 'entrega', 'Las áreas suman ' + dias + ' días, más que los ' + (t.diasEntrega || 0) + ' prometidos al alumno');
+    const pl = t.plantilla || {};
+    if (generaDocumento(t) && pl.cuerpo !== undefined && !(pl.cuerpo || '').trim()) add('error', 'entrega', 'El documento no tiene texto');
+    if (t.envioCorreo) {
+      const vistos = {};
+      (t.correos || []).filter(c => c.activo !== false).forEach(c => {
+        if (vistos[c.tipoEstado]) add('aviso', 'avisos', 'Hay dos correos activos para el estado "' + c.tipoEstado + '"');
+        vistos[c.tipoEstado] = true;
+        if (!(c.asunto || '').trim() || !(c.contenido || '').trim()) add('error', 'avisos', 'El correo de "' + c.tipoEstado + '" no tiene asunto o mensaje');
+        if (c.remitente && c.remitente.indexOf('@') < 0) add('error', 'avisos', 'El remitente del correo de "' + c.tipoEstado + '" no es una dirección válida');
+      });
+    }
+    return out;
+  }
+
+  function correosPorDefecto(nombre) {
+    const base = (estado, texto) => ({
+      id: 'MAIL-' + estado.slice(0, 3).toUpperCase() + '-' + Math.floor(Math.random() * 90000 + 10000),
+      tipoEstado: estado, remitente: 'tramites@uwiener.edu.pe', password: '', asunto: estado + ': ' + (nombre || 'tu trámite'),
+      cc: 'registros@uwiener.edu.pe', contenido: '<div>Estimado estudiante:</div><br><div>' + texto + '</div>', activo: true
+    });
+    return [
+      base('Aprobado', 'Tu trámite fue aprobado. Puedes ver el detalle en la intranet.'),
+      base('Observado', 'Tu trámite tiene una observación. Ingresa a la intranet para corregirla dentro del plazo.'),
+      base('Rechazado', 'Tu trámite no fue aprobado. En la intranet encontrarás el motivo.')
+    ];
+  }
+
+  // -------- Plantillas para empezar un trámite nuevo --------
+  const PLANTILLAS_TRAMITE = [
+    {
+      id: 'constancia', titulo: 'Constancia con pago al solicitar',
+      resumen: 'El alumno paga en línea, un área verifica y se emite el documento.',
+      datos: { tipo: 'Constancia', modelo: 'constancia', costo: 25, pagoMomento: 'antes', requiereAprobacion: false, diasEntrega: 2, plazoRecojoDias: 2,
+        proceso: [{ area: 'Registros Académicos', descripcion: 'Verificar la situación académica del alumno', duracionDias: 1 }] }
+    },
+    {
+      id: 'certificado', titulo: 'Certificado con revisión de documentos',
+      resumen: 'El alumno adjunta documentos, dos áreas revisan, se aprueba y se emite.',
+      datos: { tipo: 'Certificado', modelo: 'certificado', costo: 120, pagoMomento: 'antes', requiereAprobacion: true, diasEntrega: 7, plazoRecojoDias: 7,
+        requisitos: [{ id: 'REQ-002', titulo: 'Documento de identidad vigente (DNI / CE)', condiciones: 'Copia legible de ambas caras en un solo archivo.', adjuntarArchivo: true }],
+        proceso: [{ area: 'Registros Académicos', descripcion: 'Consolidar notas y actas', duracionDias: 3 }, { area: 'Grados y Títulos', descripcion: 'Emitir el certificado', duracionDias: 4 }] }
+    },
+    {
+      id: 'solicitud', titulo: 'Solicitud gratuita con evaluación',
+      resumen: 'Sin costo. El alumno sustenta su pedido y un área lo evalúa y responde.',
+      datos: { tipo: 'Solicitud', modelo: 'oficio', costo: 0, pagoMomento: 'despues', requiereAprobacion: true, diasEntrega: 5, plazoRecojoDias: 5,
+        proceso: [{ area: 'Registros Académicos', descripcion: 'Evaluar la solicitud y sus sustentos', duracionDias: 3 }] }
+    },
+    {
+      id: 'blanco', titulo: 'En blanco',
+      resumen: 'Empieza vacío y arma cada paso tú mismo.',
+      datos: { tipo: 'Constancia', modelo: 'constancia', costo: 0, pagoMomento: 'antes', requiereAprobacion: true, diasEntrega: 3, plazoRecojoDias: 3, proceso: [] }
+    }
+  ];
+
+  function hoyISO() {
+    const h = new Date();
+    return h.getFullYear() + '-' + String(h.getMonth() + 1).padStart(2, '0') + '-' + String(h.getDate()).padStart(2, '0');
+  }
+
+  function nuevoTramite(plantillaId) {
+    const pl = PLANTILLAS_TRAMITE.find(p => p.id === plantillaId) || PLANTILLAS_TRAMITE[PLANTILLAS_TRAMITE.length - 1];
+    const d = JSON.parse(JSON.stringify(pl.datos));
+    const t = Object.assign({
+      id: null, codigo: '', nombre: '', descripcion: '', observacion: '',
+      costo: 0, conceptoCodigo: '', conceptoServicio: '', tiempoVigenciaHrs: 48, plazoRecojoDias: 3, diasEntrega: 3,
+      tipoActivacion: 'Permanente', envioCorreo: true, activo: false, fechaRegistro: hoyISO(),
+      pagoMomento: 'antes', requiereAprobacion: true, area: 'Registros Académicos',
+      intenciones: [], requiereAdjunto: false, adjuntoIndicacion: '',
+      requisitos: [], proceso: [], cronogramas: [],
+      audiencia: { niveles: ['pregrado'], ciclos: [], minCreditos: 0, promedioMin: 0, tercioSuperior: false, quintoSuperior: false }
+    }, d);
+    t.requisitos = (t.requisitos || []).map((r, i) => Object.assign({ activo: true, orden: i + 1, adjuntarArchivo: true, condiciones: '' }, r));
+    t.proceso = (t.proceso || []).map((p, i) => Object.assign({ id: 'P-' + (i + 1), orden: i + 1, observacion: '', activo: true }, p));
+    if (t.proceso[0]) t.area = t.proceso[0].area;
+    t.requiereAdjunto = t.requisitos.some(r => r.adjuntarArchivo);
+    t.correos = correosPorDefecto('');
+    return t;
+  }
+
+  // Etapas con las que nace una solicitud: se copian del trámite configurado
+  function procesoParaSolicitud(t) {
+    const tras = etapaDePago(t || {});
+    return etapasActivas(t || {}).map((p, i) => ({
+      orden: i + 1, area: p.area, descripcion: p.descripcion || '', plazoHoras: (Number(p.duracionDias) || 1) * 24,
+      diasRetraso: 0, observacionInterna: '', estado: 'Pendiente', fechaAtencion: null,
+      cobrarAlTerminar: tras === i   // al atender esta área, la solicitud espera el pago del alumno
+    }));
+  }
+
+  window.DB = {
+    KEY, TIPOS, MODELOS, ESTADOS, CATEGORIAS, CRONO, ESTADOS_CORREO, PLANTILLAS_TRAMITE,
+    flujoDe, validarTramite, nuevoTramite, procesoParaSolicitud, motivosNoElegible, correosPorDefecto,
+    tienePago, esInmediato, generaDocumento, hoyISO, etapaDePago, momentoPagoTexto,
+    politicas() { return Object.assign({}, POLITICAS_DEFAULT, load().politicas || {}); },
+    setPolitica(clave, valor) { const db = load(); db.politicas = Object.assign({}, POLITICAS_DEFAULT, db.politicas || {}); db.politicas[clave] = !!valor; save(db); return db.politicas; },
+    duplicarTramite(id) {
+      const db = load();
+      const o = db.tramites.find(t => t.id === id);
+      if (!o) return null;
+      const c = JSON.parse(JSON.stringify(o));
+      c.id = siguienteId(db.tramites, 'T-'); c.codigo = c.id;
+      c.nombre = o.nombre + ' (copia)'; c.activo = false; c.fechaRegistro = hoyISO();
+      db.tramites.push(c); save(db); return c;
+    },
+    setTramiteActivo(id, activo) { const db = load(); const t = db.tramites.find(x => x.id === id); if (t) { t.activo = !!activo; save(db); } return t; },
+    load, save, reset() { const s = seed(); save(s); return s; },
+    elegible, audienciaTexto,
+    // helpers de acceso
+    certificacionesProgresivas(alumnoId) {
+      const db = load();
+      return db.certificacionesProgresivas || [];
+    },
+    getCertificacion(id) {
+      const db = load();
+      return (db.certificacionesProgresivas || []).find(c => c.id === id || c.codigo === id);
+    },
+    certificacionEmitida(alumnoId, certId) {
+      const db = load();
+      return (db.solicitudes || []).find(s => {
+        if (s.alumnoId !== alumnoId && s.alumnoCodigo !== alumnoId) return false;
+        if (s.estado !== 'Emitido') return false;
+        if (s.certificacionId && s.certificacionId === certId) return true;
+        const cert = (db.certificacionesProgresivas || []).find(c => c.id === certId);
+        if (cert && s.tramiteNombre && s.tramiteNombre.includes(cert.titulo)) return true;
+        return false;
+      });
+    },
+    tieneDeuda(usuario) {
+      if (!usuario) return false;
+      const p = usuario.perfil || {};
+      return (p.deuda && p.deuda > 0) || p.tieneDeuda === true;
+    },
+    tramites() { return load().tramites; },
+    solicitudes() { return load().solicitudes; },
+    usuarios() { return load().usuarios; },
+    buscarAlumnos(query, institucion) {
+      const db = load();
+      const q = (query || '').toLowerCase().trim();
+      const instNorm = (institucion || '').toLowerCase();
+      return (db.usuarios || []).filter(u => {
+        if (u.rol !== 'alumno') return false;
+        if (instNorm && instNorm !== 'todas') {
+          const uInst = (u.institucion || '').toLowerCase();
+          const matchInst = (instNorm.includes('wiener') && (uInst.includes('wiener') || !uInst.includes('carrión') && !uInst.includes('carrion'))) ||
+            (instNorm.includes('carrión') || instNorm.includes('carrion')) && (uInst.includes('carrión') || uInst.includes('carrion') || (u.carreras && u.carreras.some(c => c.toLowerCase().includes('técnic') || c.toLowerCase().includes('drenaje') || c.toLowerCase().includes('podolog'))));
+          if (!matchInst) return false;
+        }
+        if (!q) return true;
+        const match = (u.codigo || '').toLowerCase().includes(q) ||
+          (u.nombre || '').toLowerCase().includes(q) ||
+          (u.dni || '').toLowerCase().includes(q);
+        return match;
+      });
+    },
+    areas() { return load().areas || []; },
+    requisitos() { return load().requisitos || []; },
+    conceptos() { return load().conceptos || []; },
+    sedesCatalogo() { return load().sedesCatalogo || []; },
+    colaboradores() { return load().colaboradores || []; },
+    getTramite(id) { return load().tramites.find(t => t.id === id); },
+    getUsuario(id) { return load().usuarios.find(u => u.id === id); },
+    getArea(id) { return (load().areas || []).find(a => a.id === id); },
+    getRequisito(id) { return (load().requisitos || []).find(r => r.id === id || r.codigo === id); },
+    upsertTramite(t) {
+      const db = load();
+      const i = db.tramites.findIndex(x => x.id === t.id);
+      if (i >= 0) db.tramites[i] = t; else { t.id = siguienteId(db.tramites, 'T-'); if (!t.codigo) t.codigo = t.id; db.tramites.push(t); }
+      save(db); return t;
+    },
+    deleteTramite(id) { const db = load(); db.tramites = db.tramites.filter(t => t.id !== id); save(db); },
+    upsertArea(a) {
+      const db = load();
+      if (!db.areas) db.areas = [];
+      const i = db.areas.findIndex(x => x.id === a.id);
+      if (i >= 0) db.areas[i] = a; else { a.id = siguienteId(db.areas, 'A-'); db.areas.push(a); }
+      save(db); return a;
+    },
+    deleteArea(id) { const db = load(); db.areas = (db.areas || []).filter(a => a.id !== id); save(db); },
+    upsertRequisito(r) {
+      const db = load();
+      if (!db.requisitos) db.requisitos = [];
+      const i = db.requisitos.findIndex(x => x.id === r.id);
+      if (i >= 0) db.requisitos[i] = r; else { r.id = siguienteId(db.requisitos, 'REQ-'); r.codigo = r.id; db.requisitos.push(r); }
+      save(db); return r;
+    },
+    deleteRequisito(id) { const db = load(); db.requisitos = (db.requisitos || []).filter(r => r.id !== id); save(db); },
+    upsertUsuario(u) {
+      const db = load();
+      const i = db.usuarios.findIndex(x => x.id === u.id);
+      if (i >= 0) db.usuarios[i] = u; else { u.id = 'U-' + Date.now(); db.usuarios.push(u); }
+      save(db); return u;
+    },
+    addSolicitud(s) { const db = load(); db.solicitudes.unshift(s); save(db); return s; },
+    updateSolicitud(s) { const db = load(); const i = db.solicitudes.findIndex(x => x.id === s.id); if (i >= 0) db.solicitudes[i] = s; save(db); return s; },
+    getSolicitud(idOrTicket) { return load().solicitudes.find(s => s.id === idOrTicket || s.ticket === idOrTicket); },
+    generarObligacionPago(idOrTicket) {
+      const db = load();
+      const s = db.solicitudes.find(x => x.id === idOrTicket || x.ticket === idOrTicket);
+      if (!s) return null;
+      if (!s.pago) s.pago = { estado: 'pendiente', monto: s.costo };
+      s.pago.obligacionGenerada = true;
+      const now = new Date();
+      s.pago.fechaObligacion = now.toISOString().slice(0, 10) + ' ' + now.toTimeString().slice(0, 5);
+      if (!s.historial) s.historial = [];
+      s.historial.push({
+        estado: s.estado,
+        fecha: s.pago.fechaObligacion,
+        nota: 'Obligación de pago generada por el administrativo (Monto: S/ ' + Number(s.pago.monto || s.costo).toFixed(2) + ')'
+      });
+      save(db);
+      return s;
+    },
+    simularPagoSolicitud(idOrTicket) {
+      const db = load();
+      const s = db.solicitudes.find(x => x.id === idOrTicket || x.ticket === idOrTicket);
+      if (!s) return null;
+      if (!s.pago) s.pago = { monto: s.costo };
+      s.pago.estado = 'pagado';
+      s.pago.obligacionGenerada = true;
+      const now = new Date();
+      s.pago.fechaPago = now.toISOString().slice(0, 10) + ' ' + now.toTimeString().slice(0, 8);
+      s.pago.nroDocumento = 'REC-' + new Date().getFullYear() + '-' + Math.floor(100000 + Math.random() * 900000);
+      if (!s.historial) s.historial = [];
+      s.historial.push({
+        estado: s.estado,
+        fecha: s.pago.fechaPago,
+        nota: 'Pago confirmado en caja / pasarela (Doc: ' + s.pago.nroDocumento + ')'
+      });
+      save(db);
+      return s;
+    },
+    cambiarArchivoRequisito(idOrTicket, reqId, nuevoNombreArchivo) {
+      const db = load();
+      const s = db.solicitudes.find(x => x.id === idOrTicket || x.ticket === idOrTicket);
+      if (!s) return null;
+      if (!s.historial) s.historial = [];
+      const r = (s.requisitos || []).find(x => x.id === reqId);
+      if (r) {
+        const anterior = r.archivo;
+        r.archivo = nuevoNombreArchivo;
+        const now = new Date();
+        const fechaStr = now.toISOString().slice(0, 10) + ' ' + now.toTimeString().slice(0, 5);
+        s.historial.push({
+          estado: s.estado,
+          fecha: fechaStr,
+          nota: `Archivo de requisito «${(r.titulo || '').slice(0, 30)}» actualizado de [${anterior}] a [${nuevoNombreArchivo}] por el administrativo`
+        });
+        save(db);
+      }
+      return s;
+    },
+    toggleCumpleRequisito(idOrTicket, reqId, cumple) {
+      const db = load();
+      const s = db.solicitudes.find(x => x.id === idOrTicket || x.ticket === idOrTicket);
+      if (!s) return null;
+      const r = (s.requisitos || []).find(x => x.id === reqId);
+      if (r) {
+        r.cumple = cumple;
+        save(db);
+      }
+      return s;
+    },
+    grabarMensajeSolicitante(idOrTicket, mensaje) {
+      const db = load();
+      const s = db.solicitudes.find(x => x.id === idOrTicket || x.ticket === idOrTicket);
+      if (!s) return null;
+      s.mensajeSolicitante = mensaje;
+      if (!s.historial) s.historial = [];
+      const now = new Date();
+      const fechaStr = now.toISOString().slice(0, 10) + ' ' + now.toTimeString().slice(0, 5);
+      s.historial.push({
+        estado: s.estado,
+        fecha: fechaStr,
+        nota: 'Mensaje institucional grabado para el estudiante'
+      });
+      save(db);
+      return s;
+    },
+    actualizarEstadoSolicitud(idOrTicket, nuevoEstado, activo) {
+      const db = load();
+      const s = db.solicitudes.find(x => x.id === idOrTicket || x.ticket === idOrTicket);
+      if (!s) return null;
+      s.estado = nuevoEstado;
+      if (activo !== undefined) s.activo = activo;
+      if (!s.historial) s.historial = [];
+      const now = new Date();
+      const fechaStr = now.toISOString().slice(0, 10) + ' ' + now.toTimeString().slice(0, 5);
+      s.historial.push({
+        estado: s.estado,
+        fecha: fechaStr,
+        nota: 'Estado actualizado a «' + nuevoEstado + '» (Activo: ' + (s.activo ? 'Sí' : 'No') + ')'
+      });
+      save(db);
+      return s;
+    },
+    avanzarEtapaProceso(idOrTicket, ordenEtapa, observacionInterna) {
+      const db = load();
+      const s = db.solicitudes.find(x => x.id === idOrTicket || x.ticket === idOrTicket);
+      if (!s) return null;
+      const step = (s.proceso || []).find(p => p.orden === ordenEtapa);
+      if (step) {
+        step.estado = 'Procede';
+        if (observacionInterna !== undefined) step.observacionInterna = observacionInterna;
+        const now = new Date();
+        step.fechaAtencion = now.toISOString().slice(0, 10) + ' ' + now.toTimeString().slice(0, 5);
+        const todasAtendidas = s.proceso.every(p => p.estado === 'Atendido' || p.estado === 'Procede');
+        if (todasAtendidas) {
+          s.estado = 'Aprobado';
+        }
+        if (!s.historial) s.historial = [];
+        s.historial.push({
+          estado: s.estado,
+          fecha: step.fechaAtencion,
+          nota: `Etapa ${ordenEtapa} (${step.area}) atendida: Procede. Obs: ${observacionInterna || 'Conforme'}`
+        });
+        save(db);
+      }
+      return s;
+    },
+    subsanarSolicitud(id, { nota, adjuntoNombre }) {
+      const db = load();
+      const s = db.solicitudes.find(x => x.id === id);
+      if (!s) return null;
+      s.estado = 'En revisión';
+      s.requiereSubsanacion = false;
+      s.observacion = 'Subsanación ingresada por el alumno. En cola de revisión prioritaria.';
+      if (adjuntoNombre) s.adjunto = adjuntoNombre;
+      const now = new Date();
+      const fechaStr = now.toISOString().slice(0, 10) + ' ' + now.toTimeString().slice(0, 5);
+      s.historial.push({
+        estado: 'En revisión',
+        fecha: fechaStr,
+        nota: 'Subsanación enviada: ' + (nota || 'Requisito actualizado por el alumno') + (adjuntoNombre ? ' (Archivo: ' + adjuntoNombre + ')' : '')
+      });
+      save(db);
+      return s;
+    },
+
+    // ======== MÓDULO EMISIÓN MASIVA DE CERTIFICACIONES PROGRESIVAS ========
+    programasCertificaciones() {
+      const db = load();
+      return db.programasCertificaciones || seed().programasCertificaciones || [];
+    },
+    programacionesEmision() {
+      const db = load();
+      return db.programacionesEmision || [];
+    },
+    lotesEmision() {
+      const db = load();
+      return db.lotesEmision || [];
+    },
+    programarEmisionMasiva(datos) {
+      const db = load();
+      if (!db.programacionesEmision) db.programacionesEmision = [];
+      const item = {
+        id: datos.id || ('PROG-' + Date.now()),
+        nombre: datos.nombre || 'Emisión Programada Cierre de Ciclo',
+        programaId: datos.programaId || 'PROG-ISI',
+        programaNombre: datos.programaNombre || 'Ingeniería de Sistemas e Informática',
+        certificacionId: datos.certificacionId || 'CP-ISI-01',
+        certificacionTitulo: datos.certificacionTitulo || 'Certificación en "Gestión de Procesos y Datos Digitales"',
+        cicloOtorgamiento: datos.cicloOtorgamiento || 'Ciclo VI',
+        periodo: datos.periodo || '2026-II',
+        fechaEjecucion: datos.fechaEjecucion || new Date().toISOString(),
+        estado: datos.estado || 'Programado',
+        creadoPor: datos.creadoPor || 'Carlos Mendoza Ríos (Registros Académicos)',
+        fechaCreacion: datos.fechaCreacion || new Date().toISOString().slice(0, 10),
+        alumnosEstimados: datos.alumnosEstimados || 40,
+        reglas: datos.reglas || { notaMinima: 14.0, exigirSinDeuda: true, omitirYaEmitidos: true },
+        canalDespacho: 'Correo institucional @uwiener.edu.pe',
+        frecuencia: datos.frecuencia || 'Única al cierre de ciclo',
+        observacion: datos.observacion || 'Ejecución programada automática por cierre de periodo lectivo.'
+      };
+      db.programacionesEmision.unshift(item);
+      save(db);
+      return item;
+    },
+    actualizarProgramacionEmision(id, datos) {
+      const db = load();
+      if (!db.programacionesEmision) db.programacionesEmision = [];
+      const idx = db.programacionesEmision.findIndex(p => p.id === id);
+      if (idx !== -1) {
+        db.programacionesEmision[idx] = Object.assign({}, db.programacionesEmision[idx], datos, {
+          id: id,
+          fechaModificacion: new Date().toLocaleString('es-PE')
+        });
+        save(db);
+        return db.programacionesEmision[idx];
+      }
+      return null;
+    },
+    eliminarProgramacionEmision(id) {
+      const db = load();
+      db.programacionesEmision = (db.programacionesEmision || []).filter(p => p.id !== id);
+      save(db);
+      return { ok: true };
+    },
+    togglePausaProgramacion(id) {
+      const db = load();
+      const item = (db.programacionesEmision || []).find(p => p.id === id);
+      if (item) {
+        item.estado = item.estado === 'Pausado' ? 'Programado' : 'Pausado';
+        save(db);
+      }
+      return item;
+    },
+    ejecutarProgramacionEmision(id) {
+      const db = load();
+      const prog = (db.programacionesEmision || []).find(p => p.id === id);
+      if (!prog) throw new Error('Programación no encontrada: ' + id);
+
+      let targetCertId = prog.certificacionId;
+      if (!targetCertId || targetCertId === 'TODAS') {
+        targetCertId = 'CP-ISI-01';
+      }
+
+      const res = this.emitirCertificacionesMasivas(null, targetCertId, {
+        periodo: prog.periodo || '2026-II',
+        notaMinima: (prog.reglas && prog.reglas.notaMinima) || 14.0,
+        exigirSinDeuda: prog.reglas ? prog.reglas.exigirSinDeuda !== false : true,
+        omitirYaEmitidos: prog.reglas ? prog.reglas.omitirYaEmitidos !== false : true
+      });
+
+      prog.estado = 'Completado';
+      prog.fechaUltimaEjecucion = new Date().toLocaleString('es-PE');
+      prog.ultimoLoteId = res.loteId;
+      save(db);
+
+      return { prog, resultado: res };
+    },
+    getLoteEmision(id) {
+      const db = load();
+      return (db.lotesEmision || []).find(l => l.id === id);
+    },
+    cancelarProgramacionEmision(id) {
+      return this.togglePausaProgramacion(id);
+    },
+    evaluarAlumnosCertificacion(certId, opciones = {}) {
+      const db = load();
+      const cert = (db.certificacionesProgresivas || []).find(c => c.id === certId || c.codigo === certId);
+      if (!cert) return [];
+
+      const notaMinima = opciones.notaMinima != null ? Number(opciones.notaMinima) : 14.0;
+      const exigirSinDeuda = opciones.exigirSinDeuda !== false;
+      const omitirYaEmitidos = opciones.omitirYaEmitidos !== false;
+      const modalidadFiltro = opciones.modalidad || 'todas';
+      const cicloFiltro = opciones.ciclo || 'todos';
+
+      // Alumnos de la carrera
+      const alumnos = (db.usuarios || []).filter(u => {
+        if (u.rol !== 'alumno') return false;
+        const prog = (u.perfil && u.perfil.programa) || (u.carreras && u.carreras[0]) || '';
+        const matchProg = prog.toLowerCase().includes('sistemas') || prog.toLowerCase().includes(cert.carrera.toLowerCase());
+        if (!matchProg) return false;
+        if (modalidadFiltro !== 'todas') {
+          const mod = (u.perfil && u.perfil.modalidad) || 'Presencial';
+          if (mod.toLowerCase() !== modalidadFiltro.toLowerCase()) return false;
+        }
+        if (cicloFiltro !== 'todos') {
+          const c = (u.perfil && u.perfil.ciclo) || 0;
+          if (String(c) !== String(cicloFiltro)) return false;
+        }
+        return true;
+      });
+
+      return alumnos.map(alumno => {
+        const perfil = alumno.perfil || {};
+        const historial = alumno.historialCursos || {};
+        const deudaMonto = Number(perfil.deuda || alumno.deuda || 0);
+        const tieneDeuda = deudaMonto > 0;
+
+        const cursosDetalle = cert.cursos.map(cur => {
+          const info = historial[cur.codigo] || historial[cur.nombre] || null;
+          // Si el alumno tiene historial académico y el curso no está registrado, no ha sido cursado
+          const nota = info ? Number(info.nota) : (alumno.historialCursos ? null : (cur.nota != null ? Number(cur.nota) : null));
+          const cursado = nota !== null;
+          const aprobado = cursado && nota >= notaMinima;
+          return {
+            codigo: cur.codigo,
+            nombre: cur.nombre,
+            ciclo: cur.ciclo,
+            creditaje: cur.creditaje,
+            tipo: cur.tipo,
+            nota: nota,
+            cursado: cursado,
+            aprobado: aprobado,
+            cumpleNotaMinima: cursado ? nota >= notaMinima : false
+          };
+        });
+
+        const totalCursos = cert.cursos.length;
+        const cursosAprobados = cursosDetalle.filter(c => c.aprobado).length;
+        const cursosCompletos = cursosAprobados === totalCursos;
+
+        const notasList = cursosDetalle.filter(c => c.nota !== null).map(c => c.nota);
+        const promedio = notasList.length ? (notasList.reduce((a, b) => a + b, 0) / notasList.length).toFixed(1) : 0;
+        const cursosBajaNota = cursosDetalle.filter(c => c.cursado && c.nota < notaMinima);
+        const cursosFaltantes = cursosDetalle.filter(c => !c.cursado);
+
+        const emisionPrevia = (db.solicitudes || []).find(s => {
+          if (s.alumnoId !== alumno.id && s.alumnoCodigo !== alumno.codigo) return false;
+          if (s.estado !== 'Emitido') return false;
+          if (s.certificacionId === cert.id) return true;
+          if (s.certificacionTitulo && s.certificacionTitulo === cert.titulo) return true;
+          if (s.tramiteNombre && s.tramiteNombre.includes(cert.titulo)) return true;
+          return false;
+        });
+
+        let apto = true;
+        let motivo = 'Cumple con todos los requisitos académicos y financieros (Apto para emisión gratuita)';
+        let estadoClase = 'apto';
+
+        if (omitirYaEmitidos && emisionPrevia) {
+          apto = false;
+          estadoClase = 'emitido';
+          motivo = `Certificación ya emitida previamente el ${emisionPrevia.fecha || 'anteriormente'} (${emisionPrevia.id}) - Omitido por regla de no duplicidad`;
+        } else if (!cursosCompletos) {
+          apto = false;
+          if (cursosBajaNota.length > 0) {
+            estadoClase = 'nota';
+            motivo = `Nota menor al mínimo de ${notaMinima.toFixed(2)} en: ${cursosBajaNota.map(c => `${c.codigo} [Nota ${c.nota}]`).join(', ')}`;
+          } else {
+            estadoClase = 'incompleto';
+            motivo = `Cursos incompletos: ${cursosAprobados} de ${totalCursos} asignaturas aprobadas. Pendiente: ${cursosFaltantes.map(c => c.codigo || c.nombre).join(', ')}`;
+          }
+        } else if (exigirSinDeuda && tieneDeuda) {
+          apto = false;
+          estadoClase = 'deuda';
+          motivo = `Registra deuda financiera pendiente de S/ ${deudaMonto.toFixed(2)} (${perfil.detalleDeuda || 'Aranceles/pensiones'})`;
+        }
+
+        return {
+          alumnoId: alumno.id,
+          codigo: alumno.codigo,
+          nombre: alumno.nombre,
+          email: alumno.email,
+          dni: alumno.dni,
+          programa: perfil.programa || cert.carrera,
+          ciclo: perfil.ciclo || 8,
+          modalidad: perfil.modalidad || 'Presencial',
+          certificacionId: cert.id,
+          certificacionTitulo: cert.titulo,
+          cursosTotal: totalCursos,
+          cursosAprobados: cursosAprobados,
+          promedio: promedio,
+          cursosDetalle: cursosDetalle,
+          deudaMonto: deudaMonto,
+          tieneDeuda: tieneDeuda,
+          detalleDeuda: perfil.detalleDeuda || null,
+          emisionPrevia: emisionPrevia,
+          apto: apto,
+          estadoClase: estadoClase,
+          motivo: motivo
+        };
+      });
+    },
+    emitirCertificacionesMasivas(alumnosIds, certId, opciones = {}) {
+      const db = load();
+      const cert = (db.certificacionesProgresivas || []).find(c => c.id === certId || c.codigo === certId);
+      if (!cert) throw new Error('Certificación no encontrada: ' + certId);
+
+      const evaluados = this.evaluarAlumnosCertificacion(cert.id, opciones);
+      const targetIds = (Array.isArray(alumnosIds) && alumnosIds.length > 0)
+        ? alumnosIds
+        : evaluados.filter(e => e.apto).map(e => e.alumnoId);
+
+      const loteNum = (db.lotesEmision || []).length + 1;
+      const loteId = 'LOTE-' + (opciones.periodo || '2026-II') + '-ISI-' + String(loteNum).padStart(2, '0');
+      const fechaNow = new Date().toISOString().slice(0, 10);
+      const fechaHoraNow = new Date().toLocaleString('es-PE');
+      const periodo = opciones.periodo || '2026-II';
+      const emitidos = [];
+
+      for (const aluId of targetIds) {
+        const ev = evaluados.find(e => e.alumnoId === aluId);
+        if (!ev) continue;
+        if (!ev.apto && !opciones.forzar) continue;
+
+        const alumno = db.usuarios.find(u => u.id === aluId);
+        if (!alumno) continue;
+
+        const solId = '2026.' + Math.floor(80000 + Math.random() * 19999);
+        const nuevaSol = {
+          id: solId,
+          ticket: solId,
+          sedeCodigo: '7803-2',
+          sede: '7803-2 - Jr. Larrabure y Unanue 110 Santa Beatriz, Lima',
+          institucion: 'Universidad Norbert Wiener',
+          tramiteId: 'T-010',
+          tramiteNombre: 'Certificación Progresiva: ' + cert.titulo,
+          certificacionId: cert.id,
+          certificacionTitulo: cert.titulo,
+          cicloOtorgamiento: cert.cicloOtorgamiento || 'Ciclo VI',
+          carrera: alumno.perfil?.programa || cert.carrera,
+          periodo: periodo,
+          seccion: (alumno.perfil?.ciclo || 8) + 'SI01',
+          alumnoId: alumno.id,
+          alumnoCodigo: alumno.codigo,
+          alumnoNombre: alumno.nombre,
+          alumnoDni: alumno.dni,
+          alumnoEmail: alumno.email,
+          alumnoTelefono: alumno.telefono || '945112233',
+          alumnoCelular: alumno.celular || '51945112233',
+          estado: 'Emitido',
+          activo: true,
+          fecha: fechaNow,
+          fechaHora: fechaHoraNow,
+          costo: 0.00,
+          conceptoCodigo: '01020120',
+          origen: 'Emisión Masiva Admin - Gratuita',
+          loteId: loteId,
+          pago: {
+            estado: 'exonerado',
+            obligacionGenerada: false,
+            monto: 0.00,
+            metodo: 'Gratuito - Emisión Institucional Masiva',
+            carrera: alumno.perfil?.programa || cert.carrera,
+            nroDocumento: 'GRATUITO-MASIVO-' + solId,
+            operacion: 'INST-2026-CP-' + solId
+          },
+          detalle: `Emisión masiva institucional gratuita de ${cert.titulo} por cierre de ciclo ${periodo}.`,
+          requisitos: [],
+          proceso: [
+            { orden: 1, area: 'Registros Académicos', plazoHoras: 0, diasRetraso: 0, observacionInterna: 'Emisión masiva aprobada de oficio.', estado: 'Atendido', fechaAtencion: fechaNow }
+          ],
+          mensajeSolicitante: `Tu ${cert.titulo} ha sido emitida de forma gratuita institucional por cierre de ciclo y enviada a tu correo institucional ${alumno.email}. Ya puedes visualizarla y descargarla en 'Mis documentos'.`,
+          historial: [
+            {
+              fecha: fechaHoraNow,
+              estado: 'Emitido',
+              nota: `Emisión masiva institucional gratuita de Certificación Progresiva (${cert.titulo}) por cierre de ciclo ${periodo}. Validado cumplimiento de nota mínima ≥ 14.00 y solvencia económica sin deuda. Notificado a correo institucional ${alumno.email}`,
+              usuario: 'Carlos Mendoza Ríos (Registros Académicos)'
+            }
+          ]
+        };
+
+        db.solicitudes.unshift(nuevaSol);
+        emitidos.push(nuevaSol);
+      }
+
+      if (!db.lotesEmision) db.lotesEmision = [];
+      const nuevoLote = {
+        id: loteId,
+        fecha: new Date().toISOString().slice(0, 19).replace('T', ' '),
+        fechaFormato: fechaHoraNow,
+        programa: cert.programa || cert.carrera,
+        programaId: cert.programaId || 'PROG-ISI',
+        certificacionId: cert.id,
+        certificacionTitulo: cert.titulo,
+        cicloOtorgamiento: cert.cicloOtorgamiento || 'Ciclo VI',
+        periodo: periodo,
+        totalAlumnos: emitidos.length,
+        tasaEntrega: '100% (' + emitidos.length + '/' + emitidos.length + ')',
+        canalDespacho: 'Correo Institucional (@uwiener.edu.pe)',
+        estado: 'Despachado',
+        usuario: 'Carlos Mendoza Ríos (Registros Académicos)',
+        tipo: 'Cierre de Ciclo Masivo Gratuito',
+        alumnosEmitidos: emitidos.map(e => ({
+          codigo: e.alumnoCodigo,
+          nombre: e.alumnoNombre,
+          email: e.alumnoEmail,
+          folio: e.id,
+          fecha: fechaHoraNow
+        }))
+      };
+
+      db.lotesEmision.unshift(nuevoLote);
+      save(db);
+      return { loteId, nuevoLote, emitidos, total: emitidos.length };
+    },
+    resetCertificaciones() {
+      const db = load();
+      // Eliminar solicitudes generadas por emisión masiva gratuita reciente
+      db.solicitudes = (db.solicitudes || []).filter(s => {
+        if (s.id === '2026.11024') return true; // Mantener la de Sebastián para regla de duplicidad
+        if (s.origen === 'Emisión Masiva Admin - Gratuita' && !s.loteId?.startsWith('LOTE-2026-I-ISI-')) return false;
+        return true;
+      });
+      // Restaurar lotes y programaciones base de seed
+      db.lotesEmision = seed().lotesEmision;
+      db.programacionesEmision = seed().programacionesEmision;
+      save(db);
+      return { ok: true, message: 'Data de emisión masiva reiniciada a valores base' };
+    }
+  };
+
+  window.resetCertificaciones = () => DB.resetCertificaciones();
+})();

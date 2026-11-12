@@ -1,0 +1,1707 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Bandeja de solicitudes · Intranet Universidad Norbert Wiener</title>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Lato:wght@400;700;900&family=Roboto:wght@400;500;700&display=swap"
+    rel="stylesheet">
+  <link rel="stylesheet" href="../css/styles.css">
+  <style>
+    /* Estilos propios de la bandeja. Solo tokens de :root. */
+    [hidden] {
+      display: none !important;
+    }
+
+    .kpi-filter:focus-visible,
+    .sol-chip button:focus-visible,
+    .btn-link:focus-visible {
+      outline: 2px solid var(--brand);
+      outline-offset: 2px;
+    }
+
+    .sol-filtros-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-bottom: 14px;
+    }
+
+    .sol-filtros-head h2 {
+      font-size: 15px;
+      font-weight: 700;
+    }
+
+    #sol-filtros .vt-filter-grid {
+      margin-bottom: 0;
+    }
+
+    #sol-filtros .vt-filter-grid + .vt-filter-grid {
+      margin-top: 14px;
+    }
+
+    .sol-chips {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 8px;
+      margin: 0 0 14px 0;
+    }
+
+    .sol-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      max-width: 100%;
+      padding: 3px 4px 3px 10px;
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      background: var(--surface);
+      font-size: 12.5px;
+      font-weight: 600;
+      color: var(--text-soft);
+      overflow-wrap: anywhere;
+    }
+
+    .sol-chip button {
+      width: 24px;
+      height: 24px;
+      flex-shrink: 0;
+      padding: 0;
+      border: none;
+      border-radius: 50%;
+      background: var(--surface-2);
+      color: var(--text-soft);
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .sol-chip button:hover {
+      background: var(--err-bg);
+      color: var(--err-fg);
+    }
+
+    .sol-list-top,
+    .sol-list-foot {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .sol-list-top {
+      margin-bottom: 10px;
+      font-size: 14px;
+      color: var(--text-soft);
+    }
+
+    .sol-list-foot {
+      justify-content: flex-end;
+      margin-top: 14px;
+    }
+
+    table.sol-table tbody td {
+      overflow-wrap: anywhere;
+      vertical-align: top;
+    }
+
+    .sol-table .sub {
+      display: block;
+      margin-top: 3px;
+      font-size: 12.5px;
+      font-weight: 400;
+      color: var(--text-muted);
+    }
+
+    .sol-table .col-accion {
+      text-align: right;
+      white-space: nowrap;
+    }
+
+    .sol-table .tag {
+      margin-top: 4px;
+    }
+
+    /* Detalle */
+    .det-volver {
+      margin-bottom: 12px;
+    }
+
+    .det-head {
+      position: sticky;
+      top: 64px;
+      z-index: 10;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px 18px;
+      flex-wrap: wrap;
+      padding: 14px 18px;
+      margin-bottom: 16px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      box-shadow: var(--shadow);
+    }
+
+    .det-head-main {
+      min-width: 0;
+      flex: 1 1 320px;
+    }
+
+    .det-head h2 {
+      font-size: 18px;
+      line-height: 1.3;
+      margin: 6px 0 2px 0;
+      overflow-wrap: anywhere;
+    }
+
+    .det-head p {
+      margin: 0;
+      font-size: 13.5px;
+      color: var(--text-muted);
+      overflow-wrap: anywhere;
+    }
+
+    .det-head-pills {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .det-bloque {
+      margin-top: 16px;
+      padding-top: 16px;
+      border-top: 1px solid var(--border-soft);
+    }
+
+    .det-bloque .help {
+      margin: 10px 0 0 0;
+    }
+
+    #det-tabs {
+      margin-top: 20px;
+    }
+
+    #det-tabs .tabs {
+      margin-bottom: 14px;
+    }
+
+    .det-panel h3 {
+      font-size: 16px;
+      margin-bottom: 6px;
+      scroll-margin-top: 190px;
+    }
+
+    .det-panel h3:focus {
+      outline: none;
+    }
+
+    .det-panel > section > .help {
+      margin: 0 0 16px 0;
+    }
+
+    .det-cols {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(min(300px, 100%), 1fr));
+      gap: 22px 32px;
+      margin-top: 12px;
+    }
+
+    .det-cols .kv {
+      grid-template-columns: minmax(110px, 150px) minmax(0, 1fr);
+    }
+
+    .det-cols .kv dd {
+      overflow-wrap: anywhere;
+    }
+
+    .det-texto {
+      margin: 0;
+      font-size: 14px;
+      line-height: 1.5;
+      overflow-wrap: anywhere;
+    }
+
+    .item-card.is-current {
+      border-color: var(--brand);
+      background: var(--brand-soft);
+    }
+
+    .item-card .it-titulo {
+      margin: 0 0 4px 0;
+      font-size: 14px;
+      font-weight: 700;
+      overflow-wrap: anywhere;
+    }
+
+    .item-card .help {
+      margin: 0 0 8px 0;
+      overflow-wrap: anywhere;
+    }
+
+    .item-card .btn-row {
+      margin-top: 10px;
+    }
+
+    .req-check {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      min-height: 34px;
+      font-size: 13.5px;
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    .req-check input {
+      width: 18px;
+      height: 18px;
+      accent-color: var(--brand);
+    }
+
+    .req-panel {
+      margin-top: 12px;
+      padding: 14px;
+      border: 1px dashed var(--border);
+      border-radius: var(--radius-sm);
+      background: var(--surface-2);
+    }
+
+    .req-vista {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      flex-wrap: wrap;
+    }
+
+    .req-vista-ico {
+      width: 64px;
+      height: 76px;
+      flex-shrink: 0;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      background: var(--surface);
+      color: var(--text-muted);
+    }
+
+    .req-vista b {
+      display: block;
+      overflow-wrap: anywhere;
+    }
+
+    .det-panel .alert + .item-card {
+      margin-top: 14px;
+    }
+
+    .msg-acciones {
+      margin-top: 14px;
+    }
+
+    .area-form {
+      display: flex;
+      align-items: flex-end;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-top: 10px;
+    }
+
+    .area-form .field {
+      flex: 1 1 260px;
+    }
+
+    .msg-pie {
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .det-demo {
+      font-size: 12.5px;
+      font-weight: 500;
+      color: var(--text-muted);
+    }
+
+    @media (max-width: 760px) {
+      table.sol-table thead {
+        position: absolute;
+        width: 1px;
+        height: 1px;
+        overflow: hidden;
+        clip: rect(0, 0, 0, 0);
+      }
+
+      table.sol-table,
+      table.sol-table tbody,
+      table.sol-table tr {
+        display: block;
+        width: 100%;
+      }
+
+      table.sol-table tr {
+        padding: 12px 14px;
+        border-bottom: 1px solid var(--border-soft);
+      }
+
+      table.sol-table tr:last-child {
+        border-bottom: none;
+      }
+
+      table.sol-table tbody td {
+        display: block;
+        padding: 3px 0;
+        border: none;
+      }
+
+      table.sol-table tbody td.col-pill {
+        display: inline-block;
+        margin: 4px 10px 0 0;
+      }
+
+      table.sol-table tbody td.col-pill::before {
+        content: attr(data-label) ": ";
+        font-size: 12px;
+        font-weight: 600;
+        color: var(--text-muted);
+      }
+
+      table.sol-table tbody td.col-accion {
+        text-align: left;
+        padding-top: 10px;
+      }
+    }
+
+    @media (max-width: 640px) {
+      #sol-kpis {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 8px;
+      }
+
+      #sol-kpis .kpi-filter {
+        padding: 8px 10px;
+      }
+
+      #sol-kpis .k-label {
+        font-size: 11.5px;
+      }
+
+      #sol-kpis .k-value {
+        font-size: 18px;
+      }
+
+      .det-head {
+        padding: 10px 12px;
+      }
+
+      .det-head h2 {
+        font-size: 15px;
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+      }
+
+      .det-panel.card,
+      .det-falta.card {
+        padding: 16px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <script src="../js/data.js"></script>
+  <script src="../js/shell.js"></script>
+  <script>
+    const ctx = APP.renderShell('solicitudes');
+    const adminUser = (ctx && ctx.session && DB.getUsuario(ctx.session.id)) || { nombre: 'Administrador Académico', email: 'admin@uwiener.edu.pe' };
+    const esc = APP.esc;
+
+    // ---------------------------------------------------------------------
+    // Utilidades
+    // ---------------------------------------------------------------------
+    const ESTADOS = DB.ESTADOS || ['Solicitado', 'Pendiente de pago', 'En revisión', 'Observado', 'Aprobado', 'Emitido', 'Rechazado', 'Cancelar'];
+    const POR_ATENDER = ['Solicitado', 'En revisión'];
+    const CERRADOS = ['Rechazado', 'Cancelar'];
+    const POR_PAGINA = 8;
+    const MAX_ARCHIVO = 5 * 1024 * 1024;
+
+    function svg(inner, size) {
+      const n = size || 15;
+      return `<svg width="${n}" height="${n}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${inner}</svg>`;
+    }
+    const IC = {
+      mas: '<line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line>',
+      x: '<line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line>',
+      check: '<polyline points="20 6 9 17 4 12"></polyline>',
+      atras: '<line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline>',
+      izq: '<polyline points="15 18 9 12 15 6"></polyline>',
+      der: '<polyline points="9 18 15 12 9 6"></polyline>',
+      ojo: '<path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle>',
+      subir: '<path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line>',
+      archivo: '<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline>',
+      imagen: '<rect x="3" y="3" width="18" height="18" rx="2"></rect><circle cx="8.5" cy="8.5" r="1.5"></circle><polyline points="21 15 16 10 5 21"></polyline>',
+      tarjeta: '<rect x="2" y="5" width="20" height="14" rx="2"></rect><line x1="2" y1="10" x2="22" y2="10"></line>',
+      filtro: '<polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"></polygon>',
+      reloj: '<circle cx="12" cy="12" r="9"></circle><polyline points="12 7 12 12 15 14"></polyline>'
+    };
+
+    // Compara sin tildes ni mayúsculas ("Carrion" coincide con "Carrión")
+    function norm(v) {
+      return String(v == null ? '' : v).normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase().trim();
+    }
+    function pl(n, uno, varios) { return n + ' ' + (n === 1 ? uno : varios); }
+    function money(n) { return 'S/ ' + Number(n || 0).toFixed(2); }
+
+    function pagoDe(s) {
+      const p = s.pago || {};
+      const costo = Number(s.costo) || 0;
+      const pagado = p.estado === 'pagado';
+      const gratis = !pagado && (costo === 0 || p.estado === 'exonerado');
+      return { costo, pagado, gratis, ok: pagado || gratis, obligacion: !!p.obligacionGenerada, clave: pagado ? 'pagado' : (gratis ? 'gratis' : 'pendiente') };
+    }
+    function pagoPill(s) {
+      const k = pagoDe(s).clave;
+      if (k === 'pagado') return '<span class="pill ok">Pagado</span>';
+      if (k === 'gratis') return '<span class="pill gray">Sin costo</span>';
+      return '<span class="pill warn">Pendiente</span>';
+    }
+
+    // Fecha y hora de registro. Admite "2026-07-15 04:30:00 PM" y la hora local del navegador.
+    function fechaRegistro(s) {
+      const m = String(s.fechaHora || '').match(/^(\d{4}-\d{2}-\d{2})[ T](\d{1,2}):(\d{2})(?::\d{2})?\s*([ap])?/i);
+      if (!m) return APP.fechaCorta(s.fecha);
+      let h = parseInt(m[2], 10);
+      if (m[4] && /p/i.test(m[4]) && h < 12) h += 12;
+      if (m[4] && /a/i.test(m[4]) && h === 12) h = 0;
+      return APP.fechaCorta(m[1] + ' ' + String(h).padStart(2, '0') + ':' + m[3], true);
+    }
+    function diasTranscurridos(fechaStr) {
+      if (!fechaStr) return 0;
+      const f = new Date(String(fechaStr).slice(0, 10) + 'T00:00:00');
+      if (isNaN(f)) return 0;
+      return Math.max(Math.floor((new Date() - f) / 86400000), 1);
+    }
+
+    // ---------------------------------------------------------------------
+    // Filtros de la bandeja
+    // ---------------------------------------------------------------------
+    const F_DEF = { institucion: 'Todas', ticket: '', dni: '', alumno: '', tramite: 'Todos', estado: 'Todos', pago: 'Todos', activo: 'Todos', desde: '', hasta: '' };
+    const F_AVANZADOS = ['institucion', 'dni', 'pago', 'activo', 'desde', 'hasta'];
+    let F = Object.assign({}, F_DEF);
+    let pagina = 1;
+    let masFiltros = false;
+    let tTexto = null;
+
+    const GRUPOS = [
+      { id: 'todas', label: 'Todas', estado: 'Todos', pago: 'Todos', test: () => true },
+      { id: 'atender', label: 'Por atender', estado: '@atender', pago: 'Todos', test: s => POR_ATENDER.includes(s.estado) },
+      { id: 'pago', label: 'Pago pendiente', estado: 'Todos', pago: 'pendiente', test: s => pagoDe(s).clave === 'pendiente' },
+      { id: 'observadas', label: 'Observadas', estado: 'Observado', pago: 'Todos', test: s => s.estado === 'Observado' },
+      { id: 'aprobadas', label: 'Aprobadas', estado: 'Aprobado', pago: 'Todos', test: s => s.estado === 'Aprobado' },
+      { id: 'emitidas', label: 'Emitidas', estado: 'Emitido', pago: 'Todos', test: s => s.estado === 'Emitido' },
+      { id: 'cerradas', label: 'Cerradas', estado: '@cerradas', pago: 'Todos', test: s => CERRADOS.includes(s.estado) }
+    ];
+
+    function estadoTexto(v) {
+      if (v === '@atender') return 'Por atender';
+      if (v === '@cerradas') return 'Cerradas';
+      return APP.estadoLabel(v);
+    }
+    function pagoTexto(v) { return v === 'pagado' ? 'Pagado' : v === 'pendiente' ? 'Pendiente' : 'Sin costo'; }
+
+    // Parámetros de URL: institucion, estado, ticket (por ejemplo desde Resumen)
+    function estadoDesdeURL(v) {
+      const n = norm(v);
+      if (!n || n === 'todos' || n === 'todas') return 'Todos';
+      const exacto = ESTADOS.find(e => norm(e) === n);
+      if (exacto) return exacto;
+      if (n.startsWith('cancel')) return 'Cancelar';
+      if (n.includes('atender') || n === 'pendientes') return '@atender';
+      if (n.includes('cerrad')) return '@cerradas';
+      return 'Todos';
+    }
+    function leerURL() {
+      try {
+        const q = new URLSearchParams(window.location.search);
+        const inst = norm(q.get('institucion'));
+        if (inst) F.institucion = inst.includes('carrion') ? 'Carrión' : (inst.includes('wiener') ? 'Wiener' : 'Todas');
+        if (q.get('estado')) F.estado = estadoDesdeURL(q.get('estado'));
+        if (q.get('ticket')) F.ticket = q.get('ticket');
+      } catch (e) { }
+      masFiltros = F_AVANZADOS.some(k => F[k] !== F_DEF[k]);
+    }
+
+    function pasaBase(s) {
+      if (F.institucion !== 'Todas' && s.institucion && !norm(s.institucion).includes(norm(F.institucion))) return false;
+      const tk = norm(F.ticket);
+      if (tk && !norm(s.ticket || s.id).includes(tk)) return false;
+      const dni = norm(F.dni);
+      if (dni && !norm(s.alumnoDni).includes(dni)) return false;
+      const al = norm(F.alumno);
+      if (al && !norm(s.alumnoNombre).includes(al) && !norm(s.alumnoCodigo).includes(al)) return false;
+      if (F.tramite !== 'Todos' && s.tramiteNombre !== F.tramite) return false;
+      if (F.activo !== 'Todos' && Boolean(s.activo) !== (F.activo === 'Si')) return false;
+      if (F.desde && s.fecha && s.fecha < F.desde) return false;
+      if (F.hasta && s.fecha && s.fecha > F.hasta) return false;
+      return true;
+    }
+    function pasaEstado(s) {
+      if (F.estado === 'Todos') return true;
+      if (F.estado === '@atender') return POR_ATENDER.includes(s.estado);
+      if (F.estado === '@cerradas') return CERRADOS.includes(s.estado);
+      return s.estado === F.estado;
+    }
+    function pasaPago(s) { return F.pago === 'Todos' || pagoDe(s).clave === F.pago; }
+
+    function filtrosActivos() {
+      const out = [];
+      if (F.institucion !== 'Todas') out.push({ k: 'institucion', t: 'Institución: ' + F.institucion });
+      if (F.ticket.trim()) out.push({ k: 'ticket', t: 'Ticket: ' + F.ticket.trim() });
+      if (F.dni.trim()) out.push({ k: 'dni', t: 'DNI: ' + F.dni.trim() });
+      if (F.alumno.trim()) out.push({ k: 'alumno', t: 'Alumno: ' + F.alumno.trim() });
+      if (F.tramite !== 'Todos') out.push({ k: 'tramite', t: 'Trámite: ' + F.tramite });
+      if (F.estado !== 'Todos') out.push({ k: 'estado', t: 'Estado: ' + estadoTexto(F.estado) });
+      if (F.pago !== 'Todos') out.push({ k: 'pago', t: 'Pago: ' + pagoTexto(F.pago) });
+      if (F.activo !== 'Todos') out.push({ k: 'activo', t: F.activo === 'Si' ? 'Solo activas' : 'Solo inactivas' });
+      if (F.desde) out.push({ k: 'desde', t: 'Desde: ' + APP.fechaCorta(F.desde) });
+      if (F.hasta) out.push({ k: 'hasta', t: 'Hasta: ' + APP.fechaCorta(F.hasta) });
+      return out;
+    }
+
+    function limpiarURL() {
+      try {
+        if (window.history && window.history.replaceState) window.history.replaceState({}, document.title, window.location.pathname);
+      } catch (e) { }
+    }
+
+    // Texto: aplica con un retardo corto y no re-pinta los campos (no se pierde el foco)
+    function onTexto(k, v) {
+      F[k] = v;
+      clearTimeout(tTexto);
+      tTexto = setTimeout(() => { pagina = 1; renderLista(); }, 250);
+    }
+    function onSel(k, v) {
+      F[k] = v;
+      pagina = 1;
+      renderLista();
+    }
+    function verGrupo(id) {
+      const g = GRUPOS.find(x => x.id === id);
+      if (!g) return;
+      F.estado = g.estado;
+      F.pago = g.pago;
+      pagina = 1;
+      renderFiltros();
+      renderLista();
+      const b = document.getElementById('kpi-' + id);
+      if (b) b.focus();
+    }
+    function quitarFiltro(k) {
+      F[k] = F_DEF[k];
+      pagina = 1;
+      limpiarURL();
+      renderFiltros();
+      renderLista();
+      const h = document.getElementById('sol-cuenta');
+      if (h) h.focus();
+    }
+    function limpiarFiltros() {
+      F = Object.assign({}, F_DEF);
+      pagina = 1;
+      limpiarURL();
+      renderFiltros();
+      renderLista();
+      const h = document.getElementById('sol-cuenta');
+      if (h) h.focus();
+    }
+    function alternarMasFiltros() {
+      masFiltros = !masFiltros;
+      renderFiltros();
+      const b = document.getElementById('btn-mas-filtros');
+      if (b) b.focus();
+    }
+    function cambiarPagina(p) {
+      pagina = p;
+      renderLista();
+      const b = document.querySelector('#sol-lista .vt-page-btn.active');
+      if (b) b.focus();
+    }
+
+    // ---------------------------------------------------------------------
+    // Vista de lista
+    // ---------------------------------------------------------------------
+    function renderBase() {
+      ctx.mount.innerHTML = `
+        <div id="vista-lista">
+          <div class="page-head">
+            <div>
+              <h1>Bandeja de solicitudes</h1>
+              <p>Revisa y atiende las solicitudes de trámite de los alumnos.</p>
+            </div>
+            <a class="btn btn-primary" href="registrar.html">${svg(IC.mas)}<span>Registrar solicitud</span></a>
+          </div>
+          <div class="kpi-row" id="sol-kpis" role="group" aria-label="Indicadores. Elige uno para filtrar la lista"></div>
+          <section class="listado-filters-card" id="sol-filtros" aria-labelledby="sol-filtros-t"></section>
+          <div id="sol-chips"></div>
+          <div id="sol-lista"></div>
+        </div>
+        <div id="vista-detalle" hidden></div>`;
+      document.getElementById('sol-lista').addEventListener('click', e => {
+        const b = e.target.closest('[data-sol]');
+        if (b) abrirDetalle(b.getAttribute('data-sol'));
+      });
+    }
+
+    function opt(valor, texto, actual) {
+      return `<option value="${esc(valor)}" ${valor === actual ? 'selected' : ''}>${esc(texto)}</option>`;
+    }
+
+    // Se pinta al iniciar y cuando un filtro cambia desde fuera de sus campos (indicador, chip, limpiar)
+    function renderFiltros() {
+      const nombres = Array.from(new Set(DB.solicitudes().map(s => s.tramiteNombre).filter(Boolean))).sort();
+      const avanzados = F_AVANZADOS.filter(k => F[k] !== F_DEF[k]).length;
+      document.getElementById('sol-filtros').innerHTML = `
+        <div class="sol-filtros-head">
+          <h2 id="sol-filtros-t">Buscar y filtrar</h2>
+          <button type="button" class="btn btn-ghost btn-sm" id="btn-mas-filtros" aria-expanded="${masFiltros}" aria-controls="sol-filtros-mas" onclick="alternarMasFiltros()">
+            ${svg(IC.filtro)}<span>${masFiltros ? 'Menos filtros' : 'Más filtros'}${!masFiltros && avanzados ? ' (' + avanzados + ')' : ''}</span>
+          </button>
+        </div>
+        <div class="vt-filter-grid">
+          <div class="vt-field">
+            <label for="f-alumno">Alumno (nombre o código)</label>
+            <input class="input" id="f-alumno" type="search" autocomplete="off" placeholder="Ej. Quispe o 2021100345" value="${esc(F.alumno)}" oninput="onTexto('alumno', this.value)">
+          </div>
+          <div class="vt-field">
+            <label for="f-ticket">Ticket</label>
+            <input class="input" id="f-ticket" type="search" autocomplete="off" placeholder="Ej. 2026.43531" value="${esc(F.ticket)}" oninput="onTexto('ticket', this.value)">
+          </div>
+          <div class="vt-field">
+            <label for="f-tramite">Trámite</label>
+            <div class="custom-select-container">
+              <select id="f-tramite" onchange="onSel('tramite', this.value)">
+                ${opt('Todos', 'Todos los trámites', F.tramite)}
+                ${nombres.map(n => opt(n, n, F.tramite)).join('')}
+              </select>
+            </div>
+          </div>
+          <div class="vt-field">
+            <label for="f-estado">Estado</label>
+            <div class="custom-select-container">
+              <select id="f-estado" onchange="onSel('estado', this.value)">
+                ${opt('Todos', 'Todos los estados', F.estado)}
+                ${opt('@atender', 'Por atender (Solicitado y En revisión)', F.estado)}
+                ${ESTADOS.map(e => opt(e, APP.estadoLabel(e), F.estado)).join('')}
+                ${opt('@cerradas', 'Cerradas (Rechazado y Cancelado)', F.estado)}
+              </select>
+            </div>
+          </div>
+        </div>
+        <div class="vt-filter-grid" id="sol-filtros-mas" ${masFiltros ? '' : 'hidden'}>
+          <div class="vt-field">
+            <label for="f-institucion">Institución</label>
+            <div class="custom-select-container">
+              <select id="f-institucion" onchange="onSel('institucion', this.value)">
+                ${opt('Todas', 'Todas las instituciones', F.institucion)}
+                ${opt('Carrión', 'I.E.S. Particular Daniel Alcides Carrión', F.institucion)}
+                ${opt('Wiener', 'Universidad Norbert Wiener', F.institucion)}
+              </select>
+            </div>
+          </div>
+          <div class="vt-field">
+            <label for="f-dni">DNI</label>
+            <input class="input" id="f-dni" type="search" autocomplete="off" inputmode="numeric" placeholder="Ej. 42579879" value="${esc(F.dni)}" oninput="onTexto('dni', this.value)">
+          </div>
+          <div class="vt-field">
+            <label for="f-pago">Pago</label>
+            <div class="custom-select-container">
+              <select id="f-pago" onchange="onSel('pago', this.value)">
+                ${opt('Todos', 'Todos', F.pago)}
+                ${opt('pagado', 'Pagado', F.pago)}
+                ${opt('pendiente', 'Pendiente', F.pago)}
+                ${opt('gratis', 'Sin costo', F.pago)}
+              </select>
+            </div>
+          </div>
+          <div class="vt-field">
+            <label for="f-activo">Vigencia</label>
+            <div class="custom-select-container">
+              <select id="f-activo" onchange="onSel('activo', this.value)">
+                ${opt('Todos', 'Activas e inactivas', F.activo)}
+                ${opt('Si', 'Solo activas', F.activo)}
+                ${opt('No', 'Solo inactivas', F.activo)}
+              </select>
+            </div>
+          </div>
+          <div class="vt-field">
+            <label for="f-desde">Registradas desde</label>
+            <input type="date" id="f-desde" value="${esc(F.desde)}" onchange="onSel('desde', this.value)">
+          </div>
+          <div class="vt-field">
+            <label for="f-hasta">Registradas hasta</label>
+            <input type="date" id="f-hasta" value="${esc(F.hasta)}" onchange="onSel('hasta', this.value)">
+            <div class="field-error" id="f-fechas-err" hidden>La fecha final es anterior a la inicial.</div>
+          </div>
+        </div>`;
+      const caja = document.getElementById('sol-filtros');
+      if (APP.initCustomSelects) APP.initCustomSelects(caja);
+      if (APP.initDatePickers) APP.initDatePickers(caja);
+    }
+
+    function paginacionHTML(curr, total) {
+      if (total <= 1) return '';
+      let nums = '';
+      for (let p = 1; p <= total; p++) {
+        if (total > 6) {
+          if (p > 1 && p < curr - 1) { if (p === 2) nums += '<span class="help" aria-hidden="true">...</span>'; continue; }
+          if (p < total && p > curr + 1) { if (p === total - 1) nums += '<span class="help" aria-hidden="true">...</span>'; continue; }
+        }
+        nums += `<button type="button" class="vt-page-btn ${p === curr ? 'active' : ''}" ${p === curr ? 'aria-current="page"' : ''} aria-label="Página ${p}" onclick="cambiarPagina(${p})">${p}</button>`;
+      }
+      return `
+        <nav class="vt-pagination" aria-label="Páginas de la lista">
+          <button type="button" class="vt-page-btn" ${curr <= 1 ? 'disabled' : ''} onclick="cambiarPagina(${curr - 1})">${svg(IC.izq, 14)}<span>Anterior</span></button>
+          ${nums}
+          <button type="button" class="vt-page-btn" ${curr >= total ? 'disabled' : ''} onclick="cambiarPagina(${curr + 1})"><span>Siguiente</span>${svg(IC.der, 14)}</button>
+        </nav>`;
+    }
+
+    function filaHTML(s) {
+      const ticket = s.ticket || s.id;
+      const final = s.estado === 'Emitido' || CERRADOS.includes(s.estado);
+      return `
+        <tr>
+          <td><span class="vt-ticket-badge">${esc(ticket)}</span><span class="sub">${esc(APP.fechaCorta(s.fecha))}</span></td>
+          <td><b>${esc(s.alumnoNombre || '-')}</b><span class="sub mono">${esc(s.alumnoCodigo || '-')}</span></td>
+          <td>${esc(s.tramiteNombre || '-')}<span class="sub">${esc(s.carrera || '-')}</span></td>
+          <td class="col-pill" data-label="Estado">${APP.pillFor(s.estado)}${s.activo === false ? '<br><span class="tag">Inactiva</span>' : ''}</td>
+          <td class="col-pill" data-label="Pago">${pagoPill(s)}</td>
+          <td class="col-accion">
+            <button type="button" class="btn btn-outline btn-sm" data-sol="${esc(s.id)}" aria-label="${final ? 'Ver' : 'Atender'} la solicitud ${esc(ticket)} de ${esc(s.alumnoNombre || 'alumno')}">${final ? 'Ver detalle' : 'Atender'}</button>
+          </td>
+        </tr>`;
+    }
+
+    // Indicadores, chips y tabla. Los indicadores usan el mismo conjunto que la lista
+    // (todos los filtros salvo estado y pago, que son los que el indicador cambia).
+    function renderLista() {
+      const todas = DB.solicitudes();
+      const base = todas.filter(pasaBase);
+      const lista = base.filter(s => pasaEstado(s) && pasaPago(s));
+
+      document.getElementById('sol-kpis').innerHTML = GRUPOS.map(g => {
+        const activo = F.estado === g.estado && F.pago === g.pago;
+        return `
+          <button type="button" class="kpi-filter ${activo ? 'active' : ''}" id="kpi-${g.id}" aria-pressed="${activo}" onclick="verGrupo('${g.id}')">
+            <span class="k-label">${g.label}</span>
+            <span class="k-value">${base.filter(g.test).length}</span>
+          </button>`;
+      }).join('');
+
+      const chips = filtrosActivos();
+      document.getElementById('sol-chips').innerHTML = chips.length ? `
+        <div class="sol-chips">
+          <span class="help">Filtros activos:</span>
+          ${chips.map(c => `<span class="sol-chip">${esc(c.t)}<button type="button" aria-label="Quitar filtro ${esc(c.t)}" onclick="quitarFiltro('${c.k}')">${svg(IC.x, 12)}</button></span>`).join('')}
+          <button type="button" class="btn-link" onclick="limpiarFiltros()">Limpiar filtros</button>
+        </div>` : '';
+
+      const errFechas = document.getElementById('f-fechas-err');
+      if (errFechas) errFechas.hidden = !(F.desde && F.hasta && F.hasta < F.desde);
+
+      const totalPag = Math.max(1, Math.ceil(lista.length / POR_PAGINA));
+      pagina = Math.min(Math.max(1, pagina), totalPag);
+      const ini = (pagina - 1) * POR_PAGINA;
+      const visibles = lista.slice(ini, ini + POR_PAGINA);
+      const cont = document.getElementById('sol-lista');
+
+      if (!lista.length) {
+        cont.innerHTML = todas.length ? `
+          <div class="empty-state">
+            <h3 id="sol-cuenta" tabindex="-1">Ninguna solicitud coincide con los filtros</h3>
+            <p>Prueba con otro indicador, cambia el rango de fechas o limpia los filtros.</p>
+            <button type="button" class="btn btn-outline" onclick="limpiarFiltros()">Limpiar filtros</button>
+          </div>` : `
+          <div class="empty-state">
+            <h3 id="sol-cuenta" tabindex="-1">Aún no hay solicitudes</h3>
+            <p>Cuando un alumno pida un trámite aparecerá aquí. También puedes registrar una en su nombre.</p>
+            <a class="btn btn-outline" href="registrar.html">Registrar solicitud</a>
+          </div>`;
+        return;
+      }
+
+      cont.innerHTML = `
+        <div class="sol-list-top">
+          <span id="sol-cuenta" tabindex="-1" role="status"><b>${lista.length}</b> ${lista.length === 1 ? 'solicitud' : 'solicitudes'}${totalPag > 1 ? `. Página ${pagina} de ${totalPag} (del ${ini + 1} al ${Math.min(ini + POR_PAGINA, lista.length)})` : ''}</span>
+        </div>
+        <div class="table-wrap">
+          <table class="data sol-table">
+            <thead>
+              <tr>
+                <th scope="col">Solicitud</th>
+                <th scope="col">Alumno</th>
+                <th scope="col">Trámite</th>
+                <th scope="col">Estado</th>
+                <th scope="col">Pago</th>
+                <th scope="col"><span class="sr-only">Acción</span></th>
+              </tr>
+            </thead>
+            <tbody>${visibles.map(filaHTML).join('')}</tbody>
+          </table>
+        </div>
+        <div class="sol-list-foot">${paginacionHTML(pagina, totalPag)}</div>`;
+    }
+
+    // ---------------------------------------------------------------------
+    // Detalle de la solicitud (vista en la misma página; no usa el modal para
+    // que las confirmaciones no lo reemplacen y se conserve scroll y texto)
+    // ---------------------------------------------------------------------
+    const TABS = ['resumen', 'requisitos', 'pago', 'areas', 'mensaje', 'historial'];
+    const D = { id: null, tab: 'resumen', msgSucio: false, msgPropuesto: false };
+    let scrollLista = 0;
+
+    function actual() { return D.id ? DB.getSolicitud(D.id) : null; }
+
+    // Lee, cambia y guarda una solicitud con la base compartida
+    function mutar(fn) {
+      const s = actual();
+      if (!s) return null;
+      fn(s);
+      DB.updateSolicitud(s);
+      return s;
+    }
+    function anotar(s, nota) {
+      if (!s.historial) s.historial = [];
+      s.historial.push({ estado: s.estado, fecha: APP.nowStamp(), nota: nota, usuario: adminUser.nombre });
+    }
+
+    function etapas(s) {
+      return (s.proceso || []).map((p, i) => ({ p, i })).sort((a, b) => ((a.p.orden || a.i + 1) - (b.p.orden || b.i + 1))).map(x => x.p);
+    }
+    function etapaHecha(p) { return p.estado === 'Atendido' || p.estado === 'Procede'; }
+    function soloLectura(s) { return s.estado === 'Emitido' || CERRADOS.includes(s.estado); }
+
+    function avance(s) {
+      const reqs = s.requisitos || [];
+      const et = etapas(s);
+      const t = s.tramiteId ? DB.getTramite(s.tramiteId) : null;
+      const pago = pagoDe(s);
+      const pagoDespues = (s.pagoMomento || (t && t.pagoMomento)) === 'despues';
+      // Pago después de una revisión concreta: esa área ya atendió y el alumno aún no paga
+      const pagoIntermedio = !pago.ok && et.some(p => p.cobrarAlTerminar && etapaHecha(p));
+      return {
+        tramite: t, pago, pagoDespues, pagoIntermedio,
+        reqTotal: reqs.length, reqOk: reqs.filter(r => r.cumple).length,
+        areasTotal: et.length, areasOk: et.filter(etapaHecha).length, vigente: et.findIndex(p => !etapaHecha(p)),
+        bloqueoPago: !pago.ok && (!pagoDespues || pagoIntermedio)
+      };
+    }
+
+    // Lo que impide aprobar o emitir
+    function faltantes(s, para) {
+      const a = avance(s);
+      const out = [];
+      if (!a.pago.ok && (para === 'emitir' || !a.pagoDespues || a.pagoIntermedio)) out.push('el pago');
+      if (a.reqOk < a.reqTotal) out.push(pl(a.reqTotal - a.reqOk, 'requisito por marcar como conforme', 'requisitos por marcar como conformes'));
+      if (a.areasOk < a.areasTotal) out.push(pl(a.areasTotal - a.areasOk, 'área por atender', 'áreas por atender'));
+      return out;
+    }
+
+    const ACCIONES = {
+      revision: { label: 'Poner en revisión', estado: 'En revisión', nota: 'Solicitud puesta en revisión', titulo: 'Poner en revisión', cuerpo: 'La solicitud pasará a "En revisión" para que la atiendan las áreas.', hecho: 'Solicitud en revisión' },
+      volver: { label: 'Volver a revisión', estado: 'En revisión', nota: 'Solicitud devuelta a revisión', titulo: 'Volver a revisión', cuerpo: 'La aprobación quedará sin efecto y la solicitud volverá a "En revisión".', motivo: 'opcional', hecho: 'Solicitud en revisión' },
+      observar: { label: 'Observar', estado: 'Observado', nota: 'Solicitud observada', titulo: 'Observar la solicitud', cuerpo: 'El alumno verá el motivo y podrá corregir su solicitud. Cuando lo haga, volverá a revisión.', motivo: 'obligatorio', etiqueta: 'Qué debe corregir el alumno', hecho: 'Solicitud observada' },
+      aprobar: { label: 'Aprobar', estado: 'Aprobado', nota: 'Solicitud aprobada', titulo: 'Aprobar la solicitud', cuerpo: 'Se confirma que el pago, los requisitos y las áreas están conformes. Después podrás emitir.', valida: 'aprobar', hecho: 'Solicitud aprobada' },
+      emitir: { label: 'Emitir', estado: 'Emitido', nota: 'Trámite emitido', titulo: 'Emitir el trámite', cuerpo: 'La solicitud quedará como "Emitido" y se dará por atendida.', valida: 'emitir', hecho: 'Trámite emitido' },
+      rechazar: { label: 'Rechazar', estado: 'Rechazado', nota: 'Solicitud rechazada', titulo: 'Rechazar la solicitud', cuerpo: 'La solicitud se cerrará como rechazada y quedará inactiva. El alumno verá el motivo.', motivo: 'obligatorio', etiqueta: 'Motivo del rechazo', peligro: true, hecho: 'Solicitud rechazada' },
+      cancelar: { label: 'Cancelar solicitud', estado: 'Cancelar', nota: 'Solicitud cancelada', titulo: 'Cancelar la solicitud', cuerpo: 'La solicitud se cerrará como cancelada. El alumno verá el motivo.', motivo: 'obligatorio', etiqueta: 'Motivo de la cancelación', peligro: true, confirmar: 'Cancelar solicitud', hecho: 'Solicitud cancelada' },
+      reabrir: { label: 'Reabrir', estado: 'En revisión', nota: 'Solicitud reabierta', titulo: 'Reabrir la solicitud', cuerpo: 'La solicitud volverá a "En revisión" y quedará activa.', motivo: 'opcional', hecho: 'Solicitud reabierta' }
+    };
+    function accionesPara(estado) {
+      switch (estado) {
+        case 'Solicitado': return ['revision', 'aprobar', 'observar', 'rechazar', 'cancelar'];
+        case 'Pendiente de pago': return ['revision', 'observar', 'rechazar', 'cancelar'];
+        case 'En revisión': return ['aprobar', 'observar', 'rechazar', 'cancelar'];
+        case 'Observado': return ['revision', 'rechazar', 'cancelar'];
+        case 'Aprobado': return ['emitir', 'volver', 'cancelar'];
+        case 'Emitido': case 'Rechazado': case 'Cancelar': return ['reabrir'];
+        default: return ['revision', 'cancelar'];
+      }
+    }
+
+    // ----- Navegación entre lista y detalle (con el botón Atrás del navegador) -----
+    function idDeHash() {
+      const m = window.location.hash.match(/^#s=(.+)$/);
+      if (!m) return null;
+      try { return decodeURIComponent(m[1]); } catch (e) { return m[1]; }
+    }
+    function abrirDetalle(id) {
+      scrollLista = window.scrollY || 0;
+      window.location.hash = 's=' + encodeURIComponent(id);
+    }
+    function quitarHash() {
+      try { window.history.replaceState(null, document.title, window.location.pathname + window.location.search); return true; } catch (e) { return false; }
+    }
+    function sincronizarVista() {
+      const id = idDeHash();
+      if (!id) { if (D.id) mostrarLista(); return; }
+      if (D.id === id) return;
+      const s = DB.getSolicitud(id);
+      if (!s) {
+        APP.toast({ icon: 'warn', title: 'No se encontró la solicitud', body: 'Puede que ya no exista. Búscala en la bandeja.' });
+        if (!quitarHash()) window.location.hash = '';
+        if (D.id) mostrarLista();
+        return;
+      }
+      mostrarDetalle(s);
+    }
+    function volverALista() {
+      const salir = () => {
+        if (quitarHash()) mostrarLista();
+        else window.location.hash = '';
+      };
+      if (D.msgSucio) {
+        APP.confirm({
+          title: 'Hay un mensaje sin enviar',
+          body: 'Escribiste un mensaje para el alumno que aún no se envió. Si vuelves a la bandeja, se pierde.',
+          confirmLabel: 'Volver sin enviar', cancelLabel: 'Seguir aquí', danger: true, onConfirm: salir
+        });
+        return;
+      }
+      salir();
+    }
+    function mostrarLista() {
+      const id = D.id;
+      D.id = null;
+      const det = document.getElementById('vista-detalle');
+      det.hidden = true;
+      det.innerHTML = '';
+      document.getElementById('vista-lista').hidden = false;
+      renderLista();
+      window.scrollTo(0, scrollLista);
+      const b = Array.from(document.querySelectorAll('#sol-lista [data-sol]')).find(x => x.getAttribute('data-sol') === id);
+      if (b) b.focus({ preventScroll: true });
+    }
+
+    function mostrarDetalle(s) {
+      D.id = s.id;
+      D.tab = 'resumen';
+      D.msgSucio = false;
+      D.msgPropuesto = false;
+      const det = document.getElementById('vista-detalle');
+      det.innerHTML = `
+        <button type="button" class="btn btn-ghost btn-sm det-volver" id="det-volver" onclick="volverALista()">${svg(IC.atras)}<span>Volver a la bandeja</span></button>
+        <div class="det-head" id="det-head"></div>
+        <section class="card det-falta" id="det-falta" aria-labelledby="det-falta-t"></section>
+        <div id="det-tabs"></div>
+        <div class="card det-panel">
+          ${TABS.map(t => `<section id="pan-${t}" role="tabpanel" aria-labelledby="pan-${t}-t" ${t === D.tab ? '' : 'hidden'}></section>`).join('')}
+        </div>`;
+      document.getElementById('vista-lista').hidden = true;
+      det.hidden = false;
+      // El mensaje se pinta una sola vez: después solo se actualizan sus avisos
+      document.getElementById('pan-mensaje').innerHTML = htmlMensaje(s);
+      refrescar(['resumen', 'requisitos', 'pago', 'areas']);
+      window.scrollTo(0, 0);
+      document.getElementById('det-volver').focus({ preventScroll: true });
+    }
+
+    // Re-pinta cabecera, "Qué falta", pestañas, historial y solo las secciones indicadas
+    function refrescar(paneles) {
+      const s = actual();
+      if (!s) return;
+      pintarCabecera(s);
+      pintarFalta(s);
+      pintarTabs(s);
+      (paneles || []).concat(['historial']).forEach(p => pintarPanel(p, s));
+    }
+    function enfocar(id) {
+      const el = document.getElementById(id);
+      if (el && !el.disabled) { el.focus({ preventScroll: true }); return true; }
+      return false;
+    }
+
+    function pintarCabecera(s) {
+      document.getElementById('det-head').innerHTML = `
+        <div class="det-head-main">
+          <span class="vt-ticket-badge">Ticket ${esc(s.ticket || s.id)}</span>
+          <h2>${esc(s.tramiteNombre || 'Trámite')}</h2>
+          <p>${esc(s.alumnoNombre || '-')}${s.alumnoCodigo ? ' · ' + esc(s.alumnoCodigo) : ''}</p>
+        </div>
+        <div class="det-head-pills">
+          ${APP.pillFor(s.estado)}
+          <span class="help">Pago:</span> ${pagoPill(s)}
+          ${s.activo === false ? '<span class="tag">Inactiva</span>' : ''}
+        </div>`;
+    }
+
+    function siguientePaso(s) {
+      const lista = f => f.join('; ') + '.';
+      switch (s.estado) {
+        case 'Emitido': return 'El trámite ya fue emitido. No quedan pasos pendientes.';
+        case 'Rechazado': return 'La solicitud fue rechazada. Si fue un error, puedes reabrirla.';
+        case 'Cancelar': return 'La solicitud fue cancelada. Si fue un error, puedes reabrirla.';
+        case 'Observado': return 'En espera de que el alumno corrija lo observado. Cuando lo haga, la solicitud vuelve a revisión.';
+        case 'Aprobado': {
+          const f = faltantes(s, 'emitir');
+          return f.length ? 'Solicitud aprobada. Para emitir falta: ' + lista(f) : 'Solicitud aprobada. Ya puedes emitir el trámite.';
+        }
+        default: {
+          const f = faltantes(s, 'aprobar');
+          return f.length ? 'Para aprobar falta: ' + lista(f) : 'Todo está conforme. Ya puedes aprobar la solicitud.';
+        }
+      }
+    }
+
+    function itemFalta(tipo, texto, tab, enlace) {
+      const dot = tipo === 'ok' ? svg(IC.check, 12) : (tipo === 'warn' ? '!' : svg(IC.reloj, 12));
+      const sr = tipo === 'ok' ? 'Listo: ' : (tipo === 'warn' ? 'Pendiente: ' : 'En espera: ');
+      return `<li><span class="check-dot is-${tipo}" aria-hidden="true">${dot}</span><span><span class="sr-only">${sr}</span>${texto}${tab ? ` <button type="button" class="btn-link" onclick="verPestana('${tab}', true)">${enlace}</button>` : ''}</span></li>`;
+    }
+
+    function pintarFalta(s) {
+      const a = avance(s);
+      const ro = soloLectura(s);
+      const items = [];
+
+      if (!a.reqTotal) items.push(itemFalta('ok', 'Requisitos: no hay requisitos por revisar.'));
+      else if (a.reqOk === a.reqTotal) items.push(itemFalta('ok', `Requisitos: ${a.reqOk} de ${a.reqTotal} conformes.`));
+      else items.push(itemFalta('warn', `Requisitos: ${a.reqOk} de ${a.reqTotal} conformes.`, 'requisitos', 'Revisar requisitos'));
+
+      if (a.pago.gratis) items.push(itemFalta('ok', 'Pago: este trámite no tiene costo.'));
+      else if (a.pago.pagado) items.push(itemFalta('ok', `Pago: pagado (${money(a.pago.costo)}).`));
+      else if (a.pagoIntermedio) items.push(itemFalta('warn', `Pago: pendiente (${money(a.pago.costo)}). El alumno debe pagar para que la solicitud continúe.`, 'pago', 'Ver pago'));
+      else if (a.pagoDespues && s.estado !== 'Aprobado') items.push(itemFalta('wait', `Pago: pendiente (${money(a.pago.costo)}). ${a.tramite ? esc(DB.momentoPagoTexto(a.tramite)) + '.' : 'Este trámite se paga después de la aprobación.'}`, 'pago', 'Ver pago'));
+      else if (a.pago.obligacion) items.push(itemFalta('warn', `Pago: pendiente (${money(a.pago.costo)}). La obligación ya está generada, falta que el alumno pague.`, 'pago', 'Ver pago'));
+      else items.push(itemFalta('warn', `Pago: pendiente (${money(a.pago.costo)}). Falta generar la obligación de pago.`, 'pago', 'Ir a pago'));
+
+      if (!a.areasTotal) items.push(itemFalta('ok', 'Áreas: este trámite no pasa por otras áreas.'));
+      else if (a.areasOk === a.areasTotal) items.push(itemFalta('ok', `Áreas: ${a.areasOk} de ${a.areasTotal} atendidas.`));
+      else if (a.bloqueoPago) items.push(itemFalta('wait', `Áreas: ${a.areasOk} de ${a.areasTotal} atendidas. ${a.pagoIntermedio ? 'Continúan' : 'Empiezan'} cuando se registre el pago.`, 'areas', 'Ver áreas'));
+      else items.push(itemFalta('warn', `Áreas: ${a.areasOk} de ${a.areasTotal} atendidas. Sigue: ${esc(etapas(s)[a.vigente].area || 'área sin nombre')}.`, 'areas', 'Atender área'));
+
+      if (D.msgSucio) items.push(itemFalta('warn', D.msgPropuesto ? 'Mensaje al alumno: hay un borrador con el motivo. Revísalo y envíalo.' : 'Mensaje al alumno: hay un borrador sin enviar.', 'mensaje', 'Ir al mensaje'));
+      else if (s.mensajeSolicitante) items.push(itemFalta('ok', 'Mensaje al alumno: enviado.'));
+      else items.push(itemFalta('wait', 'Mensaje al alumno: aún no se envía ninguno (opcional).', 'mensaje', 'Escribir mensaje'));
+
+      const claves = accionesPara(s.estado);
+      let nota = '';
+      const botones = claves.map((k, i) => {
+        const def = ACCIONES[k];
+        const f = def.valida ? faltantes(s, def.valida) : [];
+        if (f.length) nota = `No se puede ${k === 'emitir' ? 'emitir' : 'aprobar'} todavía. Falta: ${f.join('; ')}.`;
+        const cls = def.peligro ? 'btn btn-danger' : (i === 0 ? 'btn btn-primary' : 'btn btn-outline');
+        return `<button type="button" class="${cls}" id="acc-${k}" ${f.length ? 'disabled aria-describedby="acc-nota"' : ''} onclick="pedirAccion('${k}')">${def.label}</button>`;
+      }).join('');
+
+      document.getElementById('det-falta').innerHTML = `
+        <h3 class="card-title" id="det-falta-t" tabindex="-1">Qué falta</h3>
+        <p class="card-sub">${esc(siguientePaso(s))}</p>
+        <ul class="checklist">${items.join('')}</ul>
+        ${a.tramite ? `
+          <div class="det-bloque">
+            <div class="section-label">Recorrido del trámite</div>
+            ${APP.flowHTML(a.tramite, { compact: true })}
+          </div>` : ''}
+        <div class="det-bloque">
+          <div class="section-label">Acciones</div>
+          <div class="btn-row">${botones}</div>
+          ${nota ? `<p class="help" id="acc-nota">${esc(nota)}</p>` : ''}
+          ${ro && s.estado === 'Emitido' ? '<p class="help">Reabre la solicitud solo si la emisión fue un error.</p>' : ''}
+          <p class="help">
+            ${s.activo === false ? 'La solicitud está inactiva.' : 'La solicitud está activa.'}
+            <button type="button" class="btn-link" id="acc-activo" onclick="alternarActivo()">${s.activo === false ? 'Activar solicitud' : 'Desactivar solicitud'}</button>
+          </p>
+        </div>`;
+    }
+
+    function pintarTabs(s) {
+      const a = avance(s);
+      const items = [
+        { id: 'resumen', label: 'Resumen' },
+        { id: 'requisitos', label: 'Requisitos', count: a.reqOk + '/' + a.reqTotal },
+        { id: 'pago', label: 'Pago' },
+        { id: 'areas', label: 'Áreas', count: a.areasOk + '/' + a.areasTotal },
+        { id: 'mensaje', label: 'Mensaje' },
+        { id: 'historial', label: 'Historial', count: (s.historial || []).length }
+      ];
+      document.getElementById('det-tabs').innerHTML = APP.tabsHTML(items, D.tab, 'verPestana');
+    }
+
+    // Cambia de pestaña sin re-pintar nada: el texto escrito en otras secciones se conserva
+    function verPestana(id, irAlTitulo) {
+      if (TABS.indexOf(id) < 0) return;
+      D.tab = id;
+      TABS.forEach(t => { document.getElementById('pan-' + t).hidden = t !== id; });
+      document.querySelectorAll('#det-tabs .tab').forEach((b, i) => {
+        const on = TABS[i] === id;
+        b.classList.toggle('active', on);
+        b.setAttribute('aria-selected', on);
+      });
+      if (irAlTitulo) {
+        const h = document.getElementById('pan-' + id + '-t');
+        if (h) { h.focus({ preventScroll: true }); h.scrollIntoView({ block: 'start' }); }
+      }
+    }
+
+    function pintarPanel(id, s) {
+      const el = document.getElementById('pan-' + id);
+      if (!el) return;
+      if (id === 'resumen') el.innerHTML = htmlResumen(s);
+      else if (id === 'requisitos') el.innerHTML = htmlRequisitos(s);
+      else if (id === 'pago') el.innerHTML = htmlPago(s);
+      else if (id === 'historial') el.innerHTML = htmlHistorial(s);
+      else if (id === 'areas') {
+        // Conserva la observación escrita y aún no guardada
+        const prev = document.getElementById('area-obs');
+        const borrador = prev ? { i: prev.getAttribute('data-i'), v: prev.value } : null;
+        el.innerHTML = htmlAreas(s);
+        const nuevo = document.getElementById('area-obs');
+        if (borrador && nuevo && nuevo.getAttribute('data-i') === borrador.i) nuevo.value = borrador.v;
+      }
+    }
+
+    function titulo(id, texto) { return `<h3 id="pan-${id}-t" tabindex="-1">${texto}</h3>`; }
+    function kv(pares) {
+      return '<dl class="kv">' + pares.filter(Boolean).map(p => `<dt>${p[0]}</dt><dd>${p[2] ? p[1] : esc(p[1] == null || p[1] === '' ? '-' : p[1])}</dd>`).join('') + '</dl>';
+    }
+
+    // ----- Resumen -----
+    function htmlResumen(s) {
+      const dias = diasTranscurridos(s.fecha);
+      return `
+        ${titulo('resumen', 'Resumen')}
+        <div class="det-cols">
+          <div>
+            <div class="section-label">Datos del solicitante</div>
+            ${kv([
+              ['Código', s.alumnoCodigo],
+              ['Nombres y apellidos', s.alumnoNombre],
+              ['DNI', s.alumnoDni],
+              ['Correo', s.alumnoEmail],
+              ['Teléfono o celular', s.alumnoTelefono || s.alumnoCelular]
+            ])}
+          </div>
+          <div>
+            <div class="section-label">Datos académicos</div>
+            ${kv([
+              ['Carrera', s.carrera],
+              ['Periodo académico', s.periodo],
+              ['Sección', s.seccion]
+            ])}
+          </div>
+          <div>
+            <div class="section-label">Sede y registro</div>
+            ${kv([
+              ['Institución', s.institucion],
+              ['Sede designada', s.sede || s.sedeCodigo],
+              ['Fecha de registro', fechaRegistro(s)],
+              ['Tiempo transcurrido', dias ? pl(dias, 'día', 'días') : '-'],
+              s.origen ? ['Origen', s.origen] : null,
+              s.area ? ['Área responsable', s.area] : null,
+              ['Vigencia', s.activo === false ? 'Inactiva' : 'Activa']
+            ])}
+          </div>
+          <div>
+            <div class="section-label">Detalle de la solicitud</div>
+            <p class="det-texto">${esc(s.detalle || 'El alumno no dejó un detalle adicional.')}</p>
+            ${(s.motivo || s.adjunto || s.observacion) ? '<div class="det-bloque">' + kv([
+              s.motivo ? ['Motivo', s.motivo] : null,
+              s.adjunto ? ['Archivo adjunto', s.adjunto] : null,
+              s.observacion ? ['Observación que ve el alumno', s.observacion] : null
+            ]) + '</div>' : ''}
+          </div>
+        </div>`;
+    }
+
+    // ----- Requisitos -----
+    function tiposDe(r) {
+      const t = (String(r.tipoArchivo || '').toLowerCase().match(/pdf|jpe?g|png|docx?|xlsx?/g) || []);
+      const lista = t.length ? t : ['pdf', 'jpg', 'png'];
+      if (lista.indexOf('jpg') >= 0 && lista.indexOf('jpeg') < 0) lista.push('jpeg');
+      if (lista.indexOf('jpeg') >= 0 && lista.indexOf('jpg') < 0) lista.push('jpg');
+      return lista;
+    }
+    function tiposTexto(r) { return tiposDe(r).filter(x => x !== 'jpeg').map(x => x.toUpperCase()).join(', '); }
+    function reqPill(r) { return r.cumple ? '<span class="pill ok">Conforme</span>' : '<span class="pill warn">Por revisar</span>'; }
+
+    function htmlRequisitos(s) {
+      const reqs = s.requisitos || [];
+      const ro = soloLectura(s);
+      if (!reqs.length) {
+        return `${titulo('requisitos', 'Requisitos')}
+          <p class="help">Esta solicitud no tiene requisitos documentarios adjuntos.${s.adjunto ? ' El alumno adjuntó el archivo ' + esc(s.adjunto) + '.' : ''}</p>`;
+      }
+      const ok = reqs.filter(r => r.cumple).length;
+      return `
+        ${titulo('requisitos', 'Requisitos')}
+        <p class="help"><b id="req-contador">${ok} de ${reqs.length} conformes</b>. ${ro ? 'La solicitud está cerrada: los requisitos quedan en solo lectura.' : 'Mira cada archivo y marca los que están conformes. Si el alumno subió uno equivocado, puedes cambiarlo.'}</p>
+        ${reqs.map((r, i) => {
+          const esImg = /\.(jpe?g|png)$/i.test(r.archivo || '');
+          return `
+          <div class="item-card">
+            <div class="item-card-head">
+              <span class="n">Requisito ${i + 1} de ${reqs.length}</span>
+              <span id="req-pill-${i}">${reqPill(r)}</span>
+            </div>
+            <p class="it-titulo">${esc(r.titulo || 'Requisito')}</p>
+            <p class="help">Archivo: <b>${esc(r.archivo || 'Sin archivo')}</b> (${esc(tiposTexto(r))})</p>
+            <div class="btn-row">
+              ${r.archivo ? `<button type="button" class="btn btn-outline btn-sm" id="req-ver-${i}" aria-expanded="false" aria-controls="req-vista-${i}" onclick="alternarVista(${i})">${svg(IC.ojo)}<span>Ver archivo</span></button>` : ''}
+              ${ro ? '' : `<button type="button" class="btn btn-sm" id="req-cambiar-${i}" aria-expanded="false" aria-controls="req-form-${i}" onclick="alternarCambiar(${i})">${svg(IC.subir)}<span>Cambiar archivo</span></button>`}
+              <label class="req-check"><input type="checkbox" id="req-chk-${i}" ${r.cumple ? 'checked' : ''} ${ro ? 'disabled' : ''} onchange="setCumple(${i}, this.checked)"> Conforme</label>
+            </div>
+            <div class="req-panel" id="req-vista-${i}" hidden>
+              <div class="req-vista">
+                <span class="req-vista-ico">${svg(esImg ? IC.imagen : IC.archivo, 30)}</span>
+                <div>
+                  <b>${esc(r.archivo || '')}</b>
+                  <span class="help">Vista previa simulada. En el sistema real aquí se muestra el archivo que subió el alumno.</span>
+                </div>
+              </div>
+            </div>
+            <div class="req-panel" id="req-form-${i}" hidden>
+              <div class="field">
+                <label for="req-file-${i}">Archivo nuevo para el requisito ${i + 1}</label>
+                <input type="file" class="input" id="req-file-${i}" accept="${tiposDe(r).map(x => '.' + x).join(',')}" aria-describedby="req-ayuda-${i} req-err-${i}" onchange="validarArchivo(${i})">
+                <span class="hint" id="req-ayuda-${i}">Formato: ${esc(tiposTexto(r))}. Tamaño máximo: 5 MB. Reemplaza a ${esc(r.archivo || 'ningún archivo')}.</span>
+                <div class="field-error" id="req-err-${i}" hidden></div>
+              </div>
+              <div class="btn-row">
+                <button type="button" class="btn btn-secondary btn-sm" id="req-guardar-${i}" disabled onclick="guardarArchivo(${i})">Guardar archivo</button>
+                <button type="button" class="btn btn-ghost btn-sm" onclick="alternarCambiar(${i})">Cancelar</button>
+              </div>
+            </div>
+          </div>`;
+        }).join('')}`;
+    }
+
+    function alternarPanel(btnId, panelId, abierto, cerrado) {
+      const b = document.getElementById(btnId);
+      const p = document.getElementById(panelId);
+      if (!b || !p) return false;
+      p.hidden = !p.hidden;
+      b.setAttribute('aria-expanded', !p.hidden);
+      b.querySelector('span').textContent = p.hidden ? cerrado : abierto;
+      return !p.hidden;
+    }
+    function alternarVista(i) { alternarPanel('req-ver-' + i, 'req-vista-' + i, 'Ocultar vista previa', 'Ver archivo'); }
+    function alternarCambiar(i) {
+      const abierto = alternarPanel('req-cambiar-' + i, 'req-form-' + i, 'Cambiar archivo', 'Cambiar archivo');
+      if (abierto) enfocar('req-file-' + i);
+      else enfocar('req-cambiar-' + i);
+    }
+
+    function setCumple(i, cumple) {
+      const s = mutar(x => {
+        const r = (x.requisitos || [])[i];
+        if (!r) return;
+        r.cumple = cumple;
+        anotar(x, `Requisito ${i + 1} «${(r.titulo || '').slice(0, 40)}» marcado como ${cumple ? 'conforme' : 'por revisar'}`);
+      });
+      if (!s) return;
+      const reqs = s.requisitos || [];
+      // Solo se actualiza lo afectado: etiqueta, contador, "Qué falta" e historial
+      const pill = document.getElementById('req-pill-' + i);
+      if (pill && reqs[i]) pill.innerHTML = reqPill(reqs[i]);
+      const cont = document.getElementById('req-contador');
+      if (cont) cont.textContent = `${reqs.filter(r => r.cumple).length} de ${reqs.length} conformes`;
+      refrescar([]);
+    }
+
+    function validarArchivo(i) {
+      const s = actual();
+      const r = s && (s.requisitos || [])[i];
+      const input = document.getElementById('req-file-' + i);
+      const err = document.getElementById('req-err-' + i);
+      const btn = document.getElementById('req-guardar-' + i);
+      if (!r || !input) return null;
+      const f = input.files && input.files[0];
+      let msg = '';
+      if (!f) msg = 'Elige un archivo para continuar.';
+      else {
+        const ext = (f.name.split('.').pop() || '').toLowerCase();
+        if (tiposDe(r).indexOf(ext) < 0) msg = `El archivo debe ser ${tiposTexto(r)}. Elegiste un archivo .${ext}.`;
+        else if (f.size > MAX_ARCHIVO) msg = `El archivo pesa ${(f.size / 1048576).toFixed(1)} MB. El máximo es 5 MB.`;
+      }
+      err.textContent = msg;
+      err.hidden = !msg;
+      input.classList.toggle('is-invalid', !!msg);
+      btn.disabled = !!msg;
+      return msg ? null : f;
+    }
+
+    function guardarArchivo(i) {
+      const f = validarArchivo(i);
+      if (!f) { enfocar('req-file-' + i); return; }
+      const s = mutar(x => {
+        const r = (x.requisitos || [])[i];
+        if (!r) return;
+        const anterior = r.archivo;
+        r.archivo = f.name;
+        anotar(x, `Archivo del requisito ${i + 1} «${(r.titulo || '').slice(0, 40)}» cambiado de ${anterior || 'sin archivo'} a ${f.name}`);
+      });
+      if (!s) return;
+      refrescar(['requisitos']);
+      enfocar('req-cambiar-' + i);
+      APP.toast({ icon: 'ok', title: 'Archivo cambiado', body: `El requisito ${i + 1} ahora tiene el archivo <b>${esc(f.name)}</b>.` });
+    }
+
+    // ----- Pago -----
+    function htmlPago(s) {
+      const p = s.pago || {};
+      const pg = pagoDe(s);
+      const a = avance(s);
+      const ro = soloLectura(s);
+      const momento = s.pagoMomento || (a.tramite && a.tramite.pagoMomento);
+      let acciones;
+      if (pg.gratis) acciones = '<p class="help">Este trámite no tiene costo. No hace falta generar una obligación de pago.</p>';
+      else if (pg.pagado) acciones = '<p class="help">El pago ya está registrado. No hay acciones pendientes.</p>';
+      else if (ro) acciones = '<p class="help">La solicitud está cerrada. No se generan obligaciones de pago.</p>';
+      else if (pg.obligacion) acciones = `<p class="help">La obligación de pago ya está generada${p.fechaObligacion ? ' (' + esc(APP.fechaCorta(p.fechaObligacion, true)) + ')' : ''}. Falta que el alumno pague en bancos o banca por internet.</p>`;
+      else acciones = `
+        <div class="btn-row">
+          <button type="button" class="btn btn-warning-pay" id="pago-generar" onclick="generarObligacion()">${svg(IC.tarjeta, 16)}<span>Generar obligación de pago</span></button>
+        </div>
+        <p class="help">Habilita la orden para que el alumno pague ${esc(money(pg.costo))} en bancos o banca por internet.</p>`;
+      const demo = (!pg.ok && !ro) ? '<p class="help"><button type="button" class="btn-link det-demo" id="pago-demo" onclick="simularPago()">Simular pago (demo)</button></p>' : '';
+      return `
+        ${titulo('pago', 'Pago')}
+        <div class="det-cols">
+          <div>
+            ${kv([
+              ['Estado del pago', pagoPill(s), true],
+              ['Monto', money(s.costo || p.monto)],
+              ['Concepto', s.conceptoCodigo],
+              ['N° de documento', p.nroDocumento || p.operacion],
+              ['Fecha de pago', (p.fechaPago || p.fecha) ? APP.fechaCorta(p.fechaPago || p.fecha, true) : ''],
+              (p.metodo && p.metodo !== '-') ? ['Medio de pago', p.metodo] : null,
+              ['Carrera', s.carrera || p.carrera],
+              momento ? ['Momento del pago', momento !== 'despues' ? 'Al solicitar' : (etapas(s).some(p => p.cobrarAlTerminar) ? 'Tras la revisión de ' + (etapas(s).find(p => p.cobrarAlTerminar).area || 'un área') : 'Después de la aprobación')] : null,
+              ['Obligación de pago', pg.gratis ? 'No aplica' : (pg.obligacion ? 'Generada' : 'Sin generar')]
+            ])}
+          </div>
+          <div>
+            <div class="section-label">Qué puedes hacer</div>
+            ${acciones}
+            ${demo}
+          </div>
+        </div>`;
+    }
+
+    function generarObligacion() {
+      const s0 = actual();
+      const pg = s0 && pagoDe(s0);
+      if (!s0 || pg.ok || pg.obligacion || soloLectura(s0)) return;
+      const s = DB.generarObligacionPago(D.id);
+      if (!s) return;
+      refrescar(['pago']);
+      if (!enfocar('pago-demo')) enfocar('pan-pago-t');
+      APP.toast({ icon: 'ok', title: 'Obligación de pago generada', body: `El alumno ya puede pagar ${esc(money(s.costo))} en bancos autorizados.` });
+    }
+
+    function simularPago() {
+      const s0 = actual();
+      if (!s0 || pagoDe(s0).ok) return;
+      const s = DB.simularPagoSolicitud(D.id);
+      if (!s) return;
+      refrescar(['pago', 'areas']);
+      enfocar('pan-pago-t');
+      APP.toast({ icon: 'ok', title: 'Pago simulado', body: `Se registró el pago con el comprobante ${esc(s.pago.nroDocumento)}.` });
+    }
+
+    // ----- Áreas -----
+    function htmlAreas(s) {
+      const et = etapas(s);
+      const a = avance(s);
+      const ro = soloLectura(s);
+      if (!et.length) {
+        return `${titulo('areas', 'Áreas')}<p class="help">Esta solicitud se resuelve sin pasar por otras áreas.</p>`;
+      }
+      let aviso = 'Las áreas se atienden en orden. Solo se puede registrar la que está en curso.';
+      let alerta = '';
+      if (ro) aviso = 'La solicitud está cerrada: las áreas quedan en solo lectura.';
+      else if (a.bloqueoPago) {
+        aviso = '';
+        alerta = '<div class="alert warn" role="note"><div><b>En espera de pago.</b> El alumno debe pagar el trámite para que las áreas ' + (a.pagoIntermedio ? 'siguientes continúen' : 'empiecen a atenderlo') + '.</div></div>';
+      }
+      return `
+        ${titulo('areas', 'Áreas')}
+        ${aviso ? `<p class="help">${aviso}</p>` : ''}
+        ${alerta}
+        ${et.map((p, i) => {
+          const hecha = etapaHecha(p);
+          const vigente = i === a.vigente;
+          const editable = vigente && !ro && !a.bloqueoPago;
+          const pill = hecha ? `<span class="pill ok">${esc(p.estado)}</span>` : (editable ? '<span class="pill info">En curso</span>' : '<span class="pill gray">Pendiente</span>');
+          const plazo = p.plazoHoras == null ? '' : (Number(p.plazoHoras) === 0 ? 'Plazo: inmediato' : 'Plazo: ' + pl(Number(p.plazoHoras), 'hora', 'horas'));
+          const retraso = hecha ? '' : (p.diasRetraso > 0 ? `<span class="pill err">${pl(Number(p.diasRetraso), 'día', 'días')} de retraso</span>` : '<span class="pill ok">Dentro del plazo</span>');
+          return `
+          <div class="item-card ${editable ? 'is-current' : ''}">
+            <div class="item-card-head">
+              <span class="n">Área ${i + 1} de ${et.length}</span>
+              ${pill}
+            </div>
+            <p class="it-titulo">${esc(p.area || 'Área sin nombre')}</p>
+            ${p.descripcion ? `<p class="help">Tarea: ${esc(p.descripcion)}</p>` : ''}
+            <p class="help">${[plazo ? esc(plazo) : '', retraso, p.fechaAtencion ? 'Atendida el ' + esc(APP.fechaCorta(p.fechaAtencion, true)) : ''].filter(Boolean).join(' · ')}</p>
+            ${hecha ? `<p class="help">Observación interna: <b>${esc(p.observacionInterna || 'Sin observación')}</b></p>` : ''}
+            ${editable ? `
+              <div class="area-form">
+                <div class="field">
+                  <label for="area-obs">Observación interna (opcional)</label>
+                  <input type="text" class="input" id="area-obs" data-i="${i}" maxlength="300" placeholder="Ej. Conforme, sin deudas pendientes" value="${esc(p.observacionInterna || '')}">
+                </div>
+                <button type="button" class="btn btn-secondary" id="area-atender" onclick="pedirAtenderArea(${i})">Marcar como atendida</button>
+              </div>` : ''}
+            ${!hecha && !editable && !ro && !a.bloqueoPago ? '<p class="help">Se habilita cuando se atienda el área anterior.</p>' : ''}
+          </div>`;
+        }).join('')}`;
+    }
+
+    function pedirAtenderArea(i) {
+      const s = actual();
+      if (!s) return;
+      const a = avance(s);
+      if (i !== a.vigente || a.bloqueoPago || soloLectura(s)) return;
+      const p = etapas(s)[i];
+      APP.confirm({
+        title: 'Marcar área como atendida',
+        body: `Se registrará que <b>${esc(p.area || 'el área')}</b> atendió la solicitud. Este registro no se puede deshacer.`,
+        confirmLabel: 'Marcar como atendida',
+        onConfirm: () => atenderArea(i)
+      });
+    }
+
+    function atenderArea(i) {
+      const campo = document.getElementById('area-obs');
+      const obs = campo ? campo.value.trim() : '';
+      let aprobada = false;
+      const s = mutar(x => {
+        const et = etapas(x);
+        const p = et[i];
+        if (!p || etapaHecha(p)) return;
+        p.estado = 'Procede';
+        p.observacionInterna = obs;
+        p.fechaAtencion = APP.nowStamp();
+        if (x.estado === 'Solicitado') x.estado = 'En revisión';
+        anotar(x, `Área ${i + 1} (${p.area || 'sin nombre'}) atendida. Observación: ${obs || 'Conforme'}`);
+        // Trámite con pago después de esta revisión: la solicitud espera al alumno
+        if (p.cobrarAlTerminar && !pagoDe(x).ok) {
+          x.estado = 'Pendiente de pago';
+          anotar(x, 'En espera del pago del alumno para continuar');
+        }
+        // Regla heredada: al completar las áreas la solicitud se aprueba sola, salvo que el
+        // trámite exija una aprobación expresa o aún falte pago o requisitos.
+        const t = x.tramiteId ? DB.getTramite(x.tramiteId) : null;
+        const todas = et.every(etapaHecha);
+        if (todas && POR_ATENDER.includes(x.estado) && !(t && t.requiereAprobacion) && !faltantesDe(x).length) {
+          x.estado = 'Aprobado';
+          anotar(x, 'Solicitud aprobada al completarse todas las áreas');
+          aprobada = true;
+        }
+      });
+      if (!s) return;
+      if (campo) campo.value = '';
+      refrescar(['areas']);
+      if (!enfocar('area-obs')) enfocar('pan-areas-t');
+      const a = avance(s);
+      APP.toast({
+        icon: 'ok', title: 'Área atendida',
+        body: aprobada ? 'Se completaron todas las áreas y la solicitud quedó aprobada.' : (a.areasOk === a.areasTotal ? 'Se completaron todas las áreas. Revisa "Qué falta" para aprobar.' : `Sigue: ${esc(etapas(s)[a.vigente].area || 'siguiente área')}.`)
+      });
+    }
+    // Igual que faltantes(s, 'aprobar') pero sobre el objeto aún sin guardar
+    function faltantesDe(x) {
+      const reqs = x.requisitos || [];
+      const t = x.tramiteId ? DB.getTramite(x.tramiteId) : null;
+      const out = [];
+      if (!pagoDe(x).ok && ((x.pagoMomento || (t && t.pagoMomento)) !== 'despues' || etapas(x).some(p => p.cobrarAlTerminar && etapaHecha(p)))) out.push('pago');
+      if (reqs.some(r => !r.cumple)) out.push('requisitos');
+      return out;
+    }
+
+    // ----- Mensaje al alumno (se pinta una sola vez por detalle) -----
+    function htmlMensaje(s) {
+      const txt = s.mensajeSolicitante || '';
+      return `
+        ${titulo('mensaje', 'Mensaje al alumno')}
+        <p class="help">El alumno recibe este mensaje en su correo y lo ve en el seguimiento de su trámite.</p>
+        <div class="field">
+          <label for="msg-texto">Mensaje</label>
+          <textarea class="input" id="msg-texto" rows="5" maxlength="1000" aria-describedby="msg-err msg-info msg-cont" placeholder="Escribe indicaciones, enlaces de pago o la respuesta de la institución" oninput="onMensaje()">${esc(txt)}</textarea>
+          <div class="field-error" id="msg-err" hidden>Escribe el mensaje antes de enviarlo.</div>
+          <div class="msg-pie">
+            <span class="help" id="msg-info">${txt ? 'Este es el último mensaje enviado.' : 'Aún no se ha enviado ningún mensaje.'}</span>
+            <span class="help" id="msg-cont">${txt.length} de 1000 caracteres</span>
+          </div>
+        </div>
+        <div class="btn-row msg-acciones">
+          <button type="button" class="btn btn-secondary" id="msg-enviar" onclick="enviarMensaje()">Guardar y enviar mensaje</button>
+        </div>`;
+    }
+
+    function estadoMensaje(s) {
+      const ta = document.getElementById('msg-texto');
+      if (!ta) return;
+      const guardado = (s.mensajeSolicitante || '').trim();
+      const sucio = ta.value.trim() !== guardado;
+      document.getElementById('msg-cont').textContent = `${ta.value.length} de 1000 caracteres`;
+      document.getElementById('msg-info').textContent = sucio ? 'Borrador sin enviar.' : (guardado ? 'Este es el último mensaje enviado.' : 'Aún no se ha enviado ningún mensaje.');
+      if (!sucio) D.msgPropuesto = false;
+      return sucio;
+    }
+    function onMensaje() {
+      const s = actual();
+      if (!s) return;
+      const ta = document.getElementById('msg-texto');
+      if (ta.value.trim()) { document.getElementById('msg-err').hidden = true; ta.classList.remove('is-invalid'); }
+      const sucio = estadoMensaje(s);
+      if (sucio !== D.msgSucio) { D.msgSucio = sucio; pintarFalta(s); }
+    }
+    // El motivo de observar, rechazar o cancelar se propone como mensaje, sin pisar un borrador
+    function proponerMensaje(s, motivo) {
+      const ta = document.getElementById('msg-texto');
+      if (!ta) return false;
+      if (ta.value.trim() && ta.value.trim() !== (s.mensajeSolicitante || '').trim()) return false;
+      ta.value = motivo.slice(0, 1000);
+      D.msgPropuesto = true;
+      D.msgSucio = !!estadoMensaje(s);
+      return D.msgSucio;
+    }
+
+    function enviarMensaje() {
+      const ta = document.getElementById('msg-texto');
+      const val = ta.value.trim();
+      if (!val) {
+        document.getElementById('msg-err').hidden = false;
+        ta.classList.add('is-invalid');
+        ta.focus();
+        return;
+      }
+      const s = DB.grabarMensajeSolicitante(D.id, val);
+      if (!s) return;
+      const alumno = s.alumnoId ? DB.getUsuario(s.alumnoId) : null;
+      const para = (alumno && alumno.email) || s.alumnoEmail || ((s.alumnoCodigo || 'alumno') + '@uwiener.edu.pe');
+      D.msgSucio = false;
+      D.msgPropuesto = false;
+      estadoMensaje(s);
+      document.getElementById('msg-info').textContent = 'Mensaje enviado. Este es el último mensaje enviado.';
+      refrescar([]);
+      // Un solo aviso: el shell resume el correo enviado
+      APP.sendMail({
+        to: para,
+        cc: adminUser.email,
+        subject: esc(`Solicitud ${s.ticket || s.id}: ${s.tramiteNombre || 'trámite'}`),
+        lines: [`Hola, ${s.alumnoNombre || 'estudiante'}:`, val, 'Puedes ver el estado de tu trámite en la intranet.']
+      });
+    }
+
+    // ----- Historial -----
+    function htmlHistorial(s) {
+      const h = (s.historial || []).slice().reverse();
+      if (!h.length) return `${titulo('historial', 'Historial')}<p class="help">Aún no hay movimientos registrados.</p>`;
+      return `
+        ${titulo('historial', 'Historial')}
+        <p class="help">Todo lo que pasó con la solicitud, del movimiento más reciente al más antiguo.</p>
+        <ol class="timeline">
+          ${h.map(x => `
+            <li>
+              <span class="tl-when">${esc(APP.fechaCorta(x.fecha, true))}${x.usuario ? ' · ' + esc(x.usuario) : ''}</span>
+              <b>${esc(APP.estadoLabel(x.estado))}</b>${x.nota ? '. ' + esc(x.nota) : ''}
+            </li>`).join('')}
+        </ol>`;
+    }
+
+    // ----- Acciones de estado -----
+    function pedirAccion(k) {
+      const s = actual();
+      const def = ACCIONES[k];
+      if (!s || !def || accionesPara(s.estado).indexOf(k) < 0) return;
+      if (def.valida && faltantes(s, def.valida).length) return;
+      APP.confirm({
+        title: def.titulo,
+        body: `<b>Ticket ${esc(s.ticket || s.id)}</b>, ${esc(s.alumnoNombre || 'alumno')}.<br>${def.cuerpo}`,
+        confirmLabel: def.confirmar || def.label,
+        cancelLabel: 'Volver',
+        danger: !!def.peligro,
+        reason: !!def.motivo,
+        reasonLabel: def.etiqueta || 'Motivo (opcional)',
+        reasonRequired: def.motivo === 'obligatorio',
+        onConfirm: motivo => aplicarAccion(k, motivo || '')
+      });
+    }
+
+    function aplicarAccion(k, motivo) {
+      const def = ACCIONES[k];
+      const s = mutar(x => {
+        x.estado = def.estado;
+        if (k === 'aprobar' || k === 'reabrir') x.activo = true;
+        if (k === 'rechazar') x.activo = false;
+        if (k === 'observar') x.requiereSubsanacion = true;
+        // El alumno ve el motivo en "Mis trámites" a través de observacion
+        if (def.motivo === 'obligatorio' && motivo) x.observacion = motivo;
+        anotar(x, def.nota + (motivo ? '. Motivo: ' + motivo : ''));
+      });
+      if (!s) return;
+      const propuesto = (def.motivo === 'obligatorio' && motivo) ? proponerMensaje(s, motivo) : false;
+      refrescar(['resumen', 'requisitos', 'pago', 'areas']);
+      const primera = accionesPara(s.estado)[0];
+      if (!enfocar('acc-' + primera)) enfocar('det-falta-t');
+      APP.toast({
+        icon: 'ok', title: def.hecho,
+        body: propuesto ? 'El motivo quedó en el historial y como borrador del mensaje al alumno. Revísalo y envíalo.' : (motivo ? 'El motivo quedó en el historial.' : `El estado ahora es ${esc(APP.estadoLabel(s.estado))}.`)
+      });
+    }
+
+    function alternarActivo() {
+      const s0 = actual();
+      if (!s0) return;
+      const desactivar = s0.activo !== false;
+      APP.confirm({
+        title: desactivar ? 'Desactivar la solicitud' : 'Activar la solicitud',
+        body: desactivar ? 'La solicitud quedará marcada como inactiva. Su estado no cambia y puedes activarla de nuevo.' : 'La solicitud volverá a estar activa. Su estado no cambia.',
+        confirmLabel: desactivar ? 'Desactivar' : 'Activar',
+        cancelLabel: 'Volver',
+        danger: desactivar,
+        onConfirm: () => {
+          const s = mutar(x => {
+            x.activo = !desactivar;
+            anotar(x, desactivar ? 'Solicitud desactivada' : 'Solicitud activada');
+          });
+          if (!s) return;
+          refrescar(['resumen']);
+          enfocar('acc-activo');
+          APP.toast({ icon: 'ok', title: desactivar ? 'Solicitud desactivada' : 'Solicitud activada', body: '' });
+        }
+      });
+    }
+
+    // ---------------------------------------------------------------------
+    // Inicio
+    // ---------------------------------------------------------------------
+    if (ctx && ctx.mount) {
+      leerURL();
+      renderBase();
+      renderFiltros();
+      renderLista();
+      window.addEventListener('hashchange', sincronizarVista);
+      sincronizarVista();
+    }
+  </script>
+</body>
+
+</html>

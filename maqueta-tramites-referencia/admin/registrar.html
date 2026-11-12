@@ -1,0 +1,1393 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Registrar solicitud · Wiener Admin</title>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Lato:wght@400;700;900&family=Roboto:wght@400;500;700&display=swap"
+    rel="stylesheet">
+  <link rel="stylesheet" href="../css/styles.css">
+  <style>
+    /* Estilos propios de Registrar solicitud. Solo tokens de :root. */
+    .reg-wrap [hidden] {
+      display: none !important;
+    }
+
+    .reg-step {
+      scroll-margin-top: 84px;
+    }
+
+    .reg-wrap p.help {
+      margin: 4px 0 0;
+    }
+
+    .reg-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin-bottom: 10px;
+    }
+
+    .reg-step-link {
+      text-decoration: none;
+      color: inherit;
+    }
+
+    .reg-step-link:hover {
+      color: var(--brand);
+    }
+
+    .reg-fieldset {
+      border: 0;
+      padding: 0;
+      margin: 0;
+      min-width: 0;
+    }
+
+    .reg-fieldset legend {
+      padding: 0;
+      margin-bottom: 8px;
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text-soft);
+    }
+
+    .reg-block {
+      margin-top: 16px;
+    }
+
+    /* Paso 1: búsqueda y alumno elegido */
+    .reg-search-row {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .reg-search-row .input-wrap-icon-left {
+      flex: 1 1 220px;
+      width: auto;
+    }
+
+    .reg-results {
+      list-style: none;
+      margin: 14px 0 0;
+      padding: 0;
+      border: 1px solid var(--border-soft);
+      border-radius: 12px;
+      overflow: hidden;
+    }
+
+    .reg-results li {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+      padding: 12px 16px;
+    }
+
+    .reg-results li + li {
+      border-top: 1px solid var(--border-soft);
+    }
+
+    .reg-res-main {
+      flex: 1 1 220px;
+      min-width: 0;
+    }
+
+    .reg-res-main b {
+      overflow-wrap: anywhere;
+    }
+
+    .reg-person {
+      display: flex;
+      gap: 14px;
+      align-items: center;
+      padding: 14px 16px;
+      border: 1px solid var(--border-soft);
+      border-radius: 12px;
+      background: var(--brand-soft);
+      margin-bottom: 16px;
+    }
+
+    .reg-person > div {
+      min-width: 0;
+    }
+
+    .reg-person-name {
+      display: block;
+      font-family: 'Lato', sans-serif;
+      font-size: 16px;
+      overflow-wrap: anywhere;
+    }
+
+    .reg-avatar {
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      background: var(--brand);
+      color: var(--surface);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      flex-shrink: 0;
+    }
+
+    .reg-kv dd {
+      overflow-wrap: anywhere;
+    }
+
+    .reg-narrow {
+      max-width: 520px;
+    }
+
+    /* Paso 2: tarjetas de trámite */
+    .tram-opts {
+      display: grid;
+      gap: 10px;
+    }
+
+    .tram-opt {
+      display: block;
+      position: relative;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 14px 16px;
+      background: var(--surface);
+      cursor: pointer;
+      transition: border-color .15s ease;
+    }
+
+    .tram-opt:hover {
+      border-color: var(--brand);
+    }
+
+    .tram-opt.checked {
+      border-color: var(--brand);
+      background: var(--brand-soft);
+      box-shadow: 0 0 0 1px var(--brand) inset;
+    }
+
+    .tram-opt:focus-within,
+    .reg-drop:focus-within {
+      outline: 2px solid var(--brand);
+      outline-offset: 2px;
+    }
+
+    .tram-opt input,
+    .reg-drop input {
+      position: absolute;
+      opacity: 0;
+      width: 1px;
+      height: 1px;
+      pointer-events: none;
+    }
+
+    .tram-opt-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .tram-opt-name {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      min-width: 0;
+      font-family: 'Lato', sans-serif;
+      font-size: 15px;
+      font-weight: 700;
+      line-height: 1.3;
+      overflow-wrap: anywhere;
+    }
+
+    .tram-opt-radio {
+      width: 18px;
+      height: 18px;
+      margin-top: 1px;
+      border: 2px solid var(--border);
+      border-radius: 50%;
+      flex-shrink: 0;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      background: var(--surface);
+    }
+
+    .tram-opt.checked .tram-opt-radio {
+      border-color: var(--brand);
+    }
+
+    .tram-opt.checked .tram-opt-radio::after {
+      content: "";
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--brand);
+    }
+
+    .tram-opt-cost {
+      font-family: 'Lato', sans-serif;
+      font-size: 15px;
+      font-weight: 900;
+      color: var(--brand-dark);
+      white-space: nowrap;
+    }
+
+    .tram-opt-flow {
+      display: block;
+      margin-top: 12px;
+    }
+
+    .tram-opt.is-static {
+      cursor: default;
+    }
+
+    .tram-opt.is-static:hover {
+      border-color: var(--border);
+    }
+
+    .reg-wrap .flow-step {
+      max-width: calc(100% - 26px);
+    }
+
+    .reg-wrap .flow-txt b {
+      overflow-wrap: anywhere;
+    }
+
+    .reg-sub {
+      font-family: 'Lato', sans-serif;
+      font-size: 14px;
+      font-weight: 700;
+      margin: 22px 0 4px;
+    }
+
+    .tram-no {
+      list-style: none;
+      margin: 10px 0 0;
+      padding: 0;
+    }
+
+    .tram-no li {
+      padding: 10px 14px;
+      border: 1px dashed var(--border);
+      border-radius: 10px;
+      background: var(--surface-2);
+      color: var(--text-muted);
+      font-size: 13.5px;
+      line-height: 1.45;
+    }
+
+    .tram-no li + li {
+      margin-top: 8px;
+    }
+
+    .tram-no b {
+      display: block;
+      color: var(--text-soft);
+      overflow-wrap: anywhere;
+    }
+
+    /* Paso 3: datos y adjuntos */
+    .reg-form {
+      display: grid;
+      gap: 18px;
+      max-width: 760px;
+      margin-top: 14px;
+    }
+
+    .reg-req {
+      border: 1px solid var(--border-soft);
+      border-radius: 10px;
+      padding: 14px 16px;
+    }
+
+    .reg-req + .reg-req {
+      margin-top: 10px;
+    }
+
+    .reg-req-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+      font-size: 14px;
+    }
+
+    .reg-req-head b {
+      overflow-wrap: anywhere;
+    }
+
+    .reg-drop {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      position: relative;
+      margin-top: 10px;
+      padding: 14px 16px;
+      border: 2px dashed var(--border);
+      border-radius: 10px;
+      background: var(--bg);
+      color: var(--text-soft);
+      cursor: pointer;
+      transition: border-color .15s ease, background .15s ease;
+    }
+
+    .reg-drop:hover,
+    .reg-drop.is-over {
+      border-color: var(--brand);
+      background: var(--brand-soft);
+    }
+
+    .reg-drop svg {
+      flex-shrink: 0;
+    }
+
+    .reg-drop b {
+      display: block;
+      font-size: 13.5px;
+      color: var(--text);
+    }
+
+    .reg-drop small {
+      font-size: 12px;
+      color: var(--text-muted);
+    }
+
+    .reg-file {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin-top: 10px;
+      padding: 10px 14px;
+      border: 1px solid var(--ok-bd);
+      border-radius: 10px;
+      background: var(--ok-bg);
+    }
+
+    .reg-file-info {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      min-width: 0;
+      color: var(--ok-fg);
+    }
+
+    .reg-file-info svg {
+      flex-shrink: 0;
+    }
+
+    .reg-file-info b {
+      display: block;
+      font-size: 13.5px;
+      overflow-wrap: anywhere;
+    }
+
+    .reg-file-info small {
+      font-size: 12px;
+    }
+
+    .reg-req .field-error,
+    .reg-fieldset .field-error {
+      margin-top: 8px;
+    }
+
+    /* Resumen y acciones */
+    .reg-resumen-grid {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+      gap: 24px;
+      margin: 14px 0 18px;
+    }
+
+    .reg-resumen-grid .checklist b {
+      overflow-wrap: anywhere;
+    }
+
+    .reg-actions {
+      padding-top: 18px;
+      border-top: 1px solid var(--border-soft);
+    }
+
+    .reg-global {
+      margin-bottom: 14px;
+    }
+
+    /* Pantalla de éxito */
+    .reg-exito {
+      text-align: center;
+      padding: 40px 24px;
+    }
+
+    .reg-exito-ico {
+      width: 64px;
+      height: 64px;
+      border-radius: 50%;
+      background: var(--ok-bg);
+      color: var(--ok-fg);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 14px;
+    }
+
+    .reg-exito h2 {
+      font-size: 20px;
+      outline: none;
+    }
+
+    .reg-ticket {
+      font-family: 'Lato', sans-serif;
+      font-size: 30px;
+      font-weight: 900;
+      color: var(--brand-dark);
+      margin: 6px 0 10px;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .reg-exito p {
+      max-width: 520px;
+      margin: 0 auto 8px;
+      font-size: 14px;
+      line-height: 1.55;
+      color: var(--text-soft);
+      overflow-wrap: anywhere;
+    }
+
+    .reg-exito .btn-row {
+      justify-content: center;
+      margin-top: 20px;
+    }
+
+    @media (max-width: 920px) {
+      .reg-resumen-grid {
+        grid-template-columns: minmax(0, 1fr);
+        gap: 16px;
+      }
+
+      .reg-actions .btn,
+      .reg-exito .btn {
+        flex: 1 1 100%;
+        justify-content: center;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <script src="../js/data.js"></script>
+  <script src="../js/shell.js"></script>
+  <script src="../js/doc.js"></script>
+  <script>
+    const ctx = APP.renderShell('registrar');
+    const session = ctx ? ctx.session : null;
+    const esc = APP.esc;
+    const $ = id => document.getElementById(id);
+
+    const INST_WIENER = 'Universidad Privada Norbert Wiener';
+    const INST_CARRION = 'Instituto de Educación Superior Daniel Alcides Carrión';
+    const INSTITUCIONES = [
+      { id: 'todas', label: 'Ambas instituciones', sub: 'Busca en la universidad y en el instituto' },
+      { id: INST_WIENER, label: INST_WIENER, sub: 'Pregrado, posgrado y segundas especialidades' },
+      { id: INST_CARRION, label: INST_CARRION, sub: 'Carreras técnicas y formación continua' }
+    ];
+    const MOTIVOS = ['Trámite laboral', 'Trámite bancario', 'Beca de estudios', 'Trámite migratorio o visa', 'Continuidad de estudios', 'Trámite de grado y título', 'Personal u otro'];
+    const EXT_OK = ['pdf', 'jpg', 'jpeg', 'png'];
+    const MAX_BYTES = 5 * 1024 * 1024;
+
+    const svg = (inner, size) => `<svg width="${size || 16}" height="${size || 16}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${inner}</svg>`;
+    const ICO = {
+      search: svg('<circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>'),
+      check: svg('<polyline points="20 6 9 17 4 12"/>', 13),
+      wait: svg('<line x1="6" y1="12" x2="18" y2="12"/>', 13),
+      checkBig: svg('<polyline points="20 6 9 17 4 12"/>', 32),
+      clip: svg('<path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"/>', 22),
+      file: svg('<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/>', 20)
+    };
+
+    function estadoInicial() {
+      return {
+        inst: 'todas', q: '', alumnoId: null, cambiando: false, carrera: '',
+        tramiteId: '', avisoTramite: '',
+        motivo: '', obs: '', pago: '', recibo: '', files: {}, errors: {}
+      };
+    }
+    let S = estadoInicial();
+
+    /* ---------- Datos derivados ---------- */
+    function tienePermiso() {
+      if (!session) return false;
+      const u = DB.getUsuario(session.id);
+      return !!u && u.rol === 'administrativo' && (u.permisos || []).includes('registrar');
+    }
+    function alumno() { return S.alumnoId ? DB.getUsuario(S.alumnoId) : null; }
+    function tramite() { return S.tramiteId ? DB.getTramite(S.tramiteId) : null; }
+    function carrerasDe(a) {
+      return a.carreras && a.carreras.length ? a.carreras : [a.perfil && a.perfil.programa ? a.perfil.programa : 'Carrera general'];
+    }
+    function perfilDe(a) {
+      return Object.assign({}, a.perfil || { nivel: 'pregrado', ciclo: 4, creditos: 80, tercioSuperior: false, quintoSuperior: false, promedio: 14.5 }, { programa: S.carrera });
+    }
+    function reqsDe(t) {
+      return (t.requisitos || []).filter(r => r.activo !== false).slice().sort((a, b) => (a.orden || 0) - (b.orden || 0));
+    }
+    function pideArchivo(r) { return r.adjuntarArchivo !== false; }
+    function adjuntosDe(t) { return reqsDe(t).filter(pideArchivo); }
+    function textoPlazo(t) {
+      const n = Number(t.diasEntrega) || 0;
+      return DB.esInmediato(t) ? 'Entrega inmediata' : n + (n === 1 ? ' día hábil' : ' días hábiles');
+    }
+    function textoPago(t) {
+      if (!DB.tienePago(t)) return 'Sin costo';
+      return DB.momentoPagoTexto(t);
+    }
+    function textoAdjuntos(t) {
+      const n = adjuntosDe(t).length;
+      return n ? n + (n === 1 ? ' adjunto' : ' adjuntos') : 'Sin adjuntos';
+    }
+    function textoCosto(t) { return DB.tienePago(t) ? APP.money(t.costo) : 'Sin costo'; }
+    function tamano(bytes) {
+      if (bytes < 1024) return bytes + ' bytes';
+      if (bytes < 1024 * 1024) return Math.max(1, Math.round(bytes / 1024)) + ' KB';
+      return (bytes / (1024 * 1024)).toFixed(1).replace('.', ',') + ' MB';
+    }
+    // Los motivos de la base hablan al alumno; aquí se leen desde la ventanilla
+    function motivosVentanilla(t, perfil) {
+      const m = DB.motivosNoElegible(t, perfil).map(x => x.replace('estás en', 'está en').replace('Necesitas', 'Necesita').replace('tienes', 'tiene'));
+      return m.length ? m : ['No está disponible para este alumno'];
+    }
+    function clasificar(a) {
+      const p = perfilDe(a), si = [], no = [];
+      DB.tramites().forEach(t => (DB.elegible(t, p) ? si : no).push(t));
+      return { si, no, perfil: p };
+    }
+    function hayDatosPaso3() {
+      return !!(S.motivo || S.obs.trim() || S.pago === 'caja' || S.pago === 'pendiente' || S.recibo.trim() || Object.keys(S.files).length);
+    }
+    function hayDatos() { return !!(S.alumnoId || S.tramiteId || S.q.trim() || hayDatosPaso3()); }
+    function pagoListo(t) {
+      if (!DB.tienePago(t)) return true;
+      return S.pago === 'pendiente' || (S.pago === 'caja' && !!S.recibo.trim());
+    }
+    function adjuntosListos(t) { return adjuntosDe(t).every(r => S.files[r.id]); }
+    function paso3Completo() {
+      const t = tramite();
+      return !!t && !!S.motivo && pagoListo(t) && adjuntosListos(t);
+    }
+    function ajustarPago() {
+      const t = tramite();
+      if (t && !DB.tienePago(t)) { S.pago = 'exonerado'; S.recibo = ''; }
+      else if (S.pago === 'exonerado') S.pago = '';
+    }
+    // Si el trámite elegido no le corresponde al alumno, se suelta y se explica
+    function revisarTramite() {
+      if (!S.tramiteId) return;
+      const a = alumno(), t = tramite();
+      if (!t) {
+        S.avisoTramite = 'El trámite elegido ya no existe. Elige otro de la lista.';
+        S.tramiteId = ''; S.files = {};
+      } else if (a && !DB.elegible(t, perfilDe(a))) {
+        S.avisoTramite = '"' + t.nombre + '" no está disponible para este alumno: ' + motivosVentanilla(t, perfilDe(a)).join('; ') + '. Elige otro trámite.';
+        S.tramiteId = ''; S.files = {};
+      }
+    }
+
+    /* ---------- Utilidades de pintado ---------- */
+    function errHTML(key) {
+      const msg = S.errors[key] || '';
+      return `<div class="field-error" id="err-${key}" role="alert" ${msg ? '' : 'hidden'}>${esc(msg)}</div>`;
+    }
+    function setErr(key, msg) {
+      S.errors[key] = msg || '';
+      const el = $('err-' + key);
+      if (el) { el.textContent = msg || ''; el.hidden = !msg; }
+      const campo = { motivo: 'reg-motivo', recibo: 'reg-recibo' }[key];
+      const f = campo ? $(campo) : null;
+      if (f) {
+        f.classList.toggle('is-invalid', !!msg);
+        if (msg) f.setAttribute('aria-invalid', 'true'); else f.removeAttribute('aria-invalid');
+      }
+    }
+    function marcar(name) {
+      document.querySelectorAll('input[name="' + name + '"]').forEach(r => {
+        const l = r.closest('label');
+        if (l) l.classList.toggle('checked', r.checked);
+      });
+    }
+    function enfocar(key) {
+      let el = null;
+      if (key === 'alumno') el = $('reg-q') || $('reg-cambiar');
+      else if (key === 'tramite') el = document.querySelector('input[name="reg-tramite"]') || $('reg-paso-2');
+      else if (key === 'motivo') el = $('reg-motivo');
+      else if (key === 'pago') el = document.querySelector('input[name="reg-pago"]');
+      else if (key === 'recibo') el = $('reg-recibo');
+      else if (key.indexOf('req-') === 0) el = $('reg-file-' + key.slice(4));
+      if (!el) return;
+      if (el.tagName === 'SECTION') el.setAttribute('tabindex', '-1');
+      el.focus();
+      if (el.scrollIntoView) el.scrollIntoView({ block: 'center' });
+    }
+
+    /* ---------- Página ---------- */
+    function pintarPagina() {
+      if (!tienePermiso()) {
+        ctx.mount.innerHTML = `
+          <div class="page-head">
+            <div>
+              <h1>Registrar solicitud</h1>
+              <p>Registro de trámites en ventanilla a nombre de un alumno.</p>
+            </div>
+          </div>
+          <div class="empty-state">
+            <h3>No tienes permiso para registrar solicitudes</h3>
+            <p>Tu cuenta no tiene activo el permiso "Registrar solicitud". Pídelo a quien administra los usuarios del sistema. Mientras tanto puedes consultar el catálogo de trámites.</p>
+            <a class="btn" href="catalogo.html">Ver el catálogo de trámites</a>
+          </div>`;
+        return false;
+      }
+      ctx.mount.innerHTML = `
+        <div class="reg-wrap">
+          <div class="page-head">
+            <div>
+              <h1>Registrar solicitud</h1>
+              <p>Registra un trámite a nombre de un alumno que lo pide en ventanilla. Son tres pasos y al final revisas el resumen.</p>
+            </div>
+          </div>
+          <div id="reg-form">
+            <ol class="wizard-steps" id="reg-steps" aria-label="Pasos del registro"></ol>
+            <section class="card reg-step" id="reg-paso-1" aria-labelledby="reg-t1"></section>
+            <section class="card reg-step" id="reg-paso-2" aria-labelledby="reg-t2"></section>
+            <section class="card reg-step" id="reg-paso-3" aria-labelledby="reg-t3"></section>
+            <section class="card reg-step" id="reg-paso-4" aria-labelledby="reg-t4">
+              <h2 class="q-title" id="reg-t4">Resumen</h2>
+              <p class="help">Revisa los datos antes de registrar. La solicitud entra a la bandeja para que la atiendan las áreas del recorrido.</p>
+              <div id="reg-resumen"></div>
+              <div class="alert err reg-global" id="reg-error-global" role="alert" hidden></div>
+              <div class="btn-row reg-actions">
+                <button class="btn btn-primary" type="button" onclick="regRegistrar()">Registrar solicitud</button>
+                <button class="btn" type="button" onclick="regLimpiar()">Limpiar</button>
+              </div>
+            </section>
+          </div>
+          <div id="reg-exito" hidden></div>
+        </div>`;
+      return true;
+    }
+
+    function pintarTodo() {
+      pintarPasos(); pintarPaso1(); pintarPaso2(); pintarPaso3(); pintarResumen();
+    }
+
+    function pintarPasos() {
+      const el = $('reg-steps');
+      if (!el) return;
+      const d1 = !!alumno(), d2 = d1 && !!tramite(), d3 = d2 && paso3Completo();
+      const actual = !d1 ? 1 : !d2 ? 2 : 3;
+      el.innerHTML = [[1, 'Alumno', d1], [2, 'Trámite', d2], [3, 'Datos y adjuntos', d3]].map(([n, label, listo]) => `
+        <li class="${listo ? 'is-done' : (n === actual ? 'is-current' : '')}" ${!listo && n === actual ? 'aria-current="step"' : ''}>
+          <span class="n">${listo ? ICO.check : n}</span>
+          <a class="reg-step-link" href="#reg-paso-${n}">${label}<span class="sr-only">${listo ? ', completo' : ', pendiente'}</span></a>
+        </li>`).join('');
+    }
+
+    /* ---------- Paso 1: alumno ---------- */
+    function pintarPaso1() {
+      const el = $('reg-paso-1');
+      if (!el) return;
+      const a = alumno();
+      if (a && !S.cambiando) {
+        const carreras = carrerasDe(a);
+        el.innerHTML = `
+          <div class="reg-head">
+            <h2 class="q-title" id="reg-t1">1. Alumno</h2>
+            <button class="btn btn-sm" type="button" id="reg-cambiar" onclick="regCambiarAlumno()">Cambiar alumno</button>
+          </div>
+          <div class="reg-person">
+            <span class="reg-avatar" aria-hidden="true">${esc(APP.initials(a.nombre || 'A'))}</span>
+            <div>
+              <b class="reg-person-name">${esc(a.nombre)}</b>
+              <span class="help">${esc(a.institucion || INST_WIENER)}</span>
+            </div>
+          </div>
+          <dl class="kv reg-kv">
+            <dt>Código</dt><dd>${esc(a.codigo || '-')}</dd>
+            <dt>DNI</dt><dd>${esc(a.dni || '-')}</dd>
+            <dt>Correo</dt><dd>${esc(a.email || 'No registrado')}</dd>
+            <dt>Teléfono</dt><dd>${esc(a.telefono || 'No registrado')}</dd>
+            <dt>Celular</dt><dd>${esc(a.celular || 'No registrado')}</dd>
+            ${carreras.length > 1 ? '' : `<dt>Carrera</dt><dd>${esc(S.carrera)}</dd>`}
+          </dl>
+          ${carreras.length > 1 ? `
+            <div class="field reg-block reg-narrow">
+              <label for="reg-carrera">Carrera para este trámite</label>
+              <select class="select" id="reg-carrera" data-native="true" onchange="regSetCarrera(this.value)">
+                ${carreras.map(c => `<option value="${esc(c)}" ${c === S.carrera ? 'selected' : ''}>${esc(c)}</option>`).join('')}
+              </select>
+              <span class="hint">El alumno tiene ${carreras.length} carreras. La solicitud queda registrada en la que elijas.</span>
+            </div>` : ''}`;
+        return;
+      }
+      el.innerHTML = `
+        <div class="reg-head">
+          <h2 class="q-title" id="reg-t1">1. Alumno</h2>
+          ${a ? `<button class="btn btn-sm" type="button" onclick="regConservarAlumno()">Conservar a ${esc(a.nombre)}</button>` : ''}
+        </div>
+        <p class="help">Busca por código, DNI o nombres. La institución se toma del alumno que elijas.</p>
+        <form class="reg-block" role="search" onsubmit="return regBuscar(event)">
+          <div class="field">
+            <label for="reg-q">Código, DNI o nombres del alumno</label>
+            <div class="reg-search-row">
+              <div class="input-wrap-icon-left">
+                <span class="input-icon-svg" aria-hidden="true">${ICO.search}</span>
+                <input class="input" id="reg-q" type="search" autocomplete="off" placeholder="Ejemplo: 2025101851" value="${esc(S.q)}" oninput="regBuscarVivo(this.value)">
+              </div>
+              <button class="btn" type="submit">Buscar</button>
+            </div>
+          </div>
+        </form>
+        ${errHTML('alumno')}
+        <fieldset class="reg-fieldset reg-block">
+          <legend>Buscar en</legend>
+          <div class="radio-cards">
+            ${INSTITUCIONES.map(i => `
+              <label class="radio-card ${S.inst === i.id ? 'checked' : ''}">
+                <input type="radio" name="reg-inst" value="${esc(i.id)}" ${S.inst === i.id ? 'checked' : ''} onchange="regSetInst(this.value)">
+                <b>${esc(i.label)}</b>
+                <span>${esc(i.sub)}</span>
+              </label>`).join('')}
+          </div>
+        </fieldset>
+        <div id="reg-resultados" aria-live="polite"></div>`;
+      pintarResultados();
+    }
+
+    function pintarResultados() {
+      const el = $('reg-resultados');
+      if (!el) return;
+      const q = S.q.trim();
+      if (!q) { el.innerHTML = ''; return; }
+      if (q.length < 2) { el.innerHTML = '<p class="help reg-block">Escribe al menos 2 caracteres.</p>'; return; }
+      const res = DB.buscarAlumnos(q, S.inst === 'todas' ? '' : S.inst);
+      const donde = S.inst === 'todas' ? 'ninguna de las dos instituciones' : S.inst;
+      if (!res.length) {
+        el.innerHTML = `
+          <div class="alert warn reg-block">
+            <span>No hay alumnos que coincidan con "${esc(q)}" en ${esc(donde)}. Revisa el código, el DNI o los nombres.
+            ${S.inst === 'todas' ? '' : '<button class="btn-link" type="button" onclick="regSetInst(\'todas\')">Buscar en ambas instituciones</button>'}</span>
+          </div>`;
+        return;
+      }
+      const lista = res.slice(0, 20);
+      el.innerHTML = `
+        <p class="help reg-block">${res.length === 1 ? '1 alumno encontrado' : res.length + ' alumnos encontrados'}${res.length > lista.length ? '. Se muestran los primeros ' + lista.length + ': afina la búsqueda' : ''}.</p>
+        <ul class="reg-results">
+          ${lista.map(u => `
+            <li>
+              <div class="reg-res-main">
+                <b>${esc(u.nombre)}</b>
+                <div class="list-card-meta">
+                  <span>Código ${esc(u.codigo || '-')}</span>
+                  <span>DNI ${esc(u.dni || '-')}</span>
+                  <span>${esc(u.institucion || INST_WIENER)}</span>
+                  <span>${esc(carrerasDe(u).join(', '))}</span>
+                </div>
+              </div>
+              <button class="btn btn-sm" type="button" data-id="${esc(u.id)}" onclick="regElegirAlumno(this.dataset.id)">Elegir<span class="sr-only"> a ${esc(u.nombre)}</span></button>
+            </li>`).join('')}
+        </ul>`;
+    }
+
+    function regBuscar(e) {
+      if (e) e.preventDefault();
+      const inp = $('reg-q');
+      S.q = inp ? inp.value : '';
+      pintarResultados();
+      return false;
+    }
+    function regBuscarVivo(v) {
+      S.q = v || '';
+      if (S.q.trim()) setErr('alumno', '');
+      pintarResultados();
+    }
+    function regSetInst(v) {
+      S.inst = v;
+      document.querySelectorAll('input[name="reg-inst"]').forEach(r => { r.checked = r.value === v; });
+      marcar('reg-inst');
+      pintarResultados();
+    }
+    function regElegirAlumno(id) {
+      const nuevo = DB.getUsuario(id);
+      if (!nuevo) return;
+      const previo = alumno();
+      const cambia = !!previo && previo.id !== nuevo.id;
+      const aplicar = () => {
+        S.alumnoId = nuevo.id;
+        S.cambiando = false;
+        S.q = '';
+        S.carrera = carrerasDe(nuevo)[0];
+        if (cambia) { S.files = {}; S.recibo = ''; S.pago = ''; S.errors = {}; }
+        S.errors.alumno = '';
+        S.avisoTramite = '';
+        revisarTramite();
+        ajustarPago();
+        pintarTodo();
+        const b = $('reg-cambiar');
+        if (b) b.focus();
+      };
+      if (cambia && hayDatosPaso3()) {
+        APP.confirm({
+          title: 'Cambiar de alumno',
+          body: `Vas a reemplazar a <b>${esc(previo.nombre)}</b> por <b>${esc(nuevo.nombre)}</b>. Se quitan los adjuntos y el estado de pago que ya indicaste. El motivo y la observación se conservan.`,
+          confirmLabel: 'Cambiar alumno',
+          onConfirm: aplicar
+        });
+      } else aplicar();
+    }
+    function regCambiarAlumno() {
+      S.cambiando = true;
+      pintarPaso1();
+      const i = $('reg-q');
+      if (i) i.focus();
+    }
+    function regConservarAlumno() {
+      S.cambiando = false;
+      S.q = '';
+      pintarPaso1();
+      const b = $('reg-cambiar');
+      if (b) b.focus();
+    }
+    function regSetCarrera(v) {
+      S.carrera = v;
+      S.avisoTramite = '';
+      revisarTramite();
+      ajustarPago();
+      pintarPasos(); pintarPaso2(); pintarPaso3(); pintarResumen();
+    }
+
+    /* ---------- Paso 2: trámite ---------- */
+    function tarjetaTramite(t, opts) {
+      const o = opts || {};
+      const cuerpo = `
+          <span class="tram-opt-head">
+            <span class="tram-opt-name">${o.estatica ? '' : '<span class="tram-opt-radio" aria-hidden="true"></span>'}<span>${esc(t.nombre)}</span></span>
+            <span class="tram-opt-cost">${esc(textoCosto(t))}</span>
+          </span>
+          <span class="list-card-meta">
+            <span>Plazo: ${esc(textoPlazo(t).toLowerCase())}</span>
+            <span>${esc(textoPago(t))}</span>
+            <span>${esc(textoAdjuntos(t))}</span>
+            <span>${esc(t.area || 'Registros Académicos')}</span>
+          </span>
+          <span class="tram-opt-flow">${APP.flowHTML(t, { compact: true })}</span>`;
+      if (o.estatica) return `<div class="tram-opt is-static checked">${cuerpo}</div>`;
+      const marcado = t.id === S.tramiteId;
+      return `
+        <label class="tram-opt ${marcado ? 'checked' : ''}">
+          <input type="radio" name="reg-tramite" value="${esc(t.id)}" ${marcado ? 'checked' : ''} onchange="regSetTramite(this.value)">
+          ${cuerpo}
+        </label>`;
+    }
+
+    function pintarPaso2() {
+      const el = $('reg-paso-2');
+      if (!el) return;
+      const a = alumno();
+      const aviso = S.avisoTramite ? `<div class="alert warn reg-block"><span>${esc(S.avisoTramite)}</span></div>` : '';
+      if (!a) {
+        const t = tramite();
+        el.innerHTML = `
+          <h2 class="q-title" id="reg-t2">2. Trámite</h2>
+          <p class="help">Elige primero al alumno para ver los trámites que puede pedir y los que no, con el motivo.</p>
+          ${aviso}
+          ${t ? `
+            <div class="reg-block">
+              <p class="help">Llegaste con este trámite elegido. Quedará marcado cuando elijas al alumno, si le corresponde.
+                <button class="btn-link" type="button" onclick="regQuitarTramite()">Quitar trámite</button></p>
+              <div class="reg-block">${tarjetaTramite(t, { estatica: true })}</div>
+            </div>` : ''}
+          ${errHTML('tramite')}`;
+        return;
+      }
+      const { si, no, perfil } = clasificar(a);
+      el.innerHTML = `
+        <h2 class="q-title" id="reg-t2">2. Trámite</h2>
+        <p class="help">Trámites que ${esc(a.nombre)} puede pedir hoy. Cada tarjeta muestra el recorrido que seguirá la solicitud.</p>
+        ${aviso}
+        ${si.length ? `
+          <fieldset class="reg-fieldset reg-block">
+            <legend>Trámites disponibles (${si.length})</legend>
+            <div class="tram-opts">${si.map(t => tarjetaTramite(t)).join('')}</div>
+          </fieldset>` : `
+          <div class="alert info reg-block"><span>Este alumno no tiene trámites disponibles por ahora. Abajo está el motivo de cada uno.</span></div>`}
+        ${errHTML('tramite')}
+        ${no.length ? `
+          <h3 class="reg-sub">No disponibles para este alumno (${no.length})</h3>
+          <p class="help">No se pueden registrar. Se listan para que puedas explicarle el motivo.</p>
+          <ul class="tram-no">
+            ${no.map(t => `<li><b>${esc(t.nombre)}</b>${esc(motivosVentanilla(t, perfil).join('. '))}.</li>`).join('')}
+          </ul>` : ''}`;
+    }
+
+    function regSetTramite(id) {
+      if (id === S.tramiteId) return;
+      const aplicar = () => {
+        S.tramiteId = id;
+        S.files = {};
+        S.avisoTramite = '';
+        ['tramite', 'pago', 'recibo'].forEach(k => { S.errors[k] = ''; });
+        Object.keys(S.errors).forEach(k => { if (k.indexOf('req-') === 0) S.errors[k] = ''; });
+        ajustarPago();
+        pintarPasos(); pintarPaso2(); pintarPaso3(); pintarResumen();
+        const r = document.querySelector('input[name="reg-tramite"]:checked');
+        if (r) r.focus();
+      };
+      if (Object.keys(S.files).length) {
+        pintarPaso2();
+        APP.confirm({
+          title: 'Cambiar de trámite',
+          body: 'Ya adjuntaste archivos para el trámite anterior. Si cambias de trámite, esos adjuntos se quitan.',
+          confirmLabel: 'Cambiar trámite',
+          onConfirm: aplicar
+        });
+      } else aplicar();
+    }
+    function regQuitarTramite() {
+      S.tramiteId = ''; S.files = {}; S.avisoTramite = '';
+      ajustarPago();
+      pintarPasos(); pintarPaso2(); pintarPaso3(); pintarResumen();
+    }
+
+    /* ---------- Paso 3: datos y adjuntos ---------- */
+    function slotHTML(i, r) {
+      const f = S.files[r.id];
+      if (f) {
+        return `
+          <div class="reg-file">
+            <div class="reg-file-info">${ICO.file}<div><b>${esc(f.name)}</b><small>${esc(tamano(f.size))}</small></div></div>
+            <button class="btn btn-sm" type="button" id="reg-quitar-${i}" data-i="${i}" onclick="regQuitarArchivo(this.dataset.i)">Quitar<span class="sr-only"> ${esc(f.name)}</span></button>
+          </div>`;
+      }
+      return `
+        <label class="reg-drop" data-i="${i}" ondragenter="regDragOver(event)" ondragover="regDragOver(event)" ondragleave="regDragLeave(event)" ondrop="regDrop(event)">
+          <input type="file" id="reg-file-${i}" data-i="${i}" accept=".pdf,.jpg,.jpeg,.png" aria-describedby="err-req-${i}" onchange="regArchivo(this)">
+          ${ICO.clip}
+          <span><b>Elige un archivo o arrástralo aquí</b><small>PDF, JPG o PNG, hasta 5 MB</small><span class="sr-only"> para ${esc(r.titulo)}</span></span>
+        </label>`;
+    }
+
+    function pintarPaso3() {
+      const el = $('reg-paso-3');
+      if (!el) return;
+      const a = alumno(), t = tramite();
+      if (!a || !t) {
+        el.innerHTML = `
+          <h2 class="q-title" id="reg-t3">3. Datos y adjuntos</h2>
+          <p class="help">${!a ? 'Elige al alumno y el trámite' : 'Elige el trámite'} para completar el motivo, el estado del pago y los adjuntos.</p>`;
+        return;
+      }
+      const reqs = reqsDe(t);
+      const conPago = DB.tienePago(t);
+      el.innerHTML = `
+        <h2 class="q-title" id="reg-t3">3. Datos y adjuntos</h2>
+        <p class="help">Datos de la solicitud de "${esc(t.nombre)}".</p>
+        <div class="reg-form">
+          <div class="field">
+            <label for="reg-motivo">Motivo de la solicitud (obligatorio)</label>
+            <select class="select ${S.errors.motivo ? 'is-invalid' : ''}" id="reg-motivo" data-native="true" aria-describedby="err-motivo" onchange="regSetCampo('motivo', this.value)">
+              <option value="">Elige un motivo</option>
+              ${MOTIVOS.map(m => `<option value="${esc(m)}" ${m === S.motivo ? 'selected' : ''}>${esc(m)}</option>`).join('')}
+            </select>
+            ${errHTML('motivo')}
+          </div>
+
+          <div class="field">
+            <label for="reg-obs">Observación para quien atiende (opcional)</label>
+            <textarea class="input" id="reg-obs" rows="2" maxlength="500" placeholder="Por ejemplo: el alumno necesita el documento antes del viernes" oninput="regSetCampo('obs', this.value)">${esc(S.obs)}</textarea>
+          </div>
+
+          <fieldset class="reg-fieldset">
+            <legend>Estado del pago (${esc(textoCosto(t))})</legend>
+            ${conPago ? `
+              <div class="radio-cards">
+                <label class="radio-card ${S.pago === 'caja' ? 'checked' : ''}">
+                  <input type="radio" name="reg-pago" value="caja" ${S.pago === 'caja' ? 'checked' : ''} onchange="regSetPago(this.value)">
+                  <b>Pagó en caja o banco</b>
+                  <span>Tienes a la vista el recibo o el número de operación</span>
+                </label>
+                <label class="radio-card ${S.pago === 'pendiente' ? 'checked' : ''}">
+                  <input type="radio" name="reg-pago" value="pendiente" ${S.pago === 'pendiente' ? 'checked' : ''} onchange="regSetPago(this.value)">
+                  <b>Pago pendiente</b>
+                  <span>El alumno pagará después y el pago queda por confirmar</span>
+                </label>
+              </div>
+              ${errHTML('pago')}
+              <div class="field reg-block reg-narrow" id="reg-recibo-wrap" ${S.pago === 'caja' ? '' : 'hidden'}>
+                <label for="reg-recibo">N° de recibo o de operación (obligatorio)</label>
+                <input class="input ${S.errors.recibo ? 'is-invalid' : ''}" id="reg-recibo" autocomplete="off" maxlength="40" placeholder="Ejemplo: REC-2026-881920" value="${esc(S.recibo)}" aria-describedby="err-recibo" oninput="regSetCampo('recibo', this.value)">
+                <span class="hint">Cópialo tal como aparece en el comprobante del alumno.</span>
+                ${errHTML('recibo')}
+              </div>` : `
+              <p class="help"><span class="pill ok">Exonerado</span> Este trámite no tiene costo, no hay pago que registrar.</p>`}
+          </fieldset>
+
+          <div>
+            <h3 class="reg-sub">Adjuntos</h3>
+            ${reqs.length ? `
+              <p class="help">Quien atiende la solicitud revisará cada documento. Aquí solo se adjuntan.</p>
+              <div class="reg-block">
+                ${reqs.map((r, i) => `
+                  <div class="reg-req">
+                    <div class="reg-req-head">
+                      <b>${i + 1}. ${esc(r.titulo)}</b>
+                      ${pideArchivo(r) ? '<span class="pill warn">Obligatorio</span>' : '<span class="pill gray">Sin archivo</span>'}
+                    </div>
+                    ${r.condiciones ? `<p class="help">Condiciones: ${esc(r.condiciones)}</p>` : ''}
+                    ${pideArchivo(r) ? `<div id="reg-slot-${i}">${slotHTML(i, r)}</div>${errHTML('req-' + i)}` : '<p class="help">Este requisito no pide archivo. Se comprueba al atender la solicitud.</p>'}
+                  </div>`).join('')}
+              </div>` : `
+              <p class="help">Este trámite no pide adjuntos: es 100% digital.</p>`}
+          </div>
+        </div>`;
+    }
+
+    function regSetCampo(k, v) {
+      S[k] = v;
+      if ((k === 'motivo' && v) || (k === 'recibo' && v.trim())) setErr(k, '');
+      pintarPasos(); pintarResumen();
+    }
+    function regSetPago(v) {
+      S.pago = v;
+      marcar('reg-pago');
+      const w = $('reg-recibo-wrap');
+      if (w) w.hidden = v !== 'caja';
+      setErr('pago', '');
+      if (v !== 'caja') setErr('recibo', '');
+      pintarPasos(); pintarResumen();
+    }
+
+    function validarArchivo(f) {
+      const partes = String(f.name || '').split('.');
+      const ext = partes.length > 1 ? partes.pop().toLowerCase() : '';
+      if (!EXT_OK.includes(ext)) return '"' + f.name + '" no es un tipo permitido. Usa un archivo PDF, JPG o PNG.';
+      if (!f.size) return '"' + f.name + '" está vacío. Elige otro archivo.';
+      if (f.size > MAX_BYTES) return '"' + f.name + '" pesa ' + tamano(f.size) + ' y el máximo es 5 MB.';
+      return '';
+    }
+    function tomarArchivo(i, file) {
+      const t = tramite();
+      const r = t ? reqsDe(t)[i] : null;
+      if (!r || !file) return;
+      const error = validarArchivo(file);
+      if (error) {
+        setErr('req-' + i, error);
+        const inp = $('reg-file-' + i);
+        if (inp) inp.value = '';
+        return;
+      }
+      S.files[r.id] = { name: file.name, size: file.size };
+      setErr('req-' + i, '');
+      const slot = $('reg-slot-' + i);
+      if (slot) slot.innerHTML = slotHTML(i, r);
+      pintarPasos(); pintarResumen();
+      const q = $('reg-quitar-' + i);
+      if (q) q.focus();
+    }
+    function regArchivo(input) { tomarArchivo(Number(input.dataset.i), input.files && input.files[0]); }
+    function regQuitarArchivo(i) {
+      i = Number(i);
+      const t = tramite();
+      const r = t ? reqsDe(t)[i] : null;
+      if (!r) return;
+      delete S.files[r.id];
+      const slot = $('reg-slot-' + i);
+      if (slot) slot.innerHTML = slotHTML(i, r);
+      pintarPasos(); pintarResumen();
+      const inp = $('reg-file-' + i);
+      if (inp) inp.focus();
+    }
+    function regDragOver(e) {
+      e.preventDefault();
+      if (e.dataTransfer) e.dataTransfer.dropEffect = 'copy';
+      e.currentTarget.classList.add('is-over');
+    }
+    function regDragLeave(e) { e.currentTarget.classList.remove('is-over'); }
+    function regDrop(e) {
+      e.preventDefault();
+      e.stopPropagation();
+      const zona = e.currentTarget;
+      zona.classList.remove('is-over');
+      const i = Number(zona.dataset.i);
+      const fs = e.dataTransfer ? e.dataTransfer.files : null;
+      if (!fs || !fs.length) return;
+      if (fs.length > 1) { setErr('req-' + i, 'Suelta un solo archivo por requisito.'); return; }
+      tomarArchivo(i, fs[0]);
+    }
+
+    /* ---------- Resumen ---------- */
+    function pintarResumen() {
+      const el = $('reg-resumen');
+      if (!el) return;
+      const g = $('reg-error-global');
+      if (g) g.hidden = true;
+      const a = alumno(), t = tramite();
+      const fila = (ok, titulo, valor) => `
+        <li><span class="check-dot ${ok ? 'is-ok' : 'is-wait'}">${ok ? ICO.check : ICO.wait}</span>
+          <span><span class="sr-only">${ok ? 'Listo: ' : 'Falta: '}</span><b>${titulo}</b><br>${valor}</span></li>`;
+      const nAdj = t ? adjuntosDe(t).length : 0;
+      const nSub = t ? adjuntosDe(t).filter(r => S.files[r.id]).length : 0;
+      let pagoTxt = 'Falta elegir el trámite';
+      if (t) {
+        if (!DB.tienePago(t)) pagoTxt = 'Exonerado, el trámite no tiene costo';
+        else if (S.pago === 'caja') pagoTxt = S.recibo.trim() ? 'Pagó en caja o banco, recibo ' + esc(S.recibo.trim()) : 'Pagó en caja o banco, falta el número de recibo';
+        else if (S.pago === 'pendiente') pagoTxt = 'Pago pendiente de ' + esc(APP.money(t.costo));
+        else pagoTxt = 'Falta indicar si ya pagó';
+      }
+      const etapas = t ? DB.procesoParaSolicitud(t) : [];
+      const areas = t ? (etapas.length ? etapas.map(p => p.area) : [t.area || 'Registros Académicos']) : [];
+      el.innerHTML = `
+        <div class="reg-resumen-grid">
+          <ul class="checklist" aria-label="Avance del registro">
+            ${fila(!!a, 'Alumno', a ? esc(a.nombre) + ' (' + esc(a.codigo || '-') + ')' : 'Falta elegir al alumno')}
+            ${fila(!!t, 'Trámite', t ? esc(t.nombre) : 'Falta elegir el trámite')}
+            ${fila(!!S.motivo, 'Motivo', S.motivo ? esc(S.motivo) : 'Falta elegir el motivo')}
+            ${fila(!!t && pagoListo(t), 'Pago', pagoTxt)}
+            ${fila(!!t && adjuntosListos(t), 'Adjuntos', !t ? 'Falta elegir el trámite' : (nAdj ? nSub + ' de ' + nAdj + (nAdj === 1 ? ' adjunto' : ' adjuntos') : 'El trámite no pide adjuntos'))}
+          </ul>
+          <dl class="kv reg-kv">
+            <dt>Institución</dt><dd>${a ? esc(a.institucion || INST_WIENER) : '-'}</dd>
+            <dt>Carrera</dt><dd>${a ? esc(S.carrera) : '-'}</dd>
+            <dt>Costo</dt><dd>${t ? esc(textoCosto(t)) : '-'}</dd>
+            <dt>Entrega estimada</dt><dd>${t ? (DB.esInmediato(t) ? 'Inmediata' : esc(APP.calcSLA(t.diasEntrega)) + ' (' + esc(textoPlazo(t)) + ')') : '-'}</dd>
+            <dt>La revisan</dt><dd>${t ? esc(areas.join(', ')) : '-'}</dd>
+          </dl>
+        </div>`;
+    }
+
+    /* ---------- Registrar ---------- */
+    function nuevoTicket() {
+      let max = 0;
+      DB.solicitudes().forEach(s => [s.ticket, s.id].forEach(v => {
+        const m = String(v || '').match(/^\d{4}\.(\d+)$/);
+        if (m) max = Math.max(max, parseInt(m[1], 10));
+      }));
+      const anio = new Date().getFullYear();
+      let n = (max || 43545) + 1;
+      while (DB.getSolicitud(anio + '.' + n)) n++;
+      return anio + '.' + n;
+    }
+
+    function regRegistrar() {
+      const a = alumno(), t = tramite();
+      const faltas = [];
+      const falta = (k, msg) => { setErr(k, msg); faltas.push(k); };
+      const reqs = t ? reqsDe(t) : [];
+      if (!a) falta('alumno', 'Elige al alumno que pide el trámite.');
+      else if (!t) falta('tramite', 'Elige el trámite que pide el alumno.');
+      if (a && t) {
+        if (!S.motivo) falta('motivo', 'Elige el motivo de la solicitud.');
+        if (DB.tienePago(t)) {
+          if (S.pago !== 'caja' && S.pago !== 'pendiente') falta('pago', 'Indica si el alumno ya pagó o si el pago queda pendiente.');
+          else if (S.pago === 'caja' && !S.recibo.trim()) falta('recibo', 'Escribe el número de recibo o de operación.');
+        }
+        reqs.forEach((r, i) => { if (pideArchivo(r) && !S.files[r.id]) falta('req-' + i, 'Falta adjuntar este documento.'); });
+      }
+      if (faltas.length) {
+        const g = $('reg-error-global');
+        if (g) {
+          g.textContent = faltas.length === 1 ? 'Falta 1 dato para registrar. Está marcado junto a su campo.' : 'Faltan ' + faltas.length + ' datos para registrar. Están marcados junto a cada campo.';
+          g.hidden = false;
+        }
+        enfocar(faltas[0]);
+        return;
+      }
+
+      const ticket = nuevoTicket();
+      const gratis = !DB.tienePago(t);
+      const pagado = !gratis && S.pago === 'caja';
+      const recibo = S.recibo.trim();
+      const admin = session.nombre || 'Personal administrativo';
+      const adminRef = admin + (session.codigo ? ' (' + session.codigo + ')' : '');
+      const inst = a.institucion || INST_WIENER;
+      const ahora = APP.nowStamp();
+      const obs = S.obs.trim();
+
+      // Etapas del trámite configurado; si no tiene, una sola con su área
+      let proceso = DB.procesoParaSolicitud(t);
+      if (!proceso.length) {
+        proceso = [{
+          orden: 1, area: t.area || 'Registros Académicos', descripcion: '', plazoHoras: (Number(t.diasEntrega) || 1) * 24,
+          diasRetraso: 0, observacionInterna: '', estado: 'Pendiente', fechaAtencion: null
+        }];
+      }
+
+      // Los requisitos nacen sin validar: los revisa quien atiende
+      const requisitos = reqs.map((r, i) => {
+        const f = S.files[r.id];
+        const ext = f ? f.name.split('.').pop().toUpperCase() : '';
+        return {
+          id: r.id || ('REQ-' + (i + 1)), orden: i + 1, titulo: r.titulo, condiciones: r.condiciones || '',
+          archivo: f ? f.name : '', tipoArchivo: ext === 'JPEG' ? 'JPG' : ext,
+          cumple: false, especificacion: r.condiciones || 'Documento presentado'
+        };
+      });
+      const nAdj = requisitos.filter(r => r.archivo).length;
+
+      const historial = [{ estado: 'Solicitado', fecha: ahora, usuario: adminRef, nota: 'Solicitud registrada en ventanilla por ' + adminRef + ' a pedido del alumno. Motivo: ' + S.motivo + '.' }];
+      if (pagado) historial.push({ estado: 'Solicitado', fecha: ahora, usuario: adminRef, nota: 'Pago declarado en caja o banco. Recibo N° ' + recibo + '.' });
+      else if (!gratis) historial.push({ estado: 'Solicitado', fecha: ahora, usuario: adminRef, nota: 'Pago pendiente de ' + APP.money(t.costo) + '. Se generó la obligación de pago.' });
+      if (nAdj) historial.push({ estado: 'Solicitado', fecha: ahora, usuario: adminRef, nota: (nAdj === 1 ? 'Se adjuntó 1 documento, pendiente' : 'Se adjuntaron ' + nAdj + ' documentos, pendientes') + ' de revisión.' });
+
+      DB.addSolicitud({
+        id: ticket,
+        ticket: ticket,
+        sedeCodigo: '7803-2',
+        sede: '7803-2 - Jr. Larrabure y Unanue 110 Santa Beatriz, Lima',
+        institucion: inst,
+        tramiteId: t.id,
+        tramiteNombre: t.nombre,
+        carrera: S.carrera,
+        periodo: '2026-2',
+        seccion: 'REG-ADM',
+        alumnoId: a.id,
+        alumnoCodigo: a.codigo,
+        alumnoNombre: a.nombre,
+        alumnoDni: a.dni,
+        alumnoEmail: a.email,
+        alumnoTelefono: a.telefono || a.celular || '',
+        alumnoCelular: a.celular || a.telefono || '',
+        estado: 'Solicitado',
+        activo: true,
+        fecha: APP.todayISO(),
+        fechaHora: ahora,
+        costo: t.costo,
+        conceptoCodigo: t.conceptoCodigo || '01010000',
+        origen: 'Ventanilla',
+        pago: gratis
+          ? { estado: 'exonerado', obligacionGenerada: false, monto: 0, carrera: S.carrera, nroDocumento: 'Exonerado', fechaPago: null }
+          : pagado
+            ? { estado: 'pagado', obligacionGenerada: true, monto: t.costo, carrera: S.carrera, nroDocumento: recibo, fechaPago: APP.todayISO(), metodo: 'Caja o banco' }
+            : { estado: 'pendiente', obligacionGenerada: true, monto: t.costo, carrera: S.carrera, nroDocumento: '-', fechaPago: null },
+        detalle: 'Solicitud registrada en ventanilla por ' + admin + '. Motivo: ' + S.motivo + '.' + (obs ? ' Observación: ' + obs : ''),
+        requisitos: requisitos,
+        proceso: proceso,
+        mensajeSolicitante: 'Estimado(a) ' + a.nombre + ', tu solicitud de ' + t.nombre + ' fue registrada en ventanilla con el ticket ' + ticket + '.',
+        historial: historial
+      });
+
+      APP.sendMail({
+        to: a.email,
+        cc: 'mesadepartes@uwiener.edu.pe',
+        subject: 'Solicitud ' + ticket + ' registrada - ' + esc(t.nombre),
+        lines: [
+          'Estimado(a) <b>' + esc(a.nombre) + '</b>,',
+          'Se registró tu solicitud de <b>' + esc(t.nombre) + '</b> en <b>' + esc(inst) + '</b>.',
+          'Ticket: <b>' + ticket + '</b>.',
+          'Carrera: <b>' + esc(S.carrera) + '</b>.',
+          'Entrega estimada: <b>' + (DB.esInmediato(t) ? 'inmediata' : APP.calcSLA(t.diasEntrega)) + '</b>.',
+          gratis ? 'Este trámite no tiene costo.' : (pagado ? 'Pago registrado: ' + APP.money(t.costo) + '.' : 'Pago pendiente: ' + APP.money(t.costo) + '.')
+        ]
+      });
+
+      const hecho = {
+        ticket: ticket, tramite: t.nombre, alumno: a.nombre, inst: inst, email: a.email,
+        pago: gratis ? 'Sin costo' : (pagado ? 'Pago registrado con el recibo ' + recibo : 'Pago pendiente de ' + APP.money(t.costo)),
+        areas: proceso.map(p => p.area).join(', ')
+      };
+      S = estadoInicial();
+      pintarTodo();
+      pintarExito(hecho);
+    }
+
+    function pintarExito(h) {
+      const form = $('reg-form'), ex = $('reg-exito');
+      if (!form || !ex) return;
+      form.hidden = true;
+      ex.hidden = false;
+      ex.innerHTML = `
+        <div class="card reg-exito">
+          <span class="reg-exito-ico">${ICO.checkBig}</span>
+          <h2 id="reg-exito-t" tabindex="-1">Solicitud registrada</h2>
+          <div class="reg-ticket">Ticket ${esc(h.ticket)}</div>
+          <p><b>${esc(h.tramite)}</b> para <b>${esc(h.alumno)}</b>, en ${esc(h.inst)}.</p>
+          <p>${esc(h.pago)}. La revisarán: ${esc(h.areas)}. Se avisó al alumno por correo${h.email ? ' a ' + esc(h.email) : ''}.</p>
+          <div class="btn-row">
+            <a class="btn btn-primary" href="solicitudes.html?ticket=${encodeURIComponent(h.ticket)}">Abrir en la bandeja</a>
+            <button class="btn" type="button" onclick="regOtra()">Registrar otra</button>
+          </div>
+        </div>`;
+      window.scrollTo(0, 0);
+      $('reg-exito-t').focus();
+    }
+    function regOtra() {
+      S = estadoInicial();
+      const form = $('reg-form'), ex = $('reg-exito');
+      if (ex) { ex.hidden = true; ex.innerHTML = ''; }
+      if (form) form.hidden = false;
+      pintarTodo();
+      const i = $('reg-q');
+      if (i) i.focus();
+    }
+
+    function regLimpiar() {
+      const limpiar = () => {
+        S = estadoInicial();
+        pintarTodo();
+        const i = $('reg-q');
+        if (i) i.focus();
+      };
+      if (hayDatos()) {
+        APP.confirm({
+          title: 'Limpiar el formulario',
+          body: 'Se quitan el alumno, el trámite, los datos y los adjuntos que elegiste. Todavía no se ha registrado nada.',
+          confirmLabel: 'Limpiar',
+          danger: true,
+          onConfirm: limpiar
+        });
+      } else limpiar();
+    }
+
+    /* ---------- Inicio ---------- */
+    function leerURL() {
+      const p = new URLSearchParams(location.search);
+      const pt = p.get('tramite'), pa = p.get('alumno');
+      if (pt) {
+        const t = DB.getTramite(pt);
+        if (t && t.activo) S.tramiteId = t.id;
+        else S.avisoTramite = t ? '"' + t.nombre + '" no está visible para los alumnos, por eso no se puede registrar. Elige otro trámite.' : 'El trámite del enlace no existe. Elige uno de la lista.';
+      }
+      if (pa) {
+        const a = DB.usuarios().find(u => u.rol === 'alumno' && (u.codigo === pa || u.id === pa));
+        if (a) { S.alumnoId = a.id; S.carrera = carrerasDe(a)[0]; revisarTramite(); }
+        else { S.q = pa; S.errors.alumno = 'No hay un alumno con el código ' + pa + '. Búscalo por DNI o nombres.'; }
+      }
+      ajustarPago();
+    }
+
+    Object.assign(window, {
+      regBuscar, regBuscarVivo, regSetInst, regElegirAlumno, regCambiarAlumno, regConservarAlumno, regSetCarrera,
+      regSetTramite, regQuitarTramite, regSetCampo, regSetPago, regArchivo, regQuitarArchivo,
+      regDragOver, regDragLeave, regDrop, regRegistrar, regLimpiar, regOtra
+    });
+
+    if (ctx && pintarPagina()) {
+      // Soltar un archivo fuera de una zona no debe sacar al usuario de la página
+      ['dragover', 'drop'].forEach(ev => document.addEventListener(ev, e => {
+        if (e.dataTransfer && Array.from(e.dataTransfer.types || []).includes('Files')) e.preventDefault();
+      }));
+      leerURL();
+      pintarTodo();
+    }
+  </script>
+</body>
+
+</html>

@@ -1,0 +1,1676 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Certificaciones progresivas - Wiener Admin</title>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Lato:wght@400;700;900&family=Roboto:wght@400;500;700&display=swap"
+    rel="stylesheet">
+  <link rel="stylesheet" href="../css/styles.css">
+  <style>
+    /* Solo lo propio de esta pantalla. Lo demás viene de css/styles.css (CAPA UX 2026-11). */
+    .cp-root [hidden],
+    #modal-host [hidden] {
+      display: none !important;
+    }
+
+    /* Ayudas plegables */
+    .cp-help {
+      margin-bottom: 16px;
+    }
+
+    .cp-toggle {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      min-height: 32px;
+    }
+
+    .cp-chev {
+      transition: transform .2s ease;
+      flex-shrink: 0;
+    }
+
+    [aria-expanded="true"] > .cp-chev {
+      transform: rotate(180deg);
+    }
+
+    .cp-panel {
+      margin-top: 10px;
+      padding: 16px 18px;
+      border: 1px solid var(--border-soft);
+      border-radius: 12px;
+      background: var(--surface);
+    }
+
+    .cp-panel > p {
+      margin: 0 0 12px 0;
+    }
+
+    .cp-faq {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 16px;
+    }
+
+    .cp-faq h3 {
+      font-size: 14px;
+      margin: 0 0 4px 0;
+      color: var(--brand-dark);
+    }
+
+    .cp-faq p {
+      margin: 0;
+    }
+
+    /* Franja de indicadores */
+    .cp-strip {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+      gap: 1px;
+      margin: 0 0 20px 0;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      background: var(--border-soft);
+      overflow: hidden;
+    }
+
+    .cp-strip > div {
+      padding: 12px 16px;
+      background: var(--surface);
+      min-width: 0;
+    }
+
+    .cp-strip dt {
+      font-size: 12.5px;
+      font-weight: 600;
+      color: var(--text-muted);
+    }
+
+    .cp-strip dd {
+      margin: 2px 0 0 0;
+      font-family: 'Lato', sans-serif;
+      font-size: 20px;
+      font-weight: 900;
+      color: var(--text);
+      font-variant-numeric: tabular-nums;
+      overflow-wrap: anywhere;
+    }
+
+    .cp-strip dd small {
+      display: block;
+      font-family: 'Roboto', sans-serif;
+      font-size: 12px;
+      font-weight: 400;
+      color: var(--text-muted);
+    }
+
+    /* Pasos numerados */
+    .cp-step .q-title,
+    .cp-head-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .cp-head-row {
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 12px 16px;
+      margin-bottom: 14px;
+    }
+
+    .cp-n {
+      width: 26px;
+      height: 26px;
+      border-radius: 50%;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      font-size: 13px;
+      font-weight: 800;
+      background: var(--brand);
+      color: #fff;
+    }
+
+    .cp-step > .help {
+      margin: 0 0 16px 0;
+    }
+
+    .form-grid.cp-3 {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+
+    .cp-checks {
+      border: none;
+      padding: 0;
+      margin: 18px 0 0 0;
+      min-width: 0;
+    }
+
+    .cp-checks legend {
+      padding: 0;
+      margin-bottom: 4px;
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text-soft);
+    }
+
+    .cp-check {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      padding: 7px 0;
+      font-size: 14px;
+      line-height: 1.4;
+      cursor: pointer;
+    }
+
+    .cp-check input {
+      width: 18px;
+      height: 18px;
+      margin: 1px 0 0 0;
+      flex-shrink: 0;
+      accent-color: var(--brand);
+      cursor: pointer;
+    }
+
+    .cp-check .help {
+      display: block;
+    }
+
+    .cp-fold {
+      width: 100%;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      margin-top: 18px;
+      padding: 12px 14px;
+      border: 1px solid var(--border-soft);
+      border-radius: 10px;
+      background: var(--surface-2);
+      font: inherit;
+      font-size: 13.5px;
+      font-weight: 600;
+      color: var(--text);
+      text-align: left;
+      cursor: pointer;
+    }
+
+    .cp-fold:hover {
+      border-color: var(--brand);
+    }
+
+    .cp-fold span {
+      min-width: 0;
+      overflow-wrap: anywhere;
+    }
+
+    .cp-summary {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      flex-wrap: wrap;
+      padding: 16px 18px;
+      border: 1px solid var(--border-soft);
+      border-radius: 12px;
+      background: var(--brand-soft);
+    }
+
+    .cp-summary > div:first-child {
+      flex: 1;
+      min-width: 220px;
+    }
+
+    .cp-summary-main {
+      margin: 0 0 4px 0;
+      font-family: 'Lato', sans-serif;
+      font-size: 18px;
+      font-weight: 700;
+    }
+
+    .cp-summary-main b {
+      color: var(--brand-dark);
+      font-weight: 900;
+    }
+
+    .cp-summary .help {
+      margin: 0;
+    }
+
+    .cp-reasons {
+      list-style: none;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      padding: 0;
+      margin: 10px 0 0 0;
+    }
+
+    /* Tablas con desplazamiento propio (la página no se desplaza a lo ancho) */
+    .table-wrap.cp-table {
+      position: relative; /* contiene los textos sr-only de las cabeceras */
+      overflow-x: auto;
+      margin-top: 10px;
+    }
+
+    .cp-table table.data {
+      min-width: 560px;
+    }
+
+    .cp-table.is-wide table.data {
+      min-width: 940px;
+    }
+
+    .cp-table.is-short {
+      max-height: 260px;
+      overflow-y: auto;
+    }
+
+    .cp-table td .btn-row {
+      flex-wrap: nowrap;
+      gap: 6px;
+    }
+
+    .cp-nowrap {
+      white-space: nowrap;
+    }
+
+    .cp-filters {
+      display: grid;
+      grid-template-columns: minmax(220px, 2fr) repeat(3, minmax(140px, 1fr)) auto;
+      gap: 12px;
+      align-items: end;
+      margin-bottom: 6px;
+    }
+
+    .cp-filters.is-prog {
+      grid-template-columns: repeat(2, minmax(160px, 220px)) auto;
+      justify-content: start;
+    }
+
+    .btn.cp-danger {
+      color: var(--err-fg);
+    }
+
+    .btn.cp-danger:hover {
+      border-color: var(--err-fg);
+      background: var(--err-bg);
+      color: var(--err-fg);
+    }
+
+    /* Modales */
+    .cp-sec-title {
+      font-size: 14px;
+      font-weight: 700;
+      margin: 20px 0 0 0;
+    }
+
+    .cp-wtp-title {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--brand-dark);
+    }
+
+    .cp-progress {
+      height: 8px;
+      margin: 0 0 16px 0;
+      border-radius: 4px;
+      background: var(--border-soft);
+      overflow: hidden;
+    }
+
+    .cp-progress span {
+      display: block;
+      height: 100%;
+      width: 0;
+      background: var(--brand);
+      transition: width .3s ease;
+    }
+
+    .cp-foot {
+      margin: 28px 0 0 0;
+      text-align: center;
+      font-size: 13px;
+      color: var(--text-muted);
+    }
+
+    .cp-foot .btn-link {
+      font-weight: 400;
+      color: var(--text-muted);
+    }
+
+    @media (max-width: 920px) {
+      .form-grid.cp-3,
+      .cp-filters,
+      .cp-filters.is-prog {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+    }
+
+    @media (max-width: 640px) {
+      .form-grid.cp-3,
+      .cp-filters,
+      .cp-filters.is-prog {
+        grid-template-columns: 1fr;
+      }
+
+      .cp-summary .btn-row,
+      .cp-summary .btn-row .btn {
+        width: 100%;
+        justify-content: center;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <script src="../js/data.js"></script>
+  <script src="../js/shell.js"></script>
+  <script src="../js/doc.js"></script>
+  <script>
+    const ctx = APP.renderShell('certificaciones');
+    if (!ctx) throw new Error('Auth required');
+
+    const esc = APP.esc;
+    const ALUMNO_DEMO = '2021100345';
+    const DESTINO_ALUMNO = 'alumno/mis-documentos.html';
+    const CC_REGISTROS = 'registros.academicos@uwiener.edu.pe';
+    const NOTA_REGLAMENTO = 14;
+    const NOTA_APROBATORIA = 11;
+
+    // Una sola lista de periodos para el formulario, los modales y los filtros
+    const PERIODOS = [
+      { id: '2026-II', label: '2026-II (vigente)' },
+      { id: '2026-II-EXT', label: '2026-II extemporáneo' },
+      { id: '2027-I', label: '2027-I' },
+      { id: '2026-I', label: '2026-I' },
+      { id: '2025-II', label: '2025-II' }
+    ];
+    const CICLOS = [['6', 'Ciclo VI'], ['7', 'Ciclo VII'], ['8', 'Ciclo VIII'], ['9', 'Ciclo IX'], ['10', 'Ciclo X']];
+    const HORAS_FIJAS = [['23:59', '23:59 (fin del día)'], ['18:00', '18:00 (tarde)'], ['12:00', '12:00 (mediodía)'], ['08:00', '08:00 (mañana)']];
+    const HORAS_FRECUENTES = ['20:00', '21:30', '22:00', '22:30', '23:30', '23:45'];
+    const MOTIVOS_CORTOS = { emitido: 'ya la tienen emitida', nota: 'nota menor al mínimo', incompleto: 'cursos pendientes', deuda: 'con deuda' };
+
+    // ---------- Estado de la vista ----------
+    let tab = 'emitir'; // 'emitir' | 'programaciones'
+    const cfg = { programa: 'PROG-ISI', cert: 'CP-ISI-01', periodo: '2026-II', modalidad: 'todas', ciclo: 'todos', nota: NOTA_REGLAMENTO, sinDeuda: true, omitir: true, correo: true };
+    let reglasAbiertas = false;
+    let mallaAbierta = false;
+    let faqAbierta = false;
+    const fHist = { q: '', periodo: 'todos', desde: '', hasta: '' };
+    const fProg = { estado: 'todos', periodo: 'todos' };
+    let emision = null; // emisión en revisión, a la espera de confirmar
+
+    // ---------- Iconos SVG ----------
+    const IC = {
+      check: '<polyline points="20 6 9 17 4 12"/>',
+      chev: '<polyline points="6 9 12 15 18 9"/>',
+      up: '<polyline points="18 15 12 9 6 15"/>',
+      search: '<circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>',
+      x: '<path d="M18 6 6 18M6 6l12 12"/>',
+      eye: '<path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/>',
+      edit: '<path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/>',
+      pause: '<rect width="4" height="16" x="6" y="4" rx="1"/><rect width="4" height="16" x="14" y="4" rx="1"/>',
+      play: '<polygon points="5 3 19 12 5 21 5 3"/>',
+      trash: '<path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/>',
+      calendar: '<rect width="18" height="18" x="3" y="4" rx="2"/><line x1="16" x2="16" y1="2" y2="6"/><line x1="8" x2="8" y1="2" y2="6"/><line x1="3" x2="21" y1="10" y2="10"/>',
+      clock: '<circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>',
+      plus: '<line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>',
+      external: '<path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/>',
+      save: '<path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/>'
+    };
+    function ico(name, size) {
+      const s = size || 16;
+      return `<svg width="${s}" height="${s}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${IC[name] || ''}</svg>`;
+    }
+    // Icono de ejecución (rayo) usado en "Revisar y emitir" y "Ejecutar ahora"
+    function icoExec(size) {
+      const s = size || 16;
+      return `<svg width="${s}" height="${s}" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M10.55,18.2L15.73,12h-4l0.72-5.68L7.83,13H11.3l-0.75,5.2ZM9.58,14.5H6.53q-0.5,0-0.74-0.45t0.06-0.86l6.55-9.45q0.2-0.28 0.52-0.39t0.65,0.02t0.5,0.41t0.12,0.63L13.43,10.5h3.73q0.53,0 0.75,0.48t-0.13,0.89l-7.24,8.68q-0.22,0.26-0.53,0.33T9.4,20.82T8.94,20.4T8.82,19.78L9.58,14.5Z"/></svg>`;
+    }
+
+    // ---------- Datos ----------
+    function programas() { return DB.programasCertificaciones() || []; }
+    function programaDe(id) { return programas().find(p => p.id === id) || null; }
+    // Certificaciones que pertenecen de verdad al programa
+    function certsDe(progId) {
+      const p = programaDe(progId);
+      if (!p) return [];
+      const ids = p.certificacionesIds || [];
+      return (DB.certificacionesProgresivas() || []).filter(c => ids.includes(c.id) || c.programaId === p.id);
+    }
+    function certActual() {
+      const lista = certsDe(cfg.programa);
+      return lista.find(c => c.id === cfg.cert) || lista[0] || null;
+    }
+    function reglasDelFormulario() {
+      return { notaMinima: cfg.nota, exigirSinDeuda: cfg.sinDeuda, omitirYaEmitidos: cfg.omitir, modalidad: cfg.modalidad, ciclo: cfg.ciclo };
+    }
+    function plural(n, uno, varios) { return n + ' ' + (n === 1 ? uno : varios); }
+    function nota2(v) { return Number(v).toFixed(2); }
+    function periodoLabel(id) { const p = PERIODOS.find(x => x.id === id); return p ? p.label : id; }
+    function periodosOpciones(sel, conTodos, extras) {
+      const lista = PERIODOS.map(p => p.id);
+      (extras || []).forEach(x => { if (x && !lista.includes(x)) lista.push(x); });
+      if (sel && sel !== 'todos' && !lista.includes(sel)) lista.push(sel);
+      return (conTodos ? `<option value="todos" ${sel === 'todos' ? 'selected' : ''}>Todos los periodos</option>` : '') +
+        lista.map(id => `<option value="${esc(id)}" ${id === sel ? 'selected' : ''}>${esc(periodoLabel(id))}</option>`).join('');
+    }
+    // Fechas guardadas como dd/mm/aaaa (lotes antiguos) o ISO: se muestran igual
+    function fechaFlexible(v) {
+      if (!v) return '-';
+      const m = String(v).match(/^(\d{2})\/(\d{2})\/(\d{4})(?:,?\s+(\d{2}:\d{2}))?(.*)$/);
+      if (!m) return APP.fechaCorta(v, true);
+      const hora24 = m[4] && !/[ap]\.?\s?m/i.test(m[5] || '') ? ' ' + m[4] : '';
+      return APP.fechaCorta(`${m[3]}-${m[2]}-${m[1]}${hora24}`, true);
+    }
+    function certOpciones(lista, sel, conTodas) {
+      if (!lista.length) return '<option value="">Sin certificaciones configuradas</option>';
+      return (conTodas ? `<option value="TODAS" ${sel === 'TODAS' ? 'selected' : ''}>Todas las certificaciones del programa</option>` : '') +
+        lista.map(c => `<option value="${esc(c.id)}" ${c.id === sel ? 'selected' : ''}>${esc(c.cicloOtorgamiento || '-')}: ${esc(c.titulo)}</option>`).join('');
+    }
+    function modalidadOpciones(p) {
+      const o = [['todas', 'Todas las modalidades']];
+      o.push(['Presencial', 'Presencial' + (p && p.codigoPresencial ? ` (cód. ${p.codigoPresencial})` : '')]);
+      if (!p || p.codigoSemipresencial) o.push(['Semipresencial', 'Semipresencial' + (p ? ` (cód. ${p.codigoSemipresencial})` : '')]);
+      if (!o.some(x => x[0] === cfg.modalidad)) cfg.modalidad = 'todas';
+      return o.map(x => `<option value="${esc(x[0])}" ${x[0] === cfg.modalidad ? 'selected' : ''}>${esc(x[1])}</option>`).join('');
+    }
+    function facultadTexto(p) { return `${p && p.facultad ? p.facultad : '-'}. Nivel: pregrado.`; }
+
+    // ---------- Controles personalizados ----------
+    function hydrate(root) {
+      if (!root) return;
+      APP.initCustomSelects(root);
+      APP.initDatePickers(root);
+      // El shell asocia cada desplegable con su label[for]
+    }
+    function rellenarSelect(id, html) {
+      const sel = document.getElementById(id);
+      if (!sel) return;
+      sel.innerHTML = html;
+      if (sel._wienerCustomSelect) sel._wienerCustomSelect.update();
+    }
+    function foldBtn(id, abierto, panelId, fn, texto, clase) {
+      return `<button type="button" class="${clase}" id="${id}" aria-expanded="${abierto}" aria-controls="${panelId}" onclick="${fn}()"><span>${texto}</span>${ico('chev', 16).replace('<svg ', '<svg class="cp-chev" ')}</button>`;
+    }
+
+    function verComoAlumno(codigo) {
+      APP.verComoAlumno(codigo || ALUMNO_DEMO, DESTINO_ALUMNO);
+    }
+
+    // =====================================================================
+    // PÁGINA
+    // =====================================================================
+    function renderPage() {
+      ctx.mount.innerHTML = `
+        <div class="cp-root">
+          <div class="page-head">
+            <div>
+              <h1>Certificaciones progresivas</h1>
+              <p>Emite en lote las certificaciones de quienes cumplen las reglas, o deja la emisión programada para el cierre del periodo.</p>
+            </div>
+            <button type="button" class="btn" onclick="verComoAlumno()">${ico('external')}<span>Ver como alumno</span></button>
+          </div>
+
+          <div class="cp-help">
+            ${foldBtn('reglas-btn', reglasAbiertas, 'reglas-panel', 'toggleReglas', 'Reglas de emisión', 'btn-link cp-toggle')}
+            <div class="cp-panel" id="reglas-panel" ${reglasAbiertas ? '' : 'hidden'}>
+              <p class="help">Las certificaciones progresivas se emiten en lote y sin costo para los alumnos que terminan un módulo de su plan de estudios. El sistema valida las reglas y entrega el documento con firma electrónica.</p>
+              <ul class="checklist">
+                <li><span class="check-dot is-ok">${ico('check', 12)}</span><span><b>Regla académica.</b> Todos los cursos del módulo aprobados con nota mínima de ${nota2(NOTA_REGLAMENTO)}.</span></li>
+                <li><span class="check-dot is-ok">${ico('check', 12)}</span><span><b>Regla financiera.</b> Sin deuda pendiente en aranceles o cuotas.</span></li>
+                <li><span class="check-dot is-ok">${ico('check', 12)}</span><span><b>No duplicidad.</b> Se excluye a quien ya tiene emitida la certificación.</span></li>
+                <li><span class="check-dot is-ok">${ico('check', 12)}</span><span><b>Despacho electrónico.</b> Envío automático al correo institucional, con firma de Secretaría General.</span></li>
+              </ul>
+            </div>
+          </div>
+
+          <div id="kpi-host"></div>
+          <div id="tabs-host"></div>
+          <div id="tab-body"></div>
+
+          <p class="cp-foot">
+            <button type="button" class="btn-link" onclick="reiniciarDemo()">Reiniciar datos de demostración</button>
+          </p>
+        </div>`;
+      renderKpis();
+      renderTabs();
+      renderTabBody();
+    }
+
+    function toggleReglas() {
+      reglasAbiertas = !reglasAbiertas;
+      document.getElementById('reglas-btn').setAttribute('aria-expanded', reglasAbiertas);
+      document.getElementById('reglas-panel').hidden = !reglasAbiertas;
+    }
+
+    // Indicadores calculados con los datos guardados
+    function renderKpis() {
+      const host = document.getElementById('kpi-host');
+      if (!host) return;
+      const lotes = DB.lotesEmision() || [];
+      const progs = DB.programacionesEmision() || [];
+      const emitidos = lotes.reduce((a, l) => a + (Number(l.totalAlumnos) || 0), 0);
+      const conCorreo = lotes.filter(l => l.despachoCorreo !== false).length;
+      const proxima = progs.filter(p => p.estado === 'Programado' && p.fechaEjecucion)
+        .sort((a, b) => String(a.fechaEjecucion).localeCompare(String(b.fechaEjecucion)))[0];
+      host.innerHTML = `
+        <dl class="cp-strip">
+          <div><dt>Certificados emitidos</dt><dd>${emitidos.toLocaleString('es-PE')}<small>en ${plural(lotes.length, 'lote', 'lotes')}</small></dd></div>
+          <div><dt>Lotes procesados</dt><dd>${lotes.length}</dd></div>
+          <div><dt>Lotes enviados por correo</dt><dd>${conCorreo} de ${lotes.length}</dd></div>
+          <div><dt>Próxima programación</dt><dd>${proxima ? esc(APP.fechaCorta(proxima.fechaEjecucion, true)) : 'Ninguna'}<small>${proxima ? esc(proxima.nombre) : 'No hay programaciones activas'}</small></dd></div>
+        </dl>`;
+    }
+
+    function renderTabs() {
+      const host = document.getElementById('tabs-host');
+      if (!host) return;
+      const activas = (DB.programacionesEmision() || []).filter(p => p.estado === 'Programado').length;
+      host.innerHTML = APP.tabsHTML([
+        { id: 'emitir', label: 'Emitir ahora' },
+        { id: 'programaciones', label: 'Programaciones', count: activas }
+      ], tab, 'setTab');
+    }
+
+    function setTab(id) {
+      tab = id;
+      renderTabs();
+      renderTabBody();
+      const activo = document.querySelector('#tabs-host .tab.active');
+      if (activo) activo.focus();
+    }
+
+    function renderTabBody() {
+      if (tab === 'programaciones') renderTabProgramaciones();
+      else renderTabEmitir();
+    }
+
+    // =====================================================================
+    // PESTAÑA: EMITIR AHORA
+    // =====================================================================
+    function renderTabEmitir() {
+      const body = document.getElementById('tab-body');
+      const prog = programaDe(cfg.programa) || programas()[0] || null;
+      if (prog) cfg.programa = prog.id;
+      const certs = certsDe(cfg.programa);
+      const cert = certActual();
+      cfg.cert = cert ? cert.id : '';
+
+      body.innerHTML = `
+        <section class="card cp-step" aria-labelledby="paso-1">
+          <h2 class="q-title" id="paso-1"><span class="cp-n">1</span>Qué emitir</h2>
+          <p class="help">Elige el programa, la certificación y el periodo que se cierra.</p>
+          <div class="form-grid cp-3">
+            <div class="field">
+              <label for="cfg-programa">Programa</label>
+              <div class="custom-select-container">
+                <select id="cfg-programa" onchange="onPrograma(this.value)">
+                  ${programas().map(p => `<option value="${esc(p.id)}" ${p.id === cfg.programa ? 'selected' : ''}>${esc(p.nombre)}</option>`).join('')}
+                </select>
+              </div>
+              <span class="hint" id="cfg-facultad">${esc(facultadTexto(prog))}</span>
+            </div>
+            <div class="field">
+              <label for="cfg-cert">Certificación</label>
+              <div class="custom-select-container">
+                <select id="cfg-cert" onchange="onCert(this.value)">${certOpciones(certs, cfg.cert, false)}</select>
+              </div>
+              <div class="field-error" id="cfg-cert-err" ${certs.length ? 'hidden' : ''}>Este programa aún no tiene certificaciones configuradas.</div>
+            </div>
+            <div class="field">
+              <label for="cfg-periodo">Periodo de cierre</label>
+              <div class="custom-select-container">
+                <select id="cfg-periodo" onchange="onFiltro('periodo', this.value)">${periodosOpciones(cfg.periodo, false)}</select>
+              </div>
+            </div>
+          </div>
+          <div id="malla-host"></div>
+        </section>
+
+        <section class="card cp-step" aria-labelledby="paso-2">
+          <h2 class="q-title" id="paso-2"><span class="cp-n">2</span>A quién</h2>
+          <p class="help">Acota la población y decide qué reglas se aplican. El resumen del paso 3 se actualiza solo.</p>
+          <div class="form-grid cp-3">
+            <div class="field">
+              <label for="cfg-modalidad">Modalidad</label>
+              <div class="custom-select-container">
+                <select id="cfg-modalidad" onchange="onFiltro('modalidad', this.value)">${modalidadOpciones(prog)}</select>
+              </div>
+            </div>
+            <div class="field">
+              <label for="cfg-ciclo">Ciclo del alumno</label>
+              <div class="custom-select-container">
+                <select id="cfg-ciclo" onchange="onFiltro('ciclo', this.value)">
+                  <option value="todos" ${cfg.ciclo === 'todos' ? 'selected' : ''}>Todos los ciclos</option>
+                  ${CICLOS.map(c => `<option value="${c[0]}" ${cfg.ciclo === c[0] ? 'selected' : ''}>${c[1]}</option>`).join('')}
+                </select>
+              </div>
+            </div>
+            <div class="field">
+              <label for="cfg-nota">Nota mínima por curso</label>
+              <input type="number" class="input" id="cfg-nota" inputmode="decimal" step="0.5" min="${NOTA_APROBATORIA}" max="20" value="${cfg.nota}" onchange="onNota(this)" aria-describedby="cfg-nota-hint cfg-nota-err">
+              <span class="hint" id="cfg-nota-hint">Entre ${NOTA_APROBATORIA} y 20. El reglamento pide ${nota2(NOTA_REGLAMENTO)}.</span>
+              <div class="field-error" id="cfg-nota-err" role="alert" hidden></div>
+            </div>
+          </div>
+          <fieldset class="cp-checks">
+            <legend>Reglas y envío</legend>
+            <label class="cp-check"><input type="checkbox" id="cfg-deuda" ${cfg.sinDeuda ? 'checked' : ''} onchange="onFiltro('sinDeuda', this.checked)"><span>Exigir que el alumno no tenga deuda</span></label>
+            <label class="cp-check"><input type="checkbox" id="cfg-emitidos" ${cfg.omitir ? 'checked' : ''} onchange="onFiltro('omitir', this.checked)"><span>Excluir a quienes ya tienen emitida esta certificación</span></label>
+            <label class="cp-check"><input type="checkbox" id="cfg-correo" ${cfg.correo ? 'checked' : ''} onchange="onFiltro('correo', this.checked)"><span>Enviar la certificación por correo institucional<span class="help">Si lo desmarcas no se envía ningún correo. El alumno la verá en Mis documentos.</span></span></label>
+          </fieldset>
+        </section>
+
+        <section class="card cp-step" aria-labelledby="paso-3">
+          <h2 class="q-title" id="paso-3"><span class="cp-n">3</span>Revisar y emitir</h2>
+          <p class="help">Antes de emitir verás la lista de alumnos aptos y la de excluidos con su motivo.</p>
+          <div id="resumen-host" aria-live="polite"></div>
+        </section>
+
+        <section class="card" id="hist-host" aria-labelledby="hist-title"></section>`;
+
+      renderMalla();
+      renderResumen();
+      renderHistorico();
+      hydrate(body);
+    }
+
+    function onPrograma(id) {
+      cfg.programa = id;
+      const prog = programaDe(id);
+      const certs = certsDe(id);
+      cfg.cert = certs.length ? certs[0].id : '';
+      // Se actualizan solo los controles que dependen del programa
+      rellenarSelect('cfg-cert', certOpciones(certs, cfg.cert, false));
+      rellenarSelect('cfg-modalidad', modalidadOpciones(prog));
+      document.getElementById('cfg-facultad').textContent = facultadTexto(prog);
+      document.getElementById('cfg-cert-err').hidden = certs.length > 0;
+      refreshEmision();
+    }
+    function onCert(id) { cfg.cert = id; refreshEmision(); }
+    function onFiltro(clave, valor) { cfg[clave] = valor; refreshEmision(); }
+    function onNota(inp) {
+      let v = parseFloat(String(inp.value).replace(',', '.'));
+      let msg = '';
+      if (isNaN(v)) { v = NOTA_REGLAMENTO; msg = `Valor no válido. Se usa ${nota2(NOTA_REGLAMENTO)}.`; }
+      else if (v < NOTA_APROBATORIA) { v = NOTA_APROBATORIA; msg = `El mínimo permitido es ${nota2(NOTA_APROBATORIA)}. Se ajustó el valor.`; }
+      else if (v > 20) { v = 20; msg = 'El máximo permitido es 20.00. Se ajustó el valor.'; }
+      cfg.nota = v;
+      inp.value = v;
+      const err = document.getElementById('cfg-nota-err');
+      err.textContent = msg;
+      err.hidden = !msg;
+      refreshEmision();
+    }
+    // Cambiar un filtro solo re-pinta la malla y el resumen de aptos
+    function refreshEmision() { renderMalla(); renderResumen(); }
+
+    function renderMalla() {
+      const host = document.getElementById('malla-host');
+      if (!host) return;
+      const cert = certActual();
+      if (!cert) { host.innerHTML = ''; return; }
+      const cursos = cert.cursos || [];
+      const tipo = t => t === 'O' ? 'Obligatorio' : (t === 'E' ? 'Electivo' : (t || '-'));
+      host.innerHTML = `
+        ${foldBtn('malla-btn', mallaAbierta, 'malla-panel', 'toggleMalla', `Malla formativa: ${plural(cursos.length, 'asignatura', 'asignaturas')}. Se otorga en ${esc(cert.cicloOtorgamiento || '-')}.`, 'cp-fold')}
+        <div id="malla-panel" ${mallaAbierta ? '' : 'hidden'}>
+          <div class="table-wrap cp-table">
+            <table class="data">
+              <caption class="sr-only">Asignaturas de ${esc(cert.titulo)}</caption>
+              <thead><tr><th>Código</th><th>Asignatura</th><th>Ciclo</th><th>Tipo</th><th>Créditos</th><th>Condición</th></tr></thead>
+              <tbody>
+                ${cursos.map(c => `
+                  <tr>
+                    <td class="mono">${esc(c.codigo || '-')}</td>
+                    <td class="strong">${esc(c.nombre || '-')}</td>
+                    <td class="cp-nowrap">${c.ciclo != null ? 'Ciclo ' + esc(c.ciclo) : '-'}</td>
+                    <td>${esc(tipo(c.tipo))}</td>
+                    <td>${c.creditaje != null ? esc(c.creditaje) : '-'}</td>
+                    <td class="cp-nowrap">Aprobado con nota ≥ ${nota2(cfg.nota)}</td>
+                  </tr>`).join('')}
+              </tbody>
+            </table>
+          </div>
+        </div>`;
+    }
+    function toggleMalla() {
+      mallaAbierta = !mallaAbierta;
+      renderMalla();
+      const b = document.getElementById('malla-btn');
+      if (b) b.focus();
+    }
+
+    function renderResumen() {
+      const host = document.getElementById('resumen-host');
+      if (!host) return;
+      const cert = certActual();
+      if (!cert) {
+        host.innerHTML = `
+          <div class="alert warn">Este programa aún no tiene certificaciones configuradas. Elige otro programa en el paso 1 para poder emitir.</div>`;
+        return;
+      }
+      const ev = DB.evaluarAlumnosCertificacion(cert.id, reglasDelFormulario());
+      const aptos = ev.filter(e => e.apto).length;
+      const motivos = {};
+      ev.filter(e => !e.apto).forEach(e => { motivos[e.estadoClase] = (motivos[e.estadoClase] || 0) + 1; });
+      host.innerHTML = `
+        <div class="cp-summary">
+          <div>
+            <p class="cp-summary-main"><b>${aptos}</b> ${aptos === 1 ? 'alumno apto' : 'alumnos aptos'} de ${ev.length} evaluados</p>
+            <p class="help">${esc(cert.titulo)}, periodo ${esc(periodoLabel(cfg.periodo))}. Sin costo para el alumno. ${cfg.correo ? 'Se enviará un correo a cada alumno.' : 'No se enviarán correos.'}</p>
+            ${Object.keys(motivos).length ? `<ul class="cp-reasons" aria-label="Motivos de exclusión">${Object.keys(motivos).map(k => `<li class="tag">${motivos[k]} ${esc(MOTIVOS_CORTOS[k] || 'no aptos')}</li>`).join('')}</ul>` : ''}
+          </div>
+          <div class="btn-row">
+            <button type="button" class="btn" onclick="abrirModalProgramacion()">${ico('calendar')}<span>Programar para el cierre</span></button>
+            <button type="button" class="btn btn-primary" onclick="revisarEmision()">${icoExec(18)}<span>Revisar y emitir</span></button>
+          </div>
+        </div>`;
+    }
+
+    // ---------- Histórico de lotes ----------
+    function renderHistorico() {
+      const host = document.getElementById('hist-host');
+      if (!host) return;
+      const periodosDatos = (DB.lotesEmision() || []).map(l => l.periodo);
+      host.innerHTML = `
+        <h2 class="q-title" id="hist-title">Histórico de lotes</h2>
+        <p class="help" id="hist-count"></p>
+        <div class="cp-filters">
+          <div class="field">
+            <label for="hist-q">Buscar</label>
+            <div class="search">
+              <span class="s-ico">${ico('search')}</span>
+              <input type="search" class="input" id="hist-q" placeholder="Lote, programa o certificación" value="${esc(fHist.q)}" oninput="setHist('q', this.value)">
+            </div>
+          </div>
+          <div class="field">
+            <label for="hist-periodo">Periodo</label>
+            <div class="custom-select-container">
+              <select id="hist-periodo" onchange="setHist('periodo', this.value)">${periodosOpciones(fHist.periodo, true, periodosDatos)}</select>
+            </div>
+          </div>
+          <div class="field">
+            <label for="hist-desde_display">Desde</label>
+            <div class="custom-date-container"><input type="date" id="hist-desde" value="${esc(fHist.desde)}" onchange="setHist('desde', this.value)"></div>
+          </div>
+          <div class="field">
+            <label for="hist-hasta_display">Hasta</label>
+            <div class="custom-date-container"><input type="date" id="hist-hasta" value="${esc(fHist.hasta)}" onchange="setHist('hasta', this.value)"></div>
+          </div>
+          <button type="button" class="btn" id="hist-clear" onclick="limpiarHist(true)" hidden>${ico('x')}<span>Limpiar filtros</span></button>
+        </div>
+        <div id="hist-body"></div>`;
+      refreshHistorico();
+    }
+
+    function hayFiltrosHist() { return !!(fHist.q.trim() || fHist.periodo !== 'todos' || fHist.desde || fHist.hasta); }
+    function setHist(clave, valor) { fHist[clave] = valor; refreshHistorico(); }
+    function limpiarHist(enfocar) {
+      fHist.q = ''; fHist.periodo = 'todos'; fHist.desde = ''; fHist.hasta = '';
+      renderHistorico();
+      hydrate(document.getElementById('hist-host'));
+      if (enfocar) { const q = document.getElementById('hist-q'); if (q) q.focus(); }
+    }
+
+    // Solo re-pinta el cuerpo: el buscador conserva el foco
+    function refreshHistorico() {
+      const body = document.getElementById('hist-body');
+      if (!body) return;
+      const lotes = DB.lotesEmision() || [];
+      const q = fHist.q.trim().toLowerCase();
+      const lista = lotes.filter(l => {
+        if (fHist.periodo !== 'todos' && l.periodo !== fHist.periodo) return false;
+        const dia = String(l.fecha || '').slice(0, 10);
+        if (fHist.desde && dia < fHist.desde) return false;
+        if (fHist.hasta && dia > fHist.hasta) return false;
+        if (q && ![l.id, l.programa, l.certificacionTitulo].some(v => String(v || '').toLowerCase().includes(q))) return false;
+        return true;
+      });
+      const filtros = hayFiltrosHist();
+      document.getElementById('hist-clear').hidden = !filtros;
+      document.getElementById('hist-count').textContent = filtros
+        ? `${plural(lista.length, 'lote', 'lotes')} de ${lotes.length} con los filtros aplicados.`
+        : `${plural(lotes.length, 'lote emitido', 'lotes emitidos')}.`;
+
+      if (!lista.length) {
+        body.innerHTML = filtros ? `
+          <div class="empty-state">
+            <h3>Ningún lote coincide con los filtros</h3>
+            <p>Prueba con otro periodo, otras fechas u otro texto de búsqueda.</p>
+            <button type="button" class="btn" onclick="limpiarHist(true)">Limpiar filtros</button>
+          </div>` : `
+          <div class="empty-state">
+            <h3>Aún no hay lotes emitidos</h3>
+            <p>Cuando emitas certificaciones, cada lote quedará registrado aquí.</p>
+            <button type="button" class="btn" onclick="revisarEmision()">Revisar y emitir</button>
+          </div>`;
+        return;
+      }
+      body.innerHTML = `
+        <div class="table-wrap cp-table is-wide">
+          <table class="data">
+            <caption class="sr-only">Lotes de certificaciones emitidos</caption>
+            <thead><tr><th>Lote</th><th>Fecha</th><th>Programa</th><th>Certificación</th><th>Periodo</th><th>Emitidos</th><th>Envío</th><th>Estado</th><th><span class="sr-only">Acciones</span></th></tr></thead>
+            <tbody>
+              ${lista.map(l => `
+                <tr>
+                  <td class="mono cp-nowrap">${esc(l.id)}</td>
+                  <td class="cp-nowrap">${esc(APP.fechaCorta(l.fecha, true))}</td>
+                  <td>${esc(l.programa || '-')}</td>
+                  <td><span class="strong">${esc(l.certificacionTitulo || '-')}</span><div class="muted">${esc(l.cicloOtorgamiento || '-')}</div></td>
+                  <td class="cp-nowrap">${esc(l.periodo || '-')}</td>
+                  <td class="cp-nowrap">${l.totalAlumnos != null ? esc(l.totalAlumnos) : '-'}</td>
+                  <td>${l.despachoCorreo === false ? '<span class="pill gray">Sin correo</span>' : '<span class="pill ok">Correo institucional</span>'}</td>
+                  <td><span class="pill ${l.despachoCorreo === false ? 'info' : 'ok'}">${esc(l.estado || '-')}</span></td>
+                  <td><button type="button" class="btn btn-sm cp-nowrap" data-id="${esc(l.id)}" onclick="verDetalleLote(this.dataset.id)">${ico('eye', 14)}<span>Ver detalle</span></button></td>
+                </tr>`).join('')}
+            </tbody>
+          </table>
+        </div>`;
+    }
+
+    // ---------- Detalle de lote ----------
+    function verDetalleLote(loteId) {
+      const lote = DB.getLoteEmision(loteId);
+      if (!lote) { APP.toast({ icon: 'warn', title: 'Lote no encontrado', body: 'No se pudo abrir el detalle de este lote.' }); return; }
+      const alumnos = lote.alumnosEmitidos || [];
+      const conCorreo = lote.despachoCorreo !== false;
+      APP.openModal(`
+        <div class="modal-head">
+          <h3>Lote ${esc(lote.id)}</h3>
+          <button class="modal-close" type="button" onclick="APP.closeModal()">&times;</button>
+        </div>
+        <div class="modal-body">
+          <dl class="kv">
+            <dt>Programa</dt><dd>${esc(lote.programa || '-')}</dd>
+            <dt>Certificación</dt><dd>${esc(lote.certificacionTitulo || '-')}</dd>
+            <dt>Periodo</dt><dd>${esc(lote.periodo || '-')}</dd>
+            <dt>Fecha de emisión</dt><dd>${esc(APP.fechaCorta(lote.fecha, true))}</dd>
+            <dt>Total emitidos</dt><dd>${lote.totalAlumnos != null ? esc(plural(Number(lote.totalAlumnos), 'alumno', 'alumnos')) : '-'}</dd>
+            <dt>Entrega</dt><dd>${esc(lote.tasaEntrega || '-')}</dd>
+            <dt>Envío</dt><dd>${esc(lote.canalDespacho || '-')}</dd>
+            <dt>Costo</dt><dd>Sin costo para el alumno</dd>
+          </dl>
+
+          <h4 class="cp-sec-title">Alumnos de este lote</h4>
+          ${alumnos.length ? `
+            <div class="table-wrap cp-table is-short">
+              <table class="data">
+                <thead><tr><th>Folio</th><th>Alumno</th><th>Correo</th><th>Fecha</th><th>Estado</th><th><span class="sr-only">Acciones</span></th></tr></thead>
+                <tbody>
+                  ${alumnos.map(a => {
+                    const al = (a && typeof a === 'object') ? a : { nombre: a };
+                    return `
+                    <tr>
+                      <td class="mono cp-nowrap">${esc(al.folio || '-')}</td>
+                      <td><span class="strong">${esc(al.nombre || '-')}</span><div class="muted">Código: ${esc(al.codigo || '-')}</div></td>
+                      <td>${esc(al.email || '-')}</td>
+                      <td class="cp-nowrap">${esc(fechaFlexible(al.fecha))}</td>
+                      <td>${conCorreo ? '<span class="pill ok">Notificado</span>' : '<span class="pill gray">Sin correo</span>'}</td>
+                      <td>${al.codigo ? `<button type="button" class="btn btn-sm cp-nowrap" data-cod="${esc(al.codigo)}" onclick="verComoAlumno(this.dataset.cod)">${ico('external', 14)}<span>Ver como alumno</span></button>` : '-'}</td>
+                    </tr>`;
+                  }).join('')}
+                </tbody>
+              </table>
+            </div>
+            ${alumnos.length < Number(lote.totalAlumnos || 0) ? `<p class="help">Se muestran ${alumnos.length} de ${esc(lote.totalAlumnos)} alumnos: el resto no tiene detalle guardado en estos datos de ejemplo.</p>` : ''}
+          ` : `
+            <div class="empty-state">
+              <h3>Sin detalle por alumno</h3>
+              <p>Este lote no guarda la lista de alumnos.</p>
+            </div>`}
+
+          <div class="alert info"><span><b>Auditoría de Secretaría General.</b> Los documentos de este lote se firmaron con el certificado institucional y quedaron archivados en el repositorio de Secretaría General.</span></div>
+        </div>
+        <div class="modal-foot">
+          <button class="btn" type="button" onclick="APP.closeModal()">Cerrar</button>
+        </div>`, { wide: true });
+    }
+
+    // =====================================================================
+    // REVISIÓN Y EMISIÓN
+    // =====================================================================
+    function revisarEmision() {
+      const cert = certActual();
+      if (!cert) { APP.toast({ icon: 'warn', title: 'Falta la certificación', body: 'Elige un programa que tenga certificaciones configuradas.' }); return; }
+      abrirRevision({ cert, periodo: cfg.periodo, reglas: reglasDelFormulario(), despacho: cfg.correo, progId: null });
+    }
+
+    // Paso previo obligatorio: aptos y no aptos con motivo. Recién al confirmar se emite.
+    function abrirRevision(em) {
+      const ev = DB.evaluarAlumnosCertificacion(em.cert.id, em.reglas);
+      em.aptos = ev.filter(e => e.apto);
+      em.noAptos = ev.filter(e => !e.apto);
+      emision = em;
+      const n = em.aptos.length;
+      const r = em.reglas;
+      const alcance = [r.modalidad && r.modalidad !== 'todas' ? 'modalidad ' + r.modalidad : 'todas las modalidades',
+        r.ciclo && r.ciclo !== 'todos' ? 'ciclo ' + r.ciclo : 'todos los ciclos'].join(', ');
+      APP.openModal(`
+        <div class="modal-head">
+          <h3>Revisar antes de emitir</h3>
+          <button class="modal-close" type="button" onclick="cancelarRevision()">&times;</button>
+        </div>
+        <div class="modal-body">
+          ${em.progNombre ? `<p class="help">Programación: <b>${esc(em.progNombre)}</b>. Se usan sus propias reglas y su periodo.</p>` : ''}
+          ${em.todas ? `<div class="alert info"><span>Esta programación abarca todas las certificaciones del programa. En esta maqueta la ejecución emite la primera: <b>${esc(em.cert.titulo)}</b>.</span></div>` : ''}
+          <dl class="kv">
+            <dt>Certificación</dt><dd>${esc(em.cert.titulo)}</dd>
+            <dt>Periodo</dt><dd>${esc(periodoLabel(em.periodo))}</dd>
+            <dt>Población</dt><dd>${esc(alcance.charAt(0).toUpperCase() + alcance.slice(1))}</dd>
+            <dt>Nota mínima</dt><dd>${nota2(r.notaMinima)} en cada curso</dd>
+            <dt>Deuda</dt><dd>${r.exigirSinDeuda ? 'Se exige no tener deuda' : 'No se revisa'}</dd>
+            <dt>Ya emitidos</dt><dd>${r.omitirYaEmitidos ? 'Se excluyen' : 'No se excluyen'}</dd>
+            <dt>Correo</dt><dd>${em.despacho ? `Se enviará un correo a cada alumno, con copia a ${esc(CC_REGISTROS)}` : 'No se enviarán correos'}</dd>
+          </dl>
+
+          <h4 class="cp-sec-title">Aptos: ${n}</h4>
+          ${n ? `
+            <div class="table-wrap cp-table is-short">
+              <table class="data">
+                <thead><tr><th>Código</th><th>Alumno</th><th>Correo</th><th>Ciclo</th><th>Modalidad</th><th>Promedio</th></tr></thead>
+                <tbody>
+                  ${em.aptos.map(e => `
+                    <tr>
+                      <td class="mono">${esc(e.codigo || '-')}</td>
+                      <td class="strong">${esc(e.nombre || '-')}</td>
+                      <td>${esc(e.email || '-')}</td>
+                      <td>${esc(e.ciclo != null ? e.ciclo : '-')}</td>
+                      <td>${esc(e.modalidad || '-')}</td>
+                      <td>${esc(e.promedio != null ? e.promedio : '-')}</td>
+                    </tr>`).join('')}
+                </tbody>
+              </table>
+            </div>` : `
+            <div class="alert warn">No hay alumnos aptos con estas reglas. Cambia los filtros o las reglas para poder emitir.</div>`}
+
+          <h4 class="cp-sec-title">No aptos: ${em.noAptos.length}</h4>
+          ${em.noAptos.length ? `
+            <div class="table-wrap cp-table is-short">
+              <table class="data">
+                <thead><tr><th>Código</th><th>Alumno</th><th>Motivo de exclusión</th></tr></thead>
+                <tbody>
+                  ${em.noAptos.map(e => `
+                    <tr>
+                      <td class="mono">${esc(e.codigo || '-')}</td>
+                      <td class="strong">${esc(e.nombre || '-')}</td>
+                      <td>${esc(e.motivo || '-')}</td>
+                    </tr>`).join('')}
+                </tbody>
+              </table>
+            </div>` : '<p class="help">Ningún alumno queda excluido.</p>'}
+        </div>
+        <div class="modal-foot">
+          <button class="btn" type="button" onclick="cancelarRevision()">Cancelar</button>
+          <button class="btn btn-primary" type="button" onclick="confirmarEmision()" ${n ? '' : 'disabled'}>${icoExec(16)}<span>Emitir ${plural(n, 'certificación', 'certificaciones')}</span></button>
+        </div>`, { wide: true });
+    }
+    function cancelarRevision() { emision = null; APP.closeModal(); }
+    function confirmarEmision() {
+      const em = emision;
+      if (!em || !em.aptos.length) return;
+      emision = null;
+      procesarEmision(em);
+    }
+
+    // El lote se guarda siempre con canal de correo en la base compartida:
+    // si el despacho está desactivado se corrige aquí el registro.
+    function marcarLoteSinCorreo(loteId) {
+      const db = DB.load();
+      const lote = (db.lotesEmision || []).find(l => l.id === loteId);
+      if (lote) {
+        lote.despachoCorreo = false;
+        lote.canalDespacho = 'Sin envío por correo';
+        lote.tasaEntrega = '-';
+        lote.estado = 'Emitido';
+      }
+      (db.solicitudes || []).forEach(s => {
+        if (s.loteId === loteId && s.origen === 'Emisión Masiva Admin - Gratuita') {
+          s.mensajeSolicitante = `Tu ${s.certificacionTitulo || 'certificación progresiva'} fue emitida sin costo por cierre de ciclo. Ya puedes verla y descargarla en Mis documentos.`;
+        }
+      });
+      DB.save(db);
+    }
+
+    function procesarEmision(em) {
+      const r = em.reglas;
+      const pasos = [
+        `Validando cursos aprobados con nota mínima de ${nota2(r.notaMinima)}`,
+        r.exigirSinDeuda ? 'Verificando que no tengan deuda' : 'Deuda: regla desactivada, no se verifica',
+        r.omitirYaEmitidos ? 'Excluyendo a quienes ya tienen la certificación' : 'Duplicados: regla desactivada, no se excluyen',
+        'Generando documentos con firma electrónica de Secretaría General',
+        em.despacho ? 'Enviando correos a las cuentas institucionales' : 'Correo: despacho desactivado, no se envían correos'
+      ];
+      // Bloqueado hasta terminar: ni Escape ni el clic fuera lo cierran
+      APP.openModal(`
+        <div class="modal-head"><h3>Emitiendo certificaciones</h3></div>
+        <div class="modal-body">
+          <p class="help">${esc(em.cert.titulo)}. No cierres esta ventana: termina en unos segundos.</p>
+          <div class="cp-progress" role="progressbar" aria-label="Avance de la emisión" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" id="em-progress"><span id="em-bar"></span></div>
+          <ol class="checklist" aria-live="polite">
+            ${pasos.map((t, i) => `<li><span class="check-dot is-wait" id="em-dot-${i}">${i + 1}</span><span>${esc(t)}</span></li>`).join('')}
+          </ol>
+        </div>`, { locked: true });
+
+      let resultado = null;
+      let fallo = null;
+      const avanzar = hechos => {
+        pasos.forEach((_, i) => {
+          const dot = document.getElementById('em-dot-' + i);
+          if (!dot) return;
+          if (i < hechos) { dot.className = 'check-dot is-ok'; dot.innerHTML = ico('check', 12); }
+          else if (i === hechos) { dot.className = 'check-dot is-warn'; }
+        });
+        const pct = Math.round(hechos / pasos.length * 100);
+        const bar = document.getElementById('em-bar');
+        const prog = document.getElementById('em-progress');
+        if (bar) bar.style.width = pct + '%';
+        if (prog) prog.setAttribute('aria-valuenow', pct);
+      };
+      const T = 650;
+      avanzar(0);
+      setTimeout(() => avanzar(1), T);
+      setTimeout(() => avanzar(2), T * 2);
+      setTimeout(() => avanzar(3), T * 3);
+      setTimeout(() => {
+        try {
+          if (em.progId) {
+            // Usa las reglas y el periodo de la propia programación y la marca como completada
+            resultado = DB.ejecutarProgramacionEmision(em.progId).resultado;
+          } else {
+            resultado = DB.emitirCertificacionesMasivas(em.aptos.map(a => a.alumnoId), em.cert.id, Object.assign({ periodo: em.periodo }, r));
+          }
+          if (!em.despacho) marcarLoteSinCorreo(resultado.loteId);
+        } catch (e) { fallo = e; }
+        avanzar(4);
+      }, T * 4);
+      setTimeout(() => {
+        avanzar(5);
+        setTimeout(() => finalizarEmision(em, resultado, fallo), 350);
+      }, T * 5);
+    }
+
+    function finalizarEmision(em, resultado, fallo) {
+      renderPage(); // refresca indicadores, contador de pestaña, resumen e histórico
+      if (fallo || !resultado) {
+        APP.openModal(`
+          <div class="modal-head"><h3>No se pudo emitir</h3><button class="modal-close" type="button" onclick="APP.closeModal()">&times;</button></div>
+          <div class="modal-body"><div class="alert err">Ocurrió un problema y no se emitió ninguna certificación. Vuelve a intentarlo.${fallo ? '<br>Detalle: ' + esc(fallo.message || fallo) : ''}</div></div>
+          <div class="modal-foot"><button class="btn btn-primary" type="button" onclick="APP.closeModal()">Cerrar</button></div>`);
+        return;
+      }
+      const emitidos = resultado.emitidos || [];
+      const n = emitidos.length;
+
+      // Un solo aviso resume todos los correos; el detalle queda en esta ventana y en la consola
+      if (em.despacho && n) {
+        emitidos.forEach(s => console.log('[MAIL]', {
+          to: s.alumnoEmail, cc: CC_REGISTROS,
+          subject: 'Emisión de certificación progresiva: ' + em.cert.titulo,
+          lines: [
+            `Estimado(a) ${s.alumnoNombre}:`,
+            `Al cierre del periodo ${em.periodo} se emitió tu "${em.cert.titulo}" con firma digital institucional, sin costo.`,
+            'Puedes descargarla desde la sección Mis documentos.',
+            'Dirección de Registros y Asuntos Académicos, Universidad Norbert Wiener'
+          ]
+        }));
+        APP.toast({ icon: 'mail', title: 'Correos enviados', body: `${plural(n, 'correo enviado', 'correos enviados')} a las cuentas institucionales, con copia a ${esc(CC_REGISTROS)}.` });
+      } else if (n) {
+        APP.toast({ icon: 'ok', title: 'Lote emitido sin correos', body: 'El despacho por correo está desactivado: no se envió ningún correo.' });
+      }
+
+      APP.openModal(`
+        <div class="modal-head">
+          <h3>Emisión completada</h3>
+          <button class="modal-close" type="button" onclick="APP.closeModal()">&times;</button>
+        </div>
+        <div class="modal-body">
+          ${n ? `<div class="alert ok"><span>Lote <b>${esc(resultado.loteId)}</b>: ${plural(n, 'certificación emitida', 'certificaciones emitidas')} con firma electrónica.</span></div>`
+              : `<div class="alert warn"><span>El lote <b>${esc(resultado.loteId)}</b> se registró sin certificaciones: ningún alumno cumplía las reglas al momento de emitir.</span></div>`}
+          <p class="help">${em.despacho
+            ? (n ? `Se envió un correo a cada alumno, con copia a ${esc(CC_REGISTROS)}.` : 'No se envió ningún correo.')
+            : 'No se enviaron correos porque el despacho por correo está desactivado. Los alumnos ven el documento en Mis documentos.'}
+            ${em.progId ? ' La programación quedó como completada.' : ''}</p>
+          ${n ? `
+            <h4 class="cp-sec-title">Certificaciones emitidas</h4>
+            <div class="table-wrap cp-table is-short">
+              <table class="data">
+                <thead><tr><th>Folio</th><th>Alumno</th><th>Correo</th><th>Aviso</th><th><span class="sr-only">Acciones</span></th></tr></thead>
+                <tbody>
+                  ${emitidos.map(s => `
+                    <tr>
+                      <td class="mono cp-nowrap">${esc(s.id || '-')}</td>
+                      <td><span class="strong">${esc(s.alumnoNombre || '-')}</span><div class="muted">Código: ${esc(s.alumnoCodigo || '-')}</div></td>
+                      <td>${esc(s.alumnoEmail || '-')}</td>
+                      <td>${em.despacho ? '<span class="pill ok">Correo enviado</span>' : '<span class="pill gray">Sin correo</span>'}</td>
+                      <td>${s.alumnoCodigo ? `<button type="button" class="btn btn-sm cp-nowrap" data-cod="${esc(s.alumnoCodigo)}" onclick="verComoAlumno(this.dataset.cod)">${ico('external', 14)}<span>Ver como alumno</span></button>` : '-'}</td>
+                    </tr>`).join('')}
+                </tbody>
+              </table>
+            </div>` : ''}
+        </div>
+        <div class="modal-foot">
+          <button class="btn" type="button" onclick="APP.closeModal()">Cerrar</button>
+          <button class="btn btn-primary" type="button" onclick="irAlHistorico()">Ver en el histórico</button>
+        </div>`, { wide: true });
+    }
+
+    function irAlHistorico() {
+      APP.closeModal();
+      if (tab !== 'emitir') setTab('emitir');
+      const h = document.getElementById('hist-host');
+      if (h) { h.setAttribute('tabindex', '-1'); h.focus({ preventScroll: true }); h.scrollIntoView({ behavior: 'smooth', block: 'start' }); }
+    }
+
+    // =====================================================================
+    // PESTAÑA: PROGRAMACIONES
+    // =====================================================================
+    function renderTabProgramaciones() {
+      const body = document.getElementById('tab-body');
+      const periodosDatos = (DB.programacionesEmision() || []).map(p => p.periodo);
+      body.innerHTML = `
+        <section class="card" aria-labelledby="prog-title">
+          <div class="cp-head-row">
+            <div>
+              <h2 class="q-title" id="prog-title">Programaciones de cierre</h2>
+              <p class="help">Deja la emisión lista para que se ejecute sola en la fecha y hora del cierre del periodo.</p>
+            </div>
+            <button type="button" class="btn btn-primary" onclick="abrirModalProgramacion()">${ico('plus')}<span>Nueva programación</span></button>
+          </div>
+
+          <div class="cp-help">
+            ${foldBtn('faq-btn', faqAbierta, 'faq-panel', 'toggleFaq', 'Cómo funcionan las programaciones', 'btn-link cp-toggle')}
+            <div class="cp-panel cp-faq" id="faq-panel" ${faqAbierta ? '' : 'hidden'}>
+              <div><h3>¿Cuántas programaciones puedo tener?</h3><p class="help">Las que necesites. Puedes organizarlas por programa, modalidad, ciclo o tipo de cierre: ordinario, sustitutorios o subsanaciones extemporáneas.</p></div>
+              <div><h3>¿Dónde las veo y las reviso?</h3><p class="help">En esta tabla, con su estado (programado, pausado o completado), la fecha exacta de ejecución y la cantidad estimada de alumnos aptos.</p></div>
+              <div><h3>¿Se pueden cambiar?</h3><p class="help">Sí. Puedes editarlas antes de que se ejecuten, pausarlas o ejecutarlas antes de tiempo si las actas se consolidan antes.</p></div>
+            </div>
+          </div>
+
+          <div class="cp-filters is-prog">
+            <div class="field">
+              <label for="prog-f-estado">Estado</label>
+              <div class="custom-select-container">
+                <select id="prog-f-estado" onchange="setProgFiltro('estado', this.value)">
+                  ${[['todos', 'Todos los estados'], ['Programado', 'Programadas'], ['Pausado', 'Pausadas'], ['Completado', 'Completadas']].map(o => `<option value="${o[0]}" ${fProg.estado === o[0] ? 'selected' : ''}>${o[1]}</option>`).join('')}
+                </select>
+              </div>
+            </div>
+            <div class="field">
+              <label for="prog-f-periodo">Periodo</label>
+              <div class="custom-select-container">
+                <select id="prog-f-periodo" onchange="setProgFiltro('periodo', this.value)">${periodosOpciones(fProg.periodo, true, periodosDatos)}</select>
+              </div>
+            </div>
+            <button type="button" class="btn" id="prog-clear" onclick="limpiarProgFiltros()" hidden>${ico('x')}<span>Limpiar filtros</span></button>
+          </div>
+          <p class="help" id="prog-count"></p>
+          <div id="prog-body"></div>
+        </section>`;
+      refreshProgramaciones();
+      hydrate(body);
+    }
+    function toggleFaq() {
+      faqAbierta = !faqAbierta;
+      document.getElementById('faq-btn').setAttribute('aria-expanded', faqAbierta);
+      document.getElementById('faq-panel').hidden = !faqAbierta;
+    }
+    function setProgFiltro(clave, valor) { fProg[clave] = valor; refreshProgramaciones(); }
+    function limpiarProgFiltros() {
+      fProg.estado = 'todos'; fProg.periodo = 'todos';
+      renderTabProgramaciones();
+      const b = document.querySelector('#prog-f-estado ~ .custom-select-trigger, #tab-body .custom-select-trigger');
+      if (b) b.focus();
+    }
+
+    function refreshProgramaciones() {
+      const body = document.getElementById('prog-body');
+      if (!body) return;
+      const todas = DB.programacionesEmision() || [];
+      const lista = todas.filter(p => (fProg.estado === 'todos' || p.estado === fProg.estado) && (fProg.periodo === 'todos' || p.periodo === fProg.periodo));
+      const filtros = fProg.estado !== 'todos' || fProg.periodo !== 'todos';
+      document.getElementById('prog-clear').hidden = !filtros;
+      document.getElementById('prog-count').textContent = filtros
+        ? `${plural(lista.length, 'programación', 'programaciones')} de ${todas.length} con los filtros aplicados.`
+        : `${plural(todas.length, 'programación', 'programaciones')} en total.`;
+
+      if (!lista.length) {
+        body.innerHTML = filtros ? `
+          <div class="empty-state">
+            <h3>Ninguna programación coincide con los filtros</h3>
+            <p>Cambia el estado o el periodo para ver más resultados.</p>
+            <button type="button" class="btn" onclick="limpiarProgFiltros()">Limpiar filtros</button>
+          </div>` : `
+          <div class="empty-state">
+            <h3>Aún no hay programaciones</h3>
+            <p>Crea la primera para que la emisión se ejecute sola al cierre del periodo.</p>
+            <button type="button" class="btn btn-primary" onclick="abrirModalProgramacion()">Nueva programación</button>
+          </div>`;
+        return;
+      }
+      const pill = e => `<span class="pill ${e === 'Programado' ? 'info' : (e === 'Pausado' ? 'warn' : (e === 'Completado' ? 'ok' : 'gray'))}">${esc(e || '-')}</span>`;
+      body.innerHTML = `
+        <div class="table-wrap cp-table is-wide">
+          <table class="data">
+            <caption class="sr-only">Programaciones de emisión</caption>
+            <thead><tr><th>Programación</th><th>Programa</th><th>Certificación</th><th>Periodo</th><th>Fecha programada</th><th>Aptos estimados</th><th>Estado</th><th>Acciones</th></tr></thead>
+            <tbody>
+              ${lista.map(p => `
+                <tr>
+                  <td>
+                    <span class="strong">${esc(p.nombre || '-')}</span>
+                    <div class="muted">${esc(p.id)}, creada el ${esc(APP.fechaCorta(p.fechaCreacion))}</div>
+                    ${p.ultimoLoteId ? `<div class="muted">Último lote: <button type="button" class="btn-link" data-id="${esc(p.ultimoLoteId)}" onclick="verDetalleLote(this.dataset.id)">${esc(p.ultimoLoteId)}</button></div>` : ''}
+                  </td>
+                  <td>${esc(p.programaNombre || '-')}</td>
+                  <td><span class="strong">${esc(p.certificacionTitulo || '-')}</span><div class="muted">${esc(p.cicloOtorgamiento || '-')}</div></td>
+                  <td class="cp-nowrap">${esc(p.periodo || '-')}</td>
+                  <td class="cp-nowrap">${esc(APP.fechaCorta(p.fechaEjecucion, true))}</td>
+                  <td>${p.alumnosEstimados != null ? esc(p.alumnosEstimados) : '-'}</td>
+                  <td>${pill(p.estado)}</td>
+                  <td>
+                    <div class="btn-row">
+                      <button type="button" class="btn btn-sm" data-id="${esc(p.id)}" onclick="abrirModalProgramacion(this.dataset.id)">${ico('edit', 14)}<span>Editar</span></button>
+                      ${p.estado === 'Programado' ? `
+                        <button type="button" class="btn btn-sm cp-nowrap" data-id="${esc(p.id)}" onclick="ejecutarProgramacionAhora(this.dataset.id)">${icoExec(15)}<span>Ejecutar ahora</span></button>
+                        <button type="button" class="btn btn-sm" data-id="${esc(p.id)}" onclick="togglePausa(this.dataset.id)">${ico('pause', 14)}<span>Pausar</span></button>` : ''}
+                      ${p.estado === 'Pausado' ? `
+                        <button type="button" class="btn btn-sm" data-id="${esc(p.id)}" onclick="togglePausa(this.dataset.id)">${ico('play', 14)}<span>Reanudar</span></button>` : ''}
+                      <button type="button" class="btn btn-sm cp-danger" data-id="${esc(p.id)}" onclick="eliminarProgramacion(this.dataset.id)">${ico('trash', 14)}<span>Eliminar</span></button>
+                    </div>
+                  </td>
+                </tr>`).join('')}
+            </tbody>
+          </table>
+        </div>`;
+    }
+
+    function refrescarTrasProgramacion() {
+      renderKpis();
+      renderTabs();
+      if (tab === 'programaciones') refreshProgramaciones();
+    }
+    function getProgramacion(id) { return (DB.programacionesEmision() || []).find(p => p.id === id) || null; }
+
+    function togglePausa(id) {
+      const res = DB.togglePausaProgramacion(id);
+      if (!res) { APP.toast({ icon: 'warn', title: 'Programación no encontrada', body: 'No se pudo cambiar el estado.' }); return; }
+      const pausada = res.estado === 'Pausado';
+      APP.toast({
+        icon: 'ok', title: pausada ? 'Programación pausada' : 'Programación reanudada',
+        body: pausada ? `"${esc(res.nombre)}" no se ejecutará hasta que la reanudes.` : `"${esc(res.nombre)}" volverá a ejecutarse el ${esc(APP.fechaCorta(res.fechaEjecucion, true))}.`
+      });
+      refrescarTrasProgramacion();
+    }
+
+    function eliminarProgramacion(id) {
+      const item = getProgramacion(id);
+      if (!item) return;
+      APP.confirm({
+        title: 'Eliminar programación',
+        body: `Se eliminará la programación <b>${esc(item.nombre)}</b> (${esc(item.id)}). Ya no se ejecutará y esta acción no se puede deshacer.`,
+        confirmLabel: 'Eliminar', danger: true,
+        onConfirm: () => {
+          DB.eliminarProgramacionEmision(id);
+          APP.toast({ icon: 'ok', title: 'Programación eliminada', body: `"${esc(item.nombre)}" se quitó del cronograma.` });
+          refrescarTrasProgramacion();
+        }
+      });
+    }
+
+    // Ejecutar antes de tiempo: se revisa con las reglas y el periodo de la programación
+    function ejecutarProgramacionAhora(id) {
+      const item = getProgramacion(id);
+      if (!item) { APP.toast({ icon: 'warn', title: 'Programación no encontrada', body: 'No se pudo ejecutar.' }); return; }
+      const todas = !item.certificacionId || item.certificacionId === 'TODAS';
+      // La base compartida resuelve "todas" con la primera certificación (CP-ISI-01)
+      const cert = DB.getCertificacion(todas ? 'CP-ISI-01' : item.certificacionId);
+      if (!cert) { APP.toast({ icon: 'warn', title: 'Certificación no encontrada', body: 'Edita la programación y elige una certificación válida.' }); return; }
+      const rg = item.reglas || {};
+      abrirRevision({
+        cert, todas, progId: item.id, progNombre: item.nombre,
+        periodo: item.periodo || '2026-II',
+        reglas: { notaMinima: Number(rg.notaMinima) || NOTA_REGLAMENTO, exigirSinDeuda: rg.exigirSinDeuda !== false, omitirYaEmitidos: rg.omitirYaEmitidos !== false, modalidad: 'todas', ciclo: 'todos' },
+        despacho: rg.despachoCorreo !== false
+      });
+    }
+
+    // ---------- Hora personalizada (modal de programación) ----------
+    function toggleCustomTime(selectVal, wrapperId, prefix) {
+      const wrapper = document.getElementById(wrapperId);
+      if (!wrapper) return;
+      wrapper.hidden = selectVal !== 'custom';
+      if (selectVal === 'custom') updateCustomTimePreview(prefix);
+    }
+    function stepHour(inputId, delta, prefix) {
+      const inp = document.getElementById(inputId);
+      if (!inp) return;
+      let val = parseInt(inp.value, 10);
+      if (isNaN(val)) val = 21;
+      val = (val + delta + 24) % 24;
+      inp.value = String(val).padStart(2, '0');
+      updateCustomTimePreview(prefix);
+    }
+    function stepMin(inputId, delta, prefix) {
+      const inp = document.getElementById(inputId);
+      if (!inp) return;
+      let val = parseInt(inp.value, 10);
+      if (isNaN(val)) val = 30;
+      val = (val + delta + 60) % 60;
+      inp.value = String(val).padStart(2, '0');
+      updateCustomTimePreview(prefix);
+    }
+    function validateTimeDigits(input, max, prefix) {
+      let val = parseInt(input.value, 10);
+      if (isNaN(val) || val < 0) val = 0;
+      if (val > max) val = max;
+      input.value = String(val);
+      updateCustomTimePreview(prefix);
+    }
+    function formatTimeBlur(input) {
+      let val = parseInt(input.value, 10);
+      if (isNaN(val)) val = 0;
+      input.value = String(val).padStart(2, '0');
+    }
+    function updateCustomTimePreview(prefix) {
+      const hInp = document.getElementById(prefix + '-time-h');
+      const mInp = document.getElementById(prefix + '-time-m');
+      const pill = document.getElementById(prefix + '-time-preview-pill');
+      const container = document.getElementById(prefix + '-custom-time-wrapper');
+      if (!hInp || !mInp) return;
+      const h = String(parseInt(hInp.value, 10) || 0).padStart(2, '0');
+      const m = String(parseInt(mInp.value, 10) || 0).padStart(2, '0');
+      const actual = `${h}:${m}`;
+      let coincide = false;
+      if (container) {
+        container.querySelectorAll('.wtp-preset-chip').forEach(c => {
+          const igual = c.textContent.trim() === actual;
+          c.classList.toggle('active', igual);
+          c.setAttribute('aria-pressed', igual);
+          if (igual) coincide = true;
+        });
+        const box = container.querySelector('.wtp-time-display-box');
+        if (box) box.classList.toggle('custom-active', !coincide);
+      }
+      if (pill) pill.textContent = coincide ? actual : `${actual} (personalizada)`;
+    }
+    function setTimePreset(prefix, timeStr) {
+      const parts = timeStr.split(':');
+      const hInp = document.getElementById(prefix + '-time-h');
+      const mInp = document.getElementById(prefix + '-time-m');
+      if (hInp) hInp.value = (parts[0] || '20').padStart(2, '0');
+      if (mInp) mInp.value = (parts[1] || '00').padStart(2, '0');
+      updateCustomTimePreview(prefix);
+    }
+    function timePanelHTML(h, m, visible) {
+      const paso = (fn, campo, delta, etiqueta, icono) => `
+        <button type="button" class="wtp-step-btn" aria-label="${etiqueta}" title="${etiqueta}" onclick="${fn}('prog-time-${campo}', ${delta}, 'prog')">${ico(icono, 12)}</button>`;
+      return `
+        <div id="prog-custom-time-wrapper" class="wiener-time-picker-panel field full" ${visible ? '' : 'hidden'}>
+          <div class="wtp-header">
+            <span class="cp-wtp-title">${ico('clock', 15)}Hora exacta de cierre</span>
+            <span class="pill ok" id="prog-time-preview-pill">${esc(h)}:${esc(m)}</span>
+          </div>
+          <div class="wtp-body">
+            <div class="wtp-time-display-box">
+              <div class="wtp-unit-col">
+                <label class="wtp-unit-lbl" for="prog-time-h">Hora (00 a 23)</label>
+                <div class="wtp-stepper-wrap">
+                  ${paso('stepHour', 'h', 1, 'Sumar una hora', 'up')}
+                  <input type="number" id="prog-time-h" class="wtp-digit-input" min="0" max="23" value="${esc(h)}" oninput="validateTimeDigits(this, 23, 'prog')" onblur="formatTimeBlur(this); updateCustomTimePreview('prog')">
+                  ${paso('stepHour', 'h', -1, 'Restar una hora', 'chev')}
+                </div>
+              </div>
+              <div class="wtp-colon" aria-hidden="true">:</div>
+              <div class="wtp-unit-col">
+                <label class="wtp-unit-lbl" for="prog-time-m">Minutos (00 a 59)</label>
+                <div class="wtp-stepper-wrap">
+                  ${paso('stepMin', 'm', 5, 'Sumar 5 minutos', 'up')}
+                  <input type="number" id="prog-time-m" class="wtp-digit-input" min="0" max="59" value="${esc(m)}" oninput="validateTimeDigits(this, 59, 'prog')" onblur="formatTimeBlur(this); updateCustomTimePreview('prog')">
+                  ${paso('stepMin', 'm', -5, 'Restar 5 minutos', 'chev')}
+                </div>
+              </div>
+            </div>
+            <div class="wtp-presets-col">
+              <div class="wtp-presets-title">Horarios frecuentes</div>
+              <div class="wtp-presets-chips">
+                ${HORAS_FRECUENTES.map(t => `<button type="button" class="wtp-preset-chip" onclick="setTimePreset('prog', '${t}')">${t}</button>`).join('')}
+              </div>
+            </div>
+          </div>
+        </div>`;
+    }
+
+    // ---------- Modal único para crear y editar una programación ----------
+    function abrirModalProgramacion(id) {
+      const item = id ? getProgramacion(id) : null;
+      if (id && !item) { APP.toast({ icon: 'warn', title: 'Programación no encontrada', body: 'Es posible que se haya eliminado.' }); return; }
+      const rg = (item && item.reglas) || {};
+      const progId = item ? item.programaId : cfg.programa;
+      const prog = programaDe(progId);
+      const certs = certsDe(progId);
+      const certSel = item ? (item.certificacionId || 'TODAS') : (cfg.cert || 'TODAS');
+      const periodoSel = item ? (item.periodo || '2026-II') : cfg.periodo;
+      const partes = String(item && item.fechaEjecucion ? item.fechaEjecucion : '2026-12-15T23:59').split('T');
+      const fecha = partes[0] || '';
+      const hora = (partes[1] || '23:59').slice(0, 5);
+      const esPersonalizada = !HORAS_FIJAS.some(h => h[0] === hora);
+      const hh = esPersonalizada ? (hora.split(':')[0] || '21').padStart(2, '0') : '21';
+      const mm = esPersonalizada ? (hora.split(':')[1] || '30').padStart(2, '0') : '30';
+      // La nota que se exige si la regla queda marcada
+      const notaItem = item ? Number(rg.notaMinima) : cfg.nota;
+      const notaBase = notaItem > NOTA_APROBATORIA ? notaItem : NOTA_REGLAMENTO;
+      const exigeNota = item ? notaItem > NOTA_APROBATORIA : cfg.nota > NOTA_APROBATORIA;
+      const chk = (cond) => cond ? 'checked' : '';
+
+      APP.openModal(`
+        <div class="modal-head">
+          <h3>${item ? 'Editar programación' : 'Nueva programación'}</h3>
+          <button class="modal-close" type="button" onclick="APP.closeModal()">&times;</button>
+        </div>
+        <div class="modal-body">
+          <p class="help">${item ? `${esc(item.id)}. Estado: ${esc(item.estado || '-')}.` : 'El sistema evaluará a los alumnos y emitirá las certificaciones, sin costo, en la fecha y hora que indiques.'}</p>
+          <input type="hidden" id="prog-nota-base" value="${notaBase}">
+          <div class="form-grid">
+            <div class="field full">
+              <label for="prog-nombre">Nombre de la programación *</label>
+              <input type="text" class="input" id="prog-nombre" maxlength="120" value="${esc(item ? item.nombre : `Cierre académico ${periodoSel} - ${prog ? prog.nombre : ''}`)}" placeholder="Ejemplo: Cierre académico 2026-II" aria-describedby="prog-err-nombre">
+              <div class="field-error" id="prog-err-nombre" role="alert" hidden></div>
+            </div>
+            <div class="field">
+              <label for="prog-programa">Programa</label>
+              <div class="custom-select-container">
+                <select id="prog-programa" onchange="onModalPrograma(this.value)">
+                  ${programas().map(p => `<option value="${esc(p.id)}" ${p.id === progId ? 'selected' : ''}>${esc(p.nombre)}</option>`).join('')}
+                </select>
+              </div>
+            </div>
+            <div class="field">
+              <label for="prog-cert">Certificación</label>
+              <div class="custom-select-container">
+                <select id="prog-cert">${certOpciones(certs, certSel, true)}</select>
+              </div>
+              <div class="field-error" id="prog-err-cert" role="alert" hidden></div>
+            </div>
+            <div class="field">
+              <label for="prog-periodo">Periodo</label>
+              <div class="custom-select-container">
+                <select id="prog-periodo">${periodosOpciones(periodoSel, false)}</select>
+              </div>
+            </div>
+            <div class="field">
+              <label for="prog-fecha_display">Fecha programada *</label>
+              <div class="custom-date-container"><input type="date" id="prog-fecha" value="${esc(fecha)}"></div>
+              <div class="field-error" id="prog-err-fecha" role="alert" hidden></div>
+            </div>
+            <div class="field">
+              <label for="prog-hora">Hora de cierre</label>
+              <div class="custom-select-container">
+                <select id="prog-hora" onchange="toggleCustomTime(this.value, 'prog-custom-time-wrapper', 'prog')">
+                  ${HORAS_FIJAS.map(h => `<option value="${h[0]}" ${!esPersonalizada && h[0] === hora ? 'selected' : ''}>${h[1]}</option>`).join('')}
+                  <option value="custom" ${esPersonalizada ? 'selected' : ''}>${esPersonalizada ? `Hora personalizada (${esc(hora)})` : 'Hora personalizada'}</option>
+                </select>
+              </div>
+            </div>
+            ${timePanelHTML(hh, mm, esPersonalizada)}
+            <fieldset class="cp-checks field full">
+              <legend>Reglas y envío</legend>
+              <label class="cp-check"><input type="checkbox" id="prog-chk-nota" ${chk(exigeNota)} onchange="actualizarAvisoNota()"><span>Exigir nota mínima de ${nota2(notaBase)} en cada curso<span class="help" id="prog-nota-aviso" aria-live="polite"></span></span></label>
+              <label class="cp-check"><input type="checkbox" id="prog-chk-deuda" ${chk(rg.exigirSinDeuda !== false && (item || cfg.sinDeuda))}><span>Exigir que el alumno no tenga deuda</span></label>
+              <label class="cp-check"><input type="checkbox" id="prog-chk-dup" ${chk(rg.omitirYaEmitidos !== false && (item || cfg.omitir))}><span>Excluir a quienes ya tienen emitida la certificación</span></label>
+              <label class="cp-check"><input type="checkbox" id="prog-chk-mail" ${chk(rg.despachoCorreo !== false && (item || cfg.correo))}><span>Enviar la certificación por correo institucional<span class="help">Si lo desmarcas, al ejecutarse no se enviará ningún correo.</span></span></label>
+            </fieldset>
+            <div class="field full">
+              <label for="prog-obs">Observación interna (opcional)</label>
+              <input type="text" class="input" id="prog-obs" maxlength="200" value="${esc(item ? (item.observacion || '') : '')}" placeholder="Ejemplo: emisión tras la consolidación de actas">
+            </div>
+          </div>
+        </div>
+        <div class="modal-foot">
+          <button class="btn" type="button" onclick="APP.closeModal()">Cancelar</button>
+          <button class="btn btn-primary" type="button" data-id="${esc(item ? item.id : '')}" onclick="guardarProgramacion(this.dataset.id)">${ico(item ? 'check' : 'save')}<span>${item ? 'Guardar cambios' : 'Guardar programación'}</span></button>
+        </div>`, { wide: true });
+
+      hydrate(document.getElementById('modal-host'));
+      updateCustomTimePreview('prog');
+      actualizarAvisoNota();
+    }
+
+    // Desmarcar la nota mínima dice con qué valor se evaluará
+    function actualizarAvisoNota() {
+      const chkEl = document.getElementById('prog-chk-nota');
+      const aviso = document.getElementById('prog-nota-aviso');
+      if (!chkEl || !aviso) return;
+      aviso.textContent = chkEl.checked
+        ? `Se evaluará con nota mínima de ${nota2(document.getElementById('prog-nota-base').value)}.`
+        : `Sin esta regla se usará la nota aprobatoria general: ${nota2(NOTA_APROBATORIA)}.`;
+    }
+
+    function onModalPrograma(progId) {
+      const certs = certsDe(progId);
+      rellenarSelect('prog-cert', certOpciones(certs, 'TODAS', true));
+      errorCampo('cert', certs.length ? '' : 'Este programa aún no tiene certificaciones configuradas. Elige otro programa.');
+    }
+
+    function errorCampo(campo, msg) {
+      const err = document.getElementById('prog-err-' + campo);
+      if (err) { err.textContent = msg || ''; err.hidden = !msg; }
+      const ctl = document.getElementById('prog-' + campo);
+      if (ctl && ctl.classList.contains('input')) {
+        ctl.classList.toggle('is-invalid', !!msg);
+        if (msg) ctl.setAttribute('aria-invalid', 'true'); else ctl.removeAttribute('aria-invalid');
+      }
+    }
+
+    // Aptos que tendría hoy la programación con sus reglas
+    function estimarAptos(progId, certId, reglas) {
+      const ids = certId === 'TODAS' ? certsDe(progId).map(c => c.id) : [certId];
+      return ids.reduce((n, cid) => n + DB.evaluarAlumnosCertificacion(cid, reglas).filter(e => e.apto).length, 0);
+    }
+
+    // Misma validación al crear y al editar, con el error junto al campo
+    function guardarProgramacion(id) {
+      const item = id ? getProgramacion(id) : null;
+      const val = k => document.getElementById('prog-' + k).value;
+      const nombre = val('nombre').trim();
+      const progId = val('programa');
+      const certId = val('cert');
+      const periodo = val('periodo');
+      const fecha = val('fecha');
+      const certs = certsDe(progId);
+
+      const errores = {
+        nombre: nombre ? '' : 'Escribe un nombre para identificar la programación.',
+        cert: certs.length && certId ? '' : 'Este programa aún no tiene certificaciones configuradas. Elige otro programa.',
+        fecha: !fecha ? 'Elige la fecha en que se ejecutará.'
+          : ((!item || item.estado !== 'Completado') && fecha < APP.todayISO() ? 'Esa fecha ya pasó. Elige hoy o una fecha posterior.' : '')
+      };
+      Object.keys(errores).forEach(k => errorCampo(k, errores[k]));
+      const primero = ['nombre', 'cert', 'fecha'].find(k => errores[k]);
+      if (primero) {
+        const foco = primero === 'nombre' ? document.getElementById('prog-nombre')
+          : primero === 'fecha' ? document.getElementById('prog-fecha_display')
+          : document.querySelector('#prog-programa ~ .custom-select-trigger');
+        if (foco) foco.focus();
+        return;
+      }
+
+      let hora = val('hora') || '23:59';
+      if (hora === 'custom') {
+        const h = String(parseInt(val('time-h'), 10) || 0).padStart(2, '0');
+        const m = String(parseInt(val('time-m'), 10) || 0).padStart(2, '0');
+        hora = `${h}:${m}`;
+      }
+      const marcado = k => document.getElementById('prog-chk-' + k).checked;
+      const despacho = marcado('mail');
+      const reglas = {
+        notaMinima: marcado('nota') ? Number(val('nota-base')) : NOTA_APROBATORIA,
+        exigirSinDeuda: marcado('deuda'),
+        omitirYaEmitidos: marcado('dup'),
+        despachoCorreo: despacho
+      };
+      const certObj = certId === 'TODAS' ? null : DB.getCertificacion(certId);
+      const progObj = programaDe(progId);
+      const ciclos = certs.map(c => c.cicloOtorgamiento).filter(Boolean);
+      const datos = {
+        nombre,
+        programaId: progId,
+        programaNombre: progObj ? progObj.nombre : '-',
+        certificacionId: certId,
+        certificacionTitulo: certObj ? certObj.titulo : `Todas las certificaciones del programa (${certs.length})`,
+        cicloOtorgamiento: certObj ? (certObj.cicloOtorgamiento || '-') : (ciclos.length > 1 ? `${ciclos[0]} a ${ciclos[ciclos.length - 1].replace(/^Ciclo\s+/i, '')}` : (ciclos[0] || '-')),
+        periodo,
+        fechaEjecucion: `${fecha}T${hora}`,
+        alumnosEstimados: estimarAptos(progId, certId, reglas),
+        reglas,
+        canalDespacho: despacho ? 'Correo institucional @uwiener.edu.pe' : 'Sin envío por correo',
+        observacion: val('obs').trim()
+      };
+
+      if (item) {
+        DB.actualizarProgramacionEmision(item.id, datos);
+        APP.closeModal();
+        APP.toast({ icon: 'ok', title: 'Programación actualizada', body: `Se guardaron los cambios de "${esc(nombre)}".` });
+        refrescarTrasProgramacion();
+      } else {
+        const nueva = DB.programarEmisionMasiva(Object.assign({}, datos, { observacion: datos.observacion || 'Programación automática por cierre de periodo.' }));
+        // La base compartida fija el canal y reemplaza una estimación de 0: se corrige el registro
+        DB.actualizarProgramacionEmision(nueva.id, { alumnosEstimados: datos.alumnosEstimados, canalDespacho: datos.canalDespacho });
+        APP.closeModal();
+        APP.toast({ icon: 'ok', title: 'Programación guardada', body: `"${esc(nombre)}" se ejecutará el ${esc(APP.fechaCorta(datos.fechaEjecucion, true))}.` });
+        renderKpis();
+        setTab('programaciones');
+      }
+    }
+
+    // ---------- Datos de demostración ----------
+    function reiniciarDemo() {
+      APP.confirm({
+        title: 'Reiniciar datos de demostración',
+        body: 'Se borran los lotes y las certificaciones emitidos durante la demostración, y vuelven las programaciones de ejemplo. No afecta a los demás módulos.',
+        confirmLabel: 'Reiniciar', danger: true,
+        onConfirm: () => {
+          DB.resetCertificaciones();
+          renderPage();
+          APP.toast({ icon: 'ok', title: 'Datos reiniciados', body: 'Lotes y programaciones volvieron a sus valores de ejemplo.' });
+        }
+      });
+    }
+
+    renderPage();
+  </script>
+</body>
+
+</html>

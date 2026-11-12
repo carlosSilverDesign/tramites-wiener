@@ -1,0 +1,409 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Seguridad · Wiener Admin</title>
+  <link href="https://fonts.googleapis.com/css2?family=Lato:wght@400;700;900&family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../css/styles.css">
+  <style>
+    /* Estilos propios de la pantalla. Solo tokens de :root. */
+    .s-card + .s-card { margin-top: 20px; }
+    .s-card-head { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; flex-wrap: wrap; }
+    .s-card .card-sub { margin-bottom: 16px; }
+    .s-link { color: var(--brand); font-weight: 600; text-decoration: underline; text-underline-offset: 2px; }
+    .s-link:hover { color: var(--brand-dark); }
+    .s-sub { display: block; font-size: 12.5px; color: var(--text-muted); }
+    .s-right { text-align: right; white-space: nowrap; }
+    .s-nowrap { white-space: nowrap; }
+    .s-card [hidden] { display: none !important; }
+
+    /* Marca de acceso: icono más texto, no depende solo del color */
+    .mark { display: inline-flex; align-items: center; gap: 6px; font-weight: 600; }
+    .mark.is-yes { color: var(--ok-fg); }
+    .mark.is-no { color: var(--text-muted); font-weight: 500; }
+
+    /* Lista de políticas (reemplaza a resp-list y resp-item, que no existen en el CSS global) */
+    .pol-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 12px; }
+    .pol-item { display: flex; justify-content: space-between; align-items: center; gap: 16px; padding: 14px 16px; border: 1px solid var(--border-soft); border-radius: 10px; cursor: pointer; }
+    .pol-item:hover { border-color: var(--border); }
+    .pol-txt { min-width: 0; }
+    .pol-txt b { display: block; font-size: 14px; }
+    .pol-ctl { display: inline-flex; align-items: center; gap: 10px; flex-shrink: 0; }
+    .pol-state { min-width: 58px; text-align: right; font-size: 12.5px; font-weight: 700; color: var(--text-muted); }
+    .pol-state.is-on { color: var(--ok-fg); }
+    .s-note { margin-top: 16px; }
+
+    /* Auditoría */
+    .a-field { flex: 0 1 180px; min-width: 150px; display: flex; flex-direction: column; gap: 6px; }
+    .a-field label, .a-search label { font-size: 13px; font-weight: 600; color: var(--text-soft); }
+    .a-search { display: flex; flex-direction: column; gap: 6px; flex: 1 1 240px; min-width: 220px; }
+    .a-search .search { min-width: 0; }
+    .a-filters { align-items: flex-end; }
+    .a-count { margin: 0 0 10px 0; }
+    .a-foot { display: flex; justify-content: flex-end; margin-top: 14px; }
+    .a-page-info { font-size: 13px; color: var(--text-muted); padding: 0 8px; }
+    .a-err { margin: -8px 0 14px 0; }
+
+    /* Tablas que se apilan en pantallas angostas: sin scroll horizontal de página */
+    @media (max-width: 720px) {
+      table.data.resp-table thead { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0, 0, 0, 0); }
+      table.data.resp-table, table.data.resp-table tbody, table.data.resp-table tr { display: block; width: 100%; min-width: 0; }
+      table.data.resp-table tbody tr { padding: 12px 14px; border-bottom: 1px solid var(--border-soft); }
+      table.data.resp-table tbody tr:last-child { border-bottom: none; }
+      table.data.resp-table tbody td { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; padding: 5px 0; border-bottom: none; text-align: right; white-space: normal; overflow-wrap: anywhere; }
+      table.data.resp-table tbody td::before { content: attr(data-label); flex-shrink: 0; font-size: 12px; font-weight: 700; color: var(--text-muted); text-align: left; }
+      table.data.resp-table tbody td.is-main { display: block; text-align: left; padding-bottom: 8px; }
+      table.data.resp-table tbody td.is-main::before { content: none; }
+      .pol-item { align-items: flex-start; }
+      .pol-ctl { flex-direction: column-reverse; align-items: flex-end; gap: 4px; }
+      .a-field, .a-search { flex: 1 1 100%; }
+      .a-foot { justify-content: center; }
+    }
+  </style>
+</head>
+<body>
+  <script src="../js/data.js"></script>
+  <script src="../js/shell.js"></script>
+  <script>
+    const ctx = APP.renderShell('seguridad');
+
+    const POR_PAGINA = 10;
+    let tab = 'roles';
+    const audit = { q: '', desde: '', hasta: '', page: 1 };
+
+    const MODS_ALUMNO = APP.modulos('alumno');
+    const MODS_ADMIN = APP.modulos('administrativo');
+    const MODS_PERMISO = MODS_ADMIN.filter(m => !m.libre);
+
+    // Las 6 políticas: la clave es la de DB.politicas()
+    const POLITICAS = [
+      ['longitud', 'Longitud mínima de contraseña: 8 caracteres', 'El sistema no acepta contraseñas de menos de 8 caracteres.'],
+      ['complejidad', 'Requerir mayúsculas, números y símbolos', 'La contraseña debe combinar los tres tipos de carácter para ser aceptada.'],
+      ['caducidad', 'Caducidad de contraseña a los 90 días', 'Pasado ese plazo, se pide crear una contraseña nueva al ingresar.'],
+      ['dosFactores', 'Autenticación en dos pasos (2FA) para administrativos', 'Además de la contraseña, el personal administrativo confirma su ingreso con un código.'],
+      ['bloqueo', 'Bloqueo tras 5 intentos fallidos', 'La cuenta se bloquea después de 5 contraseñas incorrectas seguidas.'],
+      ['inactividad', 'Cierre de sesión por inactividad a los 15 minutos', 'Si la persona no usa el sistema durante 15 minutos, su sesión se cierra sola.']
+    ];
+
+    // Filas de ejemplo de la auditoría: [fecha, usuario, acción, referencia, IP]
+    const AUDIT_EJEMPLO = [
+      ['2026-06-22 09:20', 'c.mendoza', 'Aprobó solicitud S-2026-0181', 'S-2026-0181', '192.168.10.24'],
+      ['2026-06-22 09:14', 'mf.quispe', 'Creó solicitud S-2026-0188', 'S-2026-0188', '201.230.44.11'],
+      ['2026-06-21 18:02', 'c.mendoza', 'Editó trámite T-003 (Certificado de Estudios)', 'T-003', '192.168.10.24'],
+      ['2026-06-21 16:40', 'c.mendoza', 'Inicio de sesión', '-', '192.168.10.24'],
+      ['2026-06-20 11:10', 'sistema', 'Pago Niubiz confirmado · Op. NB-90377112', 'NB-90377112', '-']
+    ];
+
+    const ICO_SI = '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>';
+    const ICO_NO = '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><line x1="6" y1="12" x2="18" y2="12"/></svg>';
+    const ICO_BUSCAR = '<svg class="s-ico" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>';
+    const ICO_DESCARGA = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>';
+
+    function norm(v) { return String(v == null ? '' : v).toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, ''); }
+    function lista(etiquetas) {
+      if (etiquetas.length <= 1) return etiquetas.join('');
+      return etiquetas.slice(0, -1).join(', ') + ' y ' + etiquetas[etiquetas.length - 1];
+    }
+    function marca(si, detalle) {
+      return si
+        ? `<span class="mark is-yes">${ICO_SI} Sí</span>${detalle ? `<span class="s-sub">${detalle}</span>` : ''}`
+        : `<span class="mark is-no">${ICO_NO} No</span>`;
+    }
+
+    // ---------- Estructura fija ----------
+    function init() {
+      ctx.mount.innerHTML = `
+        <div class="page-head"><div><h1>Seguridad</h1><p>Qué ve cada rol, reglas de acceso y registro de lo que ocurre en el sistema.</p></div></div>
+        <div id="sec-tabs"></div>
+        <div id="sec-body"></div>`;
+      paintTabs();
+      paint();
+    }
+
+    function paintTabs() {
+      document.getElementById('sec-tabs').innerHTML = APP.tabsHTML([
+        { id: 'roles', label: 'Roles y permisos' },
+        { id: 'politicas', label: 'Políticas' },
+        { id: 'audit', label: 'Auditoría' }
+      ], tab, 'setTab');
+    }
+
+    function setTab(t) {
+      tab = t;
+      paintTabs(); paint();
+      const activa = document.querySelector('#sec-tabs .tab.active');
+      if (activa) activa.focus();
+    }
+
+    function paint() {
+      if (tab === 'roles') paintRoles();
+      else if (tab === 'politicas') paintPoliticas();
+      else paintAuditoria();
+    }
+
+    // ---------- Roles y permisos (consulta) ----------
+    function paintRoles() {
+      const filas = MODS_ALUMNO.map(m => ({ m, alumno: true, admin: false }))
+        .concat(MODS_ADMIN.map(m => ({ m, alumno: false, admin: true })));
+      const matriz = filas.map(f => `
+        <tr>
+          <td class="is-main" data-label="Módulo"><span class="strong">${APP.esc(f.m.label)}</span><span class="s-sub">${APP.esc(f.m.grupo)}</span></td>
+          <td data-label="Alumno">${marca(f.alumno, 'Siempre')}</td>
+          <td data-label="Administrativo">${marca(f.admin, f.m.libre ? 'Siempre, sin permiso' : 'Si tiene el permiso')}</td>
+        </tr>`).join('');
+
+      const admins = DB.usuarios().filter(u => u.rol === 'administrativo')
+        .sort((a, b) => String(a.nombre || '').localeCompare(String(b.nombre || ''), 'es', { sensitivity: 'base' }));
+      const personas = admins.map(u => {
+        const ok = MODS_PERMISO.filter(m => (u.permisos || []).includes(m.id));
+        const detalle = ok.length === MODS_PERMISO.length ? 'Todos los módulos' : ok.length ? lista(ok.map(m => m.label)) : 'Ninguno asignado';
+        return `
+        <tr>
+          <td class="is-main" data-label="Persona"><span class="strong">${APP.esc(u.nombre)}</span><span class="s-sub">${APP.esc(u.area || 'Sin área')}</span></td>
+          <td data-label="Estado">${u.estado === 'activo' ? '<span class="pill ok">Activo</span>' : '<span class="pill gray">Inactivo</span>'}</td>
+          <td data-label="Módulos permitidos"><span class="strong">${ok.length} de ${MODS_PERMISO.length}</span><span class="s-sub">${APP.esc(detalle)}</span></td>
+          <td class="s-right" data-label="Cambiar"><a class="s-link" href="usuarios.html?editar=${encodeURIComponent(u.id)}">Editar en Usuarios<span class="sr-only">: ${APP.esc(u.nombre)}</span></a></td>
+        </tr>`;
+      }).join('');
+
+      document.getElementById('sec-body').innerHTML = `
+        <div class="card s-card">
+          <div class="s-card-head">
+            <div class="card-title">Qué módulos ve cada rol</div>
+            <span class="pill gray">Solo consulta</span>
+          </div>
+          <div class="card-sub">Esta tabla muestra los módulos del menú que corresponden a cada rol y no se edita aquí. Los permisos de cada persona se asignan en <a class="s-link" href="usuarios.html">Usuarios</a>.</div>
+          <div class="table-wrap"><table class="data resp-table">
+            <thead><tr><th>Módulo</th><th>Alumno</th><th>Administrativo</th></tr></thead>
+            <tbody>${matriz}</tbody>
+          </table></div>
+        </div>
+        <div class="card s-card">
+          <div class="s-card-head">
+            <div class="card-title">Módulos permitidos por persona</div>
+            <span class="pill gray">Solo consulta</span>
+          </div>
+          <div class="card-sub">Personal administrativo y los módulos que cada quien ve en su menú. ${MODS_ADMIN.some(m => m.libre) ? APP.esc(lista(MODS_ADMIN.filter(m => m.libre).map(m => m.label))) + ' no se cuenta porque lo ve todo el personal.' : ''}</div>
+          ${admins.length ? `
+          <div class="table-wrap"><table class="data resp-table">
+            <thead><tr><th>Persona</th><th>Estado</th><th>Módulos permitidos</th><th class="s-right">Cambiar</th></tr></thead>
+            <tbody>${personas}</tbody>
+          </table></div>` : `
+          <div class="empty-state">
+            <h3>No hay personal administrativo registrado</h3>
+            <p>Crea a la primera persona en Usuarios para asignarle módulos.</p>
+            <a class="btn" href="usuarios.html">Ir a Usuarios</a>
+          </div>`}
+        </div>`;
+    }
+
+    // ---------- Políticas (se guardan al cambiar) ----------
+    function paintPoliticas() {
+      const valores = DB.politicas();
+      const items = POLITICAS.map(([clave, titulo, ayuda]) => {
+        const on = !!valores[clave];
+        return `
+        <li><label class="pol-item">
+          <span class="pol-txt"><b>${titulo}</b><span class="help" id="pol-${clave}-help">${ayuda}</span></span>
+          <span class="pol-ctl">
+            <span class="pol-state ${on ? 'is-on' : ''}" id="pol-${clave}-state" aria-hidden="true">${on ? 'Activa' : 'Inactiva'}</span>
+            <span class="switch"><input type="checkbox" role="switch" ${on ? 'checked' : ''} aria-describedby="pol-${clave}-help" onchange="setPolitica('${clave}', this)"><span class="slider"></span></span>
+          </span>
+        </label></li>`;
+      }).join('');
+
+      document.getElementById('sec-body').innerHTML = `
+        <div class="card s-card">
+          <div class="card-title">Políticas de seguridad</div>
+          <div class="card-sub">Reglas de acceso y contraseñas. Cada cambio se guarda al momento.</div>
+          <ul class="pol-list">${items}</ul>
+          <div class="alert info s-note">En esta maqueta las políticas se guardan, pero el ingreso de demostración no las aplica.</div>
+        </div>`;
+    }
+
+    function setPolitica(clave, input) {
+      const def = POLITICAS.find(p => p[0] === clave);
+      if (!def) return;
+      const on = !!input.checked;
+      DB.setPolitica(clave, on);
+      const estado = document.getElementById('pol-' + clave + '-state');
+      if (estado) { estado.textContent = on ? 'Activa' : 'Inactiva'; estado.classList.toggle('is-on', on); }
+      APP.toast({ icon: 'ok', title: on ? 'Política activada' : 'Política desactivada', body: def[1] + '. El cambio quedó guardado.' });
+    }
+
+    // ---------- Auditoría ----------
+    // Eventos = filas de ejemplo + historial real de cada solicitud
+    function eventos() {
+      const out = AUDIT_EJEMPLO.map(a => ({ fecha: a[0], usuario: a[1], accion: a[2], ref: a[3], ip: a[4] }));
+      (DB.solicitudes() || []).forEach(s => {
+        (s.historial || []).forEach(h => {
+          out.push({
+            fecha: h.fecha || '',
+            usuario: h.usuario || 'Sistema',
+            accion: h.nota || (h.estado ? 'Cambio de estado a ' + APP.estadoLabel(h.estado) : 'Movimiento de la solicitud'),
+            ref: s.ticket || s.id || '-',
+            ip: '-'
+          });
+        });
+      });
+      // Más reciente primero
+      return out.sort((a, b) => String(b.fecha).localeCompare(String(a.fecha)));
+    }
+
+    function rangoInvalido() { return !!audit.desde && !!audit.hasta && audit.desde > audit.hasta; }
+
+    function eventosFiltrados() {
+      const q = norm(audit.q.trim());
+      return eventos().filter(e => {
+        const dia = String(e.fecha).slice(0, 10);
+        if (audit.desde && dia < audit.desde) return false;
+        if (audit.hasta && dia > audit.hasta) return false;
+        return !q || [e.usuario, e.accion, e.ref, e.ip].some(v => norm(v).includes(q));
+      });
+    }
+
+    function paintAuditoria() {
+      const host = document.getElementById('sec-body');
+      host.innerHTML = `
+        <div class="card s-card">
+          <div class="s-card-head">
+            <div class="card-title">Registro de auditoría</div>
+            <button class="btn" type="button" id="a-export" onclick="exportarCSV()">${ICO_DESCARGA} Exportar CSV</button>
+          </div>
+          <div class="card-sub">Acciones realizadas en el sistema, de la más reciente a la más antigua. Incluye registros de ejemplo y los movimientos reales de las solicitudes.</div>
+          <div class="filters-bar a-filters">
+            <div class="a-search">
+              <label for="a-q">Buscar</label>
+              <div class="search">
+                ${ICO_BUSCAR}
+                <input class="input" type="search" id="a-q" autocomplete="off" placeholder="Usuario, acción, ticket o IP" value="${APP.esc(audit.q)}" oninput="alBuscarAudit(this.value)">
+              </div>
+            </div>
+            <div class="a-field">
+              <label for="a-desde_display">Desde</label>
+              <input class="input" type="date" id="a-desde" value="${APP.esc(audit.desde)}" onchange="alFechaAudit('desde', this.value)">
+            </div>
+            <div class="a-field">
+              <label for="a-hasta_display">Hasta</label>
+              <input class="input" type="date" id="a-hasta" value="${APP.esc(audit.hasta)}" onchange="alFechaAudit('hasta', this.value)">
+            </div>
+            <button class="btn" type="button" id="a-clear" onclick="limpiarAudit()">Limpiar filtros</button>
+          </div>
+          <div class="field-error a-err" id="a-rango-err" role="alert" hidden>La fecha "Desde" es posterior a la fecha "Hasta". Corrige el rango para ver resultados.</div>
+          <p class="help a-count" id="a-count" role="status"></p>
+          <div id="a-list"></div>
+        </div>`;
+      APP.initDatePickers(host);
+      paintAuditList();
+    }
+
+    // Escribir en la búsqueda solo vuelve a pintar la tabla
+    function alBuscarAudit(v) { audit.q = v; audit.page = 1; paintAuditList(); }
+    function alFechaAudit(clave, v) { audit[clave] = v || ''; audit.page = 1; paintAuditList(); }
+    function limpiarAudit() {
+      audit.q = ''; audit.desde = ''; audit.hasta = ''; audit.page = 1;
+      paintAuditoria();
+      const q = document.getElementById('a-q');
+      if (q) q.focus();
+    }
+    function irPaginaAudit(p, clave) {
+      audit.page = p; paintAuditList();
+      const btn = document.querySelector('#a-list [data-k="' + clave + '"]:not(:disabled)') || document.querySelector('#a-list .vt-page-btn.active');
+      if (btn) btn.focus();
+    }
+
+    function paginacionHTML(total, page, fn) {
+      const pages = Math.ceil(total / POR_PAGINA);
+      if (pages <= 1) return '';
+      let mid = '';
+      if (pages <= 7) {
+        for (let i = 1; i <= pages; i++) {
+          mid += `<button type="button" class="vt-page-btn ${i === page ? 'active' : ''}" data-k="p${i}" aria-label="Página ${i}" ${i === page ? 'aria-current="page"' : ''} onclick="${fn}(${i}, 'p${i}')">${i}</button>`;
+        }
+      } else {
+        mid = `<span class="a-page-info">Página ${page} de ${pages}</span>`;
+      }
+      return `<nav class="vt-pagination" aria-label="Páginas del registro">
+        <button type="button" class="vt-page-btn" data-k="prev" ${page === 1 ? 'disabled' : ''} onclick="${fn}(${page - 1}, 'prev')">Anterior</button>
+        ${mid}
+        <button type="button" class="vt-page-btn" data-k="next" ${page === pages ? 'disabled' : ''} onclick="${fn}(${page + 1}, 'next')">Siguiente</button>
+      </nav>`;
+    }
+
+    function paintAuditList() {
+      const host = document.getElementById('a-list');
+      const cuenta = document.getElementById('a-count');
+      const err = document.getElementById('a-rango-err');
+      const exportar = document.getElementById('a-export');
+      const limpiar = document.getElementById('a-clear');
+      const hayFiltros = !!audit.q.trim() || !!audit.desde || !!audit.hasta;
+      const filas = eventosFiltrados();
+
+      err.hidden = !rangoInvalido();
+      exportar.disabled = !filas.length;
+      limpiar.hidden = !hayFiltros;
+
+      if (!filas.length) {
+        cuenta.textContent = '';
+        host.innerHTML = `
+          <div class="empty-state">
+            <h3>${hayFiltros ? 'Ningún evento coincide con los filtros' : 'Todavía no hay eventos registrados'}</h3>
+            <p>${hayFiltros ? 'Prueba con otro texto o amplía el rango de fechas.' : 'Aquí aparecerán las acciones a medida que se usen las solicitudes.'}</p>
+            ${hayFiltros ? '<button class="btn" type="button" onclick="limpiarAudit()">Limpiar filtros</button>' : ''}
+          </div>`;
+        return;
+      }
+
+      const pages = Math.ceil(filas.length / POR_PAGINA);
+      if (audit.page > pages) audit.page = pages;
+      if (audit.page < 1) audit.page = 1;
+      const desde = (audit.page - 1) * POR_PAGINA;
+      const pagina = filas.slice(desde, desde + POR_PAGINA);
+      cuenta.textContent = filas.length === 1
+        ? 'Mostrando 1 evento'
+        : 'Mostrando ' + (desde + 1) + ' a ' + (desde + pagina.length) + ' de ' + filas.length + ' eventos';
+
+      host.innerHTML = `
+        <div class="table-wrap"><table class="data resp-table">
+          <thead><tr><th>Fecha</th><th>Usuario</th><th>Acción</th><th>Referencia</th><th>IP</th></tr></thead>
+          <tbody>${pagina.map(e => `
+            <tr>
+              <td data-label="Fecha" class="muted s-nowrap">${APP.esc(APP.fechaCorta(e.fecha, true))}</td>
+              <td data-label="Usuario" class="strong">${APP.esc(e.usuario)}</td>
+              <td data-label="Acción">${APP.esc(e.accion)}</td>
+              <td data-label="Referencia" class="mono muted">${APP.esc(e.ref)}</td>
+              <td data-label="IP" class="mono muted">${APP.esc(e.ip)}</td>
+            </tr>`).join('')}</tbody>
+        </table></div>
+        <div class="a-foot">${paginacionHTML(filas.length, audit.page, 'irPaginaAudit')}</div>`;
+    }
+
+    // Exporta lo filtrado (todas las páginas) con Blob, sin servidor
+    function exportarCSV() {
+      const filas = eventosFiltrados();
+      if (!filas.length) return;
+      const celda = v => {
+        let t = String(v == null ? '' : v);
+        if (/^[=+@]/.test(t) || /^-./.test(t)) t = "'" + t; // evita que una hoja de cálculo lo lea como fórmula
+        return '"' + t.replace(/"/g, '""') + '"';
+      };
+      const lineas = [['Fecha', 'Usuario', 'Acción', 'Referencia', 'IP']]
+        .concat(filas.map(e => [e.fecha, e.usuario, e.accion, e.ref, e.ip]))
+        .map(f => f.map(celda).join(','));
+      const blob = new Blob([String.fromCharCode(0xFEFF) + lineas.join('\r\n')], { type: 'text/csv;charset=utf-8' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'auditoria-' + APP.todayISO() + '.csv';
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      setTimeout(() => URL.revokeObjectURL(url), 1000);
+      APP.toast({ icon: 'ok', title: 'Archivo exportado', body: filas.length === 1 ? 'Se exportó 1 evento.' : 'Se exportaron ' + filas.length + ' eventos, según los filtros aplicados.' });
+    }
+
+    if (ctx) init();
+  </script>
+</body>
+</html>

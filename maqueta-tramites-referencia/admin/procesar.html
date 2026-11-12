@@ -1,0 +1,709 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Resumen · Wiener Admin</title>
+  <link href="https://fonts.googleapis.com/css2?family=Lato:wght@400;700;900&family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../css/styles.css">
+  <style>
+    /* Estilos propios del resumen (solo tokens de :root) */
+    .res-toolbar {
+      display: flex;
+      align-items: center;
+      gap: 10px 12px;
+      flex-wrap: wrap;
+      margin-bottom: 18px;
+    }
+    .res-toolbar label {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text-soft);
+    }
+    .res-inst {
+      width: 320px;
+      max-width: 100%;
+    }
+    .res-kpi {
+      cursor: default;
+    }
+    .res-kpi:hover {
+      border-color: var(--border);
+    }
+    .res-kpi .k-hint {
+      display: block;
+      font-size: 12px;
+      color: var(--text-muted);
+      margin-top: 2px;
+    }
+    .res-main {
+      margin-top: 0;
+    }
+    .res-main .procesar-table-panel,
+    .res-main .procesar-chart-panel {
+      min-width: 0;
+    }
+    table.data.res-table {
+      min-width: 0;
+    }
+    .res-table .res-num {
+      text-align: right;
+      font-variant-numeric: tabular-nums;
+      white-space: nowrap;
+    }
+    .res-table td.res-num b {
+      font-size: 15px;
+    }
+    .res-table .res-act {
+      text-align: right;
+      white-space: nowrap;
+    }
+    .res-table .res-name {
+      font-weight: 600;
+      color: var(--text);
+    }
+    .res-table tfoot td {
+      font-weight: 700;
+    }
+    .res-late {
+      align-items: center;
+      flex-wrap: wrap;
+    }
+    .res-late > div {
+      flex: 1;
+      min-width: 180px;
+    }
+    .res-late b {
+      display: block;
+    }
+    .res-chart-sub {
+      font-size: 12.5px;
+      color: var(--text-muted);
+      margin-top: 2px;
+    }
+    .res-tooltip {
+      position: absolute;
+      background: var(--text);
+      color: var(--surface);
+      padding: 8px 12px;
+      border-radius: var(--radius-sm);
+      font-size: 12.5px;
+      pointer-events: none;
+      z-index: 5;
+      box-shadow: var(--shadow-lg);
+      transform: translate(-50%, -120%);
+      opacity: 0;
+      transition: opacity 0.15s ease;
+      white-space: nowrap;
+    }
+    .res-tooltip.visible {
+      opacity: 1;
+    }
+    .res-donut .pie-slice {
+      cursor: default;
+    }
+    .res-donut .pie-slice.res-dim {
+      opacity: 0.35;
+    }
+    .res-donut text {
+      text-anchor: middle;
+      dominant-baseline: central;
+      pointer-events: none;
+      font-family: 'Lato', sans-serif;
+    }
+    .res-donut .res-center-label {
+      fill: var(--text-muted);
+      font-size: 12px;
+      font-weight: 700;
+    }
+    .res-donut .res-center-value {
+      fill: var(--brand-dark);
+      font-size: 30px;
+      font-weight: 900;
+    }
+    .res-legend {
+      list-style: none;
+      margin: 0;
+      padding: 0;
+    }
+    .res-legend a.pie-legend-item {
+      text-decoration: none;
+      color: var(--text);
+      gap: 10px;
+    }
+    .res-legend a.pie-legend-item:focus-visible,
+    .res-table a.btn:focus-visible {
+      outline: 2px solid var(--brand);
+      outline-offset: 2px;
+    }
+    .res-legend .pie-legend-left span:last-child {
+      font-weight: 600;
+    }
+    .res-top {
+      margin-top: 20px;
+    }
+    .res-top-list {
+      list-style: none;
+      margin: 14px 0 0 0;
+      padding: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+    .res-top-list li {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: 4px 16px;
+      align-items: center;
+      font-size: 13.5px;
+    }
+    .res-top-name {
+      font-weight: 600;
+      color: var(--text);
+      overflow-wrap: anywhere;
+    }
+    .res-top-count {
+      color: var(--text-muted);
+      white-space: nowrap;
+      text-align: right;
+    }
+    .res-top-count b {
+      color: var(--text);
+    }
+    .res-top-bar {
+      grid-column: 1 / -1;
+      height: 8px;
+      border-radius: 999px;
+      background: var(--surface-2);
+      overflow: hidden;
+    }
+    .res-top-bar span {
+      display: block;
+      height: 100%;
+      border-radius: 999px;
+      background: var(--brand);
+    }
+    .res-late-item .btn {
+      margin-top: 10px;
+    }
+    .res-late-steps {
+      margin: 8px 0 0 0;
+      padding-left: 18px;
+      font-size: 13px;
+      color: var(--warn-fg);
+    }
+    .res-print-only {
+      display: none;
+    }
+    @media (max-width: 640px) {
+      .res-main .procesar-body-grid {
+        padding: 16px;
+      }
+      .res-table thead th,
+      .res-table tbody td,
+      .res-table tfoot td {
+        padding-left: 10px;
+        padding-right: 10px;
+      }
+      .res-table .res-act {
+        white-space: normal;
+      }
+      .res-table .res-act .btn {
+        white-space: normal;
+        text-align: center;
+        height: auto;
+        min-height: 32px;
+      }
+    }
+    /* Impresión: solo el contenido del resumen */
+    @media print {
+      .app-shell {
+        display: block !important;
+      }
+      .sidebar, .topbar, .preview-bar, #modal-host,
+      .res-actions, .res-toolbar, .res-act, .res-late .btn, .res-help {
+        display: none !important;
+      }
+      .res-print-only {
+        display: block;
+        font-size: 13px;
+        margin: 0 0 14px 0;
+      }
+      .content {
+        padding: 0;
+      }
+      .procesar-main-card, .card, .kpi-filter {
+        box-shadow: none !important;
+      }
+      .procesar-body-grid {
+        grid-template-columns: 1fr 1fr;
+      }
+      .procesar-main-card, .res-top {
+        break-inside: avoid;
+      }
+    }
+  </style>
+</head>
+<body>
+  <script src="../js/data.js"></script>
+  <script src="../js/shell.js"></script>
+  <script>
+    const ctx = APP.renderShell('procesar');
+
+    // Estados en el orden en que avanza una solicitud. El id es el valor guardado
+    // y el que acepta el filtro de la bandeja (solicitudes.html?estado=...).
+    const ESTADOS = [
+      { id: 'Solicitado', color: '#0F848F' },
+      { id: 'En revisión', color: '#0369A1' },
+      { id: 'Pendiente de pago', color: '#D97706' },
+      { id: 'Observado', color: '#DB2777' },
+      { id: 'Aprobado', color: '#059669' },
+      { id: 'Emitido', color: '#7C3AED' },
+      { id: 'Rechazado', color: '#DC2626' },
+      { id: 'Cancelar', color: '#64748B' }
+    ];
+    const COLOR_OTRO = '#94A3B8';
+    const ESTADOS_ABIERTOS = ['Solicitado', 'En revisión', 'Pendiente de pago', 'Observado', 'Aprobado'];
+    const INSTITUCIONES = [
+      { id: 'Todas', label: 'Todas las instituciones' },
+      { id: 'Wiener', label: 'Universidad Norbert Wiener' },
+      { id: 'Carrion', label: 'Instituto Carrión' }
+    ];
+
+    let inst = 'Todas';
+
+    function sinTildes(v) {
+      return String(v == null ? '' : v).normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase();
+    }
+
+    // Los datos guardan varios nombres para la misma institución: se compara sin tildes
+    function instDe(s) {
+      return sinTildes(s.institucion).includes('carrion') ? 'Carrion' : 'Wiener';
+    }
+
+    function instLabel() {
+      return (INSTITUCIONES.find(i => i.id === inst) || INSTITUCIONES[0]).label;
+    }
+
+    function num(n) {
+      return Number(n || 0).toLocaleString('es-PE');
+    }
+
+    function pct(n, total) {
+      if (!total) return '0%';
+      return (n / total * 100).toLocaleString('es-PE', { maximumFractionDigits: 1 }) + '%';
+    }
+
+    function plural(n, uno, varios) {
+      return num(n) + ' ' + (n === 1 ? uno : varios);
+    }
+
+    function etapasRetrasadas(s) {
+      return (s.proceso || []).filter(p => Number(p.diasRetraso) > 0);
+    }
+
+    function urlBandeja(estado) {
+      const q = [];
+      if (estado) q.push('estado=' + encodeURIComponent(estado));
+      if (inst !== 'Todas') q.push('institucion=' + encodeURIComponent(inst));
+      return 'solicitudes.html' + (q.length ? '?' + q.join('&') : '');
+    }
+
+    // Todas las cifras de la pantalla salen de aquí
+    function calcular() {
+      const todas = DB.solicitudes() || [];
+      const lista = inst === 'Todas' ? todas : todas.filter(s => instDe(s) === inst);
+      const total = lista.length;
+      const filas = ESTADOS.map(e => ({
+        id: e.id,
+        label: APP.estadoLabel(e.id),
+        color: e.color,
+        n: lista.filter(s => s.estado === e.id).length
+      }));
+      // Estados que no están en la lista conocida: se muestran para que el total cuadre
+      const conocidos = ESTADOS.map(e => e.id);
+      const otros = {};
+      lista.forEach(s => {
+        if (!conocidos.includes(s.estado)) {
+          const k = s.estado || 'Sin estado';
+          otros[k] = (otros[k] || 0) + 1;
+        }
+      });
+      Object.keys(otros).forEach(k => filas.push({ id: k, label: k, color: COLOR_OTRO, n: otros[k], extra: k === 'Sin estado' }));
+
+      const cuenta = id => (filas.find(f => f.id === id) || { n: 0 }).n;
+      const fuera = lista.filter(s => etapasRetrasadas(s).length > 0);
+
+      const porTramite = {};
+      lista.forEach(s => {
+        const k = s.tramiteNombre || 'Sin nombre';
+        if (!porTramite[k]) porTramite[k] = { nombre: k, n: 0, abiertas: 0 };
+        porTramite[k].n++;
+        if (ESTADOS_ABIERTOS.includes(s.estado)) porTramite[k].abiertas++;
+      });
+      const tramites = Object.values(porTramite).sort((a, b) => b.n - a.n || b.abiertas - a.abiertas || a.nombre.localeCompare(b.nombre, 'es'));
+
+      return { lista, total, filas, cuenta, fuera, tramites };
+    }
+
+    function cambiarInstitucion(val) {
+      inst = val;
+      renderBody();
+    }
+
+    function csvCell(v) {
+      return '"' + String(v == null ? '' : v).replace(/"/g, '""') + '"';
+    }
+
+    function exportarCSV() {
+      const d = calcular();
+      const lineas = [];
+      lineas.push([csvCell('Institución'), csvCell(instLabel())].join(','));
+      lineas.push('');
+      lineas.push(['Estado', 'Cantidad', 'Porcentaje'].map(csvCell).join(','));
+      d.filas.forEach(f => lineas.push([csvCell(f.label), f.n, csvCell(pct(f.n, d.total))].join(',')));
+      lineas.push([csvCell('Total'), d.total, csvCell(d.total ? '100%' : '0%')].join(','));
+      lineas.push([csvCell('Fuera de plazo'), d.fuera.length, csvCell(pct(d.fuera.length, d.total))].join(','));
+      lineas.push('');
+      lineas.push(['Trámite', 'Solicitudes', 'Abiertas'].map(csvCell).join(','));
+      d.tramites.forEach(t => lineas.push([csvCell(t.nombre), t.n, t.abiertas].join(',')));
+
+      const blob = new Blob(['﻿' + lineas.join('\r\n')], { type: 'text/csv;charset=utf-8;' });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = 'resumen_tramites_' + inst.toLowerCase() + '_' + DB.hoyISO() + '.csv';
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
+
+      APP.toast({ icon: 'ok', title: 'Resumen exportado', body: 'Se descargó el archivo con ' + plural(d.total, 'solicitud', 'solicitudes') + '.' });
+    }
+
+    function verFueraDePlazo() {
+      const d = calcular();
+      const items = d.fuera.map(s => {
+        const pasos = etapasRetrasadas(s).map(p =>
+          `<li>${APP.esc(p.area || 'Etapa ' + (p.orden || ''))}: ${plural(Number(p.diasRetraso), 'día de retraso', 'días de retraso')}</li>`
+        ).join('');
+        return `
+          <li class="list-card res-late-item">
+            <div class="list-card-head">
+              <h4 class="list-card-title">${APP.esc(s.tramiteNombre || 'Trámite')}</h4>
+              ${APP.pillFor(s.estado)}
+            </div>
+            <div class="list-card-meta">
+              <span>Ticket <b class="mono">${APP.esc(s.ticket || s.id)}</b></span>
+              <span>${APP.esc(s.alumnoNombre || '')}</span>
+              <span>Solicitado el ${APP.esc(APP.fechaCorta(s.fecha))}</span>
+            </div>
+            <ul class="res-late-steps">${pasos}</ul>
+            <a class="btn btn-sm btn-outline" href="solicitudes.html?ticket=${encodeURIComponent(s.ticket || s.id)}">Abrir en la bandeja</a>
+          </li>`;
+      }).join('');
+
+      APP.openModal(`
+        <div class="modal-head">
+          <h3>Solicitudes fuera de plazo</h3>
+          <button type="button" class="modal-close" aria-label="Cerrar" onclick="APP.closeModal()">&times;</button>
+        </div>
+        <div class="modal-body">
+          <p class="help">${plural(d.fuera.length, 'solicitud tiene', 'solicitudes tienen')} al menos una etapa con días de retraso. ${APP.esc(instLabel())}.</p>
+          <ul class="res-legend">${items}</ul>
+        </div>
+        <div class="modal-foot">
+          <button type="button" class="btn btn-primary" onclick="APP.closeModal()">Cerrar</button>
+        </div>
+      `, { wide: true });
+    }
+
+    // Dona SVG. Es una imagen con resumen en aria-label; la navegación está en la tabla y la leyenda.
+    function donaSVG(sectores, total) {
+      const cx = 180, cy = 180, r = 135, ri = 82;
+      let a0 = -Math.PI / 2;
+      let paths = '';
+      let labels = '';
+      const resumen = sectores.map(s => s.label + ' ' + num(s.n) + ' (' + pct(s.n, total) + ')').join(', ');
+
+      sectores.forEach(s => {
+        const frac = s.n / total;
+        const tip = APP.esc(s.label + ': ' + plural(s.n, 'solicitud', 'solicitudes') + ' (' + pct(s.n, total) + ')');
+        if (sectores.length === 1) {
+          // Un solo estado: anillo completo (un arco de 360 grados no se puede trazar con un solo path)
+          const rm = (r + ri) / 2;
+          paths += `<circle class="pie-slice" cx="${cx}" cy="${cy}" r="${rm}" fill="none" stroke="${s.color}" stroke-width="${r - ri}" data-estado="${APP.esc(s.id)}" data-tip="${tip}"></circle>`;
+          return;
+        }
+        const ang = frac * 2 * Math.PI;
+        const a1 = a0 + ang;
+        const p = (rad, a) => (cx + rad * Math.cos(a)).toFixed(2) + ' ' + (cy + rad * Math.sin(a)).toFixed(2);
+        const grande = ang > Math.PI ? 1 : 0;
+        const dPath = `M ${p(r, a0)} A ${r} ${r} 0 ${grande} 1 ${p(r, a1)} L ${p(ri, a1)} A ${ri} ${ri} 0 ${grande} 0 ${p(ri, a0)} Z`;
+        paths += `<path class="pie-slice" d="${dPath}" fill="${s.color}" stroke="#FFFFFF" stroke-width="2" data-estado="${APP.esc(s.id)}" data-tip="${tip}"></path>`;
+        if (frac >= 0.07) {
+          const am = a0 + ang / 2;
+          const rl = (r + ri) / 2;
+          labels += `<text x="${(cx + rl * Math.cos(am)).toFixed(1)}" y="${(cy + rl * Math.sin(am)).toFixed(1)}" fill="#FFFFFF" font-size="13" font-weight="700">${pct(s.n, total)}</text>`;
+        }
+        a0 = a1;
+      });
+
+      return `
+        <svg viewBox="0 0 360 360" class="pie-chart-svg res-donut" xmlns="http://www.w3.org/2000/svg" role="img"
+          aria-label="${APP.esc('Distribución de ' + plural(total, 'solicitud', 'solicitudes') + ' por estado: ' + resumen + '.')}">
+          <g aria-hidden="true">
+            ${paths}
+            ${labels}
+            <text class="res-center-value" x="${cx}" y="${cy - 8}">${num(total)}</text>
+            <text class="res-center-label" x="${cx}" y="${cy + 20}">${total === 1 ? 'solicitud' : 'solicitudes'}</text>
+          </g>
+        </svg>`;
+    }
+
+    function kpi(label, valor, pista) {
+      return `
+        <div class="kpi-filter res-kpi">
+          <span class="k-label">${label}</span>
+          <span class="k-value">${num(valor)}</span>
+          ${pista ? `<span class="k-hint">${pista}</span>` : ''}
+        </div>`;
+    }
+
+    function renderBody() {
+      const d = calcular();
+      const body = document.getElementById('res-body');
+      const impresion = `<p class="res-print-only">Institución: <b>${APP.esc(instLabel())}</b> · Fecha: <b>${APP.esc(APP.fechaCorta(DB.hoyISO()))}</b></p>`;
+
+      if (!d.total) {
+        body.innerHTML = `
+          ${impresion}
+          <div class="empty-state">
+            <h3>No hay solicitudes</h3>
+            <p>${inst === 'Todas' ? 'Todavía no se registró ninguna solicitud.' : 'No hay solicitudes de ' + APP.esc(instLabel()) + '.'}</p>
+            ${inst === 'Todas'
+              ? '<a class="btn btn-outline" href="registrar.html">Registrar una solicitud</a>'
+              : '<button type="button" class="btn btn-outline" onclick="verTodas()">Ver todas las instituciones</button>'}
+          </div>`;
+        return;
+      }
+
+      const enAtencion = d.cuenta('En revisión') + d.cuenta('Pendiente de pago') + d.cuenta('Aprobado');
+      const kpis = [
+        kpi('Total de solicitudes', d.total),
+        kpi('Por iniciar', d.cuenta('Solicitado'), 'Solicitadas, sin atender'),
+        kpi('En atención', enAtencion, 'En revisión, pendientes de pago y aprobadas'),
+        kpi('Observadas', d.cuenta('Observado'), 'Esperan respuesta del alumno'),
+        kpi('Emitidas', d.cuenta('Emitido'), 'Documento entregado'),
+        kpi('Canceladas o rechazadas', d.cuenta('Cancelar') + d.cuenta('Rechazado'))
+      ].join('');
+
+      const filasTabla = d.filas.map(f => `
+        <tr data-estado="${APP.esc(f.id)}">
+          <td>
+            <span class="procesar-status-dot" style="background:${f.color}" aria-hidden="true"></span><span class="res-name">${APP.esc(f.label)}</span>
+          </td>
+          <td class="res-num"><b>${num(f.n)}</b></td>
+          <td class="res-num muted">${pct(f.n, d.total)}</td>
+          <td class="res-act">
+            ${f.n && !f.extra
+              ? `<a class="btn btn-sm btn-outline" href="${APP.esc(urlBandeja(f.id))}" aria-label="Ver en la bandeja las solicitudes en estado ${APP.esc(f.label)}">Ver en la bandeja</a>`
+              : `<span class="muted">${f.n ? '' : 'Sin solicitudes'}</span>`}
+          </td>
+        </tr>`).join('');
+
+      const fuera = d.fuera.length
+        ? `<div class="alert warn res-late">
+             <div>
+               <b>Fuera de plazo: ${plural(d.fuera.length, 'solicitud', 'solicitudes')}</b>
+               Tienen al menos una etapa con días de retraso.
+             </div>
+             <button type="button" class="btn btn-sm btn-outline" onclick="verFueraDePlazo()">Ver la lista</button>
+           </div>`
+        : `<div class="alert ok res-late">
+             <div><b>Fuera de plazo: ninguna</b>Ninguna solicitud tiene etapas con días de retraso.</div>
+           </div>`;
+
+      const sectores = d.filas.filter(f => f.n > 0);
+      const leyenda = sectores.map(s => {
+        const dentro = `
+            <span class="pie-legend-left">
+              <span class="pie-legend-dot" style="background:${s.color}" aria-hidden="true"></span>
+              <span>${APP.esc(s.label)}</span>
+            </span>
+            <span class="pie-legend-right">
+              <span class="pie-legend-count">${num(s.n)}</span>
+              <span class="pie-legend-percent">${pct(s.n, d.total)}</span>
+            </span>`;
+        return s.extra
+          ? `<li><span class="pie-legend-item" data-estado="${APP.esc(s.id)}">${dentro}</span></li>`
+          : `<li><a class="pie-legend-item" data-estado="${APP.esc(s.id)}" href="${APP.esc(urlBandeja(s.id))}" title="Ver en la bandeja">${dentro}</a></li>`;
+      }).join('');
+
+      const maxTramite = d.tramites.length ? d.tramites[0].n : 1;
+      const top = d.tramites.slice(0, 5).map(t => `
+        <li>
+          <span class="res-top-name">${APP.esc(t.nombre)}</span>
+          <span class="res-top-count"><b>${plural(t.n, 'solicitud', 'solicitudes')}</b> · ${plural(t.abiertas, 'abierta', 'abiertas')}</span>
+          <span class="res-top-bar" aria-hidden="true"><span style="width:${Math.max(4, Math.round(t.n / maxTramite * 100))}%"></span></span>
+        </li>`).join('');
+
+      body.innerHTML = `
+        ${impresion}
+        <div class="kpi-row">${kpis}</div>
+
+        <div class="procesar-main-card res-main">
+          <div class="procesar-body-grid">
+            <section class="procesar-table-panel" aria-labelledby="res-h-estado">
+              <div>
+                <h2 class="q-title" id="res-h-estado">Solicitudes por estado</h2>
+                <p class="help res-help">Usa "Ver en la bandeja" para abrir la lista de solicitudes de ese estado.</p>
+              </div>
+              <div class="table-wrap">
+                <table class="data procesar-table res-table">
+                  <thead>
+                    <tr>
+                      <th scope="col">Estado</th>
+                      <th scope="col" class="res-num">Cantidad</th>
+                      <th scope="col" class="res-num">Porcentaje</th>
+                      <th scope="col" class="res-act"><span class="sr-only">Acción</span></th>
+                    </tr>
+                  </thead>
+                  <tbody>${filasTabla}</tbody>
+                  <tfoot>
+                    <tr>
+                      <td>Total</td>
+                      <td class="res-num">${num(d.total)}</td>
+                      <td class="res-num">100%</td>
+                      <td class="res-act"><a class="btn btn-sm btn-outline" href="${APP.esc(urlBandeja(''))}">Ver todas</a></td>
+                    </tr>
+                  </tfoot>
+                </table>
+              </div>
+              ${fuera}
+            </section>
+
+            <section class="procesar-chart-panel" aria-labelledby="res-h-dona">
+              <div>
+                <h2 class="procesar-chart-title" id="res-h-dona">Distribución por estado</h2>
+                <div class="res-chart-sub">Sobre ${plural(d.total, 'solicitud', 'solicitudes')} de ${APP.esc(instLabel())}</div>
+              </div>
+              <div class="pie-chart-wrapper">
+                <div id="res-tooltip" class="res-tooltip" aria-hidden="true"></div>
+                ${donaSVG(sectores, d.total)}
+              </div>
+              <ul class="pie-legend-list res-legend" aria-label="Estados con solicitudes">${leyenda}</ul>
+            </section>
+          </div>
+        </div>
+
+        <section class="card res-top" aria-labelledby="res-h-top">
+          <h2 class="q-title" id="res-h-top">Por trámite</h2>
+          <p class="help">Los ${Math.min(5, d.tramites.length)} trámites con más solicitudes${d.tramites.length > 5 ? ', de ' + d.tramites.length + ' en total' : ''}. Abiertas son las que aún no se emiten, rechazan ni cancelan.</p>
+          <ol class="res-top-list">${top}</ol>
+        </section>`;
+    }
+
+    function verTodas() {
+      inst = 'Todas';
+      const sel = document.getElementById('res-inst');
+      if (sel) {
+        sel.value = 'Todas';
+        if (sel._wienerCustomSelect) sel._wienerCustomSelect.update();
+      }
+      renderBody();
+    }
+
+    // Resaltado cruzado entre fila, sector y leyenda
+    function resaltar(id) {
+      const body = document.getElementById('res-body');
+      body.querySelectorAll('.pie-slice').forEach(el => {
+        const mio = el.dataset.estado === id;
+        el.classList.toggle('highlighted', mio);
+        el.classList.toggle('res-dim', !mio);
+      });
+      body.querySelectorAll('.pie-legend-item').forEach(el => el.classList.toggle('active', el.dataset.estado === id));
+      body.querySelectorAll('.res-table tbody tr').forEach(el => el.classList.toggle('row-highlight', el.dataset.estado === id));
+    }
+
+    function quitarResaltado() {
+      const body = document.getElementById('res-body');
+      body.querySelectorAll('.pie-slice').forEach(el => el.classList.remove('highlighted', 'res-dim'));
+      body.querySelectorAll('.pie-legend-item.active').forEach(el => el.classList.remove('active'));
+      body.querySelectorAll('.res-table tr.row-highlight').forEach(el => el.classList.remove('row-highlight'));
+      const tip = document.getElementById('res-tooltip');
+      if (tip) tip.classList.remove('visible');
+    }
+
+    function moverTooltip(e, sector) {
+      const tip = document.getElementById('res-tooltip');
+      const wrap = tip && tip.parentNode;
+      if (!tip || !wrap) return;
+      const rect = wrap.getBoundingClientRect();
+      tip.textContent = sector.dataset.tip || '';
+      tip.style.left = (e.clientX - rect.left) + 'px';
+      tip.style.top = (e.clientY - rect.top) + 'px';
+      tip.classList.add('visible');
+    }
+
+    function render() {
+      ctx.mount.innerHTML = `
+        <div class="procesar-container">
+          <div class="page-head">
+            <div>
+              <h1>Resumen</h1>
+              <p>Cuántas solicitudes hay en cada estado. Las cifras se calculan con las mismas solicitudes de la bandeja.</p>
+            </div>
+            <div class="btn-row res-actions">
+              <button type="button" class="btn btn-outline" onclick="window.print()">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="6 9 6 2 18 2 18 9"></polyline><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path><rect x="6" y="14" width="12" height="8"></rect></svg>
+                Imprimir
+              </button>
+              <button type="button" class="btn btn-outline" onclick="exportarCSV()">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+                Exportar CSV
+              </button>
+            </div>
+          </div>
+
+          <div class="res-toolbar">
+            <label id="res-inst-label" for="res-inst">Institución</label>
+            <div class="custom-select-container res-inst">
+              <select id="res-inst" onchange="cambiarInstitucion(this.value)">
+                ${INSTITUCIONES.map(i => `<option value="${i.id}" ${i.id === inst ? 'selected' : ''}>${APP.esc(i.label)}</option>`).join('')}
+              </select>
+            </div>
+          </div>
+
+          <div id="res-body"></div>
+        </div>
+      `;
+
+      if (APP.initCustomSelects) APP.initCustomSelects(ctx.mount);
+      // El desplegable propio no hereda la etiqueta del select: se le asigna
+      const trigger = ctx.mount.querySelector('.res-inst .custom-select-trigger');
+      const valor = trigger && trigger.querySelector('.custom-select-label');
+      if (trigger && valor) {
+        valor.id = 'res-inst-valor';
+        trigger.setAttribute('aria-labelledby', 'res-inst-label res-inst-valor');
+      }
+
+      // El cuerpo se vuelve a pintar al cambiar de institución; los eventos se delegan una sola vez
+      const body = document.getElementById('res-body');
+      const objetivo = e => e.target.closest ? e.target.closest('[data-estado]') : null;
+      body.addEventListener('mouseover', e => { const el = objetivo(e); if (el) resaltar(el.dataset.estado); });
+      body.addEventListener('mouseout', e => { const el = objetivo(e); if (el && !el.contains(e.relatedTarget)) quitarResaltado(); });
+      body.addEventListener('focusin', e => { const el = objetivo(e); if (el) resaltar(el.dataset.estado); });
+      body.addEventListener('focusout', e => { if (objetivo(e)) quitarResaltado(); });
+      body.addEventListener('mousemove', e => {
+        const sector = e.target.closest ? e.target.closest('.pie-slice') : null;
+        if (sector) moverTooltip(e, sector);
+      });
+
+      renderBody();
+    }
+
+    render();
+  </script>
+</body>
+</html>

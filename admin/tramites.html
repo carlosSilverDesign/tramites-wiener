@@ -1020,7 +1020,12 @@
             </div>
             <button class="btn btn-search-bar" onclick="buscarTramite()">${SVG_ICONS.search} <span>Buscar</span></button>
           </div>
-          <button class="btn btn-primary btn-new-bar" onclick="editarTramite(null)">${SVG_ICONS.plus} <span>Nuevo Trámite</span></button>
+          <div style="display:flex;gap:8px;align-items:center">
+            <a href="tramite-studio.html" class="btn btn-secondary btn-new-bar" style="border:1.5px solid var(--brand);color:var(--brand);background:var(--brand-soft);text-decoration:none" title="Diseñar y validar con la nueva experiencia Trámite Studio 2026">
+              <span>✨ Trámite Studio 2026</span>
+            </a>
+            <button class="btn btn-primary btn-new-bar" onclick="editarTramite(null)">${SVG_ICONS.plus} <span>Nuevo Trámite</span></button>
+          </div>
         </div>
 
         <div class="table-wrap">

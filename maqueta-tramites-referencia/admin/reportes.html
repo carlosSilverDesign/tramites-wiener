@@ -1,0 +1,710 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Reportes · Wiener Admin</title>
+  <link href="https://fonts.googleapis.com/css2?family=Lato:wght@400;700;900&family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../css/styles.css">
+  <style>
+    /* Estilos propios de reportes (solo tokens de :root) */
+    .rep-section {
+      margin-bottom: 22px;
+    }
+    .rep-section > .help {
+      margin: 0 0 12px 0;
+    }
+    .rep-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+      gap: 12px;
+    }
+    .rep-card {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      text-align: left;
+      font-family: inherit;
+      color: var(--text);
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 14px 16px;
+      cursor: pointer;
+      min-width: 0;
+      transition: border-color .15s ease, box-shadow .15s ease;
+    }
+    .rep-card:hover {
+      border-color: var(--brand);
+    }
+    .rep-card:focus-visible {
+      outline: 2px solid var(--brand);
+      outline-offset: 2px;
+    }
+    .rep-card[aria-pressed="true"] {
+      border-color: var(--brand);
+      box-shadow: 0 0 0 1px var(--brand) inset;
+      background: var(--brand-soft);
+    }
+    .rep-card-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 8px;
+      flex-wrap: wrap;
+      font-size: 12px;
+      color: var(--text-muted);
+    }
+    .rep-card-title {
+      font-family: 'Lato', sans-serif;
+      font-size: 15px;
+      font-weight: 700;
+      line-height: 1.35;
+    }
+    .rep-card-desc {
+      font-size: 12.5px;
+      line-height: 1.45;
+      color: var(--text-muted);
+    }
+    .rep-card-foot {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-top: auto;
+      font-size: 12.5px;
+      color: var(--text-soft);
+    }
+    .rep-card-on {
+      display: none;
+      align-items: center;
+      gap: 4px;
+      font-weight: 700;
+      color: var(--brand-dark);
+    }
+    .rep-card[aria-pressed="true"] .rep-card-on {
+      display: inline-flex;
+    }
+    .rep-filter-grid {
+      margin-bottom: 0;
+    }
+    @media (min-width: 993px) {
+      .rep-filter-grid {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+      }
+    }
+    .rep-filter-actions {
+      flex-wrap: wrap;
+      margin-top: 16px;
+      padding-top: 14px;
+    }
+    .rep-results {
+      min-width: 0;
+    }
+    .rep-top {
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+    .rep-top-info {
+      min-width: 0;
+      flex: 1 1 260px;
+    }
+    .rep-top-info h2 {
+      margin: 0 0 2px 0;
+      overflow-wrap: anywhere;
+    }
+    .rep-search {
+      width: 300px;
+      max-width: 100%;
+      flex: 0 1 300px;
+    }
+    .rep-table th {
+      text-transform: none;
+      letter-spacing: 0;
+      font-size: 12.5px;
+    }
+    .rep-table tbody tr:hover {
+      cursor: default;
+    }
+    .rep-table .modality-pill,
+    .rep-table .condicion-pill {
+      text-transform: none;
+      letter-spacing: 0;
+      font-size: 11.5px;
+    }
+    .rep-table .rep-nowrap {
+      white-space: nowrap;
+    }
+    .rep-table .rep-center {
+      text-align: center;
+    }
+    .rep-table .rep-strong {
+      font-weight: 700;
+      min-width: 190px;
+    }
+    .rep-table .rep-soft {
+      font-size: 12px;
+      color: var(--text-soft);
+      min-width: 170px;
+    }
+    .rep-table .rep-muted {
+      font-size: 12px;
+      color: var(--text-muted);
+      white-space: nowrap;
+    }
+    .date-display-input.is-invalid {
+      border-color: var(--err-fg);
+    }
+    .rep-empty {
+      margin: 20px;
+    }
+    .rep-foot {
+      display: flex;
+      justify-content: flex-end;
+      padding: 12px 20px;
+      background: var(--bg);
+      border-top: 1px solid var(--border-soft);
+    }
+    .rep-foot:empty {
+      display: none;
+    }
+    .rep-dots {
+      padding: 0 4px;
+      color: var(--text-muted);
+    }
+    @media (max-width: 640px) {
+      .rep-top {
+        padding: 14px 16px;
+      }
+      .rep-search {
+        flex-basis: 100%;
+        width: 100%;
+      }
+      .rep-foot {
+        justify-content: center;
+        padding: 12px;
+      }
+      .rep-filter-actions .btn {
+        flex: 1 1 100%;
+        justify-content: center;
+      }
+    }
+  </style>
+</head>
+<body>
+  <script src="../js/data.js"></script>
+  <script src="../js/shell.js"></script>
+  <script>
+    const ctx = APP.renderShell('reportes');
+
+    // Estado de la vista
+    const REPORTE_INICIAL = 'cambio-presencial';
+    let currentReportKey = REPORTE_INICIAL;
+    let filtroInst = 'Todas';
+    let filtroDesde = '';
+    let filtroHasta = '';
+    let filtroTexto = '';
+    let paginaActual = 1;
+    const registrosPorPagina = 12;
+
+    const INSTITUCIONES = [
+      { id: 'Todas', label: 'Todas las instituciones' },
+      { id: 'Wiener', label: 'Universidad Norbert Wiener' },
+      { id: 'Carrion', label: 'Instituto Carrión' }
+    ];
+    const INST_CORTO = { Wiener: 'Wiener', Carrion: 'Carrión' };
+
+    // ==========================================================================
+    // REPORTES DISPONIBLES
+    // Para agregar un reporte: un objeto aquí y sus filas en DATA_REPORTES.
+    // ==========================================================================
+    const REPORTES_CONFIG = {
+      'cambio-presencial': {
+        id: 'cambio-presencial',
+        titulo: 'Alumnos que solicitaron el cambio a modalidad presencial',
+        categoria: 'Modalidad de estudios',
+        area: 'Registros Académicos',
+        descripcion: 'Estudiantes de modalidad a distancia o semipresencial que pidieron pasar a la modalidad presencial.',
+        formato: 'CSV'
+      },
+      'cambio-semipresencial': {
+        id: 'cambio-semipresencial',
+        titulo: 'Alumnos que solicitaron el cambio a modalidad semipresencial',
+        categoria: 'Modalidad de estudios',
+        area: 'Registros Académicos',
+        descripcion: 'Estudiantes que pidieron pasar su matrícula a la modalidad semipresencial para estudiar y trabajar.',
+        formato: 'CSV'
+      },
+      'convenio': {
+        id: 'convenio',
+        titulo: 'Alumnos que solicitaron trámites de convenio',
+        categoria: 'Convenios y becas',
+        area: 'Retención y Fidelización',
+        descripcion: 'Estudiantes que tramitaron beneficios de convenios con otras instituciones (PNP, FF.AA., Minsa, Magisterio).',
+        formato: 'CSV'
+      },
+      'encuesta-delegados': {
+        id: 'encuesta-delegados',
+        titulo: 'Encuesta de delegados',
+        categoria: 'Representación estudiantil',
+        area: 'Coordinación y Bienestar',
+        descripcion: 'Delegados de aula que completaron la encuesta de calidad de servicio y representación académica.',
+        formato: 'CSV'
+      }
+    };
+
+    // ==========================================================================
+    // DATA MOCK DETALLADA PARA LOS REPORTES ESPECÍFICOS
+    // Datos fijos de ejemplo. La institución y la fecha comparable se completan más abajo.
+    // ==========================================================================
+    const DATA_REPORTES = {
+      'cambio-presencial': [
+        { nro: 1, ticket: '2026.1', codigo: '2022201877', alumno: 'URCIA QUINTANILLA MELANY MASSIEL', carrera: 'INGENIERÍA INDUSTRIAL Y DE GESTIÓN EMPRESARIAL', estado: 'APROBADO', fecha: '02/01/2026', hora: '10:12:28 PM', matricula: 'Matriculado', modalidad: 'SEMIPRESENCIAL', condicion: 'PROMOVIDO' },
+        { nro: 2, ticket: '2026.2', codigo: '2017200226', alumno: 'ROBLES SANTOS PABLO DAVID', carrera: 'INGENIERÍA DE SISTEMAS E INFORMÁTICA', estado: 'APROBADO', fecha: '05/01/2026', hora: '12:51:27 PM', matricula: 'Matriculado', modalidad: 'PRESENCIAL', condicion: 'PROMOVIDO' },
+        { nro: 3, ticket: '2026.6', codigo: '2023102304', alumno: 'DIAZ FLORES BRUNO REYNALDO', carrera: 'INGENIERÍA INDUSTRIAL Y DE GESTIÓN EMPRESARIAL', estado: 'APROBADO', fecha: '06/01/2026', hora: '06:28:08 PM', matricula: 'Matriculado', modalidad: 'PRESENCIAL', condicion: 'PROMOVIDO' },
+        { nro: 4, ticket: '2026.7', codigo: '2023200323', alumno: 'GALINDO CABEZAS MARTHA ANGELINA', carrera: 'DERECHO Y CIENCIA POLÍTICA', estado: 'SOLICITADO', fecha: '07/01/2026', hora: '05:18:50 PM', matricula: 'Matriculado', modalidad: 'SEMIPRESENCIAL', condicion: 'PROMOVIDO' },
+        { nro: 5, ticket: '2026.8', codigo: '2024200909', alumno: 'BERNAL GARCIA CRISTHIAN JOSE', carrera: 'CONTABILIDAD Y AUDITORÍA', estado: 'APROBADO', fecha: '09/01/2026', hora: '01:02:29 PM', matricula: 'Matriculado', modalidad: 'PRESENCIAL', condicion: 'REINCORPORADO' },
+        { nro: 6, ticket: '2026.9', codigo: '2024200859', alumno: 'BERNAL GARCIA XIMENA ALEJANDRA', carrera: 'DERECHO Y CIENCIA POLÍTICA', estado: 'APROBADO', fecha: '09/01/2026', hora: '01:12:46 PM', matricula: 'Matriculado', modalidad: 'PRESENCIAL', condicion: 'REINCORPORADO' },
+        { nro: 7, ticket: '2026.14', codigo: '2017101118', alumno: 'PAQUIRACHI CUYA ELIZABETH', carrera: 'OBSTETRICIA', estado: 'APROBADO', fecha: '12/01/2026', hora: '12:49:54 PM', matricula: 'Matriculado', modalidad: 'PRESENCIAL', condicion: 'REINCORPORADO' },
+        { nro: 8, ticket: '2026.18', codigo: '2025103472', alumno: 'VERA AVILA EDUARDO ALEXANDER', carrera: 'ADMINISTRACIÓN Y MARKETING', estado: 'APROBADO', fecha: '14/01/2026', hora: '07:15:59 PM', matricula: 'Matriculado', modalidad: 'SEMIPRESENCIAL', condicion: 'PROMOVIDO' },
+        { nro: 9, ticket: '2026.19', codigo: '2023200649', alumno: 'TRIGOZO ARROYO MARTHA LOICIT', carrera: 'ADMINISTRACIÓN Y DIRECCIÓN DE EMPRESAS', estado: 'APROBADO', fecha: '15/01/2026', hora: '08:26:16 AM', matricula: 'Matriculado', modalidad: 'PRESENCIAL', condicion: 'PROMOVIDO' },
+        { nro: 10, ticket: '2026.2643', codigo: '2023106018', alumno: 'LANDA OLIVA ALINA ROSMERY', carrera: 'CONTABILIDAD Y AUDITORÍA', estado: 'APROBADO', fecha: '21/01/2026', hora: '04:37:41 PM', matricula: 'Matriculado', modalidad: 'PRESENCIAL', condicion: 'REINCORPORADO' },
+        { nro: 11, ticket: '2026.2644', codigo: '2020102119', alumno: 'AGUIRRE YAÑEZ HATZEL JADIEL', carrera: 'ADMINISTRACIÓN Y DIRECCIÓN DE EMPRESAS', estado: 'APROBADO', fecha: '23/01/2026', hora: '11:20:38 AM', matricula: 'Matriculado', modalidad: 'PRESENCIAL', condicion: 'PROMOVIDO' },
+        { nro: 12, ticket: '2026.2645', codigo: '2019100828', alumno: 'DE LA CRUZ QUISPE PAMELA JOHANA', carrera: 'CONTABILIDAD Y AUDITORÍA', estado: 'APROBADO', fecha: '24/01/2026', hora: '10:20:17 PM', matricula: 'Matriculado', modalidad: 'PRESENCIAL', condicion: 'PROMOVIDO' },
+        { nro: 13, ticket: '2026.2650', codigo: '2021100345', alumno: 'QUISPE QUISPE MARIA FERNANDA', carrera: 'INGENIERÍA DE SISTEMAS E INFORMÁTICA', estado: 'APROBADO', fecha: '25/01/2026', hora: '09:14:02 AM', matricula: 'Matriculado', modalidad: 'SEMIPRESENCIAL', condicion: 'PROMOVIDO' },
+        { nro: 14, ticket: '2026.2652', codigo: '2023101192', alumno: 'SANCHEZ MEDINA JORGE LUIS', carrera: 'PSICOLOGÍA', estado: 'APROBADO', fecha: '26/01/2026', hora: '03:45:11 PM', matricula: 'Matriculado', modalidad: 'SEMIPRESENCIAL', condicion: 'PROMOVIDO' },
+        { nro: 15, ticket: '2026.2655', codigo: '2022204510', alumno: 'CORDOVA ROJAS KATERIN SOFIA', carrera: 'ENFERMERÍA', estado: 'SOLICITADO', fecha: '28/01/2026', hora: '11:05:44 AM', matricula: 'Matriculado', modalidad: 'SEMIPRESENCIAL', condicion: 'REINCORPORADO' },
+        { nro: 16, ticket: '2026.2660', codigo: '2024103321', alumno: 'MENDOZA BUSTAMANTE RODRIGO', carrera: 'MEDICINA HUMANA', estado: 'APROBADO', fecha: '30/01/2026', hora: '04:12:30 PM', matricula: 'Matriculado', modalidad: 'PRESENCIAL', condicion: 'PROMOVIDO' },
+        { nro: 17, ticket: '2026.2664', codigo: '2020201419', alumno: 'VILLANUEVA PAREDES LUIS ENRIQUE', carrera: 'DERECHO Y CIENCIA POLÍTICA', estado: 'APROBADO', fecha: '01/02/2026', hora: '08:33:12 AM', matricula: 'Matriculado', modalidad: 'PRESENCIAL', condicion: 'PROMOVIDO' },
+        { nro: 18, ticket: '2026.2668', codigo: '2023105541', alumno: 'FLORES ALARCON CYNTHIA PAOLA', carrera: 'ADMINISTRACIÓN Y MARKETING', estado: 'APROBADO', fecha: '03/02/2026', hora: '02:22:45 PM', matricula: 'Matriculado', modalidad: 'SEMIPRESENCIAL', condicion: 'REINCORPORADO' },
+        { nro: 19, ticket: '2026.2671', codigo: '2021200918', alumno: 'ZAPATA GUERRERO MARCO ANTONIO', carrera: 'INGENIERÍA INDUSTRIAL', estado: 'SOLICITADO', fecha: '05/02/2026', hora: '06:18:29 PM', matricula: 'Matriculado', modalidad: 'SEMIPRESENCIAL', condicion: 'PROMOVIDO' },
+        { nro: 20, ticket: '2026.2675', codigo: '2024201103', alumno: 'RUIZ CARBAJAL VALERIA LUCIA', carrera: 'ODONTOLOGÍA', estado: 'APROBADO', fecha: '08/02/2026', hora: '10:50:18 AM', matricula: 'Matriculado', modalidad: 'PRESENCIAL', condicion: 'PROMOVIDO' }
+      ],
+      'cambio-semipresencial': [
+        { nro: 1, ticket: '2026.101', codigo: '2023104412', alumno: 'ESPINOZA REYES MANUEL DARIO', carrera: 'ADMINISTRACIÓN DE NEGOCIOS', estado: 'APROBADO', fecha: '03/01/2026', hora: '09:20:11 AM', matricula: 'Matriculado', modalidad: 'PRESENCIAL', condicion: 'PROMOVIDO' },
+        { nro: 2, ticket: '2026.105', codigo: '2022201980', alumno: 'CASTILLO HUAMAN VALERIA INES', carrera: 'CONTABILIDAD Y FINANZAS', estado: 'APROBADO', fecha: '06/01/2026', hora: '11:45:00 AM', matricula: 'Matriculado', modalidad: 'PRESENCIAL', condicion: 'PROMOVIDO' },
+        { nro: 3, ticket: '2026.108', codigo: '2021105432', alumno: 'ALVAREZ PINTO GERARDO JAVIER', carrera: 'INGENIERÍA DE SISTEMAS', estado: 'SOLICITADO', fecha: '10/01/2026', hora: '04:15:32 PM', matricula: 'Matriculado', modalidad: 'PRESENCIAL', condicion: 'REINCORPORADO' },
+        { nro: 4, ticket: '2026.112', codigo: '2024100877', alumno: 'TAYLOR GOMEZ SHIRLEY CARLA', carrera: 'DERECHO', estado: 'APROBADO', fecha: '14/01/2026', hora: '06:30:19 PM', matricula: 'Matriculado', modalidad: 'PRESENCIAL', condicion: 'PROMOVIDO' },
+        { nro: 5, ticket: '2026.118', codigo: '2020203319', alumno: 'GUZMAN MEJIA PEDRO PABLO', carrera: 'MARKETING Y GESTIÓN COMERCIAL', estado: 'APROBADO', fecha: '18/01/2026', hora: '02:08:44 PM', matricula: 'Matriculado', modalidad: 'PRESENCIAL', condicion: 'PROMOVIDO' }
+      ],
+      'convenio': [
+        { nro: 1, ticket: '2026.301', codigo: '2023108821', alumno: 'SALINAS CHAVEZ LUIS FERNANDO', carrera: 'DERECHO Y CIENCIA POLÍTICA', estado: 'APROBADO', fecha: '04/01/2026', hora: '10:05:12 AM', matricula: 'Matriculado', modalidad: 'PRESENCIAL', condicion: 'PROMOVIDO' },
+        { nro: 2, ticket: '2026.304', codigo: '2022106634', alumno: 'MAMANI QUISPE CARMEN ROSA', carrera: 'ENFERMERÍA', estado: 'APROBADO', fecha: '07/01/2026', hora: '01:40:22 PM', matricula: 'Matriculado', modalidad: 'SEMIPRESENCIAL', condicion: 'PROMOVIDO' },
+        { nro: 3, ticket: '2026.309', codigo: '2021204490', alumno: 'CACERES SOTO JHON EDGAR', carrera: 'ADMINISTRACIÓN PÚBLICA', estado: 'APROBADO', fecha: '12/01/2026', hora: '05:12:08 PM', matricula: 'Matriculado', modalidad: 'SEMIPRESENCIAL', condicion: 'REINCORPORADO' },
+        { nro: 4, ticket: '2026.315', codigo: '2024102911', alumno: 'PAREDES DIAZ MILAGROS DEL PILAR', carrera: 'PSICOLOGÍA', estado: 'SOLICITADO', fecha: '16/01/2026', hora: '08:50:33 AM', matricula: 'Matriculado', modalidad: 'PRESENCIAL', condicion: 'PROMOVIDO' }
+      ],
+      'encuesta-delegados': [
+        { nro: 1, ticket: '2026.501', codigo: '2021100345', alumno: 'QUISPE QUISPE MARIA FERNANDA', carrera: 'INGENIERÍA DE SISTEMAS E INFORMÁTICA', estado: 'APROBADO', fecha: '05/01/2026', hora: '09:12:00 AM', matricula: 'Matriculado', modalidad: 'PRESENCIAL', condicion: 'PROMOVIDO' },
+        { nro: 2, ticket: '2026.503', codigo: '2022201900', alumno: 'VARGAS ROJAS CARLOS ENRIQUE', carrera: 'ADMINISTRACIÓN Y NEGOCIOS', estado: 'APROBADO', fecha: '08/01/2026', hora: '11:30:45 AM', matricula: 'Matriculado', modalidad: 'PRESENCIAL', condicion: 'PROMOVIDO' },
+        { nro: 3, ticket: '2026.508', codigo: '2023107823', alumno: 'LUNA OVIEDO DIANA PATRICIA', carrera: 'OBSTETRICIA', estado: 'APROBADO', fecha: '14/01/2026', hora: '03:22:15 PM', matricula: 'Matriculado', modalidad: 'SEMIPRESENCIAL', condicion: 'PROMOVIDO' }
+      ]
+    };
+
+    // Genera registros complementarios para alcanzar exactamente los 70 mostrados en la captura
+    (function completarRegistros() {
+      const carreras = [
+        'INGENIERÍA INDUSTRIAL Y DE GESTIÓN EMPRESARIAL', 'INGENIERÍA DE SISTEMAS E INFORMÁTICA',
+        'DERECHO Y CIENCIA POLÍTICA', 'CONTABILIDAD Y AUDITORÍA', 'OBSTETRICIA', 'ADMINISTRACIÓN Y MARKETING',
+        'ADMINISTRACIÓN Y DIRECCIÓN DE EMPRESAS', 'PSICOLOGÍA', 'ENFERMERÍA', 'ODONTOLOGÍA', 'MEDICINA HUMANA'
+      ];
+      const apellidos = ['GARCIA', 'RODRIGUEZ', 'MARTINEZ', 'LOPEZ', 'SANCHEZ', 'PEREZ', 'GOMEZ', 'FLORES', 'DIAZ', 'VASQUEZ', 'CASTRO', 'ROMERO', 'SUAREZ', 'HERRERA', 'MEDINA', 'AGUILAR', 'RAMOS'];
+      const nombres = ['JUAN CARLOS', 'ANA LUCIA', 'MIGUEL ANGEL', 'KAREN SOFIA', 'DIEGO ALEXANDER', 'VALERIA PAOLA', 'CRISTIAN JAVIER', 'MARIA ISABEL', 'JORGE LUIS', 'ANDREA NICOLE'];
+      
+      const list = DATA_REPORTES['cambio-presencial'];
+      let currentLen = list.length;
+      for (let i = currentLen + 1; i <= 70; i++) {
+        const ap1 = apellidos[i % apellidos.length];
+        const ap2 = apellidos[(i + 3) % apellidos.length];
+        const nom = nombres[i % nombres.length];
+        const car = carreras[i % carreras.length];
+        const dia = String(Math.min(28, (i % 25) + 1)).padStart(2, '0');
+        const mes = String(Math.floor(i / 15) + 1).padStart(2, '0');
+        list.push({
+          nro: i,
+          ticket: '2026.' + (2680 + i),
+          codigo: '202' + (i % 5) + '10' + String(1000 + i),
+          alumno: ap1 + ' ' + ap2 + ' ' + nom,
+          carrera: car,
+          estado: (i % 7 === 0) ? 'SOLICITADO' : 'APROBADO',
+          fecha: `${dia}/${mes}/2026`,
+          hora: `${String((i % 12) + 1).padStart(2, '0')}:${String((i * 7) % 60).padStart(2, '0')}:15 ${(i % 2 === 0 ? 'PM' : 'AM')}`,
+          matricula: 'Matriculado',
+          modalidad: (i % 3 === 0) ? 'SEMIPRESENCIAL' : 'PRESENCIAL',
+          condicion: (i % 4 === 0) ? 'REINCORPORADO' : 'PROMOVIDO'
+        });
+      }
+    })();
+
+    function sinTildes(v) {
+      return String(v == null ? '' : v).normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase();
+    }
+
+    // 'APROBADO' -> 'Aprobado'
+    function oracion(v) {
+      const s = String(v == null ? '' : v).toLowerCase();
+      return s.charAt(0).toUpperCase() + s.slice(1);
+    }
+
+    // 'dd/mm/aaaa' -> 'aaaa-mm-dd'
+    function aISO(ddmmaaaa) {
+      const p = String(ddmmaaaa || '').split('/');
+      return p.length === 3 ? p[2] + '-' + p[1].padStart(2, '0') + '-' + p[0].padStart(2, '0') : '';
+    }
+
+    function plural(n, uno, varios) {
+      return n + ' ' + (n === 1 ? uno : varios);
+    }
+
+    // Las filas fijas no traen institución ni fecha comparable: se completan una sola vez.
+    // La institución se deduce del código del alumno, así cada alumno conserva siempre la misma.
+    Object.values(DATA_REPORTES).forEach(filas => filas.forEach(r => {
+      if (!r.institucion) {
+        const digitos = String(r.codigo).replace(/\D/g, '');
+        const suma = digitos.split('').reduce((a, d) => a + Number(d), 0);
+        r.institucion = suma % 3 === 0 ? 'Carrion' : 'Wiener';
+      }
+      r.fechaISO = aISO(r.fecha);
+      r._busca = sinTildes([r.ticket, r.codigo, r.alumno, r.carrera].join(' '));
+    }));
+
+    function rangoInvalido() {
+      return !!(filtroDesde && filtroHasta && filtroDesde > filtroHasta);
+    }
+
+    function hayFiltros() {
+      return !!(filtroDesde || filtroHasta || filtroTexto.trim() || filtroInst !== 'Todas');
+    }
+
+    // Única fuente de las filas visibles: la usan la tabla, el contador y la exportación
+    function filasFiltradas() {
+      const filas = DATA_REPORTES[currentReportKey] || [];
+      if (rangoInvalido()) return [];
+      const q = sinTildes(filtroTexto.trim());
+      return filas.filter(r => {
+        if (filtroInst !== 'Todas' && r.institucion !== filtroInst) return false;
+        if (filtroDesde && r.fechaISO < filtroDesde) return false;
+        if (filtroHasta && r.fechaISO > filtroHasta) return false;
+        if (q && !r._busca.includes(q)) return false;
+        return true;
+      });
+    }
+
+    function seleccionarReporte(key) {
+      if (!REPORTES_CONFIG[key]) return;
+      currentReportKey = key;
+      paginaActual = 1;
+      ctx.mount.querySelectorAll('.rep-card').forEach(b => b.setAttribute('aria-pressed', b.dataset.key === key ? 'true' : 'false'));
+      pintarResultados();
+    }
+
+    function setFecha(cual, valor) {
+      if (cual === 'desde') filtroDesde = valor || '';
+      else filtroHasta = valor || '';
+      paginaActual = 1;
+      pintarErrorFechas();
+      pintarResultados();
+    }
+
+    function setInstitucion(valor) {
+      filtroInst = valor;
+      paginaActual = 1;
+      pintarResultados();
+    }
+
+    function setTexto(valor) {
+      filtroTexto = valor;
+      paginaActual = 1;
+      pintarResultados();
+    }
+
+    function cambiarPagina(p) {
+      paginaActual = p;
+      pintarResultados();
+      const activo = document.querySelector('#rep-pag .vt-page-btn.active');
+      if (activo) activo.focus();
+    }
+
+    // Deja el reporte elegido y quita los filtros
+    function limpiarFiltros() {
+      filtroInst = 'Todas';
+      filtroDesde = '';
+      filtroHasta = '';
+      filtroTexto = '';
+      paginaActual = 1;
+      const buscador = document.getElementById('rep-buscar');
+      if (buscador) buscador.value = '';
+      pintarCamposFiltro();
+      pintarResultados();
+    }
+
+    function csvCell(v) {
+      return '"' + String(v == null ? '' : v).replace(/"/g, '""') + '"';
+    }
+
+    function nombreArchivo() {
+      let rango = 'todas_las_fechas';
+      if (filtroDesde && filtroHasta) rango = filtroDesde + '_a_' + filtroHasta;
+      else if (filtroDesde) rango = 'desde_' + filtroDesde;
+      else if (filtroHasta) rango = 'hasta_' + filtroHasta;
+      const inst = filtroInst === 'Todas' ? '' : '_' + filtroInst.toLowerCase();
+      return 'reporte_' + currentReportKey + inst + '_' + rango + '.csv';
+    }
+
+    // Exporta exactamente las filas filtradas (todas las páginas)
+    function exportarCSV() {
+      const filas = filasFiltradas();
+      if (!filas.length) return;
+      const cabecera = ['N.°', 'Ticket', 'Código de alumno', 'Nombres y apellidos', 'Carrera', 'Institución', 'Estado', 'Fecha de registro', 'Hora de registro', 'Estado de matrícula', 'Modalidad de estudios', 'Condición'];
+      const lineas = filas.map(r => [
+        r.nro, csvCell(r.ticket), csvCell(r.codigo), csvCell(r.alumno), csvCell(r.carrera), csvCell(INST_CORTO[r.institucion]),
+        csvCell(oracion(r.estado)), csvCell(r.fecha), csvCell(r.hora), csvCell(r.matricula), csvCell(oracion(r.modalidad)), csvCell(oracion(r.condicion))
+      ].join(','));
+
+      const blob = new Blob(['﻿' + [cabecera.map(csvCell).join(','), ...lineas].join('\r\n')], { type: 'text/csv;charset=utf-8;' });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = nombreArchivo();
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
+
+      APP.toast({ icon: 'ok', title: 'Reporte exportado', body: 'Se descargó el archivo con ' + plural(filas.length, 'registro', 'registros') + '.' });
+    }
+
+    function paginacionHTML(actual, total) {
+      if (total <= 1) return '';
+      let btns = '';
+      for (let p = 1; p <= total; p++) {
+        if (total > 7) {
+          if (p > 1 && p < actual - 1) { if (p === 2) btns += '<span class="rep-dots" aria-hidden="true">...</span>'; continue; }
+          if (p < total && p > actual + 1) { if (p === total - 1) btns += '<span class="rep-dots" aria-hidden="true">...</span>'; continue; }
+        }
+        btns += `<button type="button" class="vt-page-btn ${p === actual ? 'active' : ''}" ${p === actual ? 'aria-current="page"' : ''} aria-label="Página ${p}" onclick="cambiarPagina(${p})">${p}</button>`;
+      }
+      return `
+        <nav class="vt-pagination" aria-label="Páginas del reporte">
+          <button type="button" class="vt-page-btn" ${actual <= 1 ? 'disabled' : ''} onclick="cambiarPagina(${actual - 1})">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="15 18 9 12 15 6"></polyline></svg>
+            <span>Anterior</span>
+          </button>
+          ${btns}
+          <button type="button" class="vt-page-btn" ${actual >= total ? 'disabled' : ''} onclick="cambiarPagina(${actual + 1})">
+            <span>Siguiente</span>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="9 18 15 12 9 6"></polyline></svg>
+          </button>
+        </nav>`;
+    }
+
+    function filaHTML(r) {
+      const mod = sinTildes(r.modalidad);
+      const modCls = mod.includes('semi') ? 'semipresencial' : (mod.includes('virtual') || mod.includes('distancia')) ? 'distancia' : 'presencial';
+      const cond = sinTildes(r.condicion);
+      const condCls = cond.includes('promov') ? 'promovido' : cond.includes('reincorp') ? 'reincorporado' : 'regular';
+      return `
+        <tr>
+          <td class="rep-center">${APP.esc(r.nro)}</td>
+          <td class="rep-nowrap"><span class="vt-ticket-badge">${APP.esc(r.ticket)}</span></td>
+          <td class="rep-nowrap"><span class="mono">${APP.esc(r.codigo)}</span></td>
+          <td class="rep-strong">${APP.esc(r.alumno)}</td>
+          <td class="rep-soft">${APP.esc(r.carrera)}</td>
+          <td class="rep-nowrap">${APP.esc(INST_CORTO[r.institucion])}</td>
+          <td class="rep-center">${APP.pillFor(oracion(r.estado))}</td>
+          <td class="rep-nowrap">${APP.esc(APP.fechaCorta(r.fechaISO))}</td>
+          <td class="rep-muted">${APP.esc(r.hora)}</td>
+          <td class="rep-center rep-nowrap">${APP.esc(r.matricula)}</td>
+          <td class="rep-center"><span class="modality-pill ${modCls}">${APP.esc(oracion(r.modalidad))}</span></td>
+          <td class="rep-center"><span class="condicion-pill ${condCls}">${APP.esc(oracion(r.condicion))}</span></td>
+        </tr>`;
+    }
+
+    // Pinta solo título, contador, tabla, paginación y botón de exportar.
+    // El buscador y los filtros no se tocan, así no pierden el foco.
+    function pintarResultados() {
+      const rep = REPORTES_CONFIG[currentReportKey];
+      const filas = filasFiltradas();
+      const total = filas.length;
+      const totalPaginas = Math.max(1, Math.ceil(total / registrosPorPagina));
+      if (paginaActual > totalPaginas) paginaActual = totalPaginas;
+      const ini = (paginaActual - 1) * registrosPorPagina;
+      const pagina = filas.slice(ini, ini + registrosPorPagina);
+      const totalReporte = (DATA_REPORTES[currentReportKey] || []).length;
+
+      document.getElementById('rep-titulo').textContent = rep.titulo;
+
+      document.getElementById('rep-contador').innerHTML = total
+        ? `<b>${plural(total, 'registro', 'registros')}</b>${total < totalReporte ? ' de ' + totalReporte : ''} · mostrando del ${ini + 1} al ${ini + pagina.length}`
+        : '<b>0 registros</b>' + (totalReporte ? ' de ' + totalReporte : '');
+
+      const zona = document.getElementById('rep-tabla');
+      if (!total) {
+        const motivo = rangoInvalido()
+          ? 'La fecha "Desde" es posterior a "Hasta". Corrige el rango o limpia los filtros.'
+          : hayFiltros()
+            ? 'Prueba con otro rango de fechas, otra institución o borra la búsqueda.'
+            : 'Este reporte todavía no tiene registros.';
+        zona.innerHTML = `
+          <div class="empty-state rep-empty">
+            <h3>${hayFiltros() ? 'Ningún registro coincide con los filtros' : 'Sin registros'}</h3>
+            <p>${motivo}</p>
+            ${hayFiltros() ? '<button type="button" class="btn btn-outline" onclick="limpiarFiltros()">Limpiar filtros</button>' : ''}
+          </div>`;
+      } else {
+        zona.innerHTML = `
+          <div class="vt-table-wrapper" tabindex="0" role="region" aria-label="Tabla del reporte, se desplaza en horizontal">
+            <table class="vt-table rep-table">
+              <thead>
+                <tr>
+                  <th scope="col" class="rep-center">N.°</th>
+                  <th scope="col">Ticket</th>
+                  <th scope="col">Código</th>
+                  <th scope="col">Nombres y apellidos</th>
+                  <th scope="col">Carrera</th>
+                  <th scope="col">Institución</th>
+                  <th scope="col" class="rep-center">Estado</th>
+                  <th scope="col">Fecha de registro</th>
+                  <th scope="col">Hora</th>
+                  <th scope="col" class="rep-center">Matrícula</th>
+                  <th scope="col" class="rep-center">Modalidad</th>
+                  <th scope="col" class="rep-center">Condición</th>
+                </tr>
+              </thead>
+              <tbody>${pagina.map(filaHTML).join('')}</tbody>
+            </table>
+          </div>`;
+      }
+
+      document.getElementById('rep-pag').innerHTML = paginacionHTML(paginaActual, totalPaginas);
+
+      const btn = document.getElementById('rep-exportar');
+      btn.disabled = !total;
+      document.getElementById('rep-exportar-txt').textContent = total ? 'Exportar CSV (' + plural(total, 'registro', 'registros') + ')' : 'Exportar CSV';
+    }
+
+    function pintarErrorFechas() {
+      const err = document.getElementById('rep-err-fechas');
+      if (!err) return;
+      const mal = rangoInvalido();
+      err.hidden = !mal;
+      const campo = document.getElementById('f-hasta_display');
+      if (campo) {
+        campo.classList.toggle('is-invalid', mal);
+        if (mal) campo.setAttribute('aria-describedby', 'rep-err-fechas'); else campo.removeAttribute('aria-describedby');
+      }
+    }
+
+    // Campos de filtro. Se vuelven a pintar solo al limpiar, para dejar las fechas vacías.
+    function pintarCamposFiltro() {
+      const cont = document.getElementById('rep-campos');
+      cont.innerHTML = `
+        <div class="vt-field">
+          <label for="f-desde_display">Desde</label>
+          <input type="date" id="f-desde" value="${APP.esc(filtroDesde)}" onchange="setFecha('desde', this.value)">
+        </div>
+        <div class="vt-field">
+          <label for="f-hasta_display">Hasta</label>
+          <input type="date" id="f-hasta" value="${APP.esc(filtroHasta)}" onchange="setFecha('hasta', this.value)">
+          <span class="field-error" id="rep-err-fechas" role="alert" hidden>Debe ser igual o posterior a "Desde".</span>
+        </div>
+        <div class="vt-field">
+          <label id="f-inst-label" for="f-inst">Institución</label>
+          <div class="custom-select-container">
+            <select id="f-inst" onchange="setInstitucion(this.value)">
+              ${INSTITUCIONES.map(i => `<option value="${i.id}" ${i.id === filtroInst ? 'selected' : ''}>${APP.esc(i.label)}</option>`).join('')}
+            </select>
+          </div>
+        </div>`;
+      if (APP.initCustomSelects) APP.initCustomSelects(cont);
+      if (APP.initDatePickers) APP.initDatePickers(cont);
+      // Los controles propios no heredan la etiqueta del campo nativo: se les asigna
+      const trigger = cont.querySelector('.custom-select-trigger');
+      const valor = trigger && trigger.querySelector('.custom-select-label');
+      if (trigger && valor) {
+        valor.id = 'f-inst-valor';
+        trigger.setAttribute('aria-labelledby', 'f-inst-label f-inst-valor');
+      }
+      pintarErrorFechas();
+    }
+
+    function tarjetaReporte(r) {
+      const n = (DATA_REPORTES[r.id] || []).length;
+      return `
+        <button type="button" class="rep-card" data-key="${APP.esc(r.id)}" aria-pressed="${r.id === currentReportKey ? 'true' : 'false'}" onclick="seleccionarReporte('${APP.esc(r.id)}')">
+          <span class="rep-card-top">
+            <span class="tag">${APP.esc(r.categoria)}</span>
+            <span>${APP.esc(r.area)}</span>
+          </span>
+          <span class="rep-card-title">${APP.esc(r.titulo)}</span>
+          <span class="rep-card-desc">${APP.esc(r.descripcion)}</span>
+          <span class="rep-card-foot">
+            <span><b>${plural(n, 'registro', 'registros')}</b> · Formato ${APP.esc(r.formato)}</span>
+            <span class="rep-card-on">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"></polyline></svg>
+              En pantalla
+            </span>
+          </span>
+        </button>`;
+    }
+
+    // Estructura fija: se pinta una sola vez
+    function render() {
+      ctx.mount.innerHTML = `
+        <div class="vt-container">
+          <div class="page-head">
+            <div>
+              <h1>Reportes</h1>
+              <p>Elige un reporte, filtra los registros que necesitas y descárgalos en CSV.</p>
+            </div>
+          </div>
+
+          <section class="rep-section" aria-labelledby="rep-h-elige">
+            <h2 class="q-title" id="rep-h-elige">Elige un reporte</h2>
+            <div class="rep-grid">
+              ${Object.values(REPORTES_CONFIG).map(tarjetaReporte).join('')}
+            </div>
+          </section>
+
+          <section class="listado-filters-card" aria-labelledby="rep-h-filtros">
+            <h2 class="q-title" id="rep-h-filtros">Filtra los registros</h2>
+            <p class="help">Los filtros se aplican al instante a la tabla y a la exportación. Deja las fechas vacías para ver todo.</p>
+            <div class="vt-filter-grid rep-filter-grid" id="rep-campos"></div>
+            <div class="vt-filter-actions rep-filter-actions">
+              <button type="button" class="btn btn-outline" onclick="limpiarFiltros()">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"></path><path d="M21 3v5h-5"></path><path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16"></path><path d="M8 16H3v5"></path></svg>
+                <span>Limpiar filtros</span>
+              </button>
+              <button type="button" class="btn btn-primary" id="rep-exportar" onclick="exportarCSV()">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+                <span id="rep-exportar-txt">Exportar CSV</span>
+              </button>
+            </div>
+          </section>
+
+          <section class="vt-table-card rep-results" aria-labelledby="rep-titulo">
+            <div class="vt-table-top rep-top">
+              <div class="rep-top-info">
+                <h2 class="q-title" id="rep-titulo"></h2>
+                <div class="vt-counter-text" id="rep-contador" role="status" aria-live="polite"></div>
+              </div>
+              <div class="input-wrap-icon-left rep-search">
+                <span class="input-icon-svg" aria-hidden="true">
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+                </span>
+                <input class="input" type="search" id="rep-buscar" aria-label="Buscar en el reporte por alumno, código, ticket o carrera" placeholder="Buscar alumno, código o ticket" oninput="setTexto(this.value)">
+              </div>
+            </div>
+            <div id="rep-tabla"></div>
+            <div class="rep-foot" id="rep-pag"></div>
+          </section>
+        </div>
+      `;
+      pintarCamposFiltro();
+      pintarResultados();
+    }
+
+    render();
+  </script>
+</body>
+</html>

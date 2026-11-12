@@ -1,0 +1,524 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Usuarios · Wiener Admin</title>
+  <link href="https://fonts.googleapis.com/css2?family=Lato:wght@400;700;900&family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../css/styles.css">
+  <style>
+    /* Estilos propios de la pantalla. Solo tokens de :root. */
+    .u-filter { flex: 0 1 210px; min-width: 170px; }
+    .u-count { margin: 0 0 10px 0; }
+    .u-person { display: flex; align-items: center; gap: 10px; min-width: 0; }
+    .u-person-txt { min-width: 0; overflow-wrap: anywhere; }
+    .u-person-txt .muted { display: block; }
+    .u-sub { display: block; font-size: 12.5px; color: var(--text-muted); }
+    .u-actions { text-align: right; white-space: nowrap; }
+    .u-foot { display: flex; justify-content: flex-end; margin-top: 14px; }
+    .u-page-info { font-size: 13px; color: var(--text-muted); padding: 0 8px; }
+    .btn[aria-disabled="true"] { opacity: .55; cursor: not-allowed; }
+
+    /* Modal */
+    .u-form [hidden] { display: none !important; }
+    .u-static { min-height: 40px; display: flex; align-items: center; font-size: 14px; font-weight: 600; color: var(--text); }
+    .u-label { font-size: 13px; font-weight: 600; color: var(--text-soft); }
+    .perm-block { border: none; padding: 0; margin: 22px 0 0 0; min-width: 0; }
+    .perm-block legend { padding: 0; }
+    .perm-block .btn-row { margin: 10px 0 14px 0; }
+    .perm-group + .perm-group { margin-top: 14px; }
+    .perm-group .section-label { margin-bottom: 8px; }
+    .chip-check.is-locked { opacity: .7; cursor: not-allowed; }
+    .u-note { margin-top: 14px; }
+
+    /* Tabla que se apila en pantallas angostas: sin scroll horizontal de página */
+    @media (max-width: 720px) {
+      table.data.resp-table thead { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0, 0, 0, 0); }
+      table.data.resp-table, table.data.resp-table tbody, table.data.resp-table tr { display: block; width: 100%; min-width: 0; }
+      table.data.resp-table tbody tr { padding: 12px 14px; border-bottom: 1px solid var(--border-soft); }
+      table.data.resp-table tbody tr:last-child { border-bottom: none; }
+      table.data.resp-table tbody td { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; padding: 5px 0; border-bottom: none; text-align: right; overflow-wrap: anywhere; }
+      table.data.resp-table tbody td::before { content: attr(data-label); flex-shrink: 0; font-size: 12px; font-weight: 700; color: var(--text-muted); text-align: left; }
+      table.data.resp-table tbody td.is-main { display: block; text-align: left; padding-bottom: 8px; }
+      table.data.resp-table tbody td.is-main::before { content: none; }
+      table.data.resp-table tbody td.u-actions { white-space: normal; justify-content: flex-start; padding-top: 10px; }
+      table.data.resp-table tbody td.u-actions::before { content: none; }
+      .u-filter { flex: 1 1 100%; }
+      .u-foot { justify-content: center; }
+    }
+  </style>
+</head>
+<body>
+  <script src="../js/data.js"></script>
+  <script src="../js/shell.js"></script>
+  <script>
+    const ctx = APP.renderShell('usuarios');
+
+    const POR_PAGINA = 10;
+    const state = { tab: 'todos', q: '', estado: 'todos', orden: 'az', page: 1 };
+    let modalCtx = null;
+
+    // Módulos del menú administrativo que requieren permiso (el catálogo es de libre acceso)
+    const MODS = APP.modulos('administrativo');
+    const MODS_PERMISO = MODS.filter(m => !m.libre);
+    const MODS_LIBRES = MODS.filter(m => m.libre);
+    const MODS_ALUMNO = APP.modulos('alumno');
+    const ROL_LABEL = { alumno: 'Alumno', administrativo: 'Administrativo' };
+    const NIVELES = [['pregrado', 'Pregrado'], ['posgrado', 'Posgrado']];
+
+    const ICO_MAS = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>';
+    const ICO_BUSCAR = '<svg class="s-ico" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>';
+
+    function norm(v) { return String(v == null ? '' : v).toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, ''); }
+    function miId() { return ctx && ctx.session ? ctx.session.id : null; }
+    function esActivo(u) { return u.estado === 'activo'; }
+    function permisosValidos(u) { return MODS_PERMISO.filter(m => (u.permisos || []).includes(m.id)); }
+    function lista(etiquetas) {
+      if (etiquetas.length <= 1) return etiquetas.join('');
+      return etiquetas.slice(0, -1).join(', ') + ' y ' + etiquetas[etiquetas.length - 1];
+    }
+
+    // ---------- Estructura fija de la página (se pinta una sola vez) ----------
+    function init() {
+      ctx.mount.innerHTML = `
+        <div class="page-head">
+          <div><h1>Usuarios</h1><p>Alumnos y personal administrativo. Aquí decides quién puede ingresar y qué módulos ve cada persona.</p></div>
+          <button class="btn btn-primary" type="button" onclick="editar('')">${ICO_MAS} Nuevo usuario</button>
+        </div>
+        <div id="u-tabs"></div>
+        <div id="u-filters"></div>
+        <p class="help u-count" id="u-count" role="status"></p>
+        <div id="u-list"></div>`;
+      paintTabs();
+      paintFilters();
+      paintList();
+
+      // Enlace desde Seguridad: usuarios.html?editar=ID abre la persona indicada
+      const pedido = new URLSearchParams(location.search).get('editar');
+      if (pedido && DB.getUsuario(pedido)) {
+        history.replaceState(null, '', location.pathname);
+        editar(pedido);
+      }
+    }
+
+    function paintTabs() {
+      const us = DB.usuarios();
+      document.getElementById('u-tabs').innerHTML = APP.tabsHTML([
+        { id: 'todos', label: 'Todos', count: us.length },
+        { id: 'alumno', label: 'Alumnos', count: us.filter(u => u.rol === 'alumno').length },
+        { id: 'administrativo', label: 'Administrativos', count: us.filter(u => u.rol === 'administrativo').length }
+      ], state.tab, 'setTab');
+    }
+
+    function setTab(t) {
+      state.tab = t; state.page = 1;
+      paintTabs(); paintList();
+      const activa = document.querySelector('#u-tabs .tab.active');
+      if (activa) activa.focus();
+    }
+
+    function paintFilters() {
+      const host = document.getElementById('u-filters');
+      host.innerHTML = `
+        <div class="filters-bar">
+          <div class="search">
+            <label class="sr-only" for="u-q">Buscar por nombre, código o correo</label>
+            ${ICO_BUSCAR}
+            <input class="input" type="search" id="u-q" autocomplete="off" placeholder="Buscar por nombre, código o correo" value="${APP.esc(state.q)}" oninput="alBuscar(this.value)">
+          </div>
+          <div class="u-filter">
+            <label class="sr-only" for="u-estado">Filtrar por estado</label>
+            <select class="select" id="u-estado" onchange="alFiltrar('estado', this.value)">
+              <option value="todos" ${state.estado === 'todos' ? 'selected' : ''}>Todos los estados</option>
+              <option value="activo" ${state.estado === 'activo' ? 'selected' : ''}>Solo activos</option>
+              <option value="inactivo" ${state.estado === 'inactivo' ? 'selected' : ''}>Solo inactivos</option>
+            </select>
+          </div>
+          <div class="u-filter">
+            <label class="sr-only" for="u-orden">Ordenar por nombre</label>
+            <select class="select" id="u-orden" onchange="alFiltrar('orden', this.value)">
+              <option value="az" ${state.orden === 'az' ? 'selected' : ''}>Nombre, de la A a la Z</option>
+              <option value="za" ${state.orden === 'za' ? 'selected' : ''}>Nombre, de la Z a la A</option>
+            </select>
+          </div>
+        </div>`;
+      APP.initCustomSelects(host);
+    }
+
+    // La búsqueda solo vuelve a pintar la tabla: el campo no pierde el foco
+    function alBuscar(v) { state.q = v; state.page = 1; paintList(); }
+    function alFiltrar(clave, v) { state[clave] = v; state.page = 1; paintList(); }
+    function limpiarFiltros() {
+      state.q = ''; state.estado = 'todos'; state.page = 1;
+      paintFilters(); paintList();
+      const q = document.getElementById('u-q');
+      if (q) q.focus();
+    }
+    function irPagina(p, clave) {
+      state.page = p; paintList();
+      const btn = document.querySelector('#u-list [data-k="' + clave + '"]:not(:disabled)') || document.querySelector('#u-list .vt-page-btn.active');
+      if (btn) btn.focus();
+    }
+
+    function filtrados() {
+      const q = norm(state.q.trim());
+      const out = DB.usuarios().filter(u =>
+        (state.tab === 'todos' || u.rol === state.tab) &&
+        (state.estado === 'todos' || (esActivo(u) ? 'activo' : 'inactivo') === state.estado) &&
+        (!q || [u.nombre, u.codigo, u.email].some(v => norm(v).includes(q))));
+      out.sort((a, b) => String(a.nombre || '').localeCompare(String(b.nombre || ''), 'es', { sensitivity: 'base' }));
+      if (state.orden === 'za') out.reverse();
+      return out;
+    }
+
+    function paginacionHTML(total, page, fn) {
+      const pages = Math.ceil(total / POR_PAGINA);
+      if (pages <= 1) return '';
+      let mid = '';
+      if (pages <= 7) {
+        for (let i = 1; i <= pages; i++) {
+          mid += `<button type="button" class="vt-page-btn ${i === page ? 'active' : ''}" data-k="p${i}" aria-label="Página ${i}" ${i === page ? 'aria-current="page"' : ''} onclick="${fn}(${i}, 'p${i}')">${i}</button>`;
+        }
+      } else {
+        mid = `<span class="u-page-info">Página ${page} de ${pages}</span>`;
+      }
+      return `<nav class="vt-pagination" aria-label="Páginas de la lista">
+        <button type="button" class="vt-page-btn" data-k="prev" ${page === 1 ? 'disabled' : ''} onclick="${fn}(${page - 1}, 'prev')">Anterior</button>
+        ${mid}
+        <button type="button" class="vt-page-btn" data-k="next" ${page === pages ? 'disabled' : ''} onclick="${fn}(${page + 1}, 'next')">Siguiente</button>
+      </nav>`;
+    }
+
+    function celdaDetalle(u) {
+      if (u.rol === 'alumno') {
+        const p = u.perfil || {};
+        const partes = [];
+        if (p.programa && p.programa !== '-') partes.push(APP.esc(p.programa));
+        if (p.ciclo) partes.push('Ciclo ' + APP.esc(p.ciclo));
+        return partes.length ? partes.join(', ') : '-';
+      }
+      return u.area ? APP.esc(u.area) : '-';
+    }
+
+    function celdaModulos(u) {
+      if (u.rol === 'alumno') return '<span class="muted">Menú de alumno</span>';
+      const ok = permisosValidos(u);
+      const nombres = ok.map(m => m.label);
+      const resumen = ok.length === MODS_PERMISO.length ? 'Todos los módulos'
+        : !ok.length ? 'Ninguno asignado'
+        : nombres.length <= 3 ? lista(nombres)
+        : nombres.slice(0, 3).join(', ') + ' y ' + (nombres.length - 3) + ' más';
+      return `<span class="strong">${ok.length} de ${MODS_PERMISO.length}</span><span class="u-sub" title="${APP.esc(lista(nombres))}">${APP.esc(resumen)}</span>`;
+    }
+
+    function paintList() {
+      const host = document.getElementById('u-list');
+      const cuenta = document.getElementById('u-count');
+      const us = filtrados();
+      const hayFiltros = !!state.q.trim() || state.estado !== 'todos';
+
+      if (!us.length) {
+        cuenta.textContent = '';
+        host.innerHTML = hayFiltros ? `
+          <div class="empty-state">
+            <h3>Ningún usuario coincide con la búsqueda</h3>
+            <p>Revisa el texto escrito o quita los filtros para ver la lista completa.</p>
+            <button class="btn" type="button" onclick="limpiarFiltros()">Limpiar filtros</button>
+          </div>` : `
+          <div class="empty-state">
+            <h3>Todavía no hay usuarios en esta lista</h3>
+            <p>Crea el primero para que pueda ingresar al sistema.</p>
+            <button class="btn btn-primary" type="button" onclick="editar('')">Nuevo usuario</button>
+          </div>`;
+        return;
+      }
+
+      const pages = Math.ceil(us.length / POR_PAGINA);
+      if (state.page > pages) state.page = pages;
+      if (state.page < 1) state.page = 1;
+      const desde = (state.page - 1) * POR_PAGINA;
+      const pagina = us.slice(desde, desde + POR_PAGINA);
+      cuenta.textContent = us.length === 1
+        ? 'Mostrando 1 usuario'
+        : 'Mostrando ' + (desde + 1) + ' a ' + (desde + pagina.length) + ' de ' + us.length + ' usuarios';
+
+      const yo = miId();
+      const rows = pagina.map(u => {
+        const soyYo = u.id === yo;
+        const activo = esActivo(u);
+        const id = APP.esc(u.id);
+        const aQuien = `<span class="sr-only"> a ${APP.esc(u.nombre)}</span>`;
+        // En la fila propia el botón sigue alcanzable y, al usarlo, explica por qué no aplica
+        const btnEstado = `<button class="btn btn-sm" type="button" ${soyYo ? 'aria-disabled="true"' : ''} onclick="cambiarEstado('${id}')">${activo ? 'Desactivar' : 'Activar'}${aQuien}</button>`;
+        return `
+        <tr>
+          <td class="is-main" data-label="Usuario">
+            <div class="u-person">
+              <div class="user-chip"><div class="avatar" aria-hidden="true">${APP.esc(APP.initials(String(u.nombre || '?')))}</div></div>
+              <div class="u-person-txt"><span class="strong">${APP.esc(u.nombre)}</span>${soyYo ? ' <span class="tag teal">Tú</span>' : ''}
+                <span class="muted">${APP.esc(u.email || 'Sin correo')}</span></div>
+            </div>
+          </td>
+          <td data-label="Código"><span class="mono muted">${APP.esc(u.codigo || '-')}</span></td>
+          <td data-label="Rol">${u.rol === 'alumno' ? '<span class="pill info">Alumno</span>' : '<span class="pill purple">Administrativo</span>'}</td>
+          <td data-label="Programa y ciclo, o área" class="muted">${celdaDetalle(u)}</td>
+          <td data-label="Módulos permitidos">${celdaModulos(u)}</td>
+          <td data-label="Estado">${activo ? '<span class="pill ok">Activo</span>' : '<span class="pill gray">Inactivo</span>'}</td>
+          <td class="u-actions" data-label="Acciones">
+            <div class="row-actions">
+              <button class="btn btn-sm" type="button" onclick="editar('${id}')">Editar${aQuien}</button>
+              ${btnEstado}
+            </div>
+          </td>
+        </tr>`;
+      }).join('');
+
+      host.innerHTML = `
+        <div class="table-wrap"><table class="data resp-table">
+          <thead><tr><th>Usuario</th><th>Código</th><th>Rol</th><th>Programa y ciclo, o área</th><th>Módulos permitidos</th><th>Estado</th><th class="u-actions">Acciones</th></tr></thead>
+          <tbody>${rows}</tbody></table></div>
+        <div class="u-foot">${paginacionHTML(us.length, state.page, 'irPagina')}</div>`;
+    }
+
+    // ---------- Activar y desactivar ----------
+    function cambiarEstado(id) {
+      const u = DB.getUsuario(id);
+      if (!u) return;
+      const nombre = APP.esc(u.nombre);
+      if (u.id === miId()) {
+        APP.toast({ icon: 'warn', title: 'No puedes desactivar tu propia cuenta', body: 'Te quedarías sin acceso al sistema. Si hace falta, pide a otra persona con acceso a Usuarios que lo haga.' });
+        return;
+      }
+      const desactivar = esActivo(u);
+      APP.confirm({
+        title: desactivar ? 'Desactivar usuario' : 'Activar usuario',
+        body: desactivar
+          ? `<b>${nombre}</b> ya no podrá ingresar al sistema. Sus datos, solicitudes y documentos se conservan, y puedes volver a activar la cuenta cuando quieras.`
+          : `<b>${nombre}</b> podrá ingresar otra vez al sistema con los mismos datos y permisos que tenía.`,
+        confirmLabel: desactivar ? 'Desactivar' : 'Activar',
+        danger: desactivar,
+        onConfirm() {
+          const actual = DB.getUsuario(id);
+          if (!actual) return;
+          actual.estado = desactivar ? 'inactivo' : 'activo';
+          DB.upsertUsuario(actual);
+          paintList();
+          APP.toast({
+            icon: 'ok',
+            title: desactivar ? 'Usuario desactivado' : 'Usuario activado',
+            body: desactivar ? `${nombre} ya no puede ingresar al sistema.` : `${nombre} ya puede ingresar al sistema.`
+          });
+        }
+      });
+    }
+
+    // ---------- Modal nuevo / editar ----------
+    function campo(id, label, valor, o) {
+      o = o || {};
+      return `
+        <div class="field ${o.full ? 'full' : ''}" ${o.rol ? `data-rol="${o.rol}"` : ''} ${o.oculto ? 'hidden' : ''}>
+          <label for="${id}">${label}</label>
+          <input class="input" id="${id}" type="${o.type || 'text'}" value="${APP.esc(valor)}" aria-describedby="${id}-err${o.hint ? ' ' + id + '-hint' : ''}"
+            ${o.placeholder ? `placeholder="${APP.esc(o.placeholder)}"` : ''} ${o.attrs || ''} oninput="limpiarError('${id}')">
+          ${o.hint ? `<div class="hint" id="${id}-hint">${o.hint}</div>` : ''}
+          <div class="field-error" id="${id}-err" hidden></div>
+        </div>`;
+    }
+
+    function editar(id) {
+      const esNuevo = !id;
+      const u = esNuevo
+        ? { id: null, rol: 'administrativo', nombre: '', codigo: '', email: '', dni: '', estado: 'activo', area: '', permisos: ['solicitudes'] }
+        : DB.getUsuario(id);
+      if (!u) { APP.toast({ icon: 'warn', title: 'No se encontró al usuario', body: 'Es posible que ya no exista. Vuelve a cargar la página.' }); return; }
+
+      const esYo = !esNuevo && u.id === miId();
+      modalCtx = { id: esNuevo ? null : u.id, rol: u.rol, esYo };
+      const esAlumno = u.rol === 'alumno';
+      const perfil = u.perfil || {};
+      const nivelActual = perfil.nivel || 'pregrado';
+      const niveles = NIVELES.some(n => n[0] === nivelActual) ? NIVELES : NIVELES.concat([[nivelActual, nivelActual]]);
+
+      // Permisos agrupados como en el menú, con las mismas etiquetas
+      const grupos = [];
+      MODS_PERMISO.forEach(m => { if (!grupos.includes(m.grupo)) grupos.push(m.grupo); });
+      const permHTML = grupos.map((g, i) => `
+        <div class="perm-group" role="group" aria-labelledby="pg-${i}">
+          <div class="section-label" id="pg-${i}">${APP.esc(g)}</div>
+          <div class="chip-row">
+            ${MODS_PERMISO.filter(m => m.grupo === g).map(m => {
+              const fijo = esYo && m.id === 'usuarios';
+              const on = fijo || (u.permisos || []).includes(m.id);
+              return `<label class="chip-check ${on ? 'checked' : ''} ${fijo ? 'is-locked' : ''}">
+                <input type="checkbox" data-perm="${APP.esc(m.id)}" ${on ? 'checked' : ''} ${fijo ? 'disabled' : ''} onchange="alCambiarPermiso(this)">${APP.esc(m.label)}</label>`;
+            }).join('')}
+          </div>
+        </div>`).join('');
+
+      const rolCampo = esNuevo ? `
+        <div class="field">
+          <label for="u-rol">Rol</label>
+          <select class="select" id="u-rol" onchange="alCambiarRol(this.value)">
+            <option value="administrativo" selected>Administrativo</option>
+            <option value="alumno">Alumno</option>
+          </select>
+          <div class="hint">Elige el rol con cuidado: después no se puede cambiar.</div>
+        </div>` : `
+        <div class="field">
+          <span class="u-label">Rol</span>
+          <div class="u-static">${ROL_LABEL[u.rol] || APP.esc(u.rol)}</div>
+          <div class="hint">El rol no se puede cambiar.</div>
+        </div>`;
+
+      APP.openModal(`
+        <div class="modal-head"><h3>${esNuevo ? 'Nuevo usuario' : 'Editar usuario'}</h3>
+          <button class="modal-close" type="button" aria-label="Cerrar" onclick="APP.closeModal()">&times;</button></div>
+        <div class="modal-body">
+          <form class="u-form" id="u-form" novalidate onsubmit="guardar(event)">
+            <div class="form-grid">
+              ${campo('u-nombre', 'Nombre completo *', u.nombre, { full: true, attrs: 'autocomplete="off" required' })}
+              ${rolCampo}
+              ${campo('u-cod', 'Código *', u.codigo, { hint: 'Identifica a la persona. No puede repetirse.', attrs: 'autocomplete="off" required' })}
+              ${campo('u-email', 'Correo institucional', u.email, { type: 'email', placeholder: 'nombre@uwiener.edu.pe', attrs: 'autocomplete="off"' })}
+              ${campo('u-dni', 'DNI', u.dni || '', { hint: '8 dígitos.', attrs: 'inputmode="numeric" maxlength="8" autocomplete="off"' })}
+              ${campo('u-area', 'Área', u.area || '', { full: true, rol: 'administrativo', oculto: esAlumno, placeholder: 'Ej. Registros Académicos' })}
+              ${campo('u-programa', 'Programa', perfil.programa && perfil.programa !== '-' ? perfil.programa : '', { full: true, rol: 'alumno', oculto: !esAlumno, placeholder: 'Ej. Administración' })}
+              <div class="field" data-rol="alumno" ${esAlumno ? '' : 'hidden'}>
+                <label for="u-nivel">Nivel</label>
+                <select class="select" id="u-nivel">
+                  ${niveles.map(n => `<option value="${APP.esc(n[0])}" ${n[0] === nivelActual ? 'selected' : ''}>${APP.esc(n[1])}</option>`).join('')}
+                </select>
+              </div>
+              ${campo('u-ciclo', 'Ciclo', perfil.ciclo || 1, { type: 'number', rol: 'alumno', oculto: !esAlumno, attrs: 'min="1" max="14" step="1" inputmode="numeric"' })}
+            </div>
+
+            <fieldset class="perm-block" data-rol="administrativo" ${esAlumno ? 'hidden' : ''}>
+              <legend class="q-title">Módulos que puede usar</legend>
+              <p class="help">Lo que marques aquí define qué opciones ve esta persona en su menú. ${MODS_LIBRES.length ? APP.esc(lista(MODS_LIBRES.map(m => m.label))) + ' está disponible para todo el personal y no necesita permiso.' : ''}</p>
+              <div class="btn-row">
+                <button type="button" class="btn-link" onclick="marcarPermisos(true)">Marcar todos</button>
+                <button type="button" class="btn-link" onclick="marcarPermisos(false)">Quitar todos</button>
+                <span class="help" id="perm-count" role="status"></span>
+              </div>
+              ${permHTML}
+              ${esYo ? '<div class="alert info u-note">Estás editando tu propia cuenta. El permiso de Usuarios queda marcado porque, si te lo quitas, pierdes el acceso a esta pantalla.</div>' : ''}
+            </fieldset>
+
+            <div class="alert info u-note" data-rol="alumno" ${esAlumno ? '' : 'hidden'}>Los alumnos ven ${APP.esc(lista(MODS_ALUMNO.map(m => m.label)))}. No necesitan permisos por módulo.</div>
+          </form>
+        </div>
+        <div class="modal-foot">
+          <button class="btn" type="button" onclick="APP.closeModal()">Cancelar</button>
+          <button class="btn btn-primary" type="submit" form="u-form">${esNuevo ? 'Crear usuario' : 'Guardar cambios'}</button>
+        </div>
+      `, { wide: true });
+      contarPermisos();
+    }
+
+    // Al crear, el formulario muestra solo los campos del rol elegido
+    function alCambiarRol(rol) {
+      if (!modalCtx) return;
+      modalCtx.rol = rol;
+      document.querySelectorAll('#u-form [data-rol]').forEach(el => { el.hidden = el.dataset.rol !== rol; });
+    }
+
+    function alCambiarPermiso(input) {
+      input.closest('.chip-check').classList.toggle('checked', input.checked);
+      contarPermisos();
+    }
+    function marcarPermisos(valor) {
+      document.querySelectorAll('#u-form input[data-perm]:not(:disabled)').forEach(i => {
+        i.checked = valor;
+        i.closest('.chip-check').classList.toggle('checked', valor);
+      });
+      contarPermisos();
+    }
+    function contarPermisos() {
+      const el = document.getElementById('perm-count');
+      if (!el) return;
+      const n = document.querySelectorAll('#u-form input[data-perm]:checked').length;
+      el.textContent = n + ' de ' + MODS_PERMISO.length + ' marcados' + (n ? '' : '. Sin módulos, solo verá lo que es de libre acceso.');
+    }
+
+    function ponerError(id, msg) {
+      const inp = document.getElementById(id), err = document.getElementById(id + '-err');
+      if (inp) { inp.classList.add('is-invalid'); inp.setAttribute('aria-invalid', 'true'); }
+      if (err) { err.textContent = msg; err.hidden = false; }
+    }
+    function limpiarError(id) {
+      const inp = document.getElementById(id), err = document.getElementById(id + '-err');
+      if (inp) { inp.classList.remove('is-invalid'); inp.removeAttribute('aria-invalid'); }
+      if (err) { err.textContent = ''; err.hidden = true; }
+    }
+
+    function guardar(ev) {
+      if (ev) ev.preventDefault();
+      if (!modalCtx) return;
+      const val = id => { const el = document.getElementById(id); return el ? el.value.trim() : ''; };
+      const id = modalCtx.id;
+      const rol = modalCtx.rol;
+      const nombre = val('u-nombre'), codigo = val('u-cod'), email = val('u-email'), dni = val('u-dni');
+      const ciclo = val('u-ciclo');
+
+      // Validación junto a cada campo
+      const errores = [];
+      ['u-nombre', 'u-cod', 'u-email', 'u-dni', 'u-ciclo'].forEach(limpiarError);
+      if (!nombre) errores.push(['u-nombre', 'Escribe el nombre completo.']);
+      if (!codigo) errores.push(['u-cod', 'Escribe el código.']);
+      else {
+        const otro = DB.usuarios().find(x => x.id !== id && norm(x.codigo) === norm(codigo));
+        if (otro) errores.push(['u-cod', 'Ese código ya lo usa ' + otro.nombre + '. Escribe uno distinto.']);
+      }
+      if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) errores.push(['u-email', 'El correo no tiene un formato válido. Ejemplo: nombre@uwiener.edu.pe']);
+      if (dni && !/^\d{8}$/.test(dni)) errores.push(['u-dni', 'El DNI debe tener 8 dígitos, solo números.']);
+      if (rol === 'alumno' && !/^\d+$/.test(ciclo) || rol === 'alumno' && (Number(ciclo) < 1 || Number(ciclo) > 14)) errores.push(['u-ciclo', 'El ciclo debe ser un número entre 1 y 14.']);
+      if (errores.length) {
+        errores.forEach(e => ponerError(e[0], e[1]));
+        const primero = document.getElementById(errores[0][0]);
+        if (primero) primero.focus();
+        return;
+      }
+
+      const base = id ? (DB.getUsuario(id) || {}) : {};
+      const u = Object.assign({}, base, { id: id || null, rol, nombre, codigo, email, dni, estado: base.estado || 'activo' });
+      let cambioMiMenu = false;
+      if (rol === 'administrativo') {
+        const permisos = Array.from(document.querySelectorAll('#u-form input[data-perm]:checked')).map(i => i.dataset.perm);
+        // Nadie puede quitarse a sí mismo el acceso a Usuarios
+        if (modalCtx.esYo && !permisos.includes('usuarios')) permisos.push('usuarios');
+        if (modalCtx.esYo) {
+          const antes = permisosValidos(base).map(m => m.id).sort().join(',');
+          cambioMiMenu = antes !== permisos.slice().sort().join(',');
+        }
+        u.area = val('u-area');
+        u.permisos = permisos;
+      } else {
+        delete u.permisos;
+        u.perfil = Object.assign(
+          { nivel: 'pregrado', programa: '-', ciclo: 1, creditos: 0, tercioSuperior: false, quintoSuperior: false, promedio: 0 },
+          base.perfil || {},
+          { programa: val('u-programa') || '-', nivel: val('u-nivel') || 'pregrado', ciclo: Number(ciclo) });
+      }
+      DB.upsertUsuario(u);
+
+      // Si la persona editó su propia cuenta, la sesión refleja los datos nuevos
+      if (modalCtx.esYo && ctx.session) {
+        APP.setSession(Object.assign({}, ctx.session, { nombre: u.nombre, email: u.email, area: u.area, codigo: u.codigo }));
+      }
+
+      APP.closeModal();
+      modalCtx = null;
+      paintTabs();
+      paintList();
+      const n = APP.esc(nombre);
+      if (id) {
+        APP.toast({ icon: 'ok', title: 'Cambios guardados', body: `Se actualizaron los datos de ${n}.` + (cambioMiMenu ? ' Tu menú mostrará los cambios cuando vuelvas a cargar la página.' : '') });
+      } else {
+        APP.toast({ icon: 'ok', title: 'Usuario creado', body: `${n} se agregó como ${rol === 'alumno' ? 'alumno' : 'administrativo'} y su cuenta está activa.` });
+      }
+    }
+
+    if (ctx) init();
+  </script>
+</body>
+</html>

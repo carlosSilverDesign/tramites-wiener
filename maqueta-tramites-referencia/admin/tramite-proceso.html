@@ -1,0 +1,636 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Armar el proceso · Wiener Admin</title>
+  <link href="https://fonts.googleapis.com/css2?family=Lato:wght@400;700;900&family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../css/styles.css">
+  <style>
+    /* Propuesta: el proceso se arma sobre una sola línea. Un paso abierto a la vez. */
+    .pb { max-width: 780px; }
+    .pb-top { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; flex-wrap: wrap; margin: 6px 0 4px; }
+    .pb-name { flex: 1 1 320px; min-width: 0; font-family: 'Lato', sans-serif; font-weight: 900; font-size: 28px; line-height: 1.2; color: var(--text); background: transparent; border: none; border-bottom: 2px solid transparent; padding: 4px 0; }
+    .pb-name:hover { border-bottom-color: var(--border-soft); }
+    .pb-name:focus { outline: none; border-bottom-color: var(--brand); }
+    .pb-name::placeholder { color: var(--text-muted); font-weight: 700; }
+    .pb-sentence { max-width: 68ch; margin: 6px 0 30px; font-size: 16px; line-height: 1.55; color: var(--text-soft); }
+
+    .pb-line { list-style: none; margin: 0; padding: 0; position: relative; }
+    .pb-line::before { content: ''; position: absolute; left: 19px; top: 20px; bottom: 20px; width: 2px; background: var(--brand); opacity: .28; }
+    .pb-stop, .pb-add, .pb-gap { position: relative; display: grid; grid-template-columns: 40px minmax(0, 1fr); column-gap: 14px; }
+    .pb-node { width: 40px; height: 40px; border-radius: 50%; background: var(--surface); border: 2px solid var(--brand); color: var(--brand); display: grid; place-items: center; }
+    .pb-stop.is-open .pb-node { background: var(--brand); color: #fff; }
+    .pb-stop.is-off .pb-node { border-color: var(--border); color: var(--text-muted); }
+    .pb-card { border: 1px solid transparent; border-radius: 12px; }
+    .pb-stop.is-open .pb-card { background: var(--surface); border-color: var(--border-soft); box-shadow: var(--shadow); }
+    .pb-head { display: flex; align-items: center; gap: 10px; }
+    .pb-open { flex: 1; min-width: 0; display: block; text-align: left; background: none; border: none; border-radius: 12px; padding: 8px 12px; font-family: inherit; color: inherit; cursor: pointer; }
+    .pb-open:hover { background: var(--surface); }
+    .pb-stop.is-open .pb-open:hover { background: none; }
+    .pb-open:focus-visible { outline: 2px solid var(--brand); outline-offset: 2px; }
+    .pb-open b { display: block; font-family: 'Lato', sans-serif; font-size: 16px; }
+    .pb-open span { display: block; font-size: 13.5px; color: var(--text-muted); margin-top: 1px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .pb-stop.is-open .pb-open span { white-space: normal; }
+    .pb-flag { width: 9px; height: 9px; border-radius: 50%; flex: none; margin-right: 12px; }
+    .pb-flag.is-err { background: var(--err-fg); }
+    .pb-flag.is-warn { background: var(--warn-fg); }
+    .pb-tools { display: flex; gap: 4px; padding-right: 10px; }
+    .pb-body { padding: 6px 16px 18px 12px; }
+    .pb-body .form-grid { margin-top: 4px; }
+    .pb-q { font-family: 'Lato', sans-serif; font-weight: 700; font-size: 14.5px; margin: 16px 0 8px; }
+    .pb-more { margin-top: 16px; }
+    .pb-more > summary { cursor: pointer; font-size: 13.5px; font-weight: 600; color: var(--brand); width: fit-content; }
+    .pb-more[open] > summary { margin-bottom: 12px; }
+
+    .pb-add { min-height: 26px; align-items: center; }
+    .pb-plus { justify-self: center; width: 22px; height: 22px; border-radius: 50%; border: 1px solid var(--border); background: var(--bg); color: var(--text-muted); display: grid; place-items: center; cursor: pointer; padding: 0; }
+    .pb-plus:hover, .pb-add.is-open .pb-plus { border-color: var(--brand); color: var(--brand); background: var(--surface); }
+    .pb-plus:focus-visible { outline: 2px solid var(--brand); outline-offset: 2px; }
+    .pb-choices { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; padding: 8px 0 8px 12px; font-size: 13.5px; color: var(--text-muted); }
+    .pb-choice { border: 1px solid var(--brand); background: var(--surface); color: var(--brand); border-radius: 999px; padding: 6px 14px; font-family: inherit; font-size: 13.5px; font-weight: 600; cursor: pointer; }
+    .pb-choice:hover { background: var(--brand); color: #fff; }
+    .pb-spacer { height: 14px; }
+    .pb-plus { width: 26px; height: 26px; border-color: var(--brand); color: var(--brand); background: var(--surface); }
+    .pb-plus:hover { background: var(--brand); color: #fff; }
+    .pb-add { min-height: 34px; }
+    .pb-hint { padding-left: 12px; font-size: 13px; color: var(--text-muted); opacity: 0; }
+    .pb-add:hover .pb-hint, .pb-add:focus-within .pb-hint { opacity: 1; }
+    .pb-grip { flex: none; border: none; background: none; color: var(--text-muted); padding: 8px 4px; cursor: grab; touch-action: none; border-radius: 6px; display: grid; place-items: center; }
+    .pb-grip:hover { color: var(--brand); background: var(--brand-soft); }
+    .pb-grip:focus-visible { outline: 2px solid var(--brand); }
+    .pb-line.is-dragging { cursor: grabbing; user-select: none; }
+    .pb-stop.is-drag { opacity: .45; }
+    .pb-stop.is-drop .pb-card { background: var(--brand-soft); border-color: var(--brand); }
+    .pb-palette { margin: 22px 0 0 54px; padding: 14px 16px; border: 1px dashed var(--border); border-radius: 12px; background: var(--surface); }
+    .pb-palette b { display: block; font-family: 'Lato', sans-serif; font-size: 14.5px; margin-bottom: 10px; }
+    .pb-palette .pb-choices { padding: 0; }
+    .pb-choice:disabled { border-color: var(--border-soft); color: var(--text-muted); background: var(--surface-2); cursor: not-allowed; }
+    .pb-palette .help { margin-top: 10px; }
+    @media (max-width: 640px) { .pb-palette { margin-left: 0; } }
+    .pb-gap .pb-node { border-style: dashed; border-color: var(--warn-fg); color: var(--warn-fg); font-weight: 700; }
+    .pb-gap p { margin: 0; padding: 9px 12px; font-size: 13.5px; color: var(--warn-fg); }
+
+    .pb-req { display: grid; grid-template-columns: minmax(0, 1fr) auto auto; gap: 10px; align-items: center; margin-bottom: 8px; }
+    .pb-req label.mini { display: flex; align-items: center; gap: 6px; font-size: 13px; color: var(--text-soft); white-space: nowrap; }
+    .pb-pick { display: flex; flex-wrap: wrap; gap: 8px; }
+    .pb-pick button { border: 1px dashed var(--border); background: var(--surface); border-radius: 999px; padding: 6px 12px; font-family: inherit; font-size: 13px; font-weight: 600; color: var(--text-soft); cursor: pointer; }
+    .pb-pick button:hover { border-color: var(--brand); border-style: solid; color: var(--brand); }
+
+    .pb-rest { margin-top: 36px; border-top: 1px solid var(--border-soft); padding-top: 20px; }
+    .pb-rest h2 { font-size: 17px; margin: 0 0 4px; }
+    .pb-rest-list { list-style: none; margin: 12px 0 0; padding: 0; }
+    .pb-rest-list li { display: flex; justify-content: space-between; gap: 16px; align-items: baseline; padding: 10px 0; border-bottom: 1px solid var(--border-soft); font-size: 14px; }
+    .pb-rest-list span { color: var(--text-muted); font-size: 13.5px; }
+    .pb-foot { display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap; margin-top: 26px; }
+    @media (max-width: 640px) {
+      .pb-name { font-size: 22px; }
+      .pb-req { grid-template-columns: minmax(0, 1fr) auto; }
+      .pb-req label.mini { grid-column: 1 / -1; grid-row: 2; }
+    }
+    @media (prefers-reduced-motion: no-preference) {
+      .pb-body { animation: pbIn .16s ease-out; }
+      @keyframes pbIn { from { opacity: 0; transform: translateY(-4px); } to { opacity: 1; transform: none; } }
+    }
+  </style>
+</head>
+<body>
+  <script src="../js/data.js"></script>
+  <script src="../js/shell.js"></script>
+  <script src="../js/doc.js"></script>
+  <script>
+    const ctx = APP.renderShell('tramites');
+    const E = APP.esc;
+
+    let T = null, ORIG = '';
+    let OPEN = '';        // clave del paso abierto: sol, pago, a0..aN, apr, ent
+    let ADD = -1;         // hueco con el menú "agregar" abierto
+    let CON_PAGO = false; // hay paso de pago aunque el monto aún sea 0
+    let ULTIMO_COSTO = 0, DIAS_PREVIOS = 0;
+
+    const ICO = {
+      up: '<polyline points="18 15 12 9 6 15"/>',
+      down: '<polyline points="6 9 12 15 18 9"/>',
+      trash: '<polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>',
+      plus: '<line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>',
+      grip: '<circle cx="9" cy="6" r="1.4"/><circle cx="15" cy="6" r="1.4"/><circle cx="9" cy="12" r="1.4"/><circle cx="15" cy="12" r="1.4"/><circle cx="9" cy="18" r="1.4"/><circle cx="15" cy="18" r="1.4"/>',
+      back: '<line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/>'
+    };
+    const svg = (n, s) => `<svg width="${s || 16}" height="${s || 16}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${ICO[n]}</svg>`;
+    const plural = (n, uno, varios) => n + ' ' + (Number(n) === 1 ? uno : varios);
+
+    // ---------------------------------------------------------------- modelo
+    function normalizar(t) {
+      t.audiencia = Object.assign({ niveles: [], ciclos: [], minCreditos: 0, promedioMin: 0, tercioSuperior: false, quintoSuperior: false }, t.audiencia || {});
+      ['requisitos', 'proceso', 'cronogramas', 'correos', 'intenciones'].forEach(k => { if (!Array.isArray(t[k])) t[k] = []; });
+      if (t.envioCorreo === undefined) t.envioCorreo = true;
+      if (!t.tipoActivacion) t.tipoActivacion = 'Permanente';
+      if (t.requiereAprobacion === undefined) t.requiereAprobacion = true;
+      if (!t.pagoMomento) t.pagoMomento = 'antes';
+      if (t.diasEntrega === undefined) t.diasEntrega = t.plazoRecojoDias || 3;
+      if (t.plazoRecojoDias === undefined) t.plazoRecojoDias = t.diasEntrega || 3;
+      t.costo = Number(t.costo) || 0;
+      t.proceso.forEach((p, i) => { if (!p.id) p.id = 'P-' + Date.now().toString().slice(-6) + i; });
+      return t;
+    }
+    const isDirty = () => T && JSON.stringify(T) !== ORIG;
+    const antes = () => T.pagoMomento !== 'despues';
+    // Índice en T.proceso de la revisión tras la cual se cobra; -1 = al final (o antes de todo)
+    const trasArea = () => antes() || !T.pagoTrasEtapa ? -1 : T.proceso.findIndex(p => p.id === T.pagoTrasEtapa && p.activo !== false);
+    // Posiciones posibles del pago, en orden: antes de todo, tras cada revisión activa, al final
+    function posicionesPago() {
+      const out = [{ m: 'antes', id: '', txt: 'Al enviar la solicitud, antes de toda revisión' }];
+      T.proceso.forEach(p => { if (p.activo !== false) out.push({ m: 'despues', id: p.id, txt: 'Después de la revisión de ' + (p.area || 'área sin definir') }); });
+      out.push({ m: 'despues', id: '', txt: T.requiereAprobacion ? 'Al final, después de la aprobación' : 'Al final, después de todas las revisiones' });
+      return out;
+    }
+    function posPago() {
+      if (antes()) return 0;
+      const ps = posicionesPago();
+      const i = trasArea() >= 0 ? ps.findIndex(p => p.id === T.pagoTrasEtapa) : -1;
+      return i >= 0 ? i : ps.length - 1;
+    }
+    function setPosPago(n) {
+      const ps = posicionesPago();
+      const p = ps[Math.max(0, Math.min(ps.length - 1, Number(n)))];
+      T.pagoMomento = p.m; T.pagoTrasEtapa = p.id;
+      render();
+    }
+
+    // El recorrido, en el orden en que lo vive el alumno
+    function paradas() {
+      const out = [{ k: 'sol', tipo: 'solicitud' }];
+      if (CON_PAGO && antes()) out.push({ k: 'pago', tipo: 'pago' });
+      const tras = trasArea();
+      T.proceso.forEach((p, i) => {
+        out.push({ k: 'a' + i, tipo: 'revision', i });
+        if (CON_PAGO && tras === i) out.push({ k: 'pago', tipo: 'pago', tras: i });
+      });
+      if (T.requiereAprobacion) out.push({ k: 'apr', tipo: 'aprobacion' });
+      if (CON_PAGO && !antes() && tras < 0) out.push({ k: 'pago', tipo: 'pago' });
+      out.push({ k: 'ent', tipo: 'entrega' });
+      return out;
+    }
+
+    // Qué se puede agregar en el hueco entre dos pasos
+    function opciones(prev, next) {
+      const o = [];
+      const pagoMedio = prev.k === 'pago' && prev.tras !== undefined;
+      const zonaRevision = (prev.k === 'sol' && next.k !== 'pago') || (prev.k === 'pago' && antes()) || prev.tipo === 'revision' || pagoMedio;
+      if (!CON_PAGO && prev.k === 'sol') o.push(['Un pago', "addPago('antes')"]);
+      else if (!CON_PAGO && prev.tipo === 'revision') o.push(['Un pago', `addPago('despues', ${prev.i})`]);
+      else if (!CON_PAGO && next.k === 'ent') o.push(['Un pago', "addPago('despues')"]);
+      if (zonaRevision) o.push(['La revisión de un área', `addArea(${prev.tipo === 'revision' ? prev.i + 1 : pagoMedio ? prev.tras + 1 : 0})`]);
+      if (!T.requiereAprobacion && prev.k !== 'apr' && (next.k === 'ent' || next.k === 'pago' && next.tras === undefined && !antes())) o.push(['Una aprobación final', 'addApr()']);
+      return o;
+    }
+
+    function titulo(s) {
+      if (s.k === 'sol') return 'El alumno solicita';
+      if (s.k === 'pago') return 'El alumno paga';
+      if (s.k === 'apr') return 'Aprobación final';
+      if (s.k === 'ent') return DB.generaDocumento(T) ? 'Recibe su documento' : 'Recibe la respuesta';
+      return (T.proceso[s.i].area || 'Área sin definir') + ' revisa';
+    }
+    function resumen(s) {
+      if (s.k === 'sol') {
+        const r = T.requisitos.filter(x => x.activo !== false);
+        return r.length ? 'Presenta ' + r.map(x => x.titulo || 'requisito sin nombre').join(', ') : 'No presenta nada: trámite 100% digital';
+      }
+      if (s.k === 'pago') return APP.money(T.costo) + ' con tarjeta. ' + posicionesPago()[posPago()].txt;
+      if (s.k === 'apr') return (T.area || 'El área responsable') + ' aprueba o rechaza la solicitud';
+      if (s.k === 'ent') return DB.esInmediato(T) ? 'Al instante' : 'En ' + plural(T.diasEntrega || 0, 'día hábil', 'días hábiles');
+      const p = T.proceso[s.i];
+      return (p.descripcion || 'Falta decir qué debe hacer') + ', ' + plural(Number(p.duracionDias) || 0, 'día', 'días') + (p.activo === false ? ' (en pausa)' : '');
+    }
+    function frase() {
+      const c = ['solicita' + (T.requisitos.some(r => r.activo !== false) ? ' con sus requisitos' : '')];
+      let grupo = [];
+      const cerrar = () => { if (grupo.length) c.push('espera la revisión de ' + (grupo.length > 1 ? grupo.slice(0, -1).join(', ') + ' y ' + grupo[grupo.length - 1] : grupo[0])); grupo = []; };
+      paradas().forEach(s => {
+        if (s.tipo === 'revision') { if (T.proceso[s.i].activo !== false) grupo.push(T.proceso[s.i].area || 'un área'); return; }
+        cerrar();
+        if (s.k === 'pago') c.push('paga ' + APP.money(T.costo));
+        if (s.k === 'apr') c.push('espera la aprobación final');
+      });
+      c.push('recibe ' + (DB.generaDocumento(T) ? 'su documento' : 'la respuesta') + (DB.esInmediato(T) ? ' al instante' : ' en ' + plural(T.diasEntrega || 0, 'día hábil', 'días hábiles')));
+      return 'El alumno ' + c.slice(0, -1).join(', ') + ' y ' + c[c.length - 1] + '.';
+    }
+
+    function problemas() {
+      const out = DB.validarTramite(T);
+      if (CON_PAGO && !(T.costo > 0)) out.push({ nivel: 'error', paso: 'pago', msg: 'Agregaste un pago, pero el monto es 0' });
+      return out;
+    }
+    const PASO_A_CLAVE = { requisitos: 'sol', pago: 'pago', revision: 'a0', entrega: 'ent' };
+    function nivelDe(k) {
+      const pr = problemas().filter(p => PASO_A_CLAVE[p.paso] === k || (p.paso === 'revision' && k[0] === 'a' && k !== 'apr'));
+      const mios = k[0] === 'a' && k !== 'apr'
+        ? pr.filter(p => p.msg.indexOf('etapa ' + (Number(k.slice(1)) + 1) + ' ') >= 0)
+        : pr;
+      return mios.some(p => p.nivel === 'error') ? 'is-err' : mios.length ? 'is-warn' : '';
+    }
+
+    // ---------------------------------------------------------------- pintado
+    function render() {
+      const ps = paradas();
+      const sinRevision = !T.proceso.some(p => p.activo !== false) && !DB.esInmediato(T);
+      let linea = '';
+      ps.forEach((s, n) => {
+        const abierto = OPEN === s.k;
+        const off = s.tipo === 'revision' && T.proceso[s.i].activo === false;
+        linea += `
+          <li class="pb-stop ${abierto ? 'is-open' : ''} ${off ? 'is-off' : ''}" data-k="${s.k}">
+            <span class="pb-node">${APP.flowIcon(s.tipo)}</span>
+            <div class="pb-card">
+              <div class="pb-head">
+                <button type="button" class="pb-open" aria-expanded="${abierto}" onclick="abrirPaso('${s.k}')">
+                  <b id="tit-${s.k}">${E(titulo(s))}</b><span id="sum-${s.k}">${E(resumen(s))}</span>
+                </button>
+                <i class="pb-flag ${nivelDe(s.k)}" id="flag-${s.k}"></i>
+                ${s.tipo === 'revision' || s.k === 'pago' ? `<button type="button" class="pb-grip" aria-label="Arrastrar para mover ${E(titulo(s))}" title="Arrastra para mover" onpointerdown="dragIni(event, '${s.k}')">${svg('grip')}</button>` : ''}
+                ${abierto ? herramientas(s) : ''}
+              </div>
+              ${abierto ? `<div class="pb-body">${CUERPO[s.tipo](s)}</div>` : ''}
+            </div>
+          </li>`;
+        if (n === ps.length - 1) return;
+        const next = ps[n + 1];
+        const op = opciones(s, next);
+        if (sinRevision && op.some(o => o[1].indexOf('addArea') === 0)) {
+          linea += `<li class="pb-gap"><span class="pb-node">?</span><p>Nadie revisa todavía. Agrega la revisión de un área, o marca la entrega como inmediata.</p></li>`;
+        }
+        linea += op.length ? `
+          <li class="pb-add ${ADD === n ? 'is-open' : ''}">
+            <button type="button" class="pb-plus" aria-label="Agregar un paso aquí" aria-expanded="${ADD === n}" onclick="ADD = ADD === ${n} ? -1 : ${n}; render()">${svg('plus', 14)}</button>
+            ${ADD === n ? `<div class="pb-choices">Agregar aquí ${op.map(o => `<button type="button" class="pb-choice" onclick="${o[1]}">${o[0]}</button>`).join('')}</div>` : '<span class="pb-hint">Agregar un paso aquí</span>'}
+          </li>` : '<li class="pb-spacer"></li>';
+      });
+
+      ctx.mount.innerHTML = `
+        <div class="pb">
+          <a class="designer-back" href="tramites.html">${svg('back', 14)} Diseñar trámites</a>
+          <div class="pb-top">
+            <input class="pb-name" id="pb-name" aria-label="Nombre del trámite" maxlength="500" placeholder="Nombre del trámite" value="${E(T.nombre || '')}" oninput="T.nombre = this.value; refresh()">
+            <div class="btn-row">
+              <span class="save-state" id="pb-state" role="status"></span>
+              <button type="button" class="btn btn-primary" onclick="guardar()">Guardar</button>
+            </div>
+          </div>
+          <p class="pb-sentence" id="pb-sentence"></p>
+          <ol class="pb-line" id="pb-line">${linea}</ol>
+          <div class="pb-palette">
+            <b>Agregar un paso al proceso</b>
+            <div class="pb-choices">
+              <button type="button" class="pb-choice" ${CON_PAGO ? 'disabled title="Ya hay un pago en el proceso"' : ''} onclick="addPago('antes')">Pago</button>
+              <button type="button" class="pb-choice" onclick="addArea(T.proceso.length)">Revisión de un área</button>
+              <button type="button" class="pb-choice" ${T.requiereAprobacion ? 'disabled title="Ya hay una aprobación final"' : ''} onclick="addApr()">Aprobación final</button>
+            </div>
+            <p class="help">Se agrega y se abre para completarlo. Arrastra un paso por los puntos de la derecha para cambiarlo de lugar.</p>
+          </div>
+
+          <section class="pb-rest">
+            <h2>Lo demás del trámite</h2>
+            <p class="help">No cambia el orden del proceso. Se abre en otra pantalla y guarda antes de salir.</p>
+            <ul class="pb-rest-list">
+              ${[['basico', 'Descripción, tipo y categorías', T.tipo || 'Sin tipo'],
+                 ['publico', 'Quién puede pedirlo y en qué fechas', DB.audienciaTexto(T.audiencia).join(', ')],
+                 ['entrega', 'Texto del documento', DB.generaDocumento(T) ? 'Modelo ' + (T.modelo || 'constancia') : 'No entrega documento'],
+                 ['avisos', 'Avisos por correo', T.envioCorreo ? plural(T.correos.filter(c => c.activo !== false).length, 'correo activo', 'correos activos') : 'No se envían'],
+                 ['publicar', 'Vista del alumno', T.activo ? 'Visible para alumnos' : 'No visible todavía']
+                ].map(([p, t, d]) => `<li><button type="button" class="btn-link" onclick="irDisenador('${p}')">${t}</button><span>${E(d)}</span></li>`).join('')}
+            </ul>
+          </section>
+
+          <div id="pb-pend"></div>
+          <div class="pb-foot">
+            <label class="switch-row">
+              <span class="switch"><input type="checkbox" id="pb-activo" ${T.activo ? 'checked' : ''} onchange="setActivo(this.checked)"><span class="slider"></span></span>
+              <span><b>Visible para los alumnos</b><span class="help">Si falta algo obligatorio, se guarda como borrador.</span></span>
+            </label>
+          </div>
+        </div>`;
+      APP.initCustomSelects(ctx.mount);
+      refresh();
+    }
+
+    // Lo que cambia mientras se escribe, sin volver a pintar el formulario abierto
+    function refresh() {
+      const st = document.getElementById('pb-state');
+      if (!st) return;
+      if (!T.id) { st.className = 'save-state is-dirty'; st.textContent = 'Aún no guardado'; }
+      else if (isDirty()) { st.className = 'save-state is-dirty'; st.textContent = 'Cambios sin guardar'; }
+      else { st.className = 'save-state is-saved'; st.textContent = 'Guardado'; }
+      document.getElementById('pb-sentence').textContent = frase();
+      paradas().forEach(s => {
+        const t = document.getElementById('tit-' + s.k), r = document.getElementById('sum-' + s.k), f = document.getElementById('flag-' + s.k);
+        if (t) t.textContent = titulo(s);
+        if (r) r.textContent = resumen(s);
+        if (f) f.className = 'pb-flag ' + nivelDe(s.k);
+      });
+      const pr = problemas();
+      const err = pr.filter(p => p.nivel === 'error');
+      document.getElementById('pb-pend').innerHTML = pr.length ? `
+        <ul class="checklist" style="margin-top:22px">
+          ${err.concat(pr.filter(p => p.nivel !== 'error')).map(p => `<li><span class="check-dot ${p.nivel === 'error' ? 'is-err' : 'is-warn'}">!</span><span>${E(p.msg)}</span></li>`).join('')}
+        </ul>` : '';
+    }
+
+    function herramientas(s) {
+      if (s.k === 'sol' || s.k === 'ent') return '';
+      let mov = '';
+      if (s.tipo === 'revision') {
+        mov = `<button type="button" class="btn-icon" aria-label="Subir" title="Subir" ${s.i === 0 ? 'disabled' : ''} onclick="moverArea(${s.i}, -1)">${svg('up')}</button>
+               <button type="button" class="btn-icon" aria-label="Bajar" title="Bajar" ${s.i === T.proceso.length - 1 ? 'disabled' : ''} onclick="moverArea(${s.i}, 1)">${svg('down')}</button>`;
+      } else if (s.k === 'pago') {
+        const n = posPago(), max = posicionesPago().length - 1;
+        mov = `<button type="button" class="btn-icon" aria-label="Cobrar un paso antes" title="Cobrar un paso antes" ${n === 0 ? 'disabled' : ''} onclick="setPosPago(${n - 1})">${svg('up')}</button>
+               <button type="button" class="btn-icon" aria-label="Cobrar un paso después" title="Cobrar un paso después" ${n === max ? 'disabled' : ''} onclick="setPosPago(${n + 1})">${svg('down')}</button>`;
+      }
+      return `<div class="pb-tools">${mov}<button type="button" class="btn-icon is-danger" aria-label="Quitar este paso" title="Quitar este paso" onclick="quitarPaso('${s.k}')">${svg('trash')}</button></div>`;
+    }
+
+    function interruptor(checked, onchange, t, ayuda) {
+      return `<label class="switch-row"><span class="switch"><input type="checkbox" ${checked ? 'checked' : ''} onchange="${onchange}"><span class="slider"></span></span><span><b>${t}</b>${ayuda ? `<span class="help">${ayuda}</span>` : ''}</span></label>`;
+    }
+    function opcion(name, checked, onchange, t, ayuda) {
+      return `<label class="radio-card ${checked ? 'checked' : ''}"><input type="radio" name="${name}" ${checked ? 'checked' : ''} onchange="${onchange}"><b>${t}</b><span>${ayuda}</span></label>`;
+    }
+    const areasActivas = extra => Array.from(new Set([extra].concat(DB.areas().filter(a => a.activo !== false).map(a => a.nombre)).filter(Boolean)));
+
+    const CUERPO = {
+      solicitud() {
+        const cat = DB.requisitos().filter(r => r.activo !== false && !T.requisitos.some(x => x.id === r.id));
+        return `
+          <p class="pb-q">¿Qué debe presentar?</p>
+          ${T.requisitos.map((r, i) => `
+            <div class="pb-req">
+              <input class="input" aria-label="Nombre del requisito ${i + 1}" maxlength="500" value="${E(r.titulo || '')}" oninput="T.requisitos[${i}].titulo = this.value; refresh()">
+              <label class="mini"><input type="checkbox" ${r.adjuntarArchivo !== false ? 'checked' : ''} onchange="T.requisitos[${i}].adjuntarArchivo = this.checked; refresh()"> Adjunta archivo</label>
+              <button type="button" class="btn-icon is-danger" aria-label="Quitar requisito" title="Quitar" onclick="T.requisitos.splice(${i}, 1); render()">${svg('trash')}</button>
+            </div>`).join('') || '<p class="help" style="margin-bottom:10px">Nada por ahora. El alumno solo confirma su pedido.</p>'}
+          <div class="pb-pick">
+            ${cat.map(r => `<button type="button" onclick="addReq('${E(r.id)}')">+ ${E(r.titulo)}</button>`).join('')}
+          </div>
+          <details class="pb-more">
+            <summary>Más opciones</summary>
+            <div class="form-grid">
+              ${T.requisitos.map((r, i) => `<div class="field full"><label for="rc-${i}">Condiciones de "${E(r.titulo || 'requisito ' + (i + 1))}"</label>
+                <input class="input" id="rc-${i}" maxlength="600" placeholder="Por ejemplo: copia legible, PDF, máximo 5 MB" value="${E(r.condiciones || '')}" oninput="T.requisitos[${i}].condiciones = this.value; refresh()"></div>`).join('')}
+              <div class="field full"><label for="pb-ind">Indicación al adjuntar</label>
+                <input class="input" id="pb-ind" maxlength="400" placeholder="Por ejemplo: sube todo en un solo PDF" value="${E(T.adjuntoIndicacion || '')}" oninput="T.adjuntoIndicacion = this.value; refresh()"></div>
+            </div>
+            <p class="help" style="margin-top:10px">¿Falta un requisito? Créalo en <a href="tramites.html?tab=requisitos" target="_blank" rel="noopener">Requisitos</a>.</p>
+          </details>`;
+      },
+      pago() {
+        return `
+          <div class="form-grid">
+            <div class="field"><label for="pb-costo">Monto en soles</label>
+              <input class="input" id="pb-costo" type="number" min="0" step="0.5" inputmode="decimal" value="${E(T.costo)}" oninput="setCosto(this.value)"></div>
+            <div class="field"><label for="pb-conc">Concepto de cobro</label>
+              <input class="input" id="pb-conc" list="pb-conc-list" placeholder="Busca por código o nombre" value="${E(T.conceptoCodigo ? T.conceptoCodigo + ' ' + (T.conceptoServicio || '') : '')}" onchange="setConcepto(this.value)">
+              <datalist id="pb-conc-list">${DB.conceptos().map(c => `<option value="${E(c.codigo + ' ' + c.servicio)}">`).join('')}</datalist></div>
+          </div>
+          <div class="form-grid" style="margin-top:16px">
+            <div class="field full"><label for="pb-cuando">¿Cuándo paga?</label>
+              <select class="select" id="pb-cuando" onchange="setPosPago(this.value)">${posicionesPago().map((p, n) => `<option value="${n}" ${n === posPago() ? 'selected' : ''}>${E(p.txt)}</option>`).join('')}</select>
+              <span class="hint">También puedes arrastrar el paso o usar las flechas. La solicitud se detiene en este punto hasta que el alumno pague.</span></div>
+          </div>
+          <details class="pb-more">
+            <summary>Más opciones</summary>
+            <div class="form-grid">
+              <div class="field"><label for="pb-vig">Horas para pagar antes de anularse</label>
+                <input class="input" id="pb-vig" type="number" min="1" value="${E(T.tiempoVigenciaHrs == null ? '' : T.tiempoVigenciaHrs)}" oninput="T.tiempoVigenciaHrs = parseFloat(this.value) || 0; refresh()"></div>
+            </div>
+          </details>`;
+      },
+      revision(s) {
+        const p = T.proceso[s.i], i = s.i;
+        return `
+          <div class="form-grid">
+            <div class="field"><label for="pa-a">Área</label>
+              <select class="select" id="pa-a" onchange="T.proceso[${i}].area = this.value; refresh()">${areasActivas(p.area).map(a => `<option ${a === p.area ? 'selected' : ''}>${E(a)}</option>`).join('')}</select></div>
+            <div class="field"><label for="pa-d">Plazo en días hábiles</label>
+              <input class="input" id="pa-d" type="number" min="0" step="1" value="${E(p.duracionDias == null ? 1 : p.duracionDias)}" oninput="T.proceso[${i}].duracionDias = parseFloat(this.value) || 0; refresh()"></div>
+            <div class="field full"><label for="pa-t">¿Qué debe hacer?</label>
+              <input class="input" id="pa-t" maxlength="500" placeholder="Por ejemplo: verificar que no tenga cursos pendientes" value="${E(p.descripcion || '')}" oninput="T.proceso[${i}].descripcion = this.value; refresh()"></div>
+          </div>
+          <details class="pb-more" ${p.activo === false || p.observacion ? 'open' : ''}>
+            <summary>Más opciones</summary>
+            <div class="form-grid">
+              <div class="field full"><label for="pa-o">Nota interna</label>
+                <input class="input" id="pa-o" maxlength="500" value="${E(p.observacion || '')}" oninput="T.proceso[${i}].observacion = this.value; refresh()"></div>
+            </div>
+            <div style="margin-top:14px">${interruptor(p.activo !== false, `T.proceso[${i}].activo = this.checked; render()`, 'Revisión activa', 'Apágala para saltarla sin borrarla.')}</div>
+          </details>`;
+      },
+      aprobacion() {
+        return `
+          <p class="help" style="margin-bottom:12px">Después de las revisiones, un responsable decide si procede. Sin este paso, el trámite procede cuando termina la última revisión.</p>
+          <div class="form-grid">
+            <div class="field"><label for="pb-area">Área que aprueba</label>
+              <select class="select" id="pb-area" onchange="T.area = this.value; refresh()">${areasActivas(T.area).map(a => `<option ${a === T.area ? 'selected' : ''}>${E(a)}</option>`).join('')}</select></div>
+          </div>`;
+      },
+      entrega() {
+        const inm = DB.esInmediato(T);
+        return `
+          <div style="display:flex;flex-direction:column;gap:14px;margin-top:6px">
+            ${interruptor(DB.generaDocumento(T), 'setGenera(this.checked)', 'Entrega un documento oficial', 'Si lo apagas, el trámite termina con una respuesta.')}
+            ${interruptor(inm, 'setInmediato(this.checked)', 'Entrega inmediata', 'Se emite al instante, sin espera.')}
+          </div>
+          ${inm ? '' : `<div class="form-grid" style="margin-top:16px">
+            <div class="field"><label for="pb-dias">Días hábiles prometidos al alumno</label>
+              <input class="input" id="pb-dias" type="number" min="1" value="${E(T.diasEntrega)}" oninput="T.diasEntrega = parseFloat(this.value) || 0; refresh()"></div>
+          </div>`}
+          <details class="pb-more">
+            <summary>Más opciones</summary>
+            <div class="form-grid">
+              <div class="field"><label for="pb-rec">Días para recoger o descargar</label>
+                <input class="input" id="pb-rec" type="number" min="1" value="${E(T.plazoRecojoDias)}" oninput="T.plazoRecojoDias = parseFloat(this.value) || 0; refresh()"></div>
+            </div>
+          </details>`;
+      }
+    };
+
+    // ---------------------------------------------------------------- acciones
+    function abrirPaso(k) { OPEN = OPEN === k ? '' : k; ADD = -1; render(); }
+    function addPago(m, i) {
+      CON_PAGO = true; T.pagoMomento = m; T.pagoTrasEtapa = i === undefined ? '' : T.proceso[i].id;
+      if (!(T.costo > 0)) T.costo = ULTIMO_COSTO || 0;
+      OPEN = 'pago'; ADD = -1; render();
+      const c = document.getElementById('pb-costo'); if (c) c.focus();
+    }
+    function addArea(pos) {
+      const libres = areasActivas(T.area).filter(a => !T.proceso.some(p => p.area === a));
+      T.proceso.splice(pos, 0, { id: 'P-' + Date.now().toString().slice(-6), area: libres[0] || T.area || '', descripcion: '', observacion: '', duracionDias: 1, activo: true });
+      T.proceso.forEach((p, i) => { p.orden = i + 1; });
+      OPEN = 'a' + pos; ADD = -1; render();
+      const t = document.getElementById('pa-t'); if (t) t.focus();
+    }
+    function addApr() { T.requiereAprobacion = true; OPEN = 'apr'; ADD = -1; render(); }
+    function addReq(id) {
+      const r = DB.getRequisito(id);
+      if (!r) return;
+      T.requisitos.push({ id: r.id, titulo: r.titulo, condiciones: r.observacion || '', adjuntarArchivo: r.requiereAdjunto !== false, formato: r.formato || 'PDF', activo: true, orden: T.requisitos.length + 1 });
+      render();
+    }
+    function moverArea(i, d) {
+      const j = i + d;
+      if (j < 0 || j >= T.proceso.length) return;
+      [T.proceso[i], T.proceso[j]] = [T.proceso[j], T.proceso[i]];
+      T.proceso.forEach((p, k) => { p.orden = k + 1; });
+      OPEN = 'a' + j; render();
+    }
+    // Arrastrar con ratón, dedo o lápiz. Soltar sobre otro paso lo deja en ese lugar.
+    let DRAG = null;
+    function dragIni(ev, k) {
+      ev.preventDefault();
+      DRAG = { k, sobre: '', y: ev.clientY };
+      const li = ev.currentTarget.closest('.pb-stop');
+      li.classList.add('is-drag');
+      document.getElementById('pb-line').classList.add('is-dragging');
+      window.addEventListener('pointermove', dragMov);
+      window.addEventListener('pointerup', dragFin, { once: true });
+      window.addEventListener('pointercancel', dragFin, { once: true });
+    }
+    function dragMov(ev) {
+      if (!DRAG) return;
+      DRAG.y = ev.clientY;
+      const el = document.elementFromPoint(ev.clientX, ev.clientY);
+      const li = el && el.closest ? el.closest('.pb-stop') : null;
+      document.querySelectorAll('.pb-stop.is-drop').forEach(x => x.classList.remove('is-drop'));
+      DRAG.sobre = li && li.dataset.k !== DRAG.k ? li.dataset.k : '';
+      if (DRAG.sobre) li.classList.add('is-drop');
+    }
+    function dragFin() {
+      window.removeEventListener('pointermove', dragMov);
+      const d = DRAG; DRAG = null;
+      if (!d || !d.sobre) { render(); return; }
+      const ps = paradas();
+      const iDe = ps.findIndex(s => s.k === d.k), iA = ps.findIndex(s => s.k === d.sobre);
+      const a = ps[iA];
+      if (d.k === 'pago') {
+        // el pago toma el lugar del paso sobre el que se suelta
+        const abajo = iA > iDe;
+        let tras = -2;                                   // -2 antes de todo, -1 al final, n tras la revisión n
+        if (a.k === 'ent' || (a.k === 'apr' && abajo)) tras = -1;
+        else if (a.k === 'apr') tras = T.proceso.length - 1;
+        else if (a.tipo === 'revision') tras = abajo ? a.i : a.i - 1;
+        while (tras >= 0 && T.proceso[tras].activo === false) tras--;
+        if (tras === -1 && a.tipo === 'revision') tras = -2;
+        T.pagoMomento = tras === -2 ? 'antes' : 'despues';
+        T.pagoTrasEtapa = tras >= 0 ? T.proceso[tras].id : '';
+        OPEN = OPEN === 'pago' ? 'pago' : '';
+      } else {
+        const i = Number(d.k.slice(1));
+        const j = a.tipo === 'revision' ? a.i : (iA < iDe ? 0 : T.proceso.length - 1);
+        const [p] = T.proceso.splice(i, 1);
+        T.proceso.splice(j, 0, p);
+        T.proceso.forEach((x, n) => { x.orden = n + 1; });
+        OPEN = OPEN === d.k ? 'a' + j : (OPEN[0] === 'a' && OPEN !== 'apr' ? '' : OPEN);
+      }
+      ADD = -1; render();
+    }
+
+    function quitarPaso(k) {
+      const nombre = k === 'pago' ? 'el pago' : k === 'apr' ? 'la aprobación final' : 'esta revisión';
+      APP.confirm({
+        title: 'Quitar ' + nombre, danger: true, confirmLabel: 'Quitar',
+        body: k === 'pago' ? 'El trámite quedará gratuito. Podrás volver a agregar el pago antes de guardar.' : 'Podrás volver a agregarla antes de guardar.',
+        onConfirm: () => {
+          if (k === 'pago') { if (T.costo > 0) ULTIMO_COSTO = T.costo; T.costo = 0; CON_PAGO = false; }
+          else if (k === 'apr') T.requiereAprobacion = false;
+          else { T.proceso.splice(Number(k.slice(1)), 1); T.proceso.forEach((p, i) => { p.orden = i + 1; }); }
+          OPEN = ''; render();
+        }
+      });
+    }
+    function setMomento(v) { T.pagoMomento = v; render(); }
+    function setCosto(v) { const n = parseFloat(v); T.costo = isNaN(n) || n < 0 ? 0 : n; ULTIMO_COSTO = T.costo; refresh(); }
+    function setConcepto(v) {
+      const c = DB.conceptos().find(x => (x.codigo + ' ' + x.servicio) === v || String(x.codigo) === v.trim());
+      if (!c) { if (!v.trim()) { T.conceptoCodigo = ''; T.conceptoServicio = ''; } refresh(); return; }
+      T.conceptoCodigo = c.codigo; T.conceptoServicio = c.servicio;
+      if (Number(c.monto) > 0) { T.costo = Number(c.monto); ULTIMO_COSTO = T.costo; document.getElementById('pb-costo').value = T.costo; }
+      refresh();
+    }
+    function setInmediato(v) {
+      if (v) { if (T.diasEntrega > 0) DIAS_PREVIOS = T.diasEntrega; T.diasEntrega = 0; }
+      else T.diasEntrega = DIAS_PREVIOS || T.plazoRecojoDias || 3;
+      render();
+    }
+    function setGenera(v) { T.plantilla = T.plantilla || {}; T.plantilla.generaDocumento = v; render(); }
+    function setActivo(v) {
+      const err = problemas().filter(p => p.nivel === 'error');
+      if (v && err.length) {
+        APP.toast('Aún no se puede publicar', 'Completa los ' + err.length + ' puntos marcados en rojo.', 'warn');
+        document.getElementById('pb-activo').checked = false;
+        return;
+      }
+      T.activo = v; refresh();
+    }
+
+    // ---------------------------------------------------------------- guardar
+    function limpio() {
+      const t = JSON.parse(JSON.stringify(T));
+      t.nombre = (t.nombre || '').trim();
+      t.requisitos.forEach((r, i) => { r.orden = i + 1; });
+      t.proceso.forEach((p, i) => { p.orden = i + 1; });
+      t.requiereAdjunto = t.requisitos.some(r => r.activo !== false && r.adjuntarArchivo !== false);
+      t.requierePago = t.costo > 0;
+      if (!(t.costo > 0) || t.pagoMomento !== 'despues' || !t.proceso.some(p => p.id === t.pagoTrasEtapa && p.activo !== false)) delete t.pagoTrasEtapa;
+      if (t.plantilla) {
+        const base = DOC.plantillaPorDefecto(Object.assign({}, t, { plantilla: undefined }));
+        ['emisor', 'firmante', 'cargo', 'titulo', 'cuerpo'].forEach(k => { if (t.plantilla[k] === base[k]) delete t.plantilla[k]; });
+        if (t.plantilla.generaDocumento === base.generaDocumento) delete t.plantilla.generaDocumento;
+        if (!Object.keys(t.plantilla).length) delete t.plantilla;
+      }
+      return t;
+    }
+    function guardar(silencio) {
+      if (!(T.nombre || '').trim()) {
+        APP.toast('Falta el nombre', 'Escribe el nombre del trámite para poder guardarlo.', 'warn');
+        document.getElementById('pb-name').focus();
+        return false;
+      }
+      const err = problemas().filter(p => p.nivel === 'error');
+      const borrador = err.length && T.activo;
+      if (borrador) T.activo = false;
+      const esNuevo = !T.id;
+      T = normalizar(JSON.parse(JSON.stringify(DB.upsertTramite(limpio()))));
+      ORIG = JSON.stringify(T);
+      CON_PAGO = T.costo > 0;
+      if (esNuevo) history.replaceState(null, '', 'tramite-proceso.html?id=' + encodeURIComponent(T.id));
+      if (silencio) return true;
+      render();
+      if (borrador) APP.toast('Guardado como borrador', 'No es visible para alumnos porque faltan ' + err.length + ' puntos.', 'warn');
+      else APP.toast(esNuevo ? 'Trámite creado' : 'Cambios guardados', T.activo ? 'Ya está visible para los alumnos a quienes va dirigido.' : 'Está como borrador, no visible para alumnos.', 'ok');
+      return true;
+    }
+    function irDisenador(paso) {
+      if (!guardar(true)) return;
+      location.href = 'tramite-editor.html?id=' + encodeURIComponent(T.id) + '&paso=' + paso;
+    }
+
+    window.addEventListener('beforeunload', e => { if (isDirty()) { e.preventDefault(); e.returnValue = ''; } });
+
+    (function init() {
+      if (!ctx) return;
+      const q = new URLSearchParams(location.search);
+      const id = q.get('id');
+      let t = id ? DB.getTramite(id) : DB.nuevoTramite(q.get('plantilla') || 'blanco');
+      if (!t) {
+        ctx.mount.innerHTML = `<div class="empty-state"><h3>No encontramos el trámite ${E(id)}</h3><p>Puede que se haya eliminado.</p><a class="btn btn-primary" href="tramites.html">Ir a Diseñar trámites</a></div>`;
+        return;
+      }
+      T = normalizar(JSON.parse(JSON.stringify(t)));
+      ORIG = JSON.stringify(T);
+      CON_PAGO = T.costo > 0;
+      ULTIMO_COSTO = T.costo;
+      render();
+    })();
+  </script>
+</body>
+</html>

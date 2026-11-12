@@ -1,0 +1,826 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Datos del trámite · Wiener Admin</title>
+  <link href="https://fonts.googleapis.com/css2?family=Lato:wght@400;700;900&family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../css/styles.css">
+  <style>
+    .concept-list { max-height: 260px; overflow-y: auto; border: 1px solid var(--border-soft); border-radius: 10px; }
+    .concept-opt { width: 100%; display: flex; justify-content: space-between; gap: 12px; align-items: center; padding: 10px 14px; border: none; border-bottom: 1px solid var(--border-soft); background: var(--surface); font-family: inherit; font-size: 13.5px; text-align: left; cursor: pointer; }
+    .concept-opt:last-child { border-bottom: none; }
+    .concept-opt:hover, .concept-opt.is-sel { background: var(--brand-soft); }
+    .concept-opt small { display: block; color: var(--text-muted); font-size: 12px; }
+    .concept-opt .amt { font-weight: 700; white-space: nowrap; font-variant-numeric: tabular-nums; }
+    .pick-grid { display: flex; flex-wrap: wrap; gap: 8px; }
+    .pick-btn { border: 1px dashed var(--border); background: var(--surface); border-radius: 999px; padding: 7px 12px; font-family: inherit; font-size: 13px; font-weight: 600; color: var(--text-soft); cursor: pointer; }
+    .pick-btn:hover { border-color: var(--brand); border-style: solid; color: var(--brand); }
+    .rte-bar { display: flex; gap: 6px; margin-bottom: 6px; }
+    .rte-bar button { min-width: 34px; height: 30px; border: 1px solid var(--border); background: var(--surface); border-radius: 6px; font-family: inherit; font-size: 13px; cursor: pointer; padding: 0 8px; }
+    .rte-bar button:hover { border-color: var(--brand); color: var(--brand); }
+    .who-box { margin-top: 14px; padding: 12px 14px; border-radius: 10px; background: var(--brand-soft); font-size: 13.5px; line-height: 1.5; }
+    .grid-3f { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px 18px; }
+    .mail-preview { border: 1px solid var(--border-soft); border-radius: 8px; padding: 14px; font-size: 14px; line-height: 1.5; }
+    @media (max-width: 640px) { .grid-3f { grid-template-columns: 1fr; } }
+  </style>
+</head>
+<body>
+  <script src="../js/data.js"></script>
+  <script src="../js/shell.js"></script>
+  <script src="../js/doc.js"></script>
+  <script>
+    const ctx = APP.renderShell('tramites');
+    const E = APP.esc;
+
+    // ---------------------------------------------------------------- estado
+    let T = null;            // borrador en edición
+    let ORIG = '';           // copia guardada, para saber si hay cambios
+    let STEP = 'basico';
+    let CON_PAGO = false;    // el interruptor "con costo" está activo aunque el monto aún sea 0
+    let ULTIMO_COSTO = 0;
+    let CONCEPTOS_VIS = [];
+    let SHOW_NUEVO_REQ = false;
+    let DIAS_PREVIOS = 0;
+
+    const STEPS = [
+      { id: 'basico', titulo: 'Lo básico', grupo: 'general', ico: 'info' },
+      { id: 'publico', titulo: 'Quién puede pedirlo', grupo: 'general', ico: 'users' },
+      { id: 'entrega', titulo: 'Entrega y documento', grupo: 'general', tipo: 'entrega' },
+      { id: 'avisos', titulo: 'Avisos por correo', grupo: 'final', ico: 'mail' },
+      { id: 'publicar', titulo: 'Vista del alumno', grupo: 'final', ico: 'check' }
+    ];
+    const ICO = {
+      info: '<circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/>',
+      users: '<path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>',
+      mail: '<path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/>',
+      check: '<polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/>',
+      up: '<polyline points="18 15 12 9 6 15"/>',
+      down: '<polyline points="6 9 12 15 18 9"/>',
+      trash: '<polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>',
+      plus: '<line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>',
+      back: '<line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/>',
+      eye: '<path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>'
+    };
+    function svg(name, size) {
+      return `<svg width="${size || 16}" height="${size || 16}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${ICO[name]}</svg>`;
+    }
+
+    // ---------------------------------------------------------------- utilidades de datos
+    function isDirty() { return T && JSON.stringify(T) !== ORIG; }
+    function get(path) { return path.split('.').reduce((o, k) => (o == null ? o : o[k]), T); }
+    function set(path, val) {
+      const ks = path.split('.');
+      let o = T;
+      for (let i = 0; i < ks.length - 1; i++) { if (o[ks[i]] == null) o[ks[i]] = {}; o = o[ks[i]]; }
+      o[ks[ks.length - 1]] = val;
+      refresh();
+    }
+    function setN(path, val) { const n = parseFloat(val); set(path, isNaN(n) ? 0 : n); }
+    function setItem(lista, i, campo, val) { T[lista][i][campo] = val; refresh(); }
+    function setItemN(lista, i, campo, val) { const n = parseFloat(val); T[lista][i][campo] = isNaN(n) ? 0 : n; refresh(); }
+    function toggleArr(path, val, el) {
+      const arr = get(path) || [];
+      const i = arr.indexOf(val);
+      if (i >= 0) arr.splice(i, 1); else arr.push(val);
+      set(path, arr);
+      if (el) el.closest('.chip-check').classList.toggle('checked', el.checked);
+      liveBits();
+    }
+    function mover(lista, i, d) {
+      const a = T[lista]; const j = i + d;
+      if (j < 0 || j >= a.length) return;
+      [a[i], a[j]] = [a[j], a[i]];
+      a.forEach((x, k) => { x.orden = k + 1; });
+      renderPanel(); refresh();
+    }
+    function quitar(lista, i, nombre) {
+      APP.confirm({
+        title: 'Quitar ' + nombre, danger: true, confirmLabel: 'Quitar',
+        body: 'Se quitará de este trámite. Podrás volver a agregarlo antes de guardar.',
+        onConfirm: () => { T[lista].splice(i, 1); T[lista].forEach((x, k) => { if (x.orden !== undefined) x.orden = k + 1; }); renderPanel(); refresh(); }
+      });
+    }
+
+    function problemas() {
+      const out = DB.validarTramite(T);
+      if (CON_PAGO && !(T.costo > 0)) out.push({ nivel: 'error', paso: 'pago', msg: 'Marcaste que tiene costo, pero el monto es 0' });
+      return out;
+    }
+    function textoPlano(html) { return String(html || '').replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim(); }
+
+    // ---------------------------------------------------------------- arranque
+    function init() {
+      if (!ctx) return;
+      const q = new URLSearchParams(location.search);
+      const id = q.get('id');
+      if (id) {
+        const t = DB.getTramite(id);
+        if (!t) { pantallaNoExiste(id); return; }
+        abrir(JSON.parse(JSON.stringify(t)), false);
+        const paso = q.get('paso');
+        if (paso && STEPS.some(s => s.id === paso)) { STEP = paso; renderPanel(); refresh(); }
+      } else if (q.get('plantilla')) {
+        abrir(DB.nuevoTramite(q.get('plantilla')), true);
+      } else {
+        pantallaInicio();
+      }
+    }
+
+    function normalizar(t) {
+      t.audiencia = Object.assign({ niveles: [], ciclos: [], minCreditos: 0, promedioMin: 0, tercioSuperior: false, quintoSuperior: false }, t.audiencia || {});
+      t.requisitos = Array.isArray(t.requisitos) ? t.requisitos : [];
+      t.proceso = Array.isArray(t.proceso) ? t.proceso : [];
+      t.cronogramas = Array.isArray(t.cronogramas) ? t.cronogramas : [];
+      t.correos = Array.isArray(t.correos) ? t.correos : [];
+      t.intenciones = Array.isArray(t.intenciones) ? t.intenciones : [];
+      if (t.envioCorreo === undefined) t.envioCorreo = true;
+      if (!t.tipoActivacion) t.tipoActivacion = 'Permanente';
+      if (t.requiereAprobacion === undefined) t.requiereAprobacion = true;
+      if (!t.pagoMomento) t.pagoMomento = 'antes';
+      if (t.adjuntoIndicacion === undefined) t.adjuntoIndicacion = '';
+      if (t.diasEntrega === undefined) t.diasEntrega = t.plazoRecojoDias || 3;
+      if (t.plazoRecojoDias === undefined) t.plazoRecojoDias = t.diasEntrega || 3;
+      t.costo = Number(t.costo) || 0;
+      return t;
+    }
+
+    function abrir(t, esNuevo) {
+      T = normalizar(t);
+      ORIG = JSON.stringify(T);
+      CON_PAGO = T.costo > 0;
+      ULTIMO_COSTO = T.costo;
+      STEP = 'basico';
+      renderTodo();
+    }
+
+    function pantallaNoExiste(id) {
+      ctx.mount.innerHTML = `
+        <div class="empty-state">
+          <h3>No encontramos el trámite ${E(id)}</h3>
+          <p>Puede que se haya eliminado. Vuelve a la lista para elegir otro.</p>
+          <a class="btn btn-primary" href="tramites.html">Ir a Diseñar trámites</a>
+        </div>`;
+    }
+
+    function pantallaInicio() {
+      ctx.mount.innerHTML = `
+        <a class="designer-back" href="tramites.html">${svg('back', 14)} Diseñar trámites</a>
+        <div class="page-head">
+          <div>
+            <h1>Nuevo trámite</h1>
+            <p>Elige un punto de partida. Se abre en "Armar proceso", donde agregas, quitas y ordenas los pasos.</p>
+          </div>
+        </div>
+        <div class="start-grid">
+          ${DB.PLANTILLAS_TRAMITE.map(p => `
+            <button type="button" class="start-card" onclick="location.href = 'tramite-proceso.html?plantilla=${p.id}'">
+              <b>${E(p.titulo)}</b>
+              <span>${E(p.resumen)}</span>
+              ${APP.flowHTML(DB.nuevoTramite(p.id), { compact: true })}
+            </button>`).join('')}
+        </div>
+        <p class="help" style="margin-top:18px">También puedes partir de uno existente: en la lista de trámites usa "Duplicar".</p>`;
+    }
+
+    // ---------------------------------------------------------------- pintado general
+    function renderTodo() {
+      ctx.mount.innerHTML = `
+        <div class="designer-top">
+          <div>
+            <a class="designer-back" href="${T.id ? 'tramite-proceso.html?id=' + encodeURIComponent(T.id) : 'tramites.html'}" onclick="return volverProceso(event)">${svg('back', 14)} Volver al proceso del trámite</a>
+            <h1 id="dz-title"></h1>
+          </div>
+          <div class="btn-row">
+            <span class="save-state" id="dz-state" role="status"></span>
+            <button type="button" class="btn btn-outline" onclick="ir('publicar')">${svg('eye')} Ver como alumno</button>
+            <button type="button" class="btn btn-primary" onclick="guardar()">Guardar</button>
+          </div>
+        </div>
+        <div class="designer">
+          <nav class="designer-rail" id="dz-rail" aria-label="Pasos del trámite"></nav>
+          <section class="designer-panel" id="dz-panel" aria-live="off"></section>
+        </div>`;
+      renderPanel();
+      refresh();
+    }
+
+    // Actualiza lo que depende de los datos sin tocar el formulario (no se pierde el foco)
+    function refresh() {
+      const h = document.getElementById('dz-title');
+      if (!h) return;
+      h.textContent = (T.nombre || '').trim() || 'Trámite sin nombre';
+      const st = document.getElementById('dz-state');
+      if (!T.id) { st.className = 'save-state is-dirty'; st.textContent = 'Aún no guardado'; }
+      else if (isDirty()) { st.className = 'save-state is-dirty'; st.textContent = 'Cambios sin guardar'; }
+      else { st.className = 'save-state is-saved'; st.textContent = 'Guardado'; }
+      renderRail();
+      liveBits();
+    }
+
+    function railItem(s, sub, off) {
+      const pr = problemas().filter(p => p.paso === s.id);
+      const flag = pr.some(p => p.nivel === 'error') ? '<span class="rail-flag is-err" title="Falta completar"></span>'
+        : pr.length ? '<span class="rail-flag is-warn" title="Tiene avisos"></span>' : '';
+      const ico = s.tipo ? APP.flowIcon(s.tipo) : svg(s.ico);
+      return `
+        <li>
+          <button type="button" class="rail-item ${STEP === s.id ? 'active' : ''} ${off ? 'is-off' : ''}" ${STEP === s.id ? 'aria-current="step"' : ''} onclick="ir('${s.id}')">
+            <span class="rail-ico">${ico}</span>
+            <span class="rail-txt"><b>${E(s.titulo)}</b><small>${E(sub)}</small></span>
+            ${flag}
+          </button>
+        </li>`;
+    }
+
+    function renderRail() {
+      const el = document.getElementById('dz-rail');
+      if (!el) return;
+      const by = id => STEPS.find(s => s.id === id);
+      el.innerHTML = `
+        <p class="rail-label">Datos del trámite</p>
+        <ul class="rail-list">
+          ${railItem(by('basico'), T.tipo || 'Sin tipo')}
+          ${railItem(by('publico'), DB.audienciaTexto(T.audiencia).join(', '))}
+          ${railItem(by('entrega'), (DB.generaDocumento(T) ? 'Documento' : 'Respuesta') + ' · ' + (DB.esInmediato(T) ? 'inmediata' : (T.diasEntrega || 0) + ' días hábiles'))}
+          ${railItem(by('avisos'), T.envioCorreo ? T.correos.filter(c => c.activo !== false).length + ' correos activos' : 'No se envían correos')}
+          ${railItem(by('publicar'), T.activo ? 'Visible para alumnos' : 'No visible todavía')}
+        </ul>
+        <p class="help" style="margin:14px 6px 0">Los requisitos, el pago y las revisiones se arman en el proceso del trámite.</p>`;
+    }
+
+    // Pasos que viven en "Armar proceso": guarda y va a esa pantalla
+    function irPaso(p) {
+      if (STEPS.some(s => s.id === p)) { ir(p); return; }
+      if (isDirty() || !T.id) guardar();
+      if (T.id && !isDirty()) location.href = 'tramite-proceso.html?id=' + encodeURIComponent(T.id);
+    }
+    function volverProceso(ev) {
+      if (!T.id || !isDirty()) return true;
+      ev.preventDefault();
+      guardar();
+      if (!isDirty()) location.href = 'tramite-proceso.html?id=' + encodeURIComponent(T.id);
+      return false;
+    }
+
+    function ir(id) {
+      STEP = id;
+      renderPanel();
+      renderRail();
+      const p = document.getElementById('dz-panel');
+      if (p && window.innerWidth <= 920) p.scrollIntoView({ block: 'start' });
+      const h2 = p.querySelector('h2');
+      if (h2) { h2.setAttribute('tabindex', '-1'); h2.focus({ preventScroll: true }); }
+    }
+
+    // ---------------------------------------------------------------- piezas de formulario
+    let _fid = 0;
+    function fid() { return 'f' + (++_fid); }
+    function campo(label, control, hint, full) {
+      return `<div class="field ${full ? 'full' : ''}"><label for="${control.id}">${label}</label>${control.html}${hint ? `<span class="hint">${hint}</span>` : ''}</div>`;
+    }
+    function inp(path, o) {
+      o = o || {}; const id = fid();
+      const v = get(path);
+      const num = o.type === 'number';
+      return { id, html: `<input class="input" id="${id}" type="${o.type || 'text'}" value="${E(v == null ? '' : v)}" ${o.max ? `maxlength="${o.max}"` : ''} ${num ? `min="${o.min == null ? 0 : o.min}" step="${o.step || 1}" inputmode="decimal"` : ''} placeholder="${E(o.ph || '')}" oninput="${num ? 'setN' : 'set'}('${path}', this.value)">` };
+    }
+    function area(path, o) {
+      o = o || {}; const id = fid();
+      return { id, html: `<textarea class="input" id="${id}" rows="${o.rows || 3}" ${o.max ? `maxlength="${o.max}"` : ''} placeholder="${E(o.ph || '')}" oninput="set('${path}', this.value)">${E(get(path) || '')}</textarea>` };
+    }
+    function sel(opts, valor, onchange) {
+      const id = fid();
+      return { id, html: `<select class="select" id="${id}" onchange="${onchange}">${opts.map(o => {
+        const v = typeof o === 'string' ? o : o[0]; const l = typeof o === 'string' ? o : o[1];
+        return `<option value="${E(v)}" ${v === valor ? 'selected' : ''}>${E(l)}</option>`;
+      }).join('')}</select>` };
+    }
+    function interruptor(checked, onchange, titulo, ayuda) {
+      return `<label class="switch-row">
+        <span class="switch"><input type="checkbox" ${checked ? 'checked' : ''} onchange="${onchange}"><span class="slider"></span></span>
+        <span><b>${titulo}</b>${ayuda ? `<span class="help">${ayuda}</span>` : ''}</span>
+      </label>`;
+    }
+    function opcion(name, checked, onchange, titulo, ayuda) {
+      return `<label class="radio-card ${checked ? 'checked' : ''}"><input type="radio" name="${name}" ${checked ? 'checked' : ''} onchange="${onchange}"><b>${titulo}</b><span>${ayuda}</span></label>`;
+    }
+    function ordenBtns(lista, i, total, nombre) {
+      return `<div class="btn-row">
+        <button type="button" class="btn-icon" aria-label="Subir" title="Subir" ${i === 0 ? 'disabled' : ''} onclick="mover('${lista}', ${i}, -1)">${svg('up')}</button>
+        <button type="button" class="btn-icon" aria-label="Bajar" title="Bajar" ${i === total - 1 ? 'disabled' : ''} onclick="mover('${lista}', ${i}, 1)">${svg('down')}</button>
+        <button type="button" class="btn-icon is-danger" aria-label="Quitar" title="Quitar" onclick="quitar('${lista}', ${i}, '${nombre}')">${svg('trash')}</button>
+      </div>`;
+    }
+    function avisosDe(paso) {
+      const pr = problemas().filter(p => p.paso === paso);
+      if (!pr.length) return '';
+      return `<ul class="checklist" style="margin-bottom:18px">${pr.map(p => `
+        <li><span class="check-dot ${p.nivel === 'error' ? 'is-err' : 'is-warn'}">!</span><span>${E(p.msg)}</span></li>`).join('')}</ul>`;
+    }
+
+    // ---------------------------------------------------------------- pasos
+    const PANEL = {
+      basico() {
+        const tipos = [
+          ['Constancia', 'Deja constancia de una situación: matrícula, tercio superior, egreso.'],
+          ['Certificado', 'Certifica estudios o competencias con detalle.'],
+          ['Carné', 'Emisión o duplicado del carné universitario.'],
+          ['Solicitud', 'Un pedido que se evalúa y se responde. No entrega documento.']
+        ];
+        return `
+          <div class="q-block">
+            <div class="form-grid">
+              ${campo('Nombre del trámite *', inp('nombre', { max: 500, ph: 'Por ejemplo: Constancia de matrícula' }), 'Así lo verá el alumno en su catálogo.', true)}
+              <div class="field full">
+                <label for="dz-desc">Descripción para el alumno</label>
+                <div class="rte-bar" role="toolbar" aria-label="Formato">
+                  <button type="button" title="Negrita" onclick="rte('b')"><b>N</b></button>
+                  <button type="button" title="Cursiva" onclick="rte('i')"><i>C</i></button>
+                  <button type="button" title="Subrayado" onclick="rte('u')"><u>S</u></button>
+                  <button type="button" title="Lista" onclick="rte('li')">Lista</button>
+                </div>
+                <textarea class="input" id="dz-desc" rows="4" placeholder="Explica en una o dos frases para qué sirve y cuándo conviene pedirlo." oninput="set('descripcion', this.value)">${E(T.descripcion || '')}</textarea>
+              </div>
+            </div>
+          </div>
+          <div class="q-block">
+            <h3 class="q-title">¿Qué tipo de trámite es?</h3>
+            <p class="help" style="margin-bottom:12px">El tipo define el modelo de documento que se propone en el paso Entrega.</p>
+            <div class="radio-cards">
+              ${tipos.map(([v, a]) => opcion('tipo', T.tipo === v, `setTipo('${v}')`, v, a)).join('')}
+            </div>
+          </div>
+          <div class="q-block">
+            <h3 class="q-title">¿En qué categorías debe aparecer?</h3>
+            <p class="help" style="margin-bottom:12px">El alumno filtra su catálogo con estas categorías. Puedes marcar varias.</p>
+            <div class="chip-row">
+              ${DB.CATEGORIAS.map(c => `<label class="chip-check ${T.intenciones.includes(c.id) ? 'checked' : ''}"><input type="checkbox" ${T.intenciones.includes(c.id) ? 'checked' : ''} onchange="toggleArr('intenciones', '${c.id}', this)">${E(c.label)}</label>`).join('')}
+            </div>
+          </div>
+          <div class="q-block">
+            <div class="form-grid">
+              ${campo('Nota interna', area('observacion', { max: 500, rows: 2, ph: 'Solo la ve el personal administrativo.' }), 'Opcional. No se muestra al alumno.', true)}
+            </div>
+            ${T.id ? `<p class="help" style="margin-top:12px">Código ${E(T.codigo || T.id)} · registrado el ${APP.fechaCorta(T.fechaRegistro)}</p>` : ''}
+          </div>`;
+      },
+
+      publico() {
+        const a = T.audiencia;
+        const niveles = [['pregrado', 'Pregrado'], ['postgrado', 'Postgrado']];
+        return `
+          <div class="q-block">
+            <h3 class="q-title">¿De qué nivel?</h3>
+            <p class="help" style="margin-bottom:12px">Si no marcas ninguno, lo verán todos los niveles.</p>
+            <div class="chip-row">
+              ${niveles.map(([v, l]) => `<label class="chip-check ${a.niveles.includes(v) ? 'checked' : ''}"><input type="checkbox" ${a.niveles.includes(v) ? 'checked' : ''} onchange="toggleArr('audiencia.niveles', '${v}', this)">${l}</label>`).join('')}
+            </div>
+          </div>
+          <div class="q-block">
+            <h3 class="q-title">¿De qué ciclos?</h3>
+            <p class="help" style="margin-bottom:12px">Sin ciclos marcados, vale para todos.</p>
+            <div class="chip-row">
+              ${[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map(c => `<label class="chip-check ${a.ciclos.includes(c) ? 'checked' : ''}"><input type="checkbox" ${a.ciclos.includes(c) ? 'checked' : ''} onchange="toggleArr('audiencia.ciclos', ${c}, this)">${c}</label>`).join('')}
+            </div>
+          </div>
+          <div class="q-block">
+            <h3 class="q-title">¿Exige algún mérito académico?</h3>
+            <div class="form-grid" style="margin-top:12px">
+              ${campo('Créditos aprobados mínimos', inp('audiencia.minCreditos', { type: 'number' }), '0 significa que no se exige.')}
+              ${campo('Promedio mínimo', inp('audiencia.promedioMin', { type: 'number', step: 0.5 }), '0 significa que no se exige.')}
+            </div>
+            <div style="display:flex;flex-direction:column;gap:14px;margin-top:18px">
+              ${interruptor(a.tercioSuperior, "set('audiencia.tercioSuperior', this.checked)", 'Solo tercio superior', 'Lo verán únicamente alumnos del tercio superior.')}
+              ${interruptor(a.quintoSuperior, "set('audiencia.quintoSuperior', this.checked)", 'Solo quinto superior', 'Lo verán únicamente alumnos del quinto superior.')}
+            </div>
+            <div class="who-box" id="dz-who"></div>
+          </div>
+          <div class="q-block">
+            <h3 class="q-title">¿Cuándo se puede pedir?</h3>
+            <div class="radio-cards" style="margin-top:12px">
+              ${opcion('act', T.tipoActivacion !== 'Cronograma', "setActivacion('Permanente')", 'Siempre', 'Disponible todo el año.')}
+              ${opcion('act', T.tipoActivacion === 'Cronograma', "setActivacion('Cronograma')", 'Solo en fechas programadas', 'Por ejemplo, durante el periodo de matrícula.')}
+            </div>
+            ${T.tipoActivacion === 'Cronograma' ? `
+              <div style="margin-top:16px">
+                ${T.cronogramas.map((c, i) => cronoCard(c, i)).join('') || '<p class="help">Todavía no hay fechas. Agrega al menos un rango.</p>'}
+                <button type="button" class="btn btn-outline" style="margin-top:12px" onclick="addCrono()">${svg('plus')} Agregar rango de fechas</button>
+              </div>` : (T.cronogramas.length ? `<p class="help" style="margin-top:12px">Hay ${T.cronogramas.length} rango(s) de fechas guardados. No se aplican mientras esté en "Siempre".</p>` : '')}
+          </div>`;
+      },
+
+      entrega() {
+        const gen = DB.generaDocumento(T);
+        const pl = DOC.getPlantilla(T);
+        const inm = DB.esInmediato(T);
+        const modelos = [['constancia', 'Constancia'], ['certificado', 'Certificado'], ['carne', 'Carné'], ['oficio', 'Oficio']];
+        return `
+          <div class="q-block">
+            <h3 class="q-title">¿En cuánto tiempo se entrega?</h3>
+            <div style="margin:12px 0 16px">
+              ${interruptor(inm, 'setInmediato(this.checked)', 'Entrega inmediata', 'El documento se emite al instante, sin espera (por ejemplo, tras confirmar el pago).')}
+            </div>
+            <div class="form-grid">
+              ${inm ? '' : campo('Días hábiles prometidos al alumno', inp('diasEntrega', { type: 'number', min: 1 }), 'Es el plazo que ve el alumno al solicitar.')}
+              ${campo('Plazo máximo para recoger o descargar (días)', inp('plazoRecojoDias', { type: 'number', min: 1 }), 'Después de emitido.')}
+            </div>
+          </div>
+          <div class="q-block">
+            <h3 class="q-title">¿Qué recibe el alumno al final?</h3>
+            <div style="margin-top:12px">
+              ${interruptor(gen, 'setGenera(this.checked)', 'Un documento oficial', 'Constancia, certificado o carné que podrá ver y descargar. Si lo apagas, el trámite termina con una respuesta.')}
+            </div>
+          </div>
+          ${gen ? `
+          <div class="q-block">
+            <h3 class="q-title">El documento</h3>
+            <p class="help" style="margin-bottom:14px">Parte de un modelo y ajusta el texto. Lo que va entre llaves se reemplaza con los datos de cada alumno.</p>
+            <div class="form-grid">
+              <div class="field"><label for="dz-modelo">Modelo base</label>
+                <select class="select" id="dz-modelo" onchange="setModelo(this.value)">${modelos.map(([v, l]) => `<option value="${v}" ${T.modelo === v ? 'selected' : ''}>${l}</option>`).join('')}</select></div>
+              <div class="field"><label for="pl-emisor">Oficina que lo emite</label>
+                <input class="input" id="pl-emisor" value="${E(pl.emisor)}" oninput="setPl('emisor', this.value)"></div>
+              <div class="field full"><label for="pl-titulo">Título del documento</label>
+                <input class="input" id="pl-titulo" value="${E(pl.titulo)}" oninput="setPl('titulo', this.value)">
+                <span class="hint">Si lo dejas igual al nombre del trámite, cambiará junto con él.</span></div>
+              <div class="field full"><label for="pl-cuerpo">Texto del documento</label>
+                <textarea class="input" id="pl-cuerpo" rows="7" oninput="setPl('cuerpo', this.value)">${E(pl.cuerpo)}</textarea>
+                <span class="hint">Insertar dato del alumno:</span>
+                <div class="var-chips">${DOC.VARIABLES.map(([k, l]) => `<button type="button" class="var-chip" title="{${k}}" onclick="insertarVar('${k}')">${E(l)}</button>`).join('')}</div></div>
+              <div class="field"><label for="pl-firmante">Quién firma</label>
+                <input class="input" id="pl-firmante" value="${E(pl.firmante)}" oninput="setPl('firmante', this.value)"></div>
+              <div class="field"><label for="pl-cargo">Cargo de quien firma</label>
+                <input class="input" id="pl-cargo" value="${E(pl.cargo)}" oninput="setPl('cargo', this.value)"></div>
+            </div>
+            <div class="btn-row" style="margin-top:16px">
+              <button type="button" class="btn btn-outline" onclick="verDocumento()">${svg('eye')} Ver cómo queda</button>
+              <button type="button" class="btn-link" onclick="restaurarPlantilla()">Volver al texto del modelo</button>
+            </div>
+          </div>` : ''}`;
+      },
+
+      avisos() {
+        return `
+          <div class="q-block">
+            ${interruptor(T.envioCorreo, "set('envioCorreo', this.checked); renderPanel()", 'Enviar correos al alumno', 'Cada vez que la solicitud cambia a uno de los estados de abajo, el alumno recibe el correo correspondiente.')}
+          </div>
+          ${T.envioCorreo ? `
+          <div class="q-block">
+            <h3 class="q-title">Correos por estado</h3>
+            <p class="help" style="margin-bottom:14px">Un correo por cada momento en que quieras avisar.</p>
+            ${T.correos.map((c, i) => `
+              <div class="item-card ${c.activo === false ? 'is-off' : ''}">
+                <div class="item-card-head">
+                  <span class="n">Cuando el estado es</span>
+                  <div class="btn-row">
+                    <button type="button" class="btn btn-sm btn-outline" onclick="verCorreo(${i})">Vista previa</button>
+                    <button type="button" class="btn-icon is-danger" aria-label="Quitar correo" title="Quitar" onclick="quitar('correos', ${i}, 'correo')">${svg('trash')}</button>
+                  </div>
+                </div>
+                <div class="form-grid">
+                  <div class="field"><label for="ml-e-${i}">Estado</label>
+                    <select class="select" id="ml-e-${i}" onchange="setItem('correos', ${i}, 'tipoEstado', this.value)">${DB.ESTADOS_CORREO.map(e => `<option ${e === c.tipoEstado ? 'selected' : ''}>${e}</option>`).join('')}</select></div>
+                  <div class="field"><label for="ml-a-${i}">Asunto</label>
+                    <input class="input" id="ml-a-${i}" value="${E(c.asunto || '')}" oninput="setItem('correos', ${i}, 'asunto', this.value)"></div>
+                  <div class="field full"><label for="ml-c-${i}">Mensaje</label>
+                    <textarea class="input" id="ml-c-${i}" rows="4" oninput="setItem('correos', ${i}, 'contenido', this.value)">${E(c.contenido || '')}</textarea>
+                    <span class="hint">Admite formato HTML básico.</span></div>
+                  <div class="field"><label for="ml-r-${i}">Sale desde (remitente)</label>
+                    <input class="input" id="ml-r-${i}" type="email" value="${E(c.remitente || '')}" oninput="setItem('correos', ${i}, 'remitente', this.value)"></div>
+                  <div class="field"><label for="ml-p-${i}">Clave del buzón remitente</label>
+                    <input class="input" id="ml-p-${i}" type="password" autocomplete="new-password" value="${E(c.password || '')}" oninput="setItem('correos', ${i}, 'password', this.value)">
+                    <span class="hint">Solo para la maqueta. En el sistema real la gestiona TI.</span></div>
+                  <div class="field full"><label for="ml-cc-${i}">Con copia a</label>
+                    <input class="input" id="ml-cc-${i}" value="${E(c.cc || '')}" placeholder="Opcional" oninput="setItem('correos', ${i}, 'cc', this.value)"></div>
+                </div>
+                <div style="margin-top:14px">${interruptor(c.activo !== false, `setItem('correos', ${i}, 'activo', this.checked); renderPanel()`, 'Correo activo', '')}</div>
+              </div>`).join('') || '<p class="help">No hay correos configurados.</p>'}
+            <div class="btn-row" style="margin-top:14px">
+              <button type="button" class="btn btn-outline" onclick="addCorreo()">${svg('plus')} Agregar correo</button>
+              ${T.correos.length ? '' : `<button type="button" class="btn-link" onclick="T.correos = DB.correosPorDefecto(T.nombre); renderPanel(); refresh()">Usar los tres correos sugeridos</button>`}
+            </div>
+          </div>` : ''}`;
+      },
+
+      publicar() {
+        const pr = problemas();
+        const errores = pr.filter(p => p.nivel === 'error');
+        const avisos = pr.filter(p => p.nivel === 'aviso');
+        const reqs = T.requisitos.filter(r => r.activo !== false);
+        const paso = id => (STEPS.find(s => s.id === id) || { titulo: 'el proceso del trámite' }).titulo;
+        const cuando = !(T.costo > 0) ? 'Sin costo' : (T.pagoMomento === 'despues' ? 'Pagas cuando se apruebe' : 'Pagas al solicitar');
+        return `
+          <div class="q-block">
+            <h3 class="q-title">${errores.length ? 'Falta completar ' + errores.length + (errores.length === 1 ? ' punto' : ' puntos') : 'Todo lo necesario está completo'}</h3>
+            <ul class="checklist" style="margin-top:12px">
+              ${errores.map(p => `<li><span class="check-dot is-err">!</span><span>${E(p.msg)}. <button type="button" class="btn-link" onclick="irPaso('${p.paso}')">Ir a ${E(paso(p.paso))}</button></span></li>`).join('')}
+              ${avisos.map(p => `<li><span class="check-dot is-warn">!</span><span>${E(p.msg)}. <button type="button" class="btn-link" onclick="irPaso('${p.paso}')">Revisar en ${E(paso(p.paso))}</button></span></li>`).join('')}
+              ${!pr.length ? '<li><span class="check-dot is-ok">&#10003;</span><span>No hay pendientes ni avisos.</span></li>' : ''}
+            </ul>
+          </div>
+          <div class="q-block">
+            <h3 class="q-title">El recorrido completo</h3>
+            <div style="margin-top:12px">${APP.flowHTML(T)}</div>
+          </div>
+          <div class="q-block">
+            <h3 class="q-title">Así lo verá el alumno</h3>
+            <div class="student-preview" style="margin-top:12px">
+              <div class="help">${E(T.tipo || '')} · ${E(T.area || '')}</div>
+              <h4>${E(T.nombre || 'Trámite sin nombre')}</h4>
+              <p class="help" style="margin:0 0 10px">${E(textoPlano(T.descripcion) || 'Sin descripción')}</p>
+              <div class="sp-row"><span>Costo</span><b>${T.costo > 0 ? APP.money(T.costo) : 'Gratuito'}</b></div>
+              <div class="sp-row"><span>Pago</span><span>${cuando}</span></div>
+              <div class="sp-row"><span>Entrega</span><span>${DB.esInmediato(T) ? 'Inmediata' : (T.diasEntrega || 0) + ' días hábiles'}</span></div>
+              <div class="sp-row"><span>Debes adjuntar</span><span>${reqs.filter(r => r.adjuntarArchivo !== false).length ? reqs.filter(r => r.adjuntarArchivo !== false).map(r => E(r.titulo)).join(', ') : 'Nada: 100% digital'}</span></div>
+              <div class="sp-row"><span>Dirigido a</span><span>${E(DB.audienciaTexto(T.audiencia).join(', '))}</span></div>
+            </div>
+            ${DB.generaDocumento(T) ? `<button type="button" class="btn btn-outline" style="margin-top:14px" onclick="verDocumento()">${svg('eye')} Ver el documento que recibirá</button>` : ''}
+          </div>
+          <div class="q-block">
+            <h3 class="q-title">Publicación</h3>
+            <div style="margin-top:12px">
+              ${interruptor(T.activo, 'setActivo(this.checked)', 'Visible para los alumnos', errores.length ? 'Completa los puntos pendientes para poder publicarlo. Mientras tanto se guarda como borrador.' : 'Al guardar, aparecerá en el catálogo de los alumnos a quienes va dirigido.')}
+            </div>
+          </div>`;
+      }
+    };
+
+    const AYUDA = {
+      basico: 'Cómo se llama el trámite y de qué se trata.',
+      publico: 'A qué alumnos se les mostrará y en qué fechas.',
+      requisitos: 'Primer paso del alumno: lo que debe presentar para pedirlo.',
+      pago: 'Si se cobra, cuánto y en qué momento.',
+      revision: 'Las áreas por las que pasa la solicitud antes de resolverse.',
+      entrega: 'El plazo y lo que recibe el alumno al terminar.',
+      avisos: 'Los correos que recibe el alumno mientras avanza su solicitud.',
+      publicar: 'Comprueba que no falte nada y decide si ya se muestra a los alumnos.'
+    };
+
+    function renderPanel() {
+      const el = document.getElementById('dz-panel');
+      if (!el) return;
+      const i = STEPS.findIndex(s => s.id === STEP);
+      const s = STEPS[i];
+      el.innerHTML = `
+        <div class="panel-head">
+          <div class="help">Paso ${i + 1} de ${STEPS.length}</div>
+          <h2>${E(s.titulo)}</h2>
+          <p class="help">${AYUDA[s.id]}</p>
+        </div>
+        ${s.id === 'publicar' ? '' : avisosDe(s.id)}
+        ${PANEL[s.id]()}
+        <div class="panel-foot">
+          ${i > 0 ? `<button type="button" class="btn" onclick="ir('${STEPS[i - 1].id}')">Anterior: ${E(STEPS[i - 1].titulo)}</button>` : '<span></span>'}
+          ${i < STEPS.length - 1
+            ? `<button type="button" class="btn btn-primary" onclick="ir('${STEPS[i + 1].id}')">Siguiente: ${E(STEPS[i + 1].titulo)}</button>`
+            : `<button type="button" class="btn btn-primary" onclick="guardar()">Guardar trámite</button>`}
+        </div>`;
+      APP.initCustomSelects(el);
+      APP.initDatePickers(el);
+      if (STEP === 'pago' && document.getElementById('dz-clist')) pintarConceptos('');
+      liveBits();
+    }
+
+    // Trozos que cambian mientras se escribe, sin re-pintar el formulario
+    function liveBits() {
+      const who = document.getElementById('dz-who');
+      if (who) {
+        const alumnos = DB.usuarios().filter(u => u.rol === 'alumno' && u.perfil);
+        const ok = alumnos.filter(u => DB.elegible(Object.assign({}, T, { activo: true }), u.perfil));
+        who.innerHTML = `<b>Lo verán:</b> ${E(DB.audienciaTexto(T.audiencia).join(', '))}.<br>
+          De los ${alumnos.length} alumnos de ejemplo, ${ok.length} ${ok.length === 1 ? 'lo vería' : 'lo verían'}${ok.length ? ': ' + ok.slice(0, 4).map(u => E(u.nombre)).join(', ') + (ok.length > 4 ? ' y ' + (ok.length - 4) + ' más' : '') : ''}.`;
+      }
+      const d = document.getElementById('dz-dias');
+      if (d) {
+        const total = T.proceso.filter(p => p.activo !== false).reduce((n, p) => n + (Number(p.duracionDias) || 0), 0);
+        d.textContent = 'Las áreas suman ' + total + (total === 1 ? ' día.' : ' días.') + (DB.esInmediato(T) ? '' : ' Al alumno se le prometen ' + (T.diasEntrega || 0) + '.');
+      }
+    }
+
+    // ---------------------------------------------------------------- acciones por paso
+    function rte(tag) {
+      const ta = document.getElementById('dz-desc');
+      const a = ta.selectionStart, b = ta.selectionEnd;
+      const s = ta.value.substring(a, b);
+      const rep = tag === 'li' ? '\n• ' + (s || 'elemento') + '\n' : `<${tag}>${s || 'texto'}</${tag}>`;
+      ta.setRangeText(rep, a, b, 'end');
+      ta.focus();
+      set('descripcion', ta.value);
+    }
+    function setTipo(v) {
+      T.tipo = v;
+      const mapa = { Constancia: 'constancia', Certificado: 'certificado', 'Carné': 'carne', Solicitud: 'oficio' };
+      T.modelo = mapa[v] || T.modelo;
+      if (T.plantilla) delete T.plantilla.generaDocumento;
+      renderPanel(); refresh();
+    }
+    function setActivacion(v) {
+      T.tipoActivacion = v;
+      if (v === 'Cronograma' && !T.cronogramas.length) addCrono(true);
+      renderPanel(); refresh();
+    }
+    function cronoCard(c, i) {
+      const mods = DB.CRONO.modalidades[c.grado] || ['Todas'];
+      const s = (lista, campo, extra) => `<select class="select" id="cr-${campo}-${i}" onchange="setItem('cronogramas', ${i}, '${campo}', this.value)${extra || ''}">${lista.map(x => `<option ${x === c[campo] ? 'selected' : ''}>${E(x)}</option>`).join('')}</select>`;
+      const mal = c.fechaInicio && c.fechaFin && c.fechaFin < c.fechaInicio;
+      return `
+        <div class="item-card ${c.activo === false ? 'is-off' : ''}">
+          <div class="item-card-head">
+            <span class="n">Rango ${i + 1}</span>
+            <button type="button" class="btn-icon is-danger" aria-label="Quitar rango" title="Quitar" onclick="quitar('cronogramas', ${i}, 'rango de fechas')">${svg('trash')}</button>
+          </div>
+          <div class="grid-3f">
+            <div class="field"><label for="cr-fechaInicio-${i}">Desde</label><input type="date" class="input" id="cr-fechaInicio-${i}" value="${E(c.fechaInicio || '')}" onchange="setItem('cronogramas', ${i}, 'fechaInicio', this.value); marcarFechas(${i})"></div>
+            <div class="field"><label for="cr-fechaFin-${i}">Hasta</label><input type="date" class="input" id="cr-fechaFin-${i}" value="${E(c.fechaFin || '')}" onchange="setItem('cronogramas', ${i}, 'fechaFin', this.value); marcarFechas(${i})"></div>
+            <div class="field"><label for="cr-periodo-${i}">Periodo</label>${s(DB.CRONO.periodos, 'periodo')}</div>
+            <div class="field"><label for="cr-grado-${i}">Grado</label>${s(DB.CRONO.grados, 'grado', `; T.cronogramas[${i}].modalidad='Todas'; renderPanel()`)}</div>
+            <div class="field"><label for="cr-modalidad-${i}">Modalidad</label>${s(mods.includes(c.modalidad) ? mods : [c.modalidad].concat(mods), 'modalidad')}</div>
+            <div class="field"><label for="cr-facultad-${i}">Facultad</label>${s(DB.CRONO.facultades, 'facultad')}</div>
+            <div class="field"><label for="cr-carrera-${i}">Carrera</label>${s(DB.CRONO.carreras, 'carrera')}</div>
+          </div>
+          <div class="field-error" id="cr-err-${i}" ${mal ? '' : 'hidden'} style="margin-top:10px">La fecha "Hasta" es anterior a "Desde".</div>
+          <div style="margin-top:14px">${interruptor(c.activo !== false, `setItem('cronogramas', ${i}, 'activo', this.checked); renderPanel()`, 'Rango activo', '')}</div>
+        </div>`;
+    }
+    function marcarFechas(i) {
+      const c = T.cronogramas[i]; const e = document.getElementById('cr-err-' + i);
+      if (e) e.hidden = !(c.fechaInicio && c.fechaFin && c.fechaFin < c.fechaInicio);
+    }
+    function addCrono(silencio) {
+      T.cronogramas.push({ id: 'CR-' + Date.now().toString().slice(-6), grado: 'Todos', modalidad: 'Todas', facultad: 'Todas', carrera: 'Todas', periodo: 'Todos', fechaInicio: DB.hoyISO(), fechaFin: DB.hoyISO(), activo: true });
+      if (!silencio) { renderPanel(); refresh(); }
+    }
+
+    function addReq(id) {
+      const r = DB.getRequisito(id);
+      if (!r) return;
+      T.requisitos.push({ id: r.id, titulo: r.titulo, condiciones: r.observacion || '', adjuntarArchivo: r.requiereAdjunto !== false, formato: r.formato || 'PDF', activo: true, orden: T.requisitos.length + 1 });
+      renderPanel(); refresh();
+    }
+    function crearReq() {
+      const t = document.getElementById('nr-t').value.trim();
+      if (!t) { document.getElementById('nr-err').hidden = false; document.getElementById('nr-t').focus(); return; }
+      const fmt = document.getElementById('nr-f').value || 'PDF';
+      const r = DB.upsertRequisito({ titulo: t, observacion: '', requiereAdjunto: true, adjuntoNombre: t.slice(0, 50), formato: fmt, activo: true, fechaRegistro: DB.hoyISO() });
+      SHOW_NUEVO_REQ = false;
+      addReq(r.id);
+      APP.toast('Requisito creado y agregado al trámite', 'ok');
+    }
+
+    function setConPago(v) {
+      CON_PAGO = v;
+      if (!v) { if (T.costo > 0) ULTIMO_COSTO = T.costo; T.costo = 0; }
+      else if (!(T.costo > 0)) T.costo = ULTIMO_COSTO || 0;
+      renderPanel(); refresh();
+    }
+    function setCosto(v) { const n = parseFloat(v); T.costo = isNaN(n) || n < 0 ? 0 : n; ULTIMO_COSTO = T.costo; refresh(); }
+    function setMomento(v) {
+      T.pagoMomento = v;
+      delete T.pagoTrasEtapa;   // el pago tras una revisión concreta se define en "Armar proceso"
+      document.querySelectorAll('input[name="pm"]').forEach(r => r.closest('.radio-card').classList.toggle('checked', r.checked));
+      refresh();
+    }
+    function pintarConceptos(q) {
+      const el = document.getElementById('dz-clist');
+      if (!el) return;
+      const t = (q || '').toLowerCase().trim();
+      CONCEPTOS_VIS = DB.conceptos().filter(c => !t || String(c.codigo).toLowerCase().includes(t) || String(c.servicio).toLowerCase().includes(t)).slice(0, 40);
+      el.innerHTML = CONCEPTOS_VIS.map((c, i) => `
+        <button type="button" class="concept-opt ${c.codigo === T.conceptoCodigo ? 'is-sel' : ''}" onclick="pickConcepto(${i})">
+          <span>${E(c.servicio)}<small>${E(c.codigo)}${c.obs ? ' · ' + E(c.obs) : ''}</small></span>
+          <span class="amt">${APP.money(c.monto || 0)}</span>
+        </button>`).join('') || '<div class="help" style="padding:12px 14px">Ningún concepto coincide.</div>';
+    }
+    function pickConcepto(i) {
+      const c = CONCEPTOS_VIS[i];
+      if (!c) return;
+      T.conceptoCodigo = c.codigo; T.conceptoServicio = c.servicio;
+      if (Number(c.monto) > 0) { T.costo = Number(c.monto); ULTIMO_COSTO = T.costo; document.getElementById('dz-costo').value = T.costo; }
+      document.getElementById('dz-concepto-sel').textContent = c.codigo + ' · ' + c.servicio;
+      pintarConceptos(document.getElementById('dz-cbus').value);
+      refresh();
+    }
+
+    function addEtapa() {
+      const areas = DB.areas().filter(a => a.activo !== false).map(a => a.nombre);
+      T.proceso.push({ id: 'P-' + Date.now().toString().slice(-6), orden: T.proceso.length + 1, area: T.proceso.length ? (areas[0] || T.area) : (T.area || areas[0] || ''), descripcion: '', observacion: '', duracionDias: 1, activo: true });
+      renderPanel(); refresh();
+      const ult = document.getElementById('pr-t-' + (T.proceso.length - 1));
+      if (ult) ult.focus();
+    }
+
+    function setInmediato(v) {
+      if (v) { if (T.diasEntrega > 0) DIAS_PREVIOS = T.diasEntrega; T.diasEntrega = 0; }
+      else { T.diasEntrega = DIAS_PREVIOS || T.plazoRecojoDias || 3; }
+      renderPanel(); refresh();
+    }
+    function setGenera(v) {
+      T.plantilla = T.plantilla || {};
+      T.plantilla.generaDocumento = v;
+      renderPanel(); refresh();
+    }
+    function setModelo(v) {
+      T.modelo = v;
+      // el texto por defecto cambia con el modelo, salvo que ya se haya personalizado
+      renderPanel(); refresh();
+    }
+    function setPl(k, v) {
+      T.plantilla = T.plantilla || {};
+      T.plantilla[k] = v;
+      refresh();
+    }
+    function insertarVar(k) {
+      const ta = document.getElementById('pl-cuerpo');
+      ta.setRangeText('{' + k + '}', ta.selectionStart, ta.selectionEnd, 'end');
+      ta.focus();
+      setPl('cuerpo', ta.value);
+    }
+    function restaurarPlantilla() {
+      APP.confirm({
+        title: 'Volver al texto del modelo', confirmLabel: 'Restaurar',
+        body: 'Se descartan el título, el texto, la oficina y la firma que escribiste, y se usan los del modelo base.',
+        onConfirm: () => {
+          const gen = T.plantilla && T.plantilla.generaDocumento;
+          T.plantilla = gen === undefined ? undefined : { generaDocumento: gen };
+          if (T.plantilla === undefined) delete T.plantilla;
+          renderPanel(); refresh();
+        }
+      });
+    }
+    function verDocumento() { DOC.preview(limpio(), DOC.ALUMNO_DEMO, null, { adminPreview: true }); }
+
+    function addCorreo() {
+      const usados = T.correos.map(c => c.tipoEstado);
+      const libre = DB.ESTADOS_CORREO.find(e => !usados.includes(e)) || DB.ESTADOS_CORREO[0];
+      T.correos.push({ id: 'MAIL-' + Date.now().toString().slice(-6), tipoEstado: libre, remitente: 'tramites@uwiener.edu.pe', password: '', asunto: libre + ': ' + (T.nombre || 'tu trámite'), cc: '', contenido: '<div>Estimado estudiante:</div><br><div></div>', activo: true });
+      renderPanel(); refresh();
+    }
+    function verCorreo(i) {
+      const c = T.correos[i];
+      APP.openModal(`
+        <div class="modal-head"><h3>Vista previa del correo</h3><button class="modal-close" type="button" onclick="APP.closeModal()">&times;</button></div>
+        <div class="modal-body">
+          <p class="help" style="margin-bottom:10px"><b>De:</b> ${E(c.remitente || '-')}${c.cc ? ' · <b>Copia:</b> ' + E(c.cc) : ''}<br><b>Asunto:</b> ${E(c.asunto || '-')}</p>
+          <div class="mail-preview">${c.contenido || '<span class="help">Sin mensaje</span>'}</div>
+        </div>
+        <div class="modal-foot"><button class="btn btn-primary" type="button" onclick="APP.closeModal()">Cerrar</button></div>`);
+    }
+
+    function setActivo(v) {
+      const errores = problemas().filter(p => p.nivel === 'error');
+      if (v && errores.length) {
+        APP.toast('Aún no se puede publicar', 'Completa los ' + errores.length + ' puntos pendientes de la lista.', 'warn');
+        renderPanel();
+        return;
+      }
+      set('activo', v);
+    }
+
+    // ---------------------------------------------------------------- guardar
+    // Copia lista para guardar: ordena, deriva campos y deja en la plantilla solo lo personalizado
+    function limpio() {
+      const t = JSON.parse(JSON.stringify(T));
+      t.nombre = (t.nombre || '').trim();
+      t.requisitos.forEach((r, i) => { r.orden = i + 1; });
+      t.proceso.forEach((p, i) => { p.orden = i + 1; });
+      t.requiereAdjunto = t.requisitos.some(r => r.activo !== false && r.adjuntarArchivo !== false);
+      t.requierePago = t.costo > 0;
+      t.audiencia.minCreditos = Number(t.audiencia.minCreditos) || 0;
+      t.audiencia.promedioMin = Number(t.audiencia.promedioMin) || 0;
+      if (t.plantilla) {
+        const base = DOC.plantillaPorDefecto(Object.assign({}, t, { plantilla: undefined }));
+        ['emisor', 'firmante', 'cargo', 'titulo', 'cuerpo'].forEach(k => { if (t.plantilla[k] === base[k]) delete t.plantilla[k]; });
+        if (t.plantilla.generaDocumento === base.generaDocumento) delete t.plantilla.generaDocumento;
+        if (!Object.keys(t.plantilla).length) delete t.plantilla;
+      }
+      if (t.correos[0]) t.correoConfig = { remitente: t.correos[0].remitente, asunto: t.correos[0].asunto, mensaje: t.correos[0].contenido };
+      return t;
+    }
+
+    function guardar() {
+      if (!(T.nombre || '').trim()) {
+        ir('basico');
+        APP.toast('Falta el nombre', 'Escribe el nombre del trámite para poder guardarlo.', 'warn');
+        return;
+      }
+      const errores = problemas().filter(p => p.nivel === 'error');
+      let nota = '';
+      if (errores.length && T.activo) { T.activo = false; nota = 'Se guardó como borrador, no visible para alumnos, porque faltan ' + errores.length + ' puntos.'; }
+      const esNuevo = !T.id;
+      const guardado = DB.upsertTramite(limpio());
+      T = normalizar(JSON.parse(JSON.stringify(guardado)));
+      ORIG = JSON.stringify(T);
+      CON_PAGO = T.costo > 0;
+      if (esNuevo) history.replaceState(null, '', 'tramite-editor.html?id=' + encodeURIComponent(T.id));
+      renderPanel(); refresh();
+      if (nota) APP.toast('Guardado como borrador', nota, 'warn');
+      else APP.toast(esNuevo ? 'Trámite creado' : 'Cambios guardados', T.activo ? 'Ya está visible para los alumnos a quienes va dirigido.' : 'Está como borrador. Publícalo en "Revisar y publicar" cuando esté listo.', 'ok');
+    }
+
+    window.addEventListener('beforeunload', e => { if (isDirty()) { e.preventDefault(); e.returnValue = ''; } });
+
+    init();
+  </script>
+</body>
+</html>
