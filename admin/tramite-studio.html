@@ -813,16 +813,16 @@
     }
 
     .timeline-node-card {
-      display: grid;
-      grid-template-columns: 44px 1fr auto;
-      gap: 14px;
+      display: flex;
       align-items: center;
+      gap: 12px;
       padding: 12px 16px;
       background: #FFFFFF;
       border: 1.5px solid var(--border-soft);
       border-radius: 12px;
       cursor: pointer;
-      transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+      transition: border-color 0.15s ease, box-shadow 0.15s ease, background-color 0.15s ease, transform 0.15s ease, opacity 0.15s ease;
+      position: relative;
     }
 
     .timeline-node-card:hover {
@@ -835,6 +835,58 @@
       border-color: var(--brand);
       background: #FAFEFE;
       box-shadow: 0 0 0 3px rgba(15, 132, 143, 0.15);
+    }
+
+    /* Drag & Drop Feedback Visual para Etapas de Revisión */
+    .timeline-node-card.node-type-revision {
+      cursor: grab;
+    }
+
+    .timeline-node-card.is-dragging {
+      opacity: 0.45;
+      border: 2px dashed var(--brand) !important;
+      background: #F0FAFA !important;
+      transform: scale(0.98);
+      cursor: grabbing;
+    }
+
+    .timeline-node-card.drop-indicator-top {
+      border-top: 3px solid var(--brand) !important;
+      box-shadow: 0 -4px 10px rgba(15, 132, 143, 0.2);
+    }
+
+    .timeline-node-card.drop-indicator-bottom {
+      border-bottom: 3px solid var(--brand) !important;
+      box-shadow: 0 4px 10px rgba(15, 132, 143, 0.2);
+    }
+
+    /* Icono Drag Handle: sin color de fondo, solo dos líneas en gris claro */
+    .node-drag-handle {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 14px;
+      height: 24px;
+      cursor: grab;
+      color: #94A3B8;
+      background: transparent;
+      border: none;
+      padding: 0;
+      margin-right: -2px;
+      transition: color 0.15s ease, transform 0.15s ease;
+      user-select: none;
+      flex-shrink: 0;
+    }
+
+    .node-drag-handle:hover {
+      color: var(--brand);
+      transform: scale(1.1);
+    }
+
+    .timeline-node-card.is-dragging .node-drag-handle,
+    .node-drag-handle:active {
+      cursor: grabbing;
+      color: var(--brand);
     }
 
     .node-icon-circle {
@@ -899,7 +951,159 @@
     .node-badges {
       display: flex;
       align-items: center;
+      gap: 8px;
+      margin-left: auto !important;
+      flex-shrink: 0;
+    }
+
+    /* Prevención estricta de colisiones de eventos durante Drag & Drop */
+    body.timeline-is-dragging .timeline-node-card * {
+      pointer-events: none !important;
+    }
+    body.timeline-is-dragging .timeline-node-card {
+      pointer-events: auto !important;
+    }
+
+    /* Indicadores visuales de inserción nítidos y luminosos */
+    .timeline-node-card.drop-indicator-top {
+      border-top: 3.5px solid var(--brand) !important;
+      box-shadow: 0 -6px 14px rgba(15, 132, 143, 0.28) !important;
+    }
+
+    .timeline-node-card.drop-indicator-bottom {
+      border-bottom: 3.5px solid var(--brand) !important;
+      box-shadow: 0 6px 14px rgba(15, 132, 143, 0.28) !important;
+    }
+
+    /* Estilos para Plantillas y Formatos Adjuntos en Requisitos (Word, Excel, PDF) */
+    .file-tag-badge {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 2px 7px;
+      border-radius: 4px;
+      font-size: 10.5px;
+      font-weight: 800;
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+      white-space: nowrap;
+    }
+    .file-tag-badge.word,
+    .file-badge-word {
+      background: #EFF6FF;
+      color: #1D4ED8;
+      border: 1px solid #BFDBFE;
+    }
+    .file-tag-badge.excel,
+    .file-badge-excel {
+      background: #F0FDF4;
+      color: #15803D;
+      border: 1px solid #BBF7D0;
+    }
+    .file-tag-badge.pdf,
+    .file-badge-pdf {
+      background: #FEF2F2;
+      color: #B91C1C;
+      border: 1px solid #FECACA;
+    }
+
+    .modal-req-plantilla-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-top: 6px;
+      padding: 5px 10px;
+      background: #F8FAFC;
+      border: 1px solid #E2E8F0;
+      border-radius: 6px;
+      font-size: 12px;
+    }
+    .modal-req-plantilla-row .file-name {
+      font-weight: 600;
+      color: #1E293B;
+      max-width: 250px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+    .modal-req-plantilla-row .file-meta {
+      color: #64748B;
+      font-size: 11px;
+    }
+    .btn-file-mini {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 24px;
+      height: 24px;
+      border-radius: 4px;
+      border: 1px solid #CBD5E1;
+      background: #FFFFFF;
+      color: #475569;
+      cursor: pointer;
+      transition: all 0.15s ease;
+      padding: 0;
+    }
+    .btn-file-mini:hover {
+      border-color: var(--brand);
+      color: var(--brand);
+      background: var(--brand-soft);
+    }
+    .btn-file-mini.danger:hover {
+      border-color: var(--err-fg);
+      color: var(--err-fg);
+      background: #FEF2F2;
+    }
+    .btn-adjuntar-mini {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      margin-top: 6px;
+      padding: 4px 9px;
+      border-radius: 6px;
+      border: 1px dashed #CBD5E1;
+      background: #FAFCFD;
+      color: var(--brand-dark);
+      font-size: 11.5px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+    .btn-adjuntar-mini:hover {
+      border-color: var(--brand);
+      background: var(--brand-soft);
+      color: var(--brand);
+    }
+
+    .req-plantilla-box {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-top: 10px;
+      padding: 8px 12px;
+      background: #F8FAFC;
+      border: 1px solid #E2E8F0;
+      border-radius: 8px;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+    .btn-adjuntar-inline {
+      display: inline-flex;
+      align-items: center;
       gap: 6px;
+      padding: 6px 12px;
+      border-radius: 6px;
+      border: 1.5px dashed var(--brand);
+      background: var(--brand-soft);
+      color: var(--brand-dark);
+      font-size: 12px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+    .btn-adjuntar-inline:hover {
+      background: #D8F1F3;
+      border-color: var(--brand-dark);
     }
 
     .node-badge-chip {
@@ -1183,7 +1387,15 @@
       revision: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21h18M3 10h18M5 10v11M9 10v11M15 10v11M19 10v11M12 2l10 5H2l10-5z"></path></svg>',
       aprobacion: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="6"></circle><path d="M15.477 12.89 17 22l-5-3-5 3 1.523-9.11"></path></svg>',
       entrega: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>',
-      preflight: '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 14 14"></polyline></svg>'
+      preflight: '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 14 14"></polyline></svg>',
+      chevronRight: '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>',
+      paperclip: '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"></path></svg>',
+      download: '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>',
+      edit: '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>',
+      trash: '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>',
+      fileWord: '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="9" y1="15" x2="10" y2="15"></line><line x1="10" y1="12" x2="14" y2="12"></line></svg>',
+      fileExcel: '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="8" y1="13" x2="16" y2="13"></line><line x1="8" y1="17" x2="16" y2="17"></line><line x1="12" y1="9" x2="12" y2="21"></line></svg>',
+      filePdf: '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="9" y1="13" x2="15" y2="13"></line><line x1="9" y1="17" x2="15" y2="17"></line></svg>'
     };
 
     // 1. Inicializar Shell de la Intranet Wiener
@@ -1767,14 +1979,65 @@
     // RENDERS DE SECCIONES ESPECÍFICAS
     // =========================================================================
     function renderTimelineNodesHTML(paradas) {
+      const tienePago = (Number(CURRENT_T.costo) || 0) > 0;
+      const pagoAntes = tienePago && CURRENT_T.pagoMomento === 'antes';
       let html = '';
+
       paradas.forEach((s) => {
         const isSelected = SELECTED_STEP_KEY === s.k;
         const iconSvg = SVG_ICONS[s.icono] || SVG_ICONS.solicitud;
+        const isRevision = s.tipo === 'revision';
+
+        // Lógica precisa para el botón (+): solo se muestra donde cronológicamente tiene sentido insertar revisiones
+        let mostrarGap = false;
+        let posInsercion = 0;
+
+        if (s.tipo === 'solicitud') {
+          // Si el pago es previo (antes de revisión), la solicitud conecta directo con el pago (NO hay botón [+] aquí).
+          // Si no hay pago previo, la primera revisión se inserta directamente aquí (pos = 0).
+          if (!pagoAntes) {
+            mostrarGap = true;
+            posInsercion = 0;
+          }
+        } else if (s.tipo === 'pago') {
+          // Si el pago es previo, el botón [+] debe ir justo debajo del pago (pos = 0) para iniciar la primera revisión.
+          if (pagoAntes) {
+            mostrarGap = true;
+            posInsercion = 0;
+          }
+        } else if (s.tipo === 'revision') {
+          // Debajo de cada revisión se puede insertar otra etapa intermedia (pos = s.idx + 1).
+          mostrarGap = true;
+          posInsercion = s.idx + 1;
+        }
+
+        // Atributos Drag & Drop exclusivos para etapas de revisión dinámica
+        const dragAttrs = isRevision ? `
+          draggable="true"
+          data-drag-idx="${s.idx}"
+          ondragstart="onRevisionDragStart(event, ${s.idx})"
+          ondragover="onRevisionDragOver(event, ${s.idx})"
+          ondragleave="onRevisionDragLeave(event, ${s.idx})"
+          ondrop="onRevisionDrop(event, ${s.idx})"
+          ondragend="onRevisionDragEnd(event)"
+        ` : '';
+
+        // Icono de arrastre: sin color de fondo, solo las líneas verticales en gris claro (#94A3B8)
+        const dragHandleHtml = isRevision ? `
+          <div class="node-drag-handle" title="Arrastrar para reordenar etapa" aria-label="Reordenar etapa">
+            <svg width="10" height="18" viewBox="0 0 10 18" fill="none" stroke="#94A3B8" stroke-width="2.2" stroke-linecap="round">
+              <line x1="3" y1="3" x2="3" y2="15"></line>
+              <line x1="7" y1="3" x2="7" y2="15"></line>
+            </svg>
+          </div>
+        ` : '';
 
         html += `
           <li class="timeline-item">
-            <div class="timeline-node-card node-type-${s.tipo} ${isSelected ? 'selected' : ''}" onclick="seleccionarPaso('${s.k}')">
+            <div class="timeline-node-card node-type-${s.tipo} ${isSelected ? 'selected' : ''}" 
+                 onclick="seleccionarPaso('${s.k}')" 
+                 ${dragAttrs}>
+              ${dragHandleHtml}
               <div class="node-icon-circle">${iconSvg}</div>
               <div class="node-text-box">
                 <h4>${E(s.titulo)}</h4>
@@ -1786,12 +2049,12 @@
               </div>
             </div>
 
-            ${s.tipo === 'solicitud' || s.tipo === 'revision' ? `
+            ${mostrarGap ? `
               <div class="timeline-gap">
-                <button type="button" class="btn-gap-add" title="Agregar paso aquí" onclick="insertarPasoIntermedio(${s.idx !== undefined ? s.idx + 1 : 0})">
+                <button type="button" class="btn-gap-add" title="Insertar revisión de área aquí" onclick="insertarPasoIntermedio(${posInsercion})">
                   ${SVG_ICONS.plus}
                 </button>
-                <span class="gap-hint" onclick="insertarPasoIntermedio(${s.idx !== undefined ? s.idx + 1 : 0})">Insertar revisión de área aquí</span>
+                <span class="gap-hint" onclick="insertarPasoIntermedio(${posInsercion})">Insertar revisión de área aquí</span>
               </div>
             ` : ''}
           </li>
@@ -2026,26 +2289,61 @@
                   <span>Seleccionar requisitos del catálogo</span>
                 </button>
               </div>
-            ` : currentReqs.map((r, i) => `
-              <div class="req-item-card">
-                <div>
-                  <div style="display:flex;align-items:center;gap:8px">
-                    <span class="req-badge-type">${r.adjuntarArchivo ? 'Archivo Requerido' : 'Declaración'}</span>
-                    <b style="font-size:14px;color:var(--text)">${E(r.titulo)}</b>
+            ` : currentReqs.map((r, i) => {
+              const allReqs = DB.requisitos() || [];
+              const masterReq = allReqs.find(x => x.id === r.id) || {};
+              const plantilla = r.plantillaDoc || masterReq.plantillaDoc;
+              return `
+              <div class="req-item-card" style="display:flex;flex-direction:column;gap:10px;padding:16px;background:#FFFFFF;border:1.5px solid var(--border-soft);border-radius:10px;margin-bottom:12px">
+                <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:12px;width:100%">
+                  <div>
+                    <div style="display:flex;align-items:center;gap:8px">
+                      <span class="req-badge-type">${r.adjuntarArchivo ? 'Archivo Requerido' : 'Declaración'}</span>
+                      <b style="font-size:14.5px;color:var(--text)">${E(r.titulo)}</b>
+                    </div>
+                    <p style="margin:4px 0 0;font-size:12.5px;color:var(--text-muted)">${E(r.condiciones || 'Presentación en formato digital PDF/JPG.')}</p>
                   </div>
-                  <p style="margin:4px 0 0;font-size:12.5px;color:var(--text-muted)">${E(r.condiciones || 'Presentación en formato digital PDF/JPG.')}</p>
+                  <div style="display:flex;align-items:center;gap:10px">
+                    <label style="font-size:12.5px;display:flex;align-items:center;gap:6px;cursor:pointer;font-weight:600;color:var(--text)">
+                      <input type="checkbox" ${r.activo !== false ? 'checked' : ''} onchange="toggleRequisitoActivo(${i}, this.checked)">
+                      Obligatorio
+                    </label>
+                    <button type="button" class="btn-studio-secondary" style="color:var(--err-fg);padding:0 10px;font-size:12px;height:30px" onclick="quitarRequisito(${i})">
+                      Quitar
+                    </button>
+                  </div>
                 </div>
-                <div style="display:flex;align-items:center;gap:10px">
-                  <label style="font-size:12.5px;display:flex;align-items:center;gap:6px;cursor:pointer">
-                    <input type="checkbox" ${r.activo !== false ? 'checked' : ''} onchange="toggleRequisitoActivo(${i}, this.checked)">
-                    Obligatorio
-                  </label>
-                  <button type="button" class="btn-studio-secondary" style="color:var(--err-fg);padding:0 10px;font-size:12px;height:30px" onclick="quitarRequisito(${i})">
-                    Quitar
-                  </button>
-                </div>
+
+                <!-- Bloque de Formato / Plantilla descargable (Word, Excel o PDF) -->
+                ${plantilla ? `
+                  <div class="req-plantilla-box">
+                    <div style="display:flex;align-items:center;gap:8px">
+                      <span class="file-tag-badge ${plantilla.tipo.toLowerCase()}">${plantilla.tipo}</span>
+                      <b style="font-size:13px;color:var(--text)">${E(plantilla.nombre)}</b>
+                      <span style="font-size:11.5px;color:var(--text-muted)">(${E(plantilla.peso || '40 KB')})</span>
+                    </div>
+                    <div style="display:flex;align-items:center;gap:6px">
+                      <button type="button" class="btn-studio-secondary" style="height:30px;padding:0 10px;font-size:12px;gap:5px" onclick="descargarPlantillaSimulada('${r.id}')">
+                        ${SVG_ICONS.download} <span>Descargar plantilla</span>
+                      </button>
+                      <button type="button" class="btn-file-mini" onclick="abrirFileUploaderRequisito('${r.id}', 'tab')" title="Cambiar archivo plantilla (Word, Excel o PDF)">
+                        ${SVG_ICONS.edit}
+                      </button>
+                      <button type="button" class="btn-file-mini danger" onclick="eliminarPlantillaRequisito('${r.id}', 'tab')" title="Quitar archivo adjunto">
+                        ${SVG_ICONS.trash}
+                      </button>
+                    </div>
+                  </div>
+                ` : `
+                  <div style="margin-top:2px">
+                    <button type="button" class="btn-adjuntar-inline" onclick="abrirFileUploaderRequisito('${r.id}', 'tab')">
+                      ${SVG_ICONS.paperclip} <span>Adjuntar formato / plantilla descargable (Word, Excel o PDF)</span>
+                    </button>
+                  </div>
+                `}
               </div>
-            `).join('')}
+            `;
+            }).join('')}
           </div>
         </div>
       `;
@@ -2464,6 +2762,31 @@
                       <td style="padding:10px 14px">
                         <b style="color:var(--text);font-size:13.5px">${E(r.titulo)}</b>
                         <div style="font-size:11.5px;color:var(--text-muted);margin-top:2px">Código: <span style="font-family:monospace">${E(r.id)}</span> · ${r.requiereAdjunto !== false ? 'Requiere adjuntar archivo digital' : 'Declaración en línea'}</div>
+                        <!-- Plantilla / Documento descargable asociado (Word, Excel o PDF) -->
+                        ${r.plantillaDoc ? `
+                          <div class="modal-req-plantilla-row">
+                            <span class="file-tag-badge ${r.plantillaDoc.tipo.toLowerCase()}">${r.plantillaDoc.tipo}</span>
+                            <span class="file-name" title="${E(r.plantillaDoc.nombre)}">${E(r.plantillaDoc.nombre)}</span>
+                            <span class="file-meta">(${E(r.plantillaDoc.peso || '40 KB')})</span>
+                            <div style="margin-left:auto;display:flex;align-items:center;gap:5px">
+                              <button type="button" class="btn-file-mini" onclick="descargarPlantillaSimulada('${r.id}')" title="Descargar documento plantilla">
+                                ${SVG_ICONS.download}
+                              </button>
+                              <button type="button" class="btn-file-mini" onclick="abrirFileUploaderRequisito('${r.id}', 'modal')" title="Cambiar archivo plantilla (Word, Excel o PDF)">
+                                ${SVG_ICONS.edit}
+                              </button>
+                              <button type="button" class="btn-file-mini danger" onclick="eliminarPlantillaRequisito('${r.id}', 'modal')" title="Eliminar documento adjunto">
+                                ${SVG_ICONS.trash}
+                              </button>
+                            </div>
+                          </div>
+                        ` : `
+                          <div style="margin-top:6px">
+                            <button type="button" class="btn-adjuntar-mini" onclick="abrirFileUploaderRequisito('${r.id}', 'modal')" title="Adjuntar plantilla Word, Excel o PDF para este requisito">
+                              ${SVG_ICONS.paperclip} <span>Adjuntar documento plantilla (Word, Excel o PDF)</span>
+                            </button>
+                          </div>
+                        `}
                       </td>
                       <td style="text-align:center;padding:10px 12px">
                         <span class="node-badge-chip" style="font-weight:700;text-transform:uppercase">${E(r.formato || 'PDF')}</span>
@@ -2557,6 +2880,126 @@
         CURRENT_T.requisitos.splice(idx, 1);
         renderStudioUI();
         APP.toast('Requisito removido.', 'ok');
+      }
+    }
+
+    // =========================================================================
+    // GESTIÓN DE PLANTILLAS Y FORMATOS ADJUNTOS (Word, Excel, PDF)
+    // =========================================================================
+    window._reqIdParaAdjuntar = null;
+    window._origenParaAdjuntar = null; // 'modal' | 'tab'
+
+    function abrirFileUploaderRequisito(reqId, desde) {
+      window._reqIdParaAdjuntar = reqId;
+      window._origenParaAdjuntar = desde || 'tab';
+      let fileInput = document.getElementById('studio-plantilla-file-input');
+      if (!fileInput) {
+        fileInput = document.createElement('input');
+        fileInput.type = 'file';
+        fileInput.id = 'studio-plantilla-file-input';
+        fileInput.accept = '.pdf,.doc,.docx,.xls,.xlsx';
+        fileInput.style.display = 'none';
+        fileInput.onchange = handleArchivoPlantillaSubido;
+        document.body.appendChild(fileInput);
+      }
+      fileInput.value = '';
+      fileInput.click();
+    }
+
+    function handleArchivoPlantillaSubido(e) {
+      const file = e.target.files && e.target.files[0];
+      if (!file) return;
+
+      const reqId = window._reqIdParaAdjuntar;
+      const desde = window._origenParaAdjuntar;
+      if (!reqId) return;
+
+      const ext = file.name.split('.').pop().toLowerCase();
+      let tipo = 'PDF';
+      if (ext === 'doc' || ext === 'docx') tipo = 'WORD';
+      else if (ext === 'xls' || ext === 'xlsx') tipo = 'EXCEL';
+      else if (ext === 'pdf') tipo = 'PDF';
+
+      const sizeKb = Math.round(file.size / 1024);
+      const peso = sizeKb > 1024 ? (sizeKb / 1024).toFixed(1) + ' MB' : (sizeKb || 14) + ' KB';
+
+      const plantillaDoc = {
+        nombre: file.name,
+        tipo: tipo,
+        peso: peso,
+        fecha: new Date().toISOString().slice(0, 10)
+      };
+
+      DB.adjuntarPlantillaRequisito(reqId, plantillaDoc);
+
+      // Si el requisito está asignado al trámite actual, sincronizar
+      if (CURRENT_T && CURRENT_T.requisitos) {
+        const rInT = CURRENT_T.requisitos.find(x => x.id === reqId);
+        if (rInT) {
+          rInT.plantillaDoc = plantillaDoc;
+        }
+      }
+
+      APP.toast(`Documento «${file.name}» adjuntado correctamente.`, 'ok');
+      e.target.value = '';
+
+      if (desde === 'modal') {
+        const modalEl = document.querySelector('#ov .modal');
+        if (modalEl) {
+          modalEl.innerHTML = renderContentRequisitosModal(_filtroReqModal);
+        }
+      } else {
+        renderStudioUI();
+      }
+    }
+
+    function descargarPlantillaSimulada(reqId) {
+      const allReqs = DB.requisitos() || [];
+      const req = allReqs.find(r => r.id === reqId);
+      const p = req ? req.plantillaDoc : null;
+      if (!p) {
+        APP.toast('Este requisito no tiene documento adjunto.', 'err');
+        return;
+      }
+
+      const contenido = `UNIVERSIDAD PRIVADA NORBERT WIENER\n` +
+        `FORMATO INSTITUCIONAL DE TRÁMITES ACADÉMICOS\n` +
+        `------------------------------------------------------------\n` +
+        `Requisito: ${req.titulo} (Código: ${req.id})\n` +
+        `Documento Base: ${p.nombre}\n` +
+        `Tipo de Formato: ${p.tipo}\n` +
+        `Fecha de Registro: ${p.fecha || '2026-06-10'}\n` +
+        `------------------------------------------------------------\n` +
+        `Indicaciones para el estudiante:\n` +
+        `Descargue este formato oficial, complete la información solicitada\n` +
+        `con sus datos institucionales y adjúntelo firmado digitalmente al portal.\n`;
+
+      const blob = new Blob([contenido], { type: 'text/plain;charset=utf-8' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = p.nombre;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+      APP.toast(`Descargando plantilla «${p.nombre}»...`, 'ok');
+    }
+
+    function eliminarPlantillaRequisito(reqId, desde) {
+      DB.adjuntarPlantillaRequisito(reqId, null);
+      if (CURRENT_T && CURRENT_T.requisitos) {
+        const rInT = CURRENT_T.requisitos.find(x => x.id === reqId);
+        if (rInT) rInT.plantillaDoc = null;
+      }
+      APP.toast('Plantilla adjunta retirada.', 'info');
+      if (desde === 'modal') {
+        const modalEl = document.querySelector('#ov .modal');
+        if (modalEl) {
+          modalEl.innerHTML = renderContentRequisitosModal(_filtroReqModal);
+        }
+      } else {
+        renderStudioUI();
       }
     }
 
@@ -2695,6 +3138,130 @@
       arr[target] = temp;
       SELECTED_STEP_KEY = 'rev_' + target;
       renderStudioUI();
+    }
+
+    // =========================================================================
+    // DRAG & DROP INTUITIVO Y ROBUSTO PARA ETAPAS DE REVISIÓN EN TIMELINE
+    // =========================================================================
+    let _draggedRevIdx = null;
+    let _dropTargetIdx = null;
+    let _dropPlacement = null; // 'before' | 'after'
+
+    function onRevisionDragStart(e, idx) {
+      _draggedRevIdx = idx;
+      _dropTargetIdx = null;
+      _dropPlacement = null;
+
+      if (e.dataTransfer) {
+        e.dataTransfer.effectAllowed = 'move';
+        e.dataTransfer.setData('text/plain', String(idx));
+      }
+
+      document.body.classList.add('timeline-is-dragging');
+      const card = e.currentTarget;
+      setTimeout(() => {
+        if (card) card.classList.add('is-dragging');
+      }, 0);
+    }
+
+    function onRevisionDragOver(e, targetIdx) {
+      e.preventDefault();
+      if (e.dataTransfer) {
+        e.dataTransfer.dropEffect = 'move';
+      }
+      if (_draggedRevIdx === null || _draggedRevIdx === targetIdx) return;
+
+      const card = e.currentTarget;
+      const rect = card.getBoundingClientRect();
+      const relY = e.clientY - rect.top;
+
+      // Umbrales generosos e intuitivos según dirección del arrastre
+      let isBefore = false;
+      if (_draggedRevIdx < targetIdx) {
+        // Arrastrando hacia abajo: favorecer inserción posterior salvo si está bien arriba
+        isBefore = relY < (rect.height * 0.35);
+      } else {
+        // Arrastrando hacia arriba: favorecer inserción anterior salvo si está bien abajo
+        isBefore = relY < (rect.height * 0.65);
+      }
+
+      _dropTargetIdx = targetIdx;
+      _dropPlacement = isBefore ? 'before' : 'after';
+
+      document.querySelectorAll('.timeline-node-card').forEach(c => {
+        if (c !== card) c.classList.remove('drop-indicator-top', 'drop-indicator-bottom');
+      });
+
+      card.classList.toggle('drop-indicator-top', isBefore);
+      card.classList.toggle('drop-indicator-bottom', !isBefore);
+    }
+
+    function onRevisionDragLeave(e, targetIdx) {
+      const card = e.currentTarget;
+      const rect = card.getBoundingClientRect();
+      if (e.clientY < rect.top || e.clientY > rect.bottom || e.clientX < rect.left || e.clientX > rect.right) {
+        card.classList.remove('drop-indicator-top', 'drop-indicator-bottom');
+        if (_dropTargetIdx === targetIdx) {
+          _dropTargetIdx = null;
+          _dropPlacement = null;
+        }
+      }
+    }
+
+    function onRevisionDrop(e, targetIdx) {
+      e.preventDefault();
+      const fromIdx = _draggedRevIdx;
+      const target = _dropTargetIdx !== null ? _dropTargetIdx : targetIdx;
+      const isBefore = _dropPlacement ? (_dropPlacement === 'before') : (fromIdx > target);
+
+      document.body.classList.remove('timeline-is-dragging');
+      document.querySelectorAll('.timeline-node-card').forEach(c => {
+        c.classList.remove('is-dragging', 'drop-indicator-top', 'drop-indicator-bottom');
+      });
+
+      _draggedRevIdx = null;
+      _dropTargetIdx = null;
+      _dropPlacement = null;
+
+      if (fromIdx === null || target === null || fromIdx === target) return;
+
+      reordenarRevisionDesdeDrag(fromIdx, target, isBefore);
+    }
+
+    function onRevisionDragEnd(e) {
+      document.body.classList.remove('timeline-is-dragging');
+      _draggedRevIdx = null;
+      _dropTargetIdx = null;
+      _dropPlacement = null;
+      document.querySelectorAll('.timeline-node-card').forEach(c => {
+        c.classList.remove('is-dragging', 'drop-indicator-top', 'drop-indicator-bottom');
+      });
+    }
+
+    function reordenarRevisionDesdeDrag(fromIdx, targetIdx, insertBefore) {
+      const arr = CURRENT_T.proceso;
+      if (!arr || fromIdx < 0 || fromIdx >= arr.length) return;
+      if (targetIdx < 0 || targetIdx >= arr.length) return;
+      if (fromIdx === targetIdx) return;
+
+      const [movedItem] = arr.splice(fromIdx, 1);
+      let finalIdx;
+
+      if (fromIdx < targetIdx) {
+        // Al mover hacia abajo, el target original redujo en 1 su índice tras el splice
+        finalIdx = insertBefore ? (targetIdx - 1) : targetIdx;
+      } else {
+        // Al mover hacia arriba, los elementos subsiguientes se mantienen
+        finalIdx = insertBefore ? targetIdx : (targetIdx + 1);
+      }
+
+      if (finalIdx < 0) finalIdx = 0;
+      if (finalIdx > arr.length) finalIdx = arr.length;
+
+      arr.splice(finalIdx, 0, movedItem);
+      SELECTED_STEP_KEY = 'rev_' + finalIdx;
+      renderStudioUI();
+      APP.toast(`Etapa «${movedItem.area}» reordenada al paso ${finalIdx + 1}.`, 'ok');
     }
 
     function eliminarArea(idx) {

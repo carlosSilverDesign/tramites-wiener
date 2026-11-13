@@ -785,6 +785,7 @@
           requiereAdjunto: true,
           adjuntoNombre: 'Certificado_Voluntariado',
           formato: 'PDF',
+          plantillaDoc: { nombre: 'Guia_Horas_Voluntariado_Institucional.pdf', tipo: 'PDF', peso: '142 KB', fecha: '2026-06-10' },
           activo: true,
           fechaRegistro: '2026-06-10'
         },
@@ -796,6 +797,7 @@
           requiereAdjunto: true,
           adjuntoNombre: 'DNI_Solicitante',
           formato: 'PDF',
+          plantillaDoc: null,
           activo: true,
           fechaRegistro: '2026-06-12'
         },
@@ -807,6 +809,7 @@
           requiereAdjunto: true,
           adjuntoNombre: 'Foto_Carne',
           formato: 'JPG',
+          plantillaDoc: null,
           activo: true,
           fechaRegistro: '2026-06-15'
         },
@@ -818,6 +821,7 @@
           requiereAdjunto: false,
           adjuntoNombre: '',
           formato: '',
+          plantillaDoc: { nombre: 'Formato_Declaracion_Jurada_NoAdeudo_2026.docx', tipo: 'WORD', peso: '38 KB', fecha: '2026-06-18' },
           activo: true,
           fechaRegistro: '2026-06-18'
         },
@@ -829,6 +833,7 @@
           requiereAdjunto: true,
           adjuntoNombre: 'Constancia_Practicas',
           formato: 'PDF',
+          plantillaDoc: { nombre: 'Ficha_Supervision_Practicas_Preprofesionales.xlsx', tipo: 'EXCEL', peso: '56 KB', fecha: '2026-06-20' },
           activo: true,
           fechaRegistro: '2026-06-20'
         }
@@ -1977,6 +1982,26 @@
       });
     }
 
+    // Normalizar plantillas en catálogo maestro de requisitos
+    if (s.requisitos) {
+      s.requisitos.forEach(r => {
+        if (r.plantillaDoc === undefined) {
+          if (r.id === 'REQ-001') {
+            r.plantillaDoc = { nombre: 'Guia_Horas_Voluntariado_Institucional.pdf', tipo: 'PDF', peso: '142 KB', fecha: '2026-06-10' };
+            dirty = true;
+          } else if (r.id === 'REQ-004') {
+            r.plantillaDoc = { nombre: 'Formato_Declaracion_Jurada_NoAdeudo_2026.docx', tipo: 'WORD', peso: '38 KB', fecha: '2026-06-18' };
+            dirty = true;
+          } else if (r.id === 'REQ-005') {
+            r.plantillaDoc = { nombre: 'Ficha_Supervision_Practicas_Preprofesionales.xlsx', tipo: 'EXCEL', peso: '56 KB', fecha: '2026-06-20' };
+            dirty = true;
+          } else {
+            r.plantillaDoc = null;
+          }
+        }
+      });
+    }
+
     // Asegurar compatibilidad en trámites existentes
     if (s.tramites) {
       // Si no están los trámites de referencia de producción, integrarlos
@@ -2453,6 +2478,17 @@
       save(db); return r;
     },
     deleteRequisito(id) { const db = load(); db.requisitos = (db.requisitos || []).filter(r => r.id !== id); save(db); },
+    adjuntarPlantillaRequisito(id, plantillaDoc) {
+      const db = load();
+      if (!db.requisitos) db.requisitos = [];
+      const r = db.requisitos.find(x => x.id === id || x.codigo === id);
+      if (r) {
+        r.plantillaDoc = plantillaDoc;
+        save(db);
+        return r;
+      }
+      return null;
+    },
     upsertUsuario(u) {
       const db = load();
       const i = db.usuarios.findIndex(x => x.id === u.id);
