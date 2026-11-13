@@ -8,8 +8,8 @@
   <link rel="stylesheet" href="../css/styles.css">
   <style>
     /* ==========================================================================
-       TRÁMITE STUDIO - EXPERIENCIA ADMINISTRATIVA 2026
-       Universidad Privada Norbert Wiener
+       TRÁMITE STUDIO - EXPERIENCIA ADMINISTRATIVA 2026 (UI REFINADA)
+       Universidad Privada Norbert Wiener · Cumplimiento de Design.md (Sección 11 y 12)
        ========================================================================== */
     :root {
       --studio-teal: #0F848F;
@@ -18,112 +18,484 @@
       --studio-border: #D8E2E8;
       --studio-bg: #F8FAFC;
       --studio-radius: 12px;
-      --studio-shadow: 0 4px 20px rgba(15, 23, 42, 0.06);
+      --studio-shadow: 0 4px 16px rgba(15, 23, 42, 0.05);
+      --ctrl-h: 38px;
     }
 
-    /* Top Studio Header */
+    /* Barra Superior de Retorno y Jerarquía Contextual */
+    .studio-top-nav-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 12px;
+      flex-wrap: wrap;
+    }
+    .studio-back-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      height: 36px;
+      padding: 0 14px;
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--brand-dark);
+      background: #FFFFFF;
+      border: 1px solid var(--border-soft);
+      border-radius: 8px;
+      text-decoration: none;
+      transition: all 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+      box-shadow: 0 1px 2px rgba(0, 0, 0, 0.02);
+      box-sizing: border-box;
+    }
+    .studio-back-btn:hover {
+      background: var(--brand-soft);
+      border-color: var(--brand);
+      color: var(--brand);
+      transform: translateX(-2px);
+    }
+    .studio-top-breadcrumb {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 12.5px;
+      color: var(--text-muted);
+    }
+    .studio-top-breadcrumb .crumb-sep {
+      color: var(--border);
+    }
+    .studio-top-breadcrumb b {
+      color: var(--text);
+      font-weight: 700;
+    }
+
+    /* Top Studio Header Wrap - Barra de Configuración Unificada */
     .studio-header-wrap {
       background: #FFFFFF;
       border: 1px solid var(--studio-border);
       border-radius: var(--studio-radius);
-      padding: 18px 24px;
+      padding: 12px 18px;
       margin-bottom: 16px;
       box-shadow: var(--studio-shadow);
+      box-sizing: border-box;
+      overflow: visible !important;
     }
     .studio-header-inner {
       display: flex;
       align-items: center;
       justify-content: space-between;
-      gap: 16px;
+      gap: 12px;
       flex-wrap: wrap;
     }
-    .studio-back-link {
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      font-size: 13px;
-      font-weight: 600;
-      color: var(--text-muted);
-      text-decoration: none;
-      transition: color 0.15s ease;
-      margin-bottom: 6px;
-    }
-    .studio-back-link:hover {
-      color: var(--brand);
-    }
-    .studio-title-row {
+    .studio-header-left {
       display: flex;
       align-items: center;
-      gap: 10px;
+      gap: 8px;
+      flex: 1 1 360px;
       flex-wrap: wrap;
-    }
-    .studio-title-input {
-      font-family: 'Lato', sans-serif;
-      font-weight: 900;
-      font-size: 20px;
-      color: var(--text);
-      border: 1px solid var(--border-soft);
-      border-radius: 8px;
-      padding: 6px 12px;
-      background: #FFFFFF;
-      outline: none;
-      min-width: 320px;
-      transition: all 0.2s ease;
-    }
-    .studio-title-input:hover {
-      border-color: var(--brand);
-    }
-    .studio-title-input:focus {
-      border-color: var(--brand);
-      box-shadow: 0 0 0 3px rgba(15, 132, 143, 0.15);
-    }
-    .studio-badge {
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      padding: 5px 12px;
-      border-radius: 20px;
-      font-size: 12px;
-      font-weight: 700;
-      cursor: pointer;
-      border: none;
-      transition: all 0.15s ease;
-    }
-    .studio-badge.draft {
-      background: #FEF3C7;
-      color: #92400E;
-      border: 1px solid #FCD34D;
-    }
-    .studio-badge.active {
-      background: #D1FAE5;
-      color: #065F46;
-      border: 1px solid #6EE7B7;
-    }
-    .studio-code-chip {
-      font-size: 12px;
-      font-family: monospace;
-      font-weight: 700;
-      background: var(--surface-2);
-      color: var(--text-soft);
-      padding: 4px 8px;
-      border-radius: 6px;
-      border: 1px solid var(--border-soft);
     }
     .studio-actions-group {
       display: flex;
       align-items: center;
-      gap: 10px;
+      gap: 8px;
+      flex: 0 0 auto;
       flex-wrap: wrap;
+    }
+
+    /* Título del Trámite - Input estilizado a 38px de altura */
+    .studio-title-input {
+      font-family: 'Lato', sans-serif;
+      font-weight: 700;
+      font-size: 15px;
+      color: var(--text);
+      border: 1px solid var(--border-soft);
+      border-radius: 8px;
+      height: var(--ctrl-h);
+      padding: 0 12px;
+      background: #FFFFFF;
+      outline: none;
+      flex: 1 1 240px;
+      min-width: 220px;
+      max-width: 340px;
+      transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+      box-sizing: border-box;
+      box-shadow: 0 1px 2px rgba(0, 0, 0, 0.02);
+    }
+    .studio-title-input:hover {
+      border-color: #94A3B8;
+      background-color: #FAFCFD;
+    }
+    .studio-title-input:focus {
+      border-color: var(--brand);
+      background-color: #FFFFFF;
+      box-shadow: 0 0 0 3px rgba(15, 132, 143, 0.15);
+    }
+
+    /* Chip de Código Institucional */
+    .studio-code-chip {
+      height: var(--ctrl-h);
+      display: inline-flex;
+      align-items: center;
+      padding: 0 10px;
+      border-radius: 8px;
+      font-size: 12.5px;
+      font-family: monospace;
+      font-weight: 700;
+      background: var(--surface-2);
+      color: var(--text-soft);
+      border: 1px solid var(--border-soft);
+      box-sizing: border-box;
+      white-space: nowrap;
+    }
+
+    /* Badge Interactivo de Estado (Activo / Borrador) */
+    .studio-badge {
+      height: var(--ctrl-h);
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      padding: 0 13px;
+      border-radius: 8px;
+      font-size: 12.5px;
+      font-weight: 700;
+      cursor: pointer;
+      border: 1px solid transparent;
+      transition: all 0.15s ease;
+      box-sizing: border-box;
+      white-space: nowrap;
+    }
+    .studio-badge-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: currentColor;
+    }
+    .studio-badge.draft {
+      background: #FEF3C7;
+      color: #92400E;
+      border-color: #FCD34D;
+    }
+    .studio-badge.draft:hover {
+      background: #FDE68A;
+    }
+    .studio-badge.active {
+      background: #D1FAE5;
+      color: #065F46;
+      border-color: #6EE7B7;
+    }
+    .studio-badge.active:hover {
+      background: #A7F3D0;
+    }
+
+    /* Selector de Trámite en Cabecera */
+    .studio-select-tramite-wrap {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .studio-select-label {
+      font-size: 12px;
+      color: var(--text-muted);
+      font-weight: 700;
+      white-space: nowrap;
+    }
+
+    /* ==========================================================================
+       CUSTOM SELECT DROPDOWN COMPONENT WIENER (Design.md Sección 12 & 14)
+       ========================================================================== */
+    .custom-select-container {
+      position: relative;
+      width: 100%;
+      user-select: none;
+    }
+
+    /* Adaptación específica para la cabecera: altura de 38px */
+    .studio-header-wrap .custom-select-container {
+      width: 195px;
+      min-width: 180px;
+      margin: 0;
+    }
+    .studio-header-wrap .custom-select-trigger {
+      height: var(--ctrl-h) !important;
+      min-height: var(--ctrl-h) !important;
+      padding: 0 32px 0 12px !important;
+      font-size: 12.5px !important;
+      line-height: var(--ctrl-h) !important;
+    }
+
+    /* Adaptación para inspector, formularios y simulador: altura uniforme 40px */
+    .inspector-card .custom-select-container,
+    .simulator-body .custom-select-container {
+      width: 100%;
+      margin: 0;
+    }
+    .inspector-card .custom-select-trigger,
+    .simulator-body .custom-select-trigger {
+      height: 40px !important;
+      min-height: 40px !important;
+      font-size: 13.5px !important;
+      padding: 0 36px 0 14px !important;
+      border: 1px solid var(--border-soft) !important;
+      border-radius: 8px !important;
+      background-color: #FFFFFF !important;
+      box-shadow: 0 1px 2px rgba(0, 0, 0, 0.02) !important;
+    }
+
+    .custom-select-container.is-open .custom-select-trigger,
+    .custom-select-trigger:focus-visible {
+      border-color: var(--brand) !important;
+      background-color: #FFFFFF !important;
+      box-shadow: 0 0 0 3px rgba(15, 132, 143, 0.15) !important;
+      outline: none !important;
+    }
+
+    .custom-select-arrow {
+      position: absolute;
+      right: 12px !important;
+      top: 50% !important;
+      transform: translateY(-50%) rotate(0deg) !important;
+      width: 16px !important;
+      height: 16px !important;
+      flex-shrink: 0;
+      pointer-events: none;
+      color: #5B6E80;
+      stroke: currentColor;
+      fill: none;
+      stroke-width: 2.2;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+      transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1), stroke 0.2s ease !important;
+      z-index: 2;
+    }
+
+    .custom-select-container:hover .custom-select-arrow {
+      stroke: var(--brand);
+    }
+
+    .custom-select-container.is-open .custom-select-arrow {
+      transform: translateY(-50%) rotate(180deg) !important;
+      stroke: var(--brand) !important;
+    }
+
+    .custom-dropdown-menu {
+      position: fixed !important;
+      min-width: 160px;
+      max-width: 440px;
+      background-color: #FFFFFF !important;
+      border: 1px solid #CBD5E1 !important;
+      border-radius: 10px !important;
+      box-shadow: 0 12px 30px -4px rgba(15, 23, 42, 0.18), 0 4px 10px -2px rgba(15, 23, 42, 0.08) !important;
+      padding: 6px !important;
+      z-index: 999999 !important;
+      display: none;
+      max-height: 260px;
+      overflow-y: auto;
+      scrollbar-width: thin;
+      scrollbar-color: #CBD5E1 transparent;
+      animation: fadeInDropdown 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+      box-sizing: border-box;
+      list-style: none;
+    }
+    .custom-select-container.is-open .custom-dropdown-menu {
+      display: block !important;
+    }
+
+    .custom-option {
+      padding: 9px 12px;
+      border-radius: 6px;
+      font-size: 13.5px;
+      font-family: 'Roboto', sans-serif;
+      color: #1E293B;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      cursor: pointer;
+      transition: background-color 0.12s ease, color 0.12s ease;
+      user-select: none;
+    }
+    .custom-option:hover {
+      background-color: #E6F3F4;
+      color: var(--brand);
+    }
+    .custom-option.selected {
+      background-color: #F0FAFA;
+      color: var(--brand);
+      font-weight: 600;
+    }
+    .custom-option .option-check {
+      display: none;
+      color: var(--brand);
+      stroke: currentColor;
+      stroke-width: 2.2;
+      fill: none;
+      flex-shrink: 0;
+    }
+    .custom-option.selected .option-check {
+      display: block;
+    }
+
+    /* Fallback en caso de select nativo no hidratado */
+    select:not([data-enhanced-select="true"]) {
+      appearance: none;
+      -webkit-appearance: none;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%235B6E80' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 12px center !important;
+      padding-right: 36px !important;
+    }
+
+    /* Personalización Unificada de Inputs & Textareas (Design.md Sección 11) */
+    .studio-input,
+    .inspector-input {
+      width: 100%;
+      height: 40px;
+      line-height: 40px;
+      padding: 0 12px;
+      font-size: 13.5px;
+      font-family: 'Roboto', sans-serif;
+      color: var(--text);
+      background-color: #FFFFFF;
+      border: 1px solid var(--border-soft);
+      border-radius: 8px;
+      outline: none;
+      transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+      box-shadow: 0 1px 2px rgba(0, 0, 0, 0.02);
+      box-sizing: border-box;
+    }
+    .studio-input:hover,
+    .inspector-input:hover {
+      border-color: #94A3B8;
+      background-color: #FAFCFD;
+    }
+    .studio-input:focus,
+    .inspector-input:focus {
+      border-color: var(--brand);
+      background-color: #FFFFFF;
+      box-shadow: 0 0 0 3px rgba(15, 132, 143, 0.15);
+    }
+
+    .studio-textarea,
+    .inspector-textarea {
+      width: 100%;
+      padding: 10px 12px;
+      font-size: 13.5px;
+      font-family: 'Roboto', sans-serif;
+      color: var(--text);
+      background-color: #FFFFFF;
+      border: 1px solid var(--border-soft);
+      border-radius: 8px;
+      outline: none;
+      transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+      box-shadow: 0 1px 2px rgba(0, 0, 0, 0.02);
+      box-sizing: border-box;
+      line-height: 1.5;
+      resize: vertical;
+    }
+    .studio-textarea:hover,
+    .inspector-textarea:hover {
+      border-color: #94A3B8;
+      background-color: #FAFCFD;
+    }
+    .studio-textarea:focus,
+    .inspector-textarea:focus {
+      border-color: var(--brand);
+      background-color: #FFFFFF;
+      box-shadow: 0 0 0 3px rgba(15, 132, 143, 0.15);
+    }
+
+    /* Botón Preflight Diagnostics */
+    .preflight-pill-btn {
+      height: var(--ctrl-h);
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      padding: 0 13px;
+      border-radius: 8px;
+      font-size: 12.5px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.15s ease;
+      box-sizing: border-box;
+      white-space: nowrap;
+      border: 1px solid;
+    }
+    .preflight-pill-btn.has-errors {
+      border-color: #F87171;
+      background: #FEF2F2;
+      color: #991B1B;
+    }
+    .preflight-pill-btn.has-errors:hover {
+      background: #FEE2E2;
+    }
+    .preflight-pill-btn.is-valid {
+      border-color: #6EE7B7;
+      background: #ECFDF5;
+      color: #065F46;
+    }
+    .preflight-pill-btn.is-valid:hover {
+      background: #D1FAE5;
+    }
+
+    /* Botones de Acción Estándar */
+    .btn-studio-primary {
+      height: var(--ctrl-h);
+      background: var(--brand);
+      color: #FFFFFF;
+      border: 1px solid var(--brand);
+      padding: 0 16px;
+      border-radius: 8px;
+      font-family: 'Lato', sans-serif;
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      transition: background 0.15s ease, transform 0.1s ease, box-shadow 0.15s ease;
+      box-sizing: border-box;
+      white-space: nowrap;
+      box-shadow: 0 2px 6px rgba(15, 132, 143, 0.22);
+    }
+    .btn-studio-primary:hover {
+      background: var(--brand-dark);
+      border-color: var(--brand-dark);
+      transform: translateY(-1px);
+      box-shadow: 0 4px 10px rgba(15, 132, 143, 0.32);
+    }
+    .btn-studio-secondary {
+      height: var(--ctrl-h);
+      background: #FFFFFF;
+      color: var(--text-soft);
+      border: 1px solid var(--border-soft);
+      padding: 0 14px;
+      border-radius: 8px;
+      font-family: 'Lato', sans-serif;
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      transition: all 0.15s ease;
+      box-sizing: border-box;
+      white-space: nowrap;
+      box-shadow: 0 1px 2px rgba(0, 0, 0, 0.02);
+    }
+    .btn-studio-secondary:hover {
+      border-color: var(--brand);
+      color: var(--brand);
+      background: var(--brand-soft);
     }
 
     /* Live Summary Sentence Banner */
     .studio-summary-bar {
       background: linear-gradient(135deg, #0F848F 0%, #0B636B 100%);
       color: #FFFFFF;
-      padding: 12px 20px;
+      padding: 12px 18px;
       border-radius: 10px;
-      margin-bottom: 20px;
-      box-shadow: 0 4px 12px rgba(15, 132, 143, 0.2);
+      margin-bottom: 18px;
+      box-shadow: 0 4px 12px rgba(15, 132, 143, 0.16);
     }
     .studio-summary-content {
       display: flex;
@@ -133,7 +505,7 @@
       flex-wrap: wrap;
     }
     .studio-summary-text {
-      font-size: 14px;
+      font-size: 13.5px;
       line-height: 1.45;
       font-weight: 400;
     }
@@ -142,8 +514,8 @@
       color: #FFFFFF;
     }
     .studio-summary-pill {
-      background: rgba(255,255,255,0.18);
-      border: 1px solid rgba(255,255,255,0.25);
+      background: rgba(255, 255, 255, 0.18);
+      border: 1px solid rgba(255, 255, 255, 0.25);
       border-radius: 999px;
       padding: 4px 12px;
       font-size: 12px;
@@ -159,13 +531,13 @@
       background: #FFFFFF;
       border: 1px solid var(--studio-border);
       border-radius: var(--studio-radius);
-      padding: 0 12px;
-      margin-bottom: 22px;
+      padding: 0 10px;
+      margin-bottom: 20px;
       box-shadow: var(--studio-shadow);
     }
     .studio-nav-inner {
       display: flex;
-      gap: 6px;
+      gap: 4px;
       overflow-x: auto;
       scrollbar-width: none;
     }
@@ -174,9 +546,9 @@
       display: inline-flex;
       align-items: center;
       gap: 8px;
-      padding: 14px 18px;
+      padding: 13px 16px;
       font-family: 'Lato', sans-serif;
-      font-size: 14px;
+      font-size: 13.5px;
       font-weight: 700;
       color: var(--text-muted);
       border: none;
@@ -187,13 +559,23 @@
       transition: all 0.2s ease;
       white-space: nowrap;
     }
+    .studio-tab-btn svg {
+      color: var(--text-muted);
+      transition: color 0.2s ease;
+    }
     .studio-tab-btn:hover {
       color: var(--brand);
       background: rgba(15, 132, 143, 0.04);
     }
+    .studio-tab-btn:hover svg {
+      color: var(--brand);
+    }
     .studio-tab-btn.active {
       color: var(--brand);
       border-bottom-color: var(--brand);
+    }
+    .studio-tab-btn.active svg {
+      color: var(--brand);
     }
     .studio-tab-btn .tab-count {
       font-size: 11px;
@@ -214,21 +596,21 @@
     }
     .studio-tab-panel.active {
       display: block;
-      animation: fadeIn 0.2s ease-out;
+      animation: fadeIn 0.18s ease-out;
     }
     @keyframes fadeIn {
       from { opacity: 0; transform: translateY(4px); }
       to { opacity: 1; transform: translateY(0); }
     }
 
-    /* Workspace Split (Timeline + Inspector) */
+    /* Workspace Split (Timeline + Inspector) Optimizado para >=1366px */
     .studio-split {
       display: grid;
-      grid-template-columns: minmax(380px, 1.25fr) minmax(360px, 1fr);
-      gap: 24px;
+      grid-template-columns: minmax(340px, 1.2fr) minmax(320px, 1fr);
+      gap: 20px;
       align-items: start;
     }
-    @media (max-width: 980px) {
+    @media (max-width: 1024px) {
       .studio-split {
         grid-template-columns: 1fr;
       }
@@ -239,8 +621,9 @@
       background: #FFFFFF;
       border: 1px solid var(--studio-border);
       border-radius: var(--studio-radius);
-      padding: 24px;
+      padding: 22px;
       box-shadow: var(--studio-shadow);
+      overflow: visible !important;
     }
     .timeline-header {
       display: flex;
@@ -249,11 +632,13 @@
       margin-bottom: 20px;
       padding-bottom: 14px;
       border-bottom: 1px solid var(--border-soft);
+      gap: 12px;
+      flex-wrap: wrap;
     }
     .timeline-header h3 {
       margin: 0;
       font-family: 'Lato', sans-serif;
-      font-size: 17px;
+      font-size: 16.5px;
       font-weight: 900;
       color: var(--brand-dark);
       display: flex;
@@ -283,7 +668,7 @@
     }
     .timeline-node-card {
       display: grid;
-      grid-template-columns: 46px 1fr auto;
+      grid-template-columns: 44px 1fr auto;
       gap: 14px;
       align-items: center;
       padding: 12px 16px;
@@ -304,8 +689,8 @@
       box-shadow: 0 0 0 3px rgba(15, 132, 143, 0.15);
     }
     .node-icon-circle {
-      width: 44px;
-      height: 44px;
+      width: 42px;
+      height: 42px;
       border-radius: 50%;
       background: var(--surface-2);
       border: 2px solid var(--border);
@@ -329,7 +714,7 @@
     .node-text-box h4 {
       margin: 0;
       font-family: 'Lato', sans-serif;
-      font-size: 15px;
+      font-size: 14.5px;
       font-weight: 700;
       color: var(--text);
     }
@@ -363,7 +748,7 @@
       height: 32px;
       display: flex;
       align-items: center;
-      padding-left: 11px;
+      padding-left: 10px;
       z-index: 3;
     }
     .btn-gap-add {
@@ -378,8 +763,7 @@
       cursor: pointer;
       transition: all 0.15s ease;
       padding: 0;
-      font-size: 14px;
-      font-weight: bold;
+      box-sizing: border-box;
     }
     .btn-gap-add:hover {
       background: var(--brand);
@@ -405,10 +789,11 @@
       background: #FFFFFF;
       border: 1px solid var(--studio-border);
       border-radius: var(--studio-radius);
-      padding: 24px;
+      padding: 22px;
       box-shadow: var(--studio-shadow);
       position: sticky;
       top: 20px;
+      overflow: visible !important;
     }
     .inspector-header {
       display: flex;
@@ -417,11 +802,13 @@
       margin-bottom: 18px;
       padding-bottom: 12px;
       border-bottom: 1px solid var(--border-soft);
+      gap: 12px;
+      flex-wrap: wrap;
     }
     .inspector-header h3 {
       margin: 0;
       font-family: 'Lato', sans-serif;
-      font-size: 16px;
+      font-size: 15.5px;
       font-weight: 900;
       color: var(--brand-dark);
       display: flex;
@@ -433,26 +820,12 @@
     }
     .inspector-form-group label {
       display: block;
-      font-size: 13px;
+      font-size: 11px;
       font-weight: 700;
-      color: var(--text-soft);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      color: #5B6E80;
       margin-bottom: 6px;
-    }
-    .inspector-input, .inspector-select, .inspector-textarea {
-      width: 100%;
-      padding: 9px 12px;
-      font-size: 13.5px;
-      border: 1px solid var(--border);
-      border-radius: 8px;
-      background: #FFFFFF;
-      color: var(--text);
-      outline: none;
-      transition: border-color 0.15s ease;
-      font-family: inherit;
-    }
-    .inspector-input:focus, .inspector-select:focus, .inspector-textarea:focus {
-      border-color: var(--brand);
-      box-shadow: 0 0 0 3px rgba(15, 132, 143, 0.12);
     }
 
     /* Tarjetas de Recetas */
@@ -485,7 +858,6 @@
       display: grid;
       place-items: center;
       margin-bottom: 12px;
-      font-size: 18px;
     }
     .recipe-card h4 {
       margin: 0 0 6px;
@@ -499,31 +871,6 @@
       font-size: 12.5px;
       color: var(--text-muted);
       line-height: 1.4;
-    }
-
-    /* Preflight Pill Button */
-    .preflight-pill-btn {
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      padding: 8px 14px;
-      border-radius: 8px;
-      border: 1px solid var(--border);
-      background: #FFFFFF;
-      font-size: 13px;
-      font-weight: 700;
-      cursor: pointer;
-      transition: all 0.15s ease;
-    }
-    .preflight-pill-btn.has-errors {
-      border-color: #F87171;
-      background: #FEF2F2;
-      color: #991B1B;
-    }
-    .preflight-pill-btn.is-valid {
-      border-color: #6EE7B7;
-      background: #ECFDF5;
-      color: #065F46;
     }
 
     /* Digital Twin Simulator Drawer */
@@ -545,7 +892,7 @@
       transform: translateX(0);
     }
     .simulator-header {
-      padding: 18px 24px;
+      padding: 16px 20px;
       background: var(--brand-dark);
       color: #FFFFFF;
       display: flex;
@@ -555,13 +902,17 @@
     .simulator-header h3 {
       margin: 0;
       font-family: 'Lato', sans-serif;
-      font-size: 16px;
+      font-size: 15.5px;
       font-weight: 900;
+      color: #FFFFFF;
+      display: flex;
+      align-items: center;
+      gap: 8px;
     }
     .simulator-body {
       flex: 1;
       overflow-y: auto;
-      padding: 20px 24px;
+      padding: 20px;
       background: var(--bg);
     }
 
@@ -601,46 +952,6 @@
       min-height: 420px;
       overflow: auto;
     }
-
-    /* Botones de acción estándar */
-    .btn-studio-primary {
-      background: var(--brand);
-      color: #FFFFFF;
-      border: none;
-      padding: 9px 18px;
-      border-radius: 8px;
-      font-family: 'Lato', sans-serif;
-      font-size: 14px;
-      font-weight: 700;
-      cursor: pointer;
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      transition: background 0.15s ease, transform 0.1s ease;
-    }
-    .btn-studio-primary:hover {
-      background: var(--brand-dark);
-      transform: translateY(-1px);
-    }
-    .btn-studio-secondary {
-      background: #FFFFFF;
-      color: var(--text-soft);
-      border: 1px solid var(--border);
-      padding: 8px 14px;
-      border-radius: 8px;
-      font-family: 'Lato', sans-serif;
-      font-size: 13px;
-      font-weight: 700;
-      cursor: pointer;
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      transition: all 0.15s ease;
-    }
-    .btn-studio-secondary:hover {
-      border-color: var(--brand);
-      color: var(--brand);
-    }
   </style>
 </head>
 <body>
@@ -651,6 +962,36 @@
   <script src="../js/doc.js"></script>
 
   <script>
+    // =========================================================================
+    // CATÁLOGO DE ICONOS SVG INSTITUCIONALES (Consistencia Total Feather / Wiener)
+    // =========================================================================
+    const SVG_ICONS = {
+      backArrow: '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>',
+      close: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>',
+      search: '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>',
+      warning: '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>',
+      checkCircle: '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>',
+      alertOctagon: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="7.86 2 16.14 2 22 7.86 22 16.14 16.14 22 7.86 22 2 16.14 2 7.86 7.86 2"></polygon><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>',
+      error: '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="15" y1="9" x2="9" y2="15"></line><line x1="9" y1="9" x2="15" y2="15"></line></svg>',
+      eye: '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>',
+      save: '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path><polyline points="17 21 17 13 7 13 7 21"></polyline><polyline points="7 3 7 8 15 8"></polyline></svg>',
+      flujo: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"></polyline><polyline points="1 20 1 14 7 14"></polyline><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path></svg>',
+      requisitos: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path><rect x="8" y="2" width="8" height="4" rx="1" ry="1"></rect><line x1="9" y1="12" x2="15" y2="12"></line><line x1="9" y1="16" x2="15" y2="16"></line></svg>',
+      audiencia: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>',
+      documento: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line></svg>',
+      notificaciones: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></svg>',
+      recipe: '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>',
+      plus: '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>',
+      check: '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>',
+      lock: '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>',
+      solicitud: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>',
+      pago: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="4" width="22" height="16" rx="2" ry="2"></rect><line x1="1" y1="10" x2="23" y2="10"></line></svg>',
+      revision: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21h18M3 10h18M5 10v11M9 10v11M15 10v11M19 10v11M12 2l10 5H2l10-5z"></path></svg>',
+      aprobacion: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="6"></circle><path d="M15.477 12.89 17 22l-5-3-5 3 1.523-9.11"></path></svg>',
+      entrega: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>',
+      preflight: '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 14 14"></polyline></svg>'
+    };
+
     // 1. Inicializar Shell de la Intranet Wiener
     const ctx = APP.renderShell('tramites');
 
@@ -678,6 +1019,57 @@
         { nombre: 'María Fernanda Quispe', codigo: '2021100345', dni: '72845109', perfil: { nivel: 'pregrado', programa: 'Ingeniería de Sistemas', ciclo: 8, creditos: 168, tercioSuperior: true, quintoSuperior: false } },
         { nombre: 'José Antonio Ramos', codigo: '2019054420', dni: '71234567', perfil: { nivel: 'pregrado', programa: 'Administración', ciclo: 10, creditos: 200, tercioSuperior: false, quintoSuperior: false } }
       ];
+    }
+
+    // =========================================================================
+    // MODAL DE CONFIRMACIÓN ESTILIZADO (Reemplazo total de confirm() nativo)
+    // =========================================================================
+    function mostrarModalConfirmacion({ titulo, mensaje, textoConfirmar, textoCancelar, onConfirm, onCancel }) {
+      APP.openModal(`
+        <div class="modal-head" style="border-bottom:1px solid var(--border-soft);padding:18px 22px;display:flex;align-items:center;justify-content:space-between">
+          <div style="display:flex;align-items:center;gap:12px">
+            <div style="width:38px;height:38px;border-radius:10px;background:#FEF3C7;color:#D97706;display:grid;place-items:center;flex-shrink:0">
+              ${SVG_ICONS.warning}
+            </div>
+            <div>
+              <h3 style="margin:0;font-size:16px;font-weight:900;color:var(--text);font-family:'Lato',sans-serif">${E(titulo || 'Atención')}</h3>
+              <div style="font-size:12px;color:var(--text-muted);margin-top:2px">Confirmación requerida</div>
+            </div>
+          </div>
+          <button type="button" class="modal-close" onclick="cerrarModalConfirmacion(false)" style="border:none;background:transparent;cursor:pointer;color:var(--text-muted);display:grid;place-items:center;width:32px;height:32px;border-radius:8px">
+            ${SVG_ICONS.close}
+          </button>
+        </div>
+        <div class="modal-body" style="padding:22px;font-size:13.5px;color:var(--text);line-height:1.55">
+          ${mensaje}
+        </div>
+        <div class="modal-foot" style="padding:14px 22px;background:var(--surface-2);border-top:1px solid var(--border-soft);display:flex;justify-content:flex-end;gap:10px">
+          <button type="button" class="btn-studio-secondary" style="height:38px;padding:0 16px" onclick="cerrarModalConfirmacion(false)">
+            ${E(textoCancelar || 'Cancelar')}
+          </button>
+          <button type="button" class="btn-studio-primary" style="height:38px;padding:0 16px;background:#DC2626;border-color:#DC2626" onclick="cerrarModalConfirmacion(true)">
+            ${E(textoConfirmar || 'Descartar y Salir')}
+          </button>
+        </div>
+      `);
+
+      window._modalConfirmCallback = onConfirm;
+      window._modalCancelCallback = onCancel;
+    }
+
+    function cerrarModalConfirmacion(confirmado) {
+      APP.closeModal();
+      if (confirmado && typeof window._modalConfirmCallback === 'function') {
+        const cb = window._modalConfirmCallback;
+        window._modalConfirmCallback = null;
+        window._modalCancelCallback = null;
+        cb();
+      } else if (!confirmado && typeof window._modalCancelCallback === 'function') {
+        const cb = window._modalCancelCallback;
+        window._modalConfirmCallback = null;
+        window._modalCancelCallback = null;
+        cb();
+      }
     }
 
     // =========================================================================
@@ -849,7 +1241,7 @@
     // LÓGICA DE PROCESO & PASOS (TIMELINE)
     // =========================================================================
     function obtenerParadasTimeline() {
-      const out = [{ k: 'sol', tipo: 'solicitud', titulo: 'El alumno solicita', icono: 'sol' }];
+      const out = [{ k: 'sol', tipo: 'solicitud', titulo: 'El alumno solicita', icono: 'solicitud' }];
       const tienePago = CURRENT_T.costo > 0;
       const pagoAntes = CURRENT_T.pagoMomento === 'antes';
       const pagoTrasEtapa = CURRENT_T.pagoTrasEtapa || '';
@@ -865,7 +1257,7 @@
           idx: idx,
           titulo: (p.area || 'Área Académica') + ' evalúa',
           subtitulo: (p.duracionDias || 1) + ' días hábiles · ' + (p.descripcion || 'Revisión reglamentaria'),
-          icono: 'rev'
+          icono: 'revision'
         });
 
         if (tienePago && !pagoAntes && pagoTrasEtapa === p.id) {
@@ -874,7 +1266,7 @@
       });
 
       if (CURRENT_T.requiereAprobacion) {
-        out.push({ k: 'apr', tipo: 'aprobacion', titulo: 'Aprobación y Firma Oficial', subtitulo: CURRENT_T.area || 'Registros Académicos', icono: 'apr' });
+        out.push({ k: 'apr', tipo: 'aprobacion', titulo: 'Aprobación y Firma Oficial', subtitulo: CURRENT_T.area || 'Registros Académicos', icono: 'aprobacion' });
       }
 
       if (tienePago && !pagoAntes && !pagoTrasEtapa && !CURRENT_T.proceso.some(p => p.id === pagoTrasEtapa)) {
@@ -886,7 +1278,7 @@
         tipo: 'entrega',
         titulo: CURRENT_T.diasEntrega === 0 ? 'Emisión Digital Inmediata' : 'Entrega del Documento / Respuesta',
         subtitulo: CURRENT_T.diasEntrega === 0 ? 'Descarga instantánea con QR de verificación' : 'Plazo estimado: ' + CURRENT_T.diasEntrega + ' días hábiles',
-        icono: 'ent'
+        icono: 'entrega'
       });
 
       return out;
@@ -968,50 +1360,64 @@
       const errCount = issues.filter(i => i.tipo === 'error').length;
 
       mount.innerHTML = `
-        <!-- Top Studio Header Card -->
+        <!-- Barra Superior de Retorno y Jerarquía Contextual (Fuera de la tarjeta de configuración) -->
+        <div class="studio-top-nav-bar">
+          <a href="tramites.html" class="studio-back-btn" onclick="return verificarSalirSinGuardar(event)">
+            ${SVG_ICONS.backArrow}
+            <span>Volver a Catálogo de Trámites</span>
+          </a>
+          <div class="studio-top-breadcrumb">
+            <span>Configuración</span>
+            <span class="crumb-sep">/</span>
+            <span>Trámites</span>
+            <span class="crumb-sep">/</span>
+            <b>Trámite Studio 2026</b>
+          </div>
+        </div>
+
+        <!-- Top Studio Header Wrap - Barra de Configuración Unificada -->
         <div class="studio-header-wrap">
           <div class="studio-header-inner">
-            <div>
-              <a href="tramites.html" class="studio-back-link" onclick="return verificarSalirSinGuardar(event)">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"/></svg>
-                Volver a Catálogo de Trámites
-              </a>
-              <div class="studio-title-row">
-                <input type="text" class="studio-title-input" id="studio-title-field" value="${E(t.nombre)}" placeholder="Nombre del Trámite..." oninput="actualizarTitulo(this.value)">
-                <span class="studio-code-chip">${E(t.codigo || 'T-NUEVO')}</span>
-                <button type="button" class="studio-badge ${t.activo ? 'active' : 'draft'}" onclick="toggleEstadoActivo()" title="Cambiar estado de publicación">
-                  <span style="width:7px;height:7px;border-radius:50%;background:currentColor"></span>
-                  ${t.activo ? 'Activo en Catálogo' : 'Borrador'}
-                </button>
-              </div>
+            <!-- Bloque Izquierdo: Identificación del Trámite -->
+            <div class="studio-header-left">
+              <input type="text" class="studio-title-input" id="studio-title-field" value="${E(t.nombre)}" placeholder="Nombre del Trámite..." oninput="actualizarTitulo(this.value)" title="Haga clic para editar el nombre del trámite">
+              <span class="studio-code-chip" title="Código institucional">${E(t.codigo || 'T-NUEVO')}</span>
+              <button type="button" class="studio-badge ${t.activo ? 'active' : 'draft'}" onclick="toggleEstadoActivo()" title="Cambiar estado: Haga clic para alternar entre Activo y Borrador">
+                <span class="studio-badge-dot"></span>
+                <span>${t.activo ? 'Activo en Catálogo' : 'Borrador'}</span>
+              </button>
             </div>
 
+            <!-- Bloque Derecho: Acciones y Herramientas con Custom Select Wiener -->
             <div class="studio-actions-group">
-              <!-- Selector Rápido de Trámite Existente -->
-              <div style="display:flex;align-items:center;gap:6px">
-                <span style="font-size:12px;color:var(--text-muted);font-weight:700">Editar:</span>
-                <select class="inspector-select" style="padding:6px 8px;font-size:12px;width:170px" onchange="cambiarTramiteEnEdicion(this.value)">
-                  <option value="">-- Nuevo Trámite --</option>
-                  ${DB.tramites().map(item => `
-                    <option value="${item.id}" ${t.id === item.id ? 'selected' : ''}>${item.codigo || item.id} - ${E(item.nombre.substring(0, 18))}...</option>
-                  `).join('')}
-                </select>
+              <!-- Selector Rápido de Trámite Existente Personalizado Wiener -->
+              <div class="studio-select-tramite-wrap">
+                <span class="studio-select-label">Editar:</span>
+                <div class="custom-select-container">
+                  <select id="studio-select-tramite" onchange="cambiarTramiteEnEdicion(this.value)">
+                    <option value="">-- Nuevo Trámite --</option>
+                    ${DB.tramites().map(item => `
+                      <option value="${item.id}" ${t.id === item.id ? 'selected' : ''}>${item.codigo || item.id} - ${E(item.nombre.length > 20 ? item.nombre.substring(0, 19) + '…' : item.nombre)}</option>
+                    `).join('')}
+                  </select>
+                </div>
               </div>
 
               <!-- Botón Preflight Diagnostics -->
-              <button type="button" class="preflight-pill-btn ${errCount > 0 ? 'has-errors' : 'is-valid'}" onclick="abrirPreflightModal()">
-                ${errCount > 0 ? `⚠️ ${errCount} Observación${errCount > 1 ? 'es' : ''}` : `✓ Trámite Válido`}
+              <button type="button" class="preflight-pill-btn ${errCount > 0 ? 'has-errors' : 'is-valid'}" onclick="abrirPreflightModal()" title="Control de Calidad: Ver diagnóstico del trámite">
+                ${errCount > 0 ? SVG_ICONS.warning : SVG_ICONS.checkCircle}
+                <span>${errCount > 0 ? `${errCount} Observación${errCount > 1 ? 'es' : ''}` : `Trámite Válido`}</span>
               </button>
 
               <!-- Botón Digital Twin Simulator -->
-              <button type="button" class="btn-studio-secondary" onclick="toggleSimulador(true)" title="Ver cómo lo experimenta el alumno">
-                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+              <button type="button" class="btn-studio-secondary" onclick="toggleSimulador(true)" title="Ver cómo experimenta este trámite el estudiante">
+                ${SVG_ICONS.eye}
                 <span>Simular Alumno</span>
               </button>
 
-              <!-- Botón Guardar -->
-              <button type="button" class="btn-studio-primary" onclick="guardarTramiteStudio()">
-                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+              <!-- Botón Guardar Trámite -->
+              <button type="button" class="btn-studio-primary" onclick="guardarTramiteStudio()" title="Guardar todos los cambios del trámite">
+                ${SVG_ICONS.save}
                 <span>Guardar Trámite</span>
               </button>
             </div>
@@ -1031,27 +1437,32 @@
           </div>
         </div>
 
-        <!-- Studio Navigation Bar -->
+        <!-- Studio Main Navigation Tabs con Iconos SVG -->
         <nav class="studio-nav-bar">
           <div class="studio-nav-inner">
             <button type="button" class="studio-tab-btn ${ACTIVE_TAB === 'flujo' ? 'active' : ''}" onclick="cambiarTab('flujo')">
-              <span>🔄 1. Flujo & Proceso</span>
+              ${SVG_ICONS.flujo}
+              <span>1. Flujo & Proceso</span>
               <span class="tab-count">${paradas.length} pasos</span>
             </button>
             <button type="button" class="studio-tab-btn ${ACTIVE_TAB === 'requisitos' ? 'active' : ''}" onclick="cambiarTab('requisitos')">
-              <span>📋 2. Requisitos</span>
+              ${SVG_ICONS.requisitos}
+              <span>2. Requisitos</span>
               <span class="tab-count">${(t.requisitos || []).length}</span>
             </button>
             <button type="button" class="studio-tab-btn ${ACTIVE_TAB === 'audiencia' ? 'active' : ''}" onclick="cambiarTab('audiencia')">
-              <span>👥 3. Audiencia & Elegibilidad</span>
+              ${SVG_ICONS.audiencia}
+              <span>3. Audiencia & Elegibilidad</span>
               <span class="tab-count">${(t.audiencia.niveles || []).length} niv</span>
             </button>
             <button type="button" class="studio-tab-btn ${ACTIVE_TAB === 'documento' ? 'active' : ''}" onclick="cambiarTab('documento')">
-              <span>📄 4. Documento & Certificación</span>
+              ${SVG_ICONS.documento}
+              <span>4. Documento & Certificación</span>
               <span class="tab-count">${t.tipo}</span>
             </button>
             <button type="button" class="studio-tab-btn ${ACTIVE_TAB === 'notificaciones' ? 'active' : ''}" onclick="cambiarTab('notificaciones')">
-              <span>✉️ 5. Notificaciones</span>
+              ${SVG_ICONS.notificaciones}
+              <span>5. Notificaciones</span>
               <span class="tab-count">3 estados</span>
             </button>
           </div>
@@ -1066,11 +1477,12 @@
               <div class="timeline-card">
                 <div class="timeline-header">
                   <h3>
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-                    Línea de Proceso del Estudiante
+                    ${SVG_ICONS.flujo}
+                    <span>Línea de Proceso del Estudiante</span>
                   </h3>
-                  <button type="button" class="btn-studio-secondary" style="padding:4px 10px;font-size:12px" onclick="abrirSelectorRecetas()">
-                    🔄 Cambiar Plantilla Base
+                  <button type="button" class="btn-studio-secondary" style="height:32px;padding:0 10px;font-size:12px" onclick="abrirSelectorRecetas()">
+                    ${SVG_ICONS.recipe}
+                    <span>Cambiar Plantilla Base</span>
                   </button>
                 </div>
 
@@ -1078,10 +1490,11 @@
                   ${renderTimelineNodesHTML(paradas)}
                 </ul>
 
-                <div style="margin-top:20px;padding-top:14px;border-top:1px dashed var(--border-soft);display:flex;justify-content:space-between;align-items:center">
+                <div style="margin-top:20px;padding-top:14px;border-top:1px dashed var(--border-soft);display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap">
                   <span style="font-size:12.5px;color:var(--text-muted)">Haz clic en cualquier paso para editar sus propiedades.</span>
-                  <button type="button" class="btn-studio-secondary" onclick="agregarAreaAlFinal()">
-                    + Agregar Área de Revisión
+                  <button type="button" class="btn-studio-secondary" style="height:34px;padding:0 12px;font-size:12.5px" onclick="agregarAreaAlFinal()">
+                    ${SVG_ICONS.plus}
+                    <span>Agregar Área de Revisión</span>
                   </button>
                 </div>
               </div>
@@ -1120,6 +1533,11 @@
         </div>
       `;
 
+      // Hidratar automáticamente todos los selects personalizados Wiener en toda la vista
+      if (window.APP && window.APP.initCustomSelects) {
+        window.APP.initCustomSelects(mount);
+      }
+
       // Si está en el tab de documento, actualizar el canvas oficial
       if (ACTIVE_TAB === 'documento') {
         setTimeout(dibujarCanvasModelo, 50);
@@ -1133,7 +1551,7 @@
       let html = '';
       paradas.forEach((s) => {
         const isSelected = SELECTED_STEP_KEY === s.k;
-        const iconSvg = obtenerIconoPaso(s.tipo);
+        const iconSvg = SVG_ICONS[s.icono] || SVG_ICONS.solicitud;
 
         html += `
           <li class="timeline-item">
@@ -1151,7 +1569,9 @@
 
             ${s.tipo === 'solicitud' || s.tipo === 'revision' ? `
               <div class="timeline-gap">
-                <button type="button" class="btn-gap-add" title="Agregar paso aquí" onclick="insertarPasoIntermedio(${s.idx !== undefined ? s.idx + 1 : 0})">+</button>
+                <button type="button" class="btn-gap-add" title="Agregar paso aquí" onclick="insertarPasoIntermedio(${s.idx !== undefined ? s.idx + 1 : 0})">
+                  ${SVG_ICONS.plus}
+                </button>
                 <span class="gap-hint" onclick="insertarPasoIntermedio(${s.idx !== undefined ? s.idx + 1 : 0})">Insertar revisión de área aquí</span>
               </div>
             ` : ''}
@@ -1176,17 +1596,8 @@
       return '';
     }
 
-    function obtenerIconoPaso(tipo) {
-      if (tipo === 'solicitud') return '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>';
-      if (tipo === 'pago') return '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="1" y="4" width="22" height="16" rx="2" ry="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>';
-      if (tipo === 'revision') return '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 14 14"/></svg>';
-      if (tipo === 'aprobacion') return '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>';
-      if (tipo === 'entrega') return '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>';
-      return '•';
-    }
-
     // =========================================================================
-    // INSPECTOR CONTEXTUAL SEGÚN EL PASO SELECCIONADO
+    // INSPECTOR CONTEXTUAL SEGÚN EL PASO SELECCIONADO (Custom Selects Wiener)
     // =========================================================================
     function renderInspectorPanelHTML() {
       const t = CURRENT_T;
@@ -1195,7 +1606,10 @@
       if (k === 'sol') {
         return `
           <div class="inspector-header">
-            <h3>📝 Paso 1: Solicitud del Alumno</h3>
+            <h3>
+              ${SVG_ICONS.solicitud}
+              <span>Paso 1: Solicitud del Alumno</span>
+            </h3>
           </div>
           <div class="inspector-form-group">
             <label>Descripción del trámite para el alumno:</label>
@@ -1203,11 +1617,13 @@
           </div>
           <div class="inspector-form-group">
             <label>Tipo de Documento / Trámite:</label>
-            <select class="inspector-select" onchange="actualizarCampo('tipo', this.value); actualizarCampo('modelo', this.value.toLowerCase())">
-              <option value="Constancia" ${t.tipo === 'Constancia' ? 'selected' : ''}>Constancia Académica</option>
-              <option value="Certificado" ${t.tipo === 'Certificado' ? 'selected' : ''}>Certificado Oficial</option>
-              <option value="Solicitud" ${t.tipo === 'Solicitud' ? 'selected' : ''}>Solicitud General / Trámite Administrativo</option>
-            </select>
+            <div class="custom-select-container">
+              <select id="sel-tipo-doc" onchange="actualizarCampo('tipo', this.value); actualizarCampo('modelo', this.value.toLowerCase())">
+                <option value="Constancia" ${t.tipo === 'Constancia' ? 'selected' : ''}>Constancia Académica</option>
+                <option value="Certificado" ${t.tipo === 'Certificado' ? 'selected' : ''}>Certificado Oficial</option>
+                <option value="Solicitud" ${t.tipo === 'Solicitud' ? 'selected' : ''}>Solicitud General / Trámite Administrativo</option>
+              </select>
+            </div>
           </div>
           <div style="background:var(--brand-soft);border:1px solid var(--border-soft);border-radius:8px;padding:12px;margin-top:14px">
             <div style="font-size:12.5px;color:var(--brand-dark);font-weight:700">Requisitos asociados (${(t.requisitos || []).length}):</div>
@@ -1223,28 +1639,35 @@
         const conceptos = DB.conceptos() || [];
         return `
           <div class="inspector-header">
-            <h3>💳 Configuración de Pago y Arancel</h3>
+            <h3>
+              ${SVG_ICONS.pago}
+              <span>Configuración de Pago y Arancel</span>
+            </h3>
           </div>
           <div class="inspector-form-group">
             <label>Costo del Trámite en Soles (S/):</label>
             <input type="number" step="0.50" min="0" class="inspector-input" value="${t.costo}" onchange="actualizarCosto(this.value)">
-            <small style="color:var(--text-muted);font-size:11.5px">Si ingresa S/ 0.00, el trámite se considerará sin costo arancelario.</small>
+            <small style="color:var(--text-muted);font-size:11.5px;display:block;margin-top:4px">Si ingresa S/ 0.00, el trámite se considerará sin costo arancelario.</small>
           </div>
           <div class="inspector-form-group">
             <label>¿En qué momento debe pagar el estudiante?</label>
-            <select class="inspector-select" onchange="actualizarMomentoPago(this.value)">
-              <option value="antes" ${t.pagoMomento === 'antes' ? 'selected' : ''}>Al solicitar (Pago previo obligatorio)</option>
-              <option value="despues" ${t.pagoMomento === 'despues' ? 'selected' : ''}>Después de revisión favorable (Pago posterior)</option>
-            </select>
+            <div class="custom-select-container">
+              <select id="sel-pago-momento" onchange="actualizarMomentoPago(this.value)">
+                <option value="antes" ${t.pagoMomento === 'antes' ? 'selected' : ''}>Al solicitar (Pago previo obligatorio)</option>
+                <option value="despues" ${t.pagoMomento === 'despues' ? 'selected' : ''}>Después de revisión favorable (Pago posterior)</option>
+              </select>
+            </div>
           </div>
           <div class="inspector-form-group">
             <label>Concepto de Facturación / Caja Wiener:</label>
-            <select class="inspector-select" onchange="actualizarConceptoCaja(this.value)">
-              <option value="">-- Seleccione concepto contable --</option>
-              ${conceptos.map(c => `
-                <option value="${c.codigo}" ${t.conceptoCodigo === c.codigo ? 'selected' : ''}>${c.codigo} - ${c.descripcion} (S/ ${c.monto.toFixed(2)})</option>
-              `).join('')}
-            </select>
+            <div class="custom-select-container">
+              <select id="sel-concepto-caja" onchange="actualizarConceptoCaja(this.value)">
+                <option value="">-- Seleccione concepto contable --</option>
+                ${conceptos.map(c => `
+                  <option value="${c.codigo}" ${t.conceptoCodigo === c.codigo ? 'selected' : ''}>${c.codigo} - ${c.descripcion} (S/ ${c.monto.toFixed(2)})</option>
+                `).join('')}
+              </select>
+            </div>
           </div>
         `;
       }
@@ -1257,14 +1680,19 @@
 
         return `
           <div class="inspector-header">
-            <h3>🏛️ Revisión de Área (Etapa ${idx + 1})</h3>
-            <button type="button" class="btn-studio-secondary" style="color:var(--err-fg);padding:4px 8px;font-size:11px" onclick="eliminarArea(${idx})">Eliminar Etapa</button>
+            <h3>
+              ${SVG_ICONS.revision}
+              <span>Revisión de Área (Etapa ${idx + 1})</span>
+            </h3>
+            <button type="button" class="btn-studio-secondary" style="color:var(--err-fg);padding:0 8px;font-size:11px;height:28px" onclick="eliminarArea(${idx})">Eliminar Etapa</button>
           </div>
           <div class="inspector-form-group">
             <label>Área Responsable de la Revisión:</label>
-            <select class="inspector-select" onchange="actualizarEtapa(${idx}, 'area', this.value)">
-              ${areas.map(a => `<option value="${E(a.nombre)}" ${p.area === a.nombre ? 'selected' : ''}>${E(a.nombre)}</option>`).join('')}
-            </select>
+            <div class="custom-select-container">
+              <select id="sel-area-revision" onchange="actualizarEtapa(${idx}, 'area', this.value)">
+                ${areas.map(a => `<option value="${E(a.nombre)}" ${p.area === a.nombre ? 'selected' : ''}>${E(a.nombre)}</option>`).join('')}
+              </select>
+            </div>
           </div>
           <div class="inspector-form-group">
             <label>Plazo Máximo de Atención (Días Hábiles):</label>
@@ -1275,8 +1703,8 @@
             <textarea class="inspector-textarea" rows="3" placeholder="Ej. Validar notas, actas y antecedentes disciplinarios..." onchange="actualizarEtapa(${idx}, 'descripcion', this.value)">${E(p.descripcion || '')}</textarea>
           </div>
           <div style="display:flex;gap:8px;margin-top:10px">
-            <button type="button" class="btn-studio-secondary" style="flex:1" onclick="moverArea(${idx}, -1)" ${idx === 0 ? 'disabled' : ''}>↑ Mover antes</button>
-            <button type="button" class="btn-studio-secondary" style="flex:1" onclick="moverArea(${idx}, 1)" ${idx === t.proceso.length - 1 ? 'disabled' : ''}>↓ Mover después</button>
+            <button type="button" class="btn-studio-secondary" style="flex:1;height:34px;justify-content:center" onclick="moverArea(${idx}, -1)" ${idx === 0 ? 'disabled' : ''}>↑ Mover antes</button>
+            <button type="button" class="btn-studio-secondary" style="flex:1;height:34px;justify-content:center" onclick="moverArea(${idx}, 1)" ${idx === t.proceso.length - 1 ? 'disabled' : ''}>↓ Mover después</button>
           </div>
         `;
       }
@@ -1284,20 +1712,27 @@
       if (k === 'apr') {
         return `
           <div class="inspector-header">
-            <h3>📜 Aprobación y Firma Final</h3>
+            <h3>
+              ${SVG_ICONS.aprobacion}
+              <span>Aprobación y Firma Final</span>
+            </h3>
           </div>
           <div class="inspector-form-group">
             <label>¿Requiere firma/aprobación final de un área?</label>
-            <select class="inspector-select" onchange="actualizarCampo('requiereAprobacion', this.value === 'true')">
-              <option value="true" ${t.requiereAprobacion ? 'selected' : ''}>Sí, requiere aprobación formal</option>
-              <option value="false" ${!t.requiereAprobacion ? 'selected' : ''}>No, pasa directo a entrega</option>
-            </select>
+            <div class="custom-select-container">
+              <select id="sel-req-aprobacion" onchange="actualizarCampo('requiereAprobacion', this.value === 'true')">
+                <option value="true" ${t.requiereAprobacion ? 'selected' : ''}>Sí, requiere aprobación formal</option>
+                <option value="false" ${!t.requiereAprobacion ? 'selected' : ''}>No, pasa directo a entrega</option>
+              </select>
+            </div>
           </div>
           <div class="inspector-form-group">
             <label>Área firmante / emisora:</label>
-            <select class="inspector-select" onchange="actualizarCampo('area', this.value)">
-              ${(DB.areas() || []).map(a => `<option value="${E(a.nombre)}" ${t.area === a.nombre ? 'selected' : ''}>${E(a.nombre)}</option>`).join('')}
-            </select>
+            <div class="custom-select-container">
+              <select id="sel-area-firmante" onchange="actualizarCampo('area', this.value)">
+                ${(DB.areas() || []).map(a => `<option value="${E(a.nombre)}" ${t.area === a.nombre ? 'selected' : ''}>${E(a.nombre)}</option>`).join('')}
+              </select>
+            </div>
           </div>
         `;
       }
@@ -1305,12 +1740,15 @@
       if (k === 'ent') {
         return `
           <div class="inspector-header">
-            <h3>📬 Entrega y Emisión al Alumno</h3>
+            <h3>
+              ${SVG_ICONS.entrega}
+              <span>Entrega y Emisión al Alumno</span>
+            </h3>
           </div>
           <div class="inspector-form-group">
             <label>Días hábiles prometidos para la entrega:</label>
             <input type="number" min="0" max="60" class="inspector-input" value="${t.diasEntrega}" onchange="actualizarCampo('diasEntrega', Number(this.value))">
-            <small style="color:var(--text-muted);font-size:11.5px">Si ingresa 0 días, el alumno podrá descargar el documento inmediatamente al aprobarse.</small>
+            <small style="color:var(--text-muted);font-size:11.5px;display:block;margin-top:4px">Si ingresa 0 días, el alumno podrá descargar el documento inmediatamente al aprobarse.</small>
           </div>
           <div class="inspector-form-group">
             <label>Tiempo de vigencia de la constancia emitida (Horas):</label>
@@ -1337,31 +1775,36 @@
       const currentReqs = t.requisitos || [];
 
       return `
-        <div style="background:#FFFFFF;border:1px solid var(--studio-border);border-radius:12px;padding:24px;box-shadow:var(--studio-shadow)">
+        <div style="background:#FFFFFF;border:1px solid var(--studio-border);border-radius:12px;padding:22px;box-shadow:var(--studio-shadow)">
           <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;padding-bottom:14px;border-bottom:1px solid var(--border-soft);flex-wrap:wrap;gap:12px">
             <div>
-              <h3 style="margin:0;font-family:'Lato',sans-serif;font-size:18px;font-weight:900;color:var(--brand-dark)">
-                📋 Requisitos del Trámite
+              <h3 style="margin:0;font-family:'Lato',sans-serif;font-size:17px;font-weight:900;color:var(--brand-dark);display:flex;align-items:center;gap:8px">
+                ${SVG_ICONS.requisitos}
+                <span>Requisitos del Trámite</span>
               </h3>
               <p style="margin:4px 0 0;font-size:13px;color:var(--text-muted)">
                 Documentos o condiciones que el estudiante debe presentar al iniciar la solicitud.
               </p>
             </div>
             <button type="button" class="btn-studio-primary" onclick="abrirModalCatalogoRequisitos()">
-              + Agregar desde Catálogo Maestro
+              ${SVG_ICONS.plus}
+              <span>Agregar desde Catálogo Maestro</span>
             </button>
           </div>
 
           <div id="studio-reqs-list">
             ${currentReqs.length === 0 ? `
               <div style="text-align:center;padding:40px 20px;border:2px dashed var(--border-soft);border-radius:10px">
-                <div style="font-size:32px;margin-bottom:8px">📄</div>
+                <div style="width:48px;height:48px;border-radius:50%;background:var(--surface-2);color:var(--text-muted);display:grid;place-items:center;margin:0 auto 10px">
+                  ${SVG_ICONS.requisitos}
+                </div>
                 <b style="font-size:15px;color:var(--text)">Este trámite no exige requisitos previos</b>
                 <p style="font-size:13px;color:var(--text-muted);max-width:400px;margin:6px auto 14px">
                   El alumno podrá solicitarlo de forma 100% digital sin adjuntar archivos adicionales.
                 </p>
                 <button type="button" class="btn-studio-secondary" onclick="abrirModalCatalogoRequisitos()">
-                  Seleccionar requisitos del catálogo
+                  ${SVG_ICONS.plus}
+                  <span>Seleccionar requisitos del catálogo</span>
                 </button>
               </div>
             ` : currentReqs.map((r, i) => `
@@ -1369,16 +1812,16 @@
                 <div>
                   <div style="display:flex;align-items:center;gap:8px">
                     <span class="req-badge-type">${r.adjuntarArchivo ? 'Archivo Requerido' : 'Declaración'}</span>
-                    <b style="font-size:14.5px;color:var(--text)">${E(r.titulo)}</b>
+                    <b style="font-size:14px;color:var(--text)">${E(r.titulo)}</b>
                   </div>
                   <p style="margin:4px 0 0;font-size:12.5px;color:var(--text-muted)">${E(r.condiciones || 'Presentación en formato digital PDF/JPG.')}</p>
                 </div>
                 <div style="display:flex;align-items:center;gap:10px">
-                  <label style="font-size:12px;display:flex;align-items:center;gap:6px;cursor:pointer">
+                  <label style="font-size:12.5px;display:flex;align-items:center;gap:6px;cursor:pointer">
                     <input type="checkbox" ${r.activo !== false ? 'checked' : ''} onchange="toggleRequisitoActivo(${i}, this.checked)">
                     Obligatorio
                   </label>
-                  <button type="button" class="btn-studio-secondary" style="color:var(--err-fg);padding:4px 8px;font-size:12px" onclick="quitarRequisito(${i})">
+                  <button type="button" class="btn-studio-secondary" style="color:var(--err-fg);padding:0 10px;font-size:12px;height:30px" onclick="quitarRequisito(${i})">
                     Quitar
                   </button>
                 </div>
@@ -1399,23 +1842,24 @@
       const CICLOS = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12];
 
       return `
-        <div style="background:#FFFFFF;border:1px solid var(--studio-border);border-radius:12px;padding:24px;box-shadow:var(--studio-shadow)">
+        <div style="background:#FFFFFF;border:1px solid var(--studio-border);border-radius:12px;padding:22px;box-shadow:var(--studio-shadow)">
           <div style="margin-bottom:20px;padding-bottom:14px;border-bottom:1px solid var(--border-soft)">
-            <h3 style="margin:0;font-family:'Lato',sans-serif;font-size:18px;font-weight:900;color:var(--brand-dark)">
-              👥 Público y Reglas de Elegibilidad
+            <h3 style="margin:0;font-family:'Lato',sans-serif;font-size:17px;font-weight:900;color:var(--brand-dark);display:flex;align-items:center;gap:8px">
+              ${SVG_ICONS.audiencia}
+              <span>Público y Reglas de Elegibilidad</span>
             </h3>
             <p style="margin:4px 0 0;font-size:13px;color:var(--text-muted)">
               Define qué estudiantes pueden visualizar y solicitar este trámite en su portal.
             </p>
           </div>
 
-          <div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(320px, 1fr));gap:24px">
+          <div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(300px, 1fr));gap:20px">
             <!-- Nivel Académico -->
             <div>
-              <label style="font-weight:700;font-size:13.5px;display:block;margin-bottom:8px">Nivel Académico Habilitado:</label>
+              <label style="font-weight:700;font-size:13px;display:block;margin-bottom:8px">Nivel Académico Habilitado:</label>
               <div style="display:flex;flex-wrap:wrap;gap:8px">
                 ${NIVELES.map(n => `
-                  <label class="chip-check ${(a.niveles || []).includes(n) ? 'checked' : ''}" style="cursor:pointer">
+                  <label class="chip-check ${(a.niveles || []).includes(n) ? 'checked' : ''}" style="cursor:pointer;padding:6px 12px;font-size:12.5px;border-radius:8px">
                     <input type="checkbox" onchange="toggleAudienciaArray('niveles', '${n}')" ${(a.niveles || []).includes(n) ? 'checked' : ''}>
                     ${n.replace('-', ' ').toUpperCase()}
                   </label>
@@ -1425,10 +1869,10 @@
 
             <!-- Ciclos Permitidos -->
             <div>
-              <label style="font-weight:700;font-size:13.5px;display:block;margin-bottom:8px">Ciclos Académicos (Dejar vacío para todos):</label>
-              <div style="display:flex;flex-wrap:wrap;gap:6px">
+              <label style="font-weight:700;font-size:13px;display:block;margin-bottom:8px">Ciclos Académicos (Dejar vacío para todos):</label>
+              <div style="display:flex;flex-wrap:gap:6px">
                 ${CICLOS.map(c => `
-                  <label class="chip-check ${(a.ciclos || []).includes(c) ? 'checked' : ''}" style="cursor:pointer;padding:4px 8px;font-size:12px">
+                  <label class="chip-check ${(a.ciclos || []).includes(c) ? 'checked' : ''}" style="cursor:pointer;padding:5px 10px;font-size:12px;border-radius:6px">
                     <input type="checkbox" onchange="toggleAudienciaCiclo(${c})" ${(a.ciclos || []).includes(c) ? 'checked' : ''}>
                     ${c}° Ciclo
                   </label>
@@ -1438,13 +1882,13 @@
 
             <!-- Mérito y Créditos -->
             <div>
-              <label style="font-weight:700;font-size:13.5px;display:block;margin-bottom:8px">Mérito Académico y Créditos:</label>
+              <label style="font-weight:700;font-size:13px;display:block;margin-bottom:8px">Mérito Académico y Créditos:</label>
               <div style="display:flex;flex-direction:column;gap:10px">
-                <label style="display:flex;align-items:center;gap:8px;font-size:13.5px;cursor:pointer">
+                <label style="display:flex;align-items:center;gap:8px;font-size:13px;cursor:pointer">
                   <input type="checkbox" ${a.tercioSuperior ? 'checked' : ''} onchange="actualizarAudiencia('tercioSuperior', this.checked)">
                   Exigir pertenecer al <b>Tercio Superior</b>
                 </label>
-                <label style="display:flex;align-items:center;gap:8px;font-size:13.5px;cursor:pointer">
+                <label style="display:flex;align-items:center;gap:8px;font-size:13px;cursor:pointer">
                   <input type="checkbox" ${a.quintoSuperior ? 'checked' : ''} onchange="actualizarAudiencia('quintoSuperior', this.checked)">
                   Exigir pertenecer al <b>Quinto Superior</b>
                 </label>
@@ -1467,11 +1911,12 @@
       const pl = DOC.getPlantilla(t);
 
       return `
-        <div style="display:grid;grid-template-columns:minmax(380px, 1.15fr) minmax(360px, 1fr);gap:24px">
+        <div style="display:grid;grid-template-columns:minmax(340px, 1.15fr) minmax(320px, 1fr);gap:20px">
           <!-- Formulario de Configuración de la Plantilla -->
-          <div style="background:#FFFFFF;border:1px solid var(--studio-border);border-radius:12px;padding:24px;box-shadow:var(--studio-shadow)">
-            <h3 style="margin:0 0 16px;font-family:'Lato',sans-serif;font-size:18px;font-weight:900;color:var(--brand-dark)">
-              📄 Configuración de la Plantilla Oficial
+          <div style="background:#FFFFFF;border:1px solid var(--studio-border);border-radius:12px;padding:22px;box-shadow:var(--studio-shadow)">
+            <h3 style="margin:0 0 16px;font-family:'Lato',sans-serif;font-size:17px;font-weight:900;color:var(--brand-dark);display:flex;align-items:center;gap:8px">
+              ${SVG_ICONS.documento}
+              <span>Configuración de la Plantilla Oficial</span>
             </h3>
 
             <div class="inspector-form-group">
@@ -1493,32 +1938,34 @@
             <div class="inspector-form-group">
               <label>Cuerpo de la Certificación (Soporta variables dinámicas):</label>
               <div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:8px">
-                <button type="button" class="btn-studio-secondary" style="padding:2px 8px;font-size:11px" onclick="insertarTag('{nombre}')">{nombre}</button>
-                <button type="button" class="btn-studio-secondary" style="padding:2px 8px;font-size:11px" onclick="insertarTag('{codigo}')">{codigo}</button>
-                <button type="button" class="btn-studio-secondary" style="padding:2px 8px;font-size:11px" onclick="insertarTag('{programa}')">{programa}</button>
-                <button type="button" class="btn-studio-secondary" style="padding:2px 8px;font-size:11px" onclick="insertarTag('{ciclo}')">{ciclo}</button>
-                <button type="button" class="btn-studio-secondary" style="padding:2px 8px;font-size:11px" onclick="insertarTag('{creditos}')">{creditos}</button>
-                <button type="button" class="btn-studio-secondary" style="padding:2px 8px;font-size:11px" onclick="insertarTag('{fecha}')">{fecha}</button>
+                <button type="button" class="btn-studio-secondary" style="height:26px;padding:0 8px;font-size:11px" onclick="insertarTag('{nombre}')">{nombre}</button>
+                <button type="button" class="btn-studio-secondary" style="height:26px;padding:0 8px;font-size:11px" onclick="insertarTag('{codigo}')">{codigo}</button>
+                <button type="button" class="btn-studio-secondary" style="height:26px;padding:0 8px;font-size:11px" onclick="insertarTag('{programa}')">{programa}</button>
+                <button type="button" class="btn-studio-secondary" style="height:26px;padding:0 8px;font-size:11px" onclick="insertarTag('{ciclo}')">{ciclo}</button>
+                <button type="button" class="btn-studio-secondary" style="height:26px;padding:0 8px;font-size:11px" onclick="insertarTag('{creditos}')">{creditos}</button>
+                <button type="button" class="btn-studio-secondary" style="height:26px;padding:0 8px;font-size:11px" onclick="insertarTag('{fecha}')">{fecha}</button>
               </div>
               <textarea class="inspector-textarea" id="textarea-plantilla-cuerpo" rows="8" oninput="actualizarPlantilla('cuerpo', this.value); actualizarCanvasEnVivo()">${E(pl.cuerpo || '')}</textarea>
             </div>
           </div>
 
           <!-- Vista Previa Canvas Oficial (Marca de Agua) -->
-          <div style="background:#FFFFFF;border:1px solid var(--studio-border);border-radius:12px;padding:24px;box-shadow:var(--studio-shadow)">
+          <div style="background:#FFFFFF;border:1px solid var(--studio-border);border-radius:12px;padding:22px;box-shadow:var(--studio-shadow)">
             <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">
-              <h3 style="margin:0;font-family:'Lato',sans-serif;font-size:17px;font-weight:900;color:var(--brand-dark)">
-                👁️ Vista Previa del Documento
+              <h3 style="margin:0;font-family:'Lato',sans-serif;font-size:16px;font-weight:900;color:var(--brand-dark);display:flex;align-items:center;gap:8px">
+                ${SVG_ICONS.eye}
+                <span>Vista Previa del Documento</span>
               </h3>
-              <button type="button" class="btn-studio-secondary" onclick="DOC.modelo(CURRENT_T, DOC.ALUMNO_DEMO)">
+              <button type="button" class="btn-studio-secondary" style="height:32px;padding:0 10px;font-size:12px" onclick="DOC.modelo(CURRENT_T, DOC.ALUMNO_DEMO)">
                 Pantalla Completa
               </button>
             </div>
             <div class="canvas-preview-container">
               <div id="studio-canvas-mount" style="display:flex;justify-content:center;width:100%"></div>
             </div>
-            <p style="font-size:12px;color:var(--text-muted);text-align:center;margin-top:10px">
-              🔒 Vista previa con marca de agua diagonal institucional ("DOCUMENTO SIN VALIDEZ LEGAL").
+            <p style="font-size:12px;color:var(--text-muted);text-align:center;margin-top:10px;display:flex;align-items:center;justify-content:center;gap:6px">
+              ${SVG_ICONS.lock}
+              <span>Vista previa con marca de agua diagonal institucional ("DOCUMENTO SIN VALIDEZ LEGAL").</span>
             </p>
           </div>
         </div>
@@ -1563,11 +2010,12 @@
       const ESTADOS_MAIL = ['Aprobado', 'Observado', 'Rechazado'];
 
       return `
-        <div style="background:#FFFFFF;border:1px solid var(--studio-border);border-radius:12px;padding:24px;box-shadow:var(--studio-shadow)">
+        <div style="background:#FFFFFF;border:1px solid var(--studio-border);border-radius:12px;padding:22px;box-shadow:var(--studio-shadow)">
           <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;padding-bottom:14px;border-bottom:1px solid var(--border-soft);flex-wrap:wrap;gap:12px">
             <div>
-              <h3 style="margin:0;font-family:'Lato',sans-serif;font-size:18px;font-weight:900;color:var(--brand-dark)">
-                ✉️ Avisos Automatizados por Correo
+              <h3 style="margin:0;font-family:'Lato',sans-serif;font-size:17px;font-weight:900;color:var(--brand-dark);display:flex;align-items:center;gap:8px">
+                ${SVG_ICONS.notificaciones}
+                <span>Avisos Automatizados por Correo</span>
               </h3>
               <p style="margin:4px 0 0;font-size:13px;color:var(--text-muted)">
                 Plantillas de notificación enviadas al correo institucional del estudiante según el estado del trámite.
@@ -1579,12 +2027,12 @@
             </label>
           </div>
 
-          <div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(320px, 1fr));gap:20px">
+          <div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(300px, 1fr));gap:20px">
             ${ESTADOS_MAIL.map(est => `
               <div style="border:1px solid var(--border-soft);border-radius:10px;padding:16px;background:var(--bg)">
                 <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
                   <span class="studio-badge ${est === 'Aprobado' ? 'active' : est === 'Observado' ? 'draft' : ''}">Estado: ${est}</span>
-                  <span style="font-size:11px;color:var(--text-muted)">tramites@uwiener.edu.pe</span>
+                  <span style="font-size:11.5px;color:var(--text-muted)">tramites@uwiener.edu.pe</span>
                 </div>
                 <div class="inspector-form-group">
                   <label style="font-size:12px">Asunto del Correo:</label>
@@ -1602,7 +2050,7 @@
     }
 
     // =========================================================================
-    // SIMULADOR DIGITAL TWIN
+    // SIMULADOR DIGITAL TWIN (Con Custom Select Wiener)
     // =========================================================================
     function renderSimulatorContentHTML() {
       const t = CURRENT_T;
@@ -1612,29 +2060,38 @@
 
       return `
         <div class="simulator-header">
-          <h3>Simulador Alumno en Vivo</h3>
-          <button type="button" class="modal-close" style="color:#FFF" onclick="toggleSimulador(false)">✕</button>
+          <h3>
+            ${SVG_ICONS.eye}
+            <span>Simulador Alumno en Vivo</span>
+          </h3>
+          <button type="button" class="modal-close" style="color:#FFF;border:none;background:transparent;cursor:pointer" onclick="toggleSimulador(false)">
+            ${SVG_ICONS.close}
+          </button>
         </div>
         <div class="simulator-body">
-          <div style="background:#FFFFFF;border:1px solid var(--border);border-radius:10px;padding:14px;margin-bottom:16px">
-            <label style="font-size:12px;font-weight:700;color:var(--text-muted)">PROBAR CON EL PERFIL DE:</label>
-            <select class="inspector-select" style="margin-top:4px" onchange="cambiarAlumnoSimulador(this.value)">
-              ${alumnos.map(a => `
-                <option value="${a.codigo}" ${a.codigo === currentAlumno.codigo ? 'selected' : ''}>
-                  ${a.nombre} (${(a.perfil.nivel || 'pregrado').toUpperCase()} - Ciclo ${a.perfil.ciclo || 'Eg'})
-                </option>
-              `).join('')}
-            </select>
-            <div style="font-size:12px;color:var(--text-soft);margin-top:6px">
+          <div style="background:#FFFFFF;border:1px solid var(--border-soft);border-radius:10px;padding:14px;margin-bottom:16px;box-shadow:0 1px 2px rgba(0,0,0,0.02)">
+            <label style="font-size:12px;font-weight:700;color:var(--text-muted);display:block;margin-bottom:4px">PROBAR CON EL PERFIL DE:</label>
+            <div class="custom-select-container">
+              <select id="sel-alumno-simulador" onchange="cambiarAlumnoSimulador(this.value)">
+                ${alumnos.map(a => `
+                  <option value="${a.codigo}" ${a.codigo === currentAlumno.codigo ? 'selected' : ''}>
+                    ${a.nombre} (${(a.perfil.nivel || 'pregrado').toUpperCase()} - Ciclo ${a.perfil.ciclo || 'Eg'})
+                  </option>
+                `).join('')}
+              </select>
+            </div>
+            <div style="font-size:12px;color:var(--text-soft);margin-top:8px">
               Créditos: <b>${currentAlumno.perfil.creditos || 0}</b> | Tercio: <b>${currentAlumno.perfil.tercioSuperior ? 'Sí' : 'No'}</b>
             </div>
           </div>
 
           <!-- Veredicto de Elegibilidad -->
           <div style="border-radius:10px;padding:14px;margin-bottom:18px;border:1.5px solid ${elegible ? '#A7F3D0' : '#FCA5A5'};background:${elegible ? '#ECFDF5' : '#FEF2F2'}">
-            <div style="display:flex;align-items:center;gap:8px">
-              <span style="font-size:18px">${elegible ? '✅' : '❌'}</span>
-              <b style="font-size:14px;color:${elegible ? '#065F46' : '#991B1B'}">
+            <div style="display:flex;align-items:center;gap:10px">
+              <span style="display:flex;color:${elegible ? '#047857' : '#DC2626'}">
+                ${elegible ? SVG_ICONS.checkCircle : SVG_ICONS.alertOctagon}
+              </span>
+              <b style="font-size:13.5px;color:${elegible ? '#065F46' : '#991B1B'}">
                 ${elegible ? 'El estudiante ES ELEGIBLE para solicitar' : 'El estudiante NO ES ELEGIBLE'}
               </b>
             </div>
@@ -1650,7 +2107,7 @@
           </div>
 
           <!-- Stepper Preview del Estudiante -->
-          <div style="background:#FFFFFF;border:1px solid var(--border-soft);border-radius:10px;padding:16px">
+          <div style="background:#FFFFFF;border:1px solid var(--border-soft);border-radius:10px;padding:16px;box-shadow:0 1px 2px rgba(0,0,0,0.02)">
             <b style="font-size:13px;color:var(--brand-dark)">¿Cómo verá el proceso de atención?</b>
             <div style="margin-top:12px;display:flex;flex-direction:column;gap:10px">
               <div style="display:flex;align-items:center;gap:10px;font-size:13px">
@@ -1664,7 +2121,9 @@
                 </div>
               `).join('')}
               <div style="display:flex;align-items:center;gap:10px;font-size:13px">
-                <span style="width:24px;height:24px;border-radius:50%;background:var(--brand-tint);color:var(--brand-dark);display:grid;place-items:center;font-size:11px;font-weight:700">✓</span>
+                <span style="width:24px;height:24px;border-radius:50%;background:var(--brand-tint);color:var(--brand-dark);display:grid;place-items:center;font-size:11px;font-weight:700">
+                  ${SVG_ICONS.check}
+                </span>
                 <span>${t.diasEntrega === 0 ? 'Emisión Electrónica Inmediata' : 'Entrega del Documento'}</span>
               </div>
             </div>
@@ -1678,24 +2137,28 @@
     // =========================================================================
     function abrirSelectorRecetas() {
       APP.openModal(`
-        <div class="modal-head">
-          <div style="display:flex;align-items:center;gap:10px">
-            <span style="font-size:22px">✨</span>
+        <div class="modal-head" style="border-bottom:1px solid var(--border-soft);padding:18px 24px;display:flex;align-items:center;justify-content:space-between">
+          <div style="display:flex;align-items:center;gap:12px">
+            <div style="width:38px;height:38px;border-radius:10px;background:var(--brand-soft);color:var(--brand);display:grid;place-items:center">
+              ${SVG_ICONS.recipe}
+            </div>
             <div>
-              <h3>Elegir Plantilla de Trámite Base</h3>
-              <div style="font-size:12px;color:var(--text-muted)">Seleccione una receta pre-configurada para acelerar el diseño.</div>
+              <h3 style="margin:0;font-size:17px;font-weight:900;color:var(--brand-dark);font-family:'Lato',sans-serif">Elegir Plantilla de Trámite Base</h3>
+              <div style="font-size:12.5px;color:var(--text-muted);margin-top:2px">Seleccione una receta pre-configurada para acelerar el diseño</div>
             </div>
           </div>
-          <button class="modal-close" onclick="APP.closeModal()">✕</button>
+          <button type="button" class="modal-close" onclick="APP.closeModal()" style="border:none;background:transparent;cursor:pointer;color:var(--text-muted);display:grid;place-items:center;width:32px;height:32px;border-radius:8px">
+            ${SVG_ICONS.close}
+          </button>
         </div>
-        <div class="modal-body">
+        <div class="modal-body" style="padding:20px 24px">
           <div class="recipe-grid">
             ${STUDIO_RECIPES.map(r => `
               <div class="recipe-card" onclick="aplicarReceta('${r.id}')">
-                <div class="recipe-icon">${obtenerIconoPaso(r.id === 'inmediata' ? 'entrega' : r.id === 'con-revision' ? 'solicitud' : 'aprobacion')}</div>
+                <div class="recipe-icon">${SVG_ICONS[r.id === 'inmediata' ? 'entrega' : r.id === 'con-revision' ? 'solicitud' : 'aprobacion'] || SVG_ICONS.recipe}</div>
                 <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">
                   <h4>${E(r.titulo)}</h4>
-                  <span class="studio-badge active" style="font-size:10px;padding:2px 6px">${E(r.badge)}</span>
+                  <span class="studio-badge active" style="height:24px;padding:0 8px;font-size:11px">${E(r.badge)}</span>
                 </div>
                 <p>${E(r.resumen)}</p>
                 <div style="margin-top:10px;font-size:11.5px;color:var(--brand);font-weight:700">Ejemplos: ${E(r.ejemplos)}</div>
@@ -1703,7 +2166,7 @@
             `).join('')}
           </div>
         </div>
-      `);
+      `, { wide: true });
     }
 
     function aplicarReceta(recetaId) {
@@ -1718,42 +2181,79 @@
     }
 
     // =========================================================================
-    // MODAL DEL CATÁLOGO DE REQUISITOS
+    // MODAL DEL CATÁLOGO DE REQUISITOS (Permite selección múltiple sin cerrarse)
     // =========================================================================
-    function abrirModalCatalogoRequisitos() {
+    let _filtroReqModal = '';
+
+    function renderContentRequisitosModal(filtro = '') {
+      _filtroReqModal = filtro;
       const allReqs = DB.requisitos() || [];
       const currentIds = (CURRENT_T.requisitos || []).map(r => r.id);
+      const filtered = allReqs.filter(r => {
+        if (!filtro) return true;
+        const f = filtro.toLowerCase();
+        return (r.titulo || '').toLowerCase().includes(f) || (r.id || '').toLowerCase().includes(f) || (r.formato || '').toLowerCase().includes(f);
+      });
 
-      APP.openModal(`
-        <div class="modal-head">
-          <h3>Catálogo Maestro de Requisitos</h3>
-          <button class="modal-close" onclick="APP.closeModal()">✕</button>
+      return `
+        <div class="modal-head" style="border-bottom:1px solid var(--border-soft);padding:18px 24px;display:flex;align-items:center;justify-content:space-between">
+          <div style="display:flex;align-items:center;gap:12px">
+            <div style="width:38px;height:38px;border-radius:10px;background:var(--brand-soft);color:var(--brand);display:grid;place-items:center">
+              ${SVG_ICONS.requisitos}
+            </div>
+            <div>
+              <h3 style="margin:0;font-size:17px;font-weight:900;color:var(--brand-dark);font-family:'Lato',sans-serif">Catálogo Maestro de Requisitos</h3>
+              <div style="font-size:12.5px;color:var(--text-muted);margin-top:2px">Seleccione uno o más requisitos para asignarlos al trámite</div>
+            </div>
+          </div>
+          <button type="button" class="modal-close" onclick="APP.closeModal(); renderStudioUI();" style="border:none;background:transparent;cursor:pointer;color:var(--text-muted);display:grid;place-items:center;width:32px;height:32px;border-radius:8px">
+            ${SVG_ICONS.close}
+          </button>
         </div>
-        <div class="modal-body">
-          <p style="font-size:13px;color:var(--text-muted);margin:0 0 14px">
-            Seleccione los requisitos que el estudiante deberá adjuntar al solicitar este trámite:
-          </p>
-          <div style="max-height:360px;overflow-y:auto;border:1px solid var(--border-soft);border-radius:8px">
-            <table class="modal-table">
+
+        <div class="modal-body" style="padding:20px 24px;max-height:460px;overflow-y:auto">
+          <!-- Buscador en tiempo real con icono SVG -->
+          <div style="position:relative;margin-bottom:14px">
+            <span style="position:absolute;left:12px;top:50%;transform:translateY(-50%);color:var(--text-muted);pointer-events:none;display:flex">
+              ${SVG_ICONS.search}
+            </span>
+            <input type="text" id="req-modal-search" class="studio-input" style="padding-left:36px;height:38px;font-size:13px" placeholder="Buscar por nombre de requisito o formato (ej. DNI, PDF, Carta)..." value="${E(filtro)}" oninput="filtrarRequisitosModal(this.value)">
+          </div>
+
+          <div style="border:1px solid var(--border-soft);border-radius:10px;overflow:hidden;box-shadow:0 1px 3px rgba(0,0,0,0.03)">
+            <table style="width:100%;border-collapse:collapse;font-size:13px">
               <thead>
-                <tr>
-                  <th style="width:40px;text-align:center">Sel.</th>
-                  <th>Requisito</th>
-                  <th>Formato</th>
+                <tr style="background:var(--surface-2);border-bottom:1px solid var(--border-soft)">
+                  <th style="width:60px;text-align:center;padding:10px 12px;font-weight:700;color:var(--text-soft);font-size:12px">Estado</th>
+                  <th style="text-align:left;padding:10px 14px;font-weight:700;color:var(--text-soft);font-size:12px">Requisito Institucional</th>
+                  <th style="width:90px;text-align:center;padding:10px 12px;font-weight:700;color:var(--text-soft);font-size:12px">Formato</th>
+                  <th style="width:120px;text-align:center;padding:10px 14px;font-weight:700;color:var(--text-soft);font-size:12px">Acción</th>
                 </tr>
               </thead>
               <tbody>
-                ${allReqs.map(r => {
-                  const alreadyIn = currentIds.includes(r.id);
+                ${filtered.length === 0 ? `
+                  <tr><td colspan="4" style="text-align:center;padding:30px;color:var(--text-muted)">No se encontraron requisitos que coincidan con la búsqueda.</td></tr>
+                ` : filtered.map(r => {
+                  const isSelected = currentIds.includes(r.id);
                   return `
-                    <tr>
-                      <td style="text-align:center">
-                        <button type="button" class="btn-studio-secondary" style="padding:2px 8px;font-size:11px" onclick="agregarRequisitoItem('${r.id}')" ${alreadyIn ? 'disabled' : ''}>
-                          ${alreadyIn ? '✓' : '+'}
+                    <tr style="border-bottom:1px solid var(--border-soft);background:${isSelected ? '#F0FAFA' : '#FFFFFF'};transition:background 0.15s ease">
+                      <td style="text-align:center;padding:10px 12px">
+                        <span style="display:inline-flex;width:24px;height:24px;border-radius:50%;align-items:center;justify-content:center;background:${isSelected ? 'var(--brand)' : 'var(--surface-2)'};color:${isSelected ? '#FFFFFF' : 'var(--text-muted)'};font-size:11px;font-weight:700">
+                          ${isSelected ? SVG_ICONS.check : ''}
+                        </span>
+                      </td>
+                      <td style="padding:10px 14px">
+                        <b style="color:var(--text);font-size:13.5px">${E(r.titulo)}</b>
+                        <div style="font-size:11.5px;color:var(--text-muted);margin-top:2px">Código: <span style="font-family:monospace">${E(r.id)}</span> · ${r.requiereAdjunto !== false ? 'Requiere adjuntar archivo digital' : 'Declaración en línea'}</div>
+                      </td>
+                      <td style="text-align:center;padding:10px 12px">
+                        <span class="node-badge-chip" style="font-weight:700;text-transform:uppercase">${E(r.formato || 'PDF')}</span>
+                      </td>
+                      <td style="text-align:center;padding:10px 14px">
+                        <button type="button" class="btn-studio-secondary" style="padding:0 12px;font-size:12px;height:32px;width:100%;justify-content:center;${isSelected ? 'background:#ECFDF5;border-color:#A7F3D0;color:#065F46' : ''}" onclick="toggleRequisitoDesdeCatalogo('${r.id}')">
+                          ${isSelected ? `${SVG_ICONS.check} <span>Asignado</span>` : `${SVG_ICONS.plus} <span>Agregar</span>`}
                         </button>
                       </td>
-                      <td><b>${E(r.titulo)}</b></td>
-                      <td><span class="node-badge-chip">${E(r.formato || 'PDF')}</span></td>
                     </tr>
                   `;
                 }).join('')}
@@ -1761,26 +2261,69 @@
             </table>
           </div>
         </div>
-      `);
+
+        <div class="modal-foot" style="padding:14px 24px;background:var(--surface-2);border-top:1px solid var(--border-soft);display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px">
+          <div style="font-size:13px;color:var(--text-soft);display:flex;align-items:center;gap:6px">
+            <span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--brand)"></span>
+            <span><b>${(CURRENT_T.requisitos || []).length}</b> requisito(s) asignado(s)</span>
+          </div>
+          <div style="display:flex;gap:10px">
+            <button type="button" class="btn-studio-primary" onclick="APP.closeModal(); renderStudioUI();">
+              Listo / Guardar Selección
+            </button>
+          </div>
+        </div>
+      `;
     }
 
-    function agregarRequisitoItem(reqId) {
+    function abrirModalCatalogoRequisitos() {
+      _filtroReqModal = '';
+      APP.openModal(renderContentRequisitosModal(''), { wide: true });
+    }
+
+    function filtrarRequisitosModal(valor) {
+      _filtroReqModal = valor;
+      const modalEl = document.querySelector('#ov .modal');
+      if (modalEl) {
+        modalEl.innerHTML = renderContentRequisitosModal(valor);
+        const searchInput = document.getElementById('req-modal-search');
+        if (searchInput) {
+          searchInput.value = valor;
+          searchInput.focus();
+        }
+      }
+    }
+
+    function toggleRequisitoDesdeCatalogo(reqId) {
+      if (!CURRENT_T.requisitos) CURRENT_T.requisitos = [];
+      const idx = CURRENT_T.requisitos.findIndex(r => r.id === reqId);
       const allReqs = DB.requisitos() || [];
       const req = allReqs.find(r => r.id === reqId);
-      if (!req) return;
 
-      if (!CURRENT_T.requisitos) CURRENT_T.requisitos = [];
-      CURRENT_T.requisitos.push({
-        id: req.id,
-        titulo: req.titulo,
-        condiciones: 'Formato ' + (req.formato || 'PDF') + ' no mayor a 10MB.',
-        adjuntarArchivo: req.requiereAdjunto !== false,
-        activo: true
-      });
+      if (idx >= 0) {
+        CURRENT_T.requisitos.splice(idx, 1);
+        APP.toast('Requisito removido de la selección.', 'info');
+      } else if (req) {
+        CURRENT_T.requisitos.push({
+          id: req.id,
+          titulo: req.titulo,
+          condiciones: 'Formato ' + (req.formato || 'PDF') + ' no mayor a 10MB.',
+          adjuntarArchivo: req.requiereAdjunto !== false,
+          activo: true
+        });
+        APP.toast('Requisito «' + req.titulo + '» agregado.', 'ok');
+      }
 
-      APP.closeModal();
-      renderStudioUI();
-      APP.toast('Requisito agregado al trámite.', 'ok');
+      // Refrescar el cuerpo del modal sin cerrarlo
+      const modalEl = document.querySelector('#ov .modal');
+      if (modalEl) {
+        modalEl.innerHTML = renderContentRequisitosModal(_filtroReqModal);
+        const searchInput = document.getElementById('req-modal-search');
+        if (searchInput && _filtroReqModal) {
+          searchInput.value = _filtroReqModal;
+          searchInput.focus();
+        }
+      }
     }
 
     function toggleRequisitoActivo(idx, activo) {
@@ -1804,38 +2347,51 @@
     function abrirPreflightModal() {
       const issues = diagnosticoPreflight();
       APP.openModal(`
-        <div class="modal-head">
-          <div style="display:flex;align-items:center;gap:10px">
-            <span style="font-size:20px">🔍</span>
-            <h3>Control de Calidad (Preflight)</h3>
+        <div class="modal-head" style="border-bottom:1px solid var(--border-soft);padding:18px 24px;display:flex;align-items:center;justify-content:space-between">
+          <div style="display:flex;align-items:center;gap:12px">
+            <div style="width:38px;height:38px;border-radius:10px;background:var(--brand-soft);color:var(--brand);display:grid;place-items:center">
+              ${SVG_ICONS.preflight}
+            </div>
+            <div>
+              <h3 style="margin:0;font-size:17px;font-weight:900;color:var(--brand-dark);font-family:'Lato',sans-serif">Control de Calidad (Preflight)</h3>
+              <div style="font-size:12.5px;color:var(--text-muted);margin-top:2px">Diagnóstico de reglas, plazos y plantillas antes de publicar</div>
+            </div>
           </div>
-          <button class="modal-close" onclick="APP.closeModal()">✕</button>
+          <button type="button" class="modal-close" onclick="APP.closeModal()" style="border:none;background:transparent;cursor:pointer;color:var(--text-muted);display:grid;place-items:center;width:32px;height:32px;border-radius:8px">
+            ${SVG_ICONS.close}
+          </button>
         </div>
-        <div class="modal-body">
-          <p style="font-size:13px;color:var(--text-muted);margin:0 0 16px">
-            Revisión automática de coherencia de reglas, plazos y plantillas antes de publicar el trámite:
-          </p>
+        <div class="modal-body" style="padding:20px 24px">
           ${issues.length === 0 ? `
-            <div style="background:#ECFDF5;border:1px solid #A7F3D0;border-radius:8px;padding:18px;text-align:center">
-              <span style="font-size:28px">🎉</span>
-              <h4 style="margin:8px 0 4px;color:#065F46">¡Trámite 100% Coherente y Listo!</h4>
-              <p style="margin:0;font-size:13px;color:#047857">No se detectaron inconsistencias en las reglas ni en los plazos.</p>
+            <div style="background:#ECFDF5;border:1px solid #A7F3D0;border-radius:10px;padding:24px;text-align:center">
+              <div style="width:48px;height:48px;border-radius:50%;background:#D1FAE5;color:#047857;display:grid;place-items:center;margin:0 auto 10px">
+                ${SVG_ICONS.checkCircle}
+              </div>
+              <h4 style="margin:8px 0 4px;color:#065F46;font-size:16px;font-weight:900">¡Trámite 100% Coherente y Listo!</h4>
+              <p style="margin:0;font-size:13px;color:#047857">No se detectaron inconsistencias en las reglas ni en los plazos de atención.</p>
             </div>
           ` : `
-            <div style="display:flex;flex-direction:column;gap:10px">
+            <div style="display:flex;flex-direction:column;gap:12px">
               ${issues.map(iss => `
-                <div style="padding:12px;border-radius:8px;border:1px solid ${iss.tipo === 'error' ? '#FCA5A5' : '#FDE68A'};background:${iss.tipo === 'error' ? '#FEF2F2' : '#FFFBEB'};display:flex;gap:10px;align-items:start">
-                  <span>${iss.tipo === 'error' ? '❌' : '⚠️'}</span>
+                <div style="padding:14px;border-radius:10px;border:1px solid ${iss.tipo === 'error' ? '#FCA5A5' : '#FDE68A'};background:${iss.tipo === 'error' ? '#FEF2F2' : '#FFFBEB'};display:flex;gap:12px;align-items:start">
+                  <span style="display:flex;margin-top:2px;color:${iss.tipo === 'error' ? '#DC2626' : '#D97706'}">
+                    ${iss.tipo === 'error' ? SVG_ICONS.error : SVG_ICONS.warning}
+                  </span>
                   <div>
-                    <b style="font-size:13px;color:${iss.tipo === 'error' ? '#991B1B' : '#92400E'}">${iss.tipo === 'error' ? 'Error Bloqueante' : 'Sugerencia'}</b>
-                    <p style="margin:2px 0 0;font-size:12.5px;color:var(--text)">${E(iss.msg)}</p>
+                    <b style="font-size:13.5px;color:${iss.tipo === 'error' ? '#991B1B' : '#92400E'}">${iss.tipo === 'error' ? 'Error Bloqueante' : 'Sugerencia Institucional'}</b>
+                    <p style="margin:3px 0 0;font-size:13px;color:var(--text);line-height:1.45">${E(iss.msg)}</p>
                   </div>
                 </div>
               `).join('')}
             </div>
           `}
         </div>
-      `);
+        <div class="modal-foot" style="padding:14px 24px;background:var(--surface-2);border-top:1px solid var(--border-soft);display:flex;justify-content:flex-end">
+          <button type="button" class="btn-studio-secondary" onclick="APP.closeModal()">
+            Entendido
+          </button>
+        </div>
+      `, { wide: true });
     }
 
     // =========================================================================
@@ -1851,6 +2407,10 @@
       const slot = document.getElementById('studio-inspector-slot');
       if (slot) {
         slot.innerHTML = renderInspectorPanelHTML();
+        // Hidratar selects personalizados del inspector
+        if (window.APP && window.APP.initCustomSelects) {
+          window.APP.initCustomSelects(slot);
+        }
       }
       document.querySelectorAll('.timeline-node-card').forEach(c => c.classList.remove('selected'));
       const activeCard = document.querySelector(`[onclick="seleccionarPaso('${k}')"]`);
@@ -1860,7 +2420,7 @@
     function toggleEstadoActivo() {
       CURRENT_T.activo = !CURRENT_T.activo;
       renderStudioUI();
-      APP.toast(CURRENT_T.activo ? 'Trámite marcado como ACTIVO.' : 'Trámite guardado en modo BORRADOR.', 'ok');
+      APP.toast(CURRENT_T.activo ? 'Trámite marcado como ACTIVO en catálogo.' : 'Trámite guardado en modo BORRADOR.', 'ok');
     }
 
     function actualizarTitulo(v) {
@@ -1982,22 +2542,54 @@
       SIMULATOR_OPEN = abrir;
       const el = document.getElementById('studio-simulator-drawer');
       if (el) {
-        if (abrir) el.classList.add('open');
-        else el.classList.remove('open');
+        if (abrir) {
+          el.classList.add('open');
+          if (window.APP && window.APP.initCustomSelects) {
+            window.APP.initCustomSelects(el);
+          }
+        } else {
+          el.classList.remove('open');
+        }
       }
     }
 
     function cambiarAlumnoSimulador(codigo) {
       SIMULATOR_STUDENT_CODE = codigo;
       const el = document.getElementById('studio-simulator-drawer');
-      if (el) el.innerHTML = renderSimulatorContentHTML();
+      if (el) {
+        el.innerHTML = renderSimulatorContentHTML();
+        if (window.APP && window.APP.initCustomSelects) {
+          window.APP.initCustomSelects(el);
+        }
+      }
     }
 
     function cambiarTramiteEnEdicion(tramiteId) {
-      if (isDirty() && !confirm('Tiene cambios sin guardar. ¿Desea descartarlos y cargar otro trámite?')) {
-        renderStudioUI();
+      if (isDirty()) {
+        mostrarModalConfirmacion({
+          titulo: 'Cambios sin guardar',
+          mensaje: 'Tiene modificaciones sin guardar en el trámite actual. ¿Desea descartarlas y cargar otro trámite?',
+          textoConfirmar: 'Descartar y Cargar',
+          textoCancelar: 'Continuar Editando',
+          onConfirm: () => {
+            ORIGINAL_JSON = JSON.stringify(CURRENT_T);
+            if (tramiteId) window.location.search = '?id=' + encodeURIComponent(tramiteId);
+            else window.location.search = '';
+          },
+          onCancel: () => {
+            const sel = document.getElementById('studio-select-tramite');
+            if (sel) {
+              if (sel._wienerCustomSelect) {
+                sel._wienerCustomSelect.setValue(CURRENT_T.id || '');
+              } else {
+                sel.value = CURRENT_T.id || '';
+              }
+            }
+          }
+        });
         return;
       }
+
       if (tramiteId) {
         window.location.search = '?id=' + encodeURIComponent(tramiteId);
       } else {
@@ -2007,10 +2599,18 @@
 
     function verificarSalirSinGuardar(e) {
       if (isDirty()) {
-        if (!confirm('Tiene cambios sin guardar en Trámite Studio. ¿Desea salir sin guardar?')) {
-          e.preventDefault();
-          return false;
-        }
+        if (e && e.preventDefault) e.preventDefault();
+        mostrarModalConfirmacion({
+          titulo: 'Cambios sin guardar',
+          mensaje: 'Tiene modificaciones sin guardar en Trámite Studio. Si vuelve al catálogo ahora, se perderán todos los cambios no guardados.',
+          textoConfirmar: 'Descartar y Volver',
+          textoCancelar: 'Continuar Editando',
+          onConfirm: () => {
+            ORIGINAL_JSON = JSON.stringify(CURRENT_T);
+            window.location.href = 'tramites.html';
+          }
+        });
+        return false;
       }
       return true;
     }
@@ -2021,7 +2621,7 @@
     function guardarTramiteStudio() {
       const t = CURRENT_T;
       if (!t.nombre || t.nombre.trim().length < 3) {
-        APP.toast('Por favor ingrese un nombre válido para el trámite.', 'err');
+        APP.toast('Por favor ingrese un nombre descriptivo para el trámite.', 'error');
         return;
       }
 
