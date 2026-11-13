@@ -69,55 +69,74 @@
       font-weight: 700;
     }
 
-    /* Top Studio Header Wrap - Barra de Configuración Unificada */
+    /* ==========================================================================
+       CABECERA DE CONTROL Y ACCIONES (Opción A - Dos Filas Jerárquicas)
+       Universidad Privada Norbert Wiener · Design.md (Secciones 11 y 12)
+       ========================================================================== */
     .studio-header-wrap {
       background: #FFFFFF;
       border: 1px solid var(--studio-border);
       border-radius: var(--studio-radius);
-      padding: 12px 18px;
+      padding: 16px 20px;
       margin-bottom: 16px;
       box-shadow: var(--studio-shadow);
       box-sizing: border-box;
       overflow: visible !important;
     }
-    .studio-header-inner {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 12px;
-      flex-wrap: wrap;
-    }
-    .studio-header-left {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      flex: 1 1 360px;
-      flex-wrap: wrap;
-    }
-    .studio-actions-group {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      flex: 0 0 auto;
-      flex-wrap: wrap;
+
+    /* Etiquetas de Campos Superiores (High contrast #222) */
+    .studio-field-label {
+      display: block;
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      color: #222222;
+      margin-bottom: 6px;
+      line-height: 14px;
+      user-select: none;
     }
 
-    /* Título del Trámite - Input estilizado a 38px de altura */
+    /* Fila 1: Identificación y Estado de Publicación */
+    .studio-header-top-row {
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-between;
+      gap: 20px;
+      flex-wrap: wrap;
+    }
+    .studio-header-field-col {
+      display: flex;
+      flex-direction: column;
+    }
+    .studio-header-field-col.flex-1 {
+      flex: 1 1 420px;
+    }
+    .studio-actions-col {
+      align-items: flex-end;
+    }
+
+    /* Wrap para Input de Título y Código Institucional */
+    .studio-title-input-wrap {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      width: 100%;
+    }
     .studio-title-input {
-      font-family: 'Lato', sans-serif;
-      font-weight: 700;
-      font-size: 15px;
-      color: var(--text);
+      font-family: 'Roboto', sans-serif;
+      font-weight: 600;
+      font-size: 14px;
+      color: #222222;
       border: 1px solid var(--border-soft);
       border-radius: 8px;
       height: var(--ctrl-h);
       padding: 0 12px;
       background: #FFFFFF;
       outline: none;
-      flex: 1 1 240px;
+      flex: 1;
       min-width: 220px;
-      max-width: 340px;
-      transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+      transition: border-color 0.2s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.2s ease, background-color 0.15s ease;
       box-sizing: border-box;
       box-shadow: 0 1px 2px rgba(0, 0, 0, 0.02);
     }
@@ -136,19 +155,98 @@
       height: var(--ctrl-h);
       display: inline-flex;
       align-items: center;
-      padding: 0 10px;
+      padding: 0 11px;
       border-radius: 8px;
       font-size: 12.5px;
       font-family: monospace;
       font-weight: 700;
       background: var(--surface-2);
-      color: var(--text-soft);
+      color: #222222;
       border: 1px solid var(--border-soft);
       box-sizing: border-box;
       white-space: nowrap;
     }
 
-    /* Badge Interactivo de Estado (Activo / Borrador) */
+    /* Segmented Control para Estado (Borrador / Activo en Catálogo) */
+    .studio-state-segmented {
+      display: inline-flex;
+      align-items: center;
+      background: #F1F5F9;
+      padding: 3px;
+      border-radius: 8px;
+      border: 1px solid #E2E8F0;
+      height: var(--ctrl-h);
+      box-sizing: border-box;
+      gap: 4px;
+    }
+    .studio-seg-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      height: 30px;
+      padding: 0 13px;
+      border-radius: 6px;
+      font-size: 12px;
+      font-weight: 700;
+      font-family: 'Roboto', sans-serif;
+      border: 1px solid transparent;
+      background: transparent;
+      color: #64748B;
+      cursor: pointer;
+      transition: all 0.18s ease;
+      white-space: nowrap;
+      user-select: none;
+    }
+    .studio-seg-btn svg {
+      flex-shrink: 0;
+    }
+    .studio-seg-btn:hover:not(.selected) {
+      color: #222222;
+      background: rgba(255, 255, 255, 0.7);
+    }
+    .studio-seg-btn.selected.draft {
+      background: #FFFFFF;
+      color: #B45309;
+      border-color: #FCD34D;
+      box-shadow: 0 1px 3px rgba(180, 83, 9, 0.12);
+    }
+    .studio-seg-btn.selected.active {
+      background: #0F848F;
+      color: #FFFFFF;
+      border-color: #0F848F;
+      box-shadow: 0 1px 4px rgba(15, 132, 143, 0.25);
+    }
+
+    /* Fila 2: Selector de Trámite en Edición y Herramientas / Acciones */
+    .studio-header-bottom-row {
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-between;
+      gap: 16px;
+      margin-top: 14px;
+      padding-top: 14px;
+      border-top: 1px solid var(--border-soft);
+      flex-wrap: wrap;
+    }
+    .studio-header-bottom-row .custom-select-container {
+      width: 320px;
+      min-width: 260px;
+      margin: 0;
+    }
+    .studio-bottom-actions {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+    .studio-actions-divider {
+      width: 1px;
+      height: 24px;
+      background: var(--border-soft);
+      margin: 0 2px;
+    }
+
+    /* Badges estáticos para otras zonas (correos, recetas) */
     .studio-badge {
       height: var(--ctrl-h);
       display: inline-flex;
@@ -158,9 +256,7 @@
       border-radius: 8px;
       font-size: 12.5px;
       font-weight: 700;
-      cursor: pointer;
       border: 1px solid transparent;
-      transition: all 0.15s ease;
       box-sizing: border-box;
       white-space: nowrap;
     }
@@ -175,29 +271,10 @@
       color: #92400E;
       border-color: #FCD34D;
     }
-    .studio-badge.draft:hover {
-      background: #FDE68A;
-    }
     .studio-badge.active {
       background: #D1FAE5;
       color: #065F46;
       border-color: #6EE7B7;
-    }
-    .studio-badge.active:hover {
-      background: #A7F3D0;
-    }
-
-    /* Selector de Trámite en Cabecera */
-    .studio-select-tramite-wrap {
-      display: flex;
-      align-items: center;
-      gap: 6px;
-    }
-    .studio-select-label {
-      font-size: 12px;
-      color: var(--text-muted);
-      font-weight: 700;
-      white-space: nowrap;
     }
 
     /* ==========================================================================
@@ -210,15 +287,10 @@
     }
 
     /* Adaptación específica para la cabecera: altura de 38px */
-    .studio-header-wrap .custom-select-container {
-      width: 195px;
-      min-width: 180px;
-      margin: 0;
-    }
     .studio-header-wrap .custom-select-trigger {
       height: var(--ctrl-h) !important;
       min-height: var(--ctrl-h) !important;
-      padding: 0 32px 0 12px !important;
+      padding: 0 34px 0 12px !important;
       font-size: 12.5px !important;
       line-height: var(--ctrl-h) !important;
     }
@@ -1180,12 +1252,13 @@
           CURRENT_T = normalizarTramite(JSON.parse(JSON.stringify(loaded)));
         } else {
           APP.toast('Trámite no encontrado. Se creará uno nuevo.', 'warn');
-          CURRENT_T = crearTramiteDesdeReceta('inmediata');
+          CURRENT_T = crearTramiteDesdeReceta('inmediata', false);
         }
       } else if (plantillaParam) {
-        CURRENT_T = crearTramiteDesdeReceta(plantillaParam);
+        CURRENT_T = crearTramiteDesdeReceta(plantillaParam, true);
       } else {
-        CURRENT_T = crearTramiteDesdeReceta('inmediata');
+        // Al entrar por primera vez para crear un trámite nuevo, iniciamos con nombre limpio listo para escribir
+        CURRENT_T = crearTramiteDesdeReceta('inmediata', false);
       }
 
       ORIGINAL_JSON = JSON.stringify(CURRENT_T);
@@ -1209,14 +1282,14 @@
       return t;
     }
 
-    function crearTramiteDesdeReceta(recetaId) {
+    function crearTramiteDesdeReceta(recetaId, usarNombrePlantilla = true) {
       const rec = STUDIO_RECIPES.find(r => r.id === recetaId) || STUDIO_RECIPES[0];
       const d = JSON.parse(JSON.stringify(rec.datos));
       const nextNum = DB.tramites().length + 1;
       const t = Object.assign({
         id: null,
         codigo: 'T-0' + String(nextNum).padStart(2, '0'),
-        nombre: rec.id === 'en-blanco' ? 'NUEVO TRÁMITE INSTITUCIONAL' : rec.titulo.toUpperCase(),
+        nombre: usarNombrePlantilla ? (rec.id === 'en-blanco' ? '' : rec.titulo.toUpperCase()) : '',
         descripcion: rec.resumen,
         area: 'Registros Académicos',
         conceptoCodigo: d.costo > 0 ? '010100' + Math.floor(d.costo) : '00000000',
@@ -1375,51 +1448,75 @@
           </div>
         </div>
 
-        <!-- Top Studio Header Wrap - Barra de Configuración Unificada -->
+        <!-- Top Studio Header Wrap - Barra de Configuración Unificada (Opción A: 2 Filas Jerárquicas) -->
         <div class="studio-header-wrap">
-          <div class="studio-header-inner">
-            <!-- Bloque Izquierdo: Identificación del Trámite -->
-            <div class="studio-header-left">
-              <input type="text" class="studio-title-input" id="studio-title-field" value="${E(t.nombre)}" placeholder="Nombre del Trámite..." oninput="actualizarTitulo(this.value)" title="Haga clic para editar el nombre del trámite">
-              <span class="studio-code-chip" title="Código institucional">${E(t.codigo || 'T-NUEVO')}</span>
-              <button type="button" class="studio-badge ${t.activo ? 'active' : 'draft'}" onclick="toggleEstadoActivo()" title="Cambiar estado: Haga clic para alternar entre Activo y Borrador">
-                <span class="studio-badge-dot"></span>
-                <span>${t.activo ? 'Activo en Catálogo' : 'Borrador'}</span>
-              </button>
+          <!-- Fila 1: Identificación del Trámite y Estado de Publicación -->
+          <div class="studio-header-top-row">
+            <!-- Bloque Izquierdo: Nombre del Trámite y Código Institucional -->
+            <div class="studio-header-field-col flex-1">
+              <label class="studio-field-label" for="studio-title-field">Nombre del Trámite Institucional:</label>
+              <div class="studio-title-input-wrap">
+                <input type="text" class="studio-title-input" id="studio-title-field" value="${E(t.nombre)}" placeholder="Ej. Certificado de Estudios Oficial..." oninput="actualizarTitulo(this.value)" title="Haga clic para editar el nombre público visible para los estudiantes">
+                <span class="studio-code-chip" title="Código oficial del trámite">${E(t.codigo || 'T-NUEVO')}</span>
+              </div>
             </div>
 
-            <!-- Bloque Derecho: Acciones y Herramientas con Custom Select Wiener -->
-            <div class="studio-actions-group">
-              <!-- Selector Rápido de Trámite Existente Personalizado Wiener -->
-              <div class="studio-select-tramite-wrap">
-                <span class="studio-select-label">Editar:</span>
-                <div class="custom-select-container">
-                  <select id="studio-select-tramite" onchange="cambiarTramiteEnEdicion(this.value)">
-                    <option value="">-- Nuevo Trámite --</option>
-                    ${DB.tramites().map(item => `
-                      <option value="${item.id}" ${t.id === item.id ? 'selected' : ''}>${item.codigo || item.id} - ${E(item.nombre.length > 20 ? item.nombre.substring(0, 19) + '…' : item.nombre)}</option>
-                    `).join('')}
-                  </select>
-                </div>
+            <!-- Bloque Derecho: Control Interactivo de Publicación (Segmented Switch) -->
+            <div class="studio-header-field-col">
+              <label class="studio-field-label">Estado de Publicación en Catálogo:</label>
+              <div class="studio-state-segmented" role="radiogroup" aria-label="Estado de publicación en catálogo">
+                <button type="button" class="studio-seg-btn ${!t.activo ? 'selected draft' : ''}" onclick="cambiarEstadoActivo(false)" title="Solo visible para administradores. Oculto para estudiantes.">
+                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="6" y="4" width="4" height="16"></rect><rect x="14" y="4" width="4" height="16"></rect></svg>
+                  <span>Borrador (Oculto)</span>
+                </button>
+                <button type="button" class="studio-seg-btn ${t.activo ? 'selected active' : ''}" onclick="cambiarEstadoActivo(true)" title="Visible para que los estudiantes puedan solicitarlo en el portal.">
+                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                  <span>Activo en Catálogo</span>
+                </button>
               </div>
+            </div>
+          </div>
 
-              <!-- Botón Preflight Diagnostics -->
-              <button type="button" class="preflight-pill-btn ${errCount > 0 ? 'has-errors' : 'is-valid'}" onclick="abrirPreflightModal()" title="Control de Calidad: Ver diagnóstico del trámite">
-                ${errCount > 0 ? SVG_ICONS.warning : SVG_ICONS.checkCircle}
-                <span>${errCount > 0 ? `${errCount} Observación${errCount > 1 ? 'es' : ''}` : `Trámite Válido`}</span>
-              </button>
+          <!-- Fila 2: Selector de Trámite en Edición y Herramientas / Acciones -->
+          <div class="studio-header-bottom-row">
+            <!-- Selector Rápido de Trámite Existente Personalizado Wiener -->
+            <div class="studio-header-field-col">
+              <label class="studio-field-label" for="studio-select-tramite">Trámite en Edición:</label>
+              <div class="custom-select-container">
+                <select id="studio-select-tramite" onchange="cambiarTramiteEnEdicion(this.value)">
+                  <option value="">+ Crear Nuevo Trámite</option>
+                  ${DB.tramites().map(item => `
+                    <option value="${item.id}" ${t.id === item.id ? 'selected' : ''}>${item.codigo || item.id} - ${E(item.nombre.length > 28 ? item.nombre.substring(0, 27) + '…' : item.nombre)}</option>
+                  `).join('')}
+                </select>
+              </div>
+            </div>
 
-              <!-- Botón Digital Twin Simulator -->
-              <button type="button" class="btn-studio-secondary" onclick="toggleSimulador(true)" title="Ver cómo experimenta este trámite el estudiante">
-                ${SVG_ICONS.eye}
-                <span>Simular Alumno</span>
-              </button>
+            <!-- Bloque de Diagnóstico, Simulación y Guardado -->
+            <div class="studio-header-field-col studio-actions-col">
+              <label class="studio-field-label" style="text-align:right">Control de Calidad y Acciones:</label>
+              <div class="studio-bottom-actions">
+                <!-- Botón Preflight Diagnostics -->
+                <button type="button" class="preflight-pill-btn ${errCount > 0 ? 'has-errors' : 'is-valid'}" onclick="abrirPreflightModal()" title="Control de Calidad: Ver diagnóstico del trámite">
+                  ${errCount > 0 ? SVG_ICONS.warning : SVG_ICONS.checkCircle}
+                  <span>${errCount > 0 ? `${errCount} Observación${errCount > 1 ? 'es' : ''}` : `Trámite Válido`}</span>
+                </button>
 
-              <!-- Botón Guardar Trámite -->
-              <button type="button" class="btn-studio-primary" onclick="guardarTramiteStudio()" title="Guardar todos los cambios del trámite">
-                ${SVG_ICONS.save}
-                <span>Guardar Trámite</span>
-              </button>
+                <!-- Botón Digital Twin Simulator -->
+                <button type="button" class="btn-studio-secondary" onclick="toggleSimulador(true)" title="Ver cómo experimenta este trámite el estudiante">
+                  ${SVG_ICONS.eye}
+                  <span>Simular Alumno</span>
+                </button>
+
+                <!-- Divisor Vertical -->
+                <div class="studio-actions-divider" aria-hidden="true"></div>
+
+                <!-- Botón Guardar Trámite -->
+                <button type="button" class="btn-studio-primary" onclick="guardarTramiteStudio()" title="Guardar todos los cambios del trámite">
+                  ${SVG_ICONS.save}
+                  <span>Guardar Trámite</span>
+                </button>
+              </div>
             </div>
           </div>
         </div>
@@ -2417,10 +2514,15 @@
       if (activeCard) activeCard.classList.add('selected');
     }
 
-    function toggleEstadoActivo() {
-      CURRENT_T.activo = !CURRENT_T.activo;
+    function cambiarEstadoActivo(activo) {
+      if (CURRENT_T.activo === activo) return;
+      CURRENT_T.activo = activo;
       renderStudioUI();
-      APP.toast(CURRENT_T.activo ? 'Trámite marcado como ACTIVO en catálogo.' : 'Trámite guardado en modo BORRADOR.', 'ok');
+      APP.toast(CURRENT_T.activo ? 'Trámite marcado como ACTIVO en catálogo.' : 'Trámite cambiado a modo BORRADOR (Oculto).', 'ok');
+    }
+
+    function toggleEstadoActivo() {
+      cambiarEstadoActivo(!CURRENT_T.activo);
     }
 
     function actualizarTitulo(v) {
