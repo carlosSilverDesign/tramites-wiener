@@ -1000,15 +1000,17 @@
         menu.style.position = 'fixed';
         menu.style.zIndex = '999999';
 
-        // Ancho adaptado al trigger, mínimo 160px
-        const menuWidth = Math.max(triggerRect.width, 160);
+        // Ancho adaptado al trigger y limitado a la pantalla visible (móvil y desktop)
+        const maxAllowedWidth = Math.max(120, window.innerWidth - 24);
+        const menuWidth = Math.min(Math.max(triggerRect.width, 160), maxAllowedWidth);
         let leftPos = triggerRect.left;
         if (leftPos + menuWidth > window.innerWidth - 12) {
-          leftPos = triggerRect.right - menuWidth;
+          leftPos = Math.max(12, window.innerWidth - 12 - menuWidth);
         }
         if (leftPos < 12) leftPos = 12;
         menu.style.left = `${leftPos}px`;
         menu.style.width = `${menuWidth}px`;
+        menu.style.maxWidth = `${maxAllowedWidth}px`;
 
         // Control de altura máxima inteligente: se adapta al espacio visible en pantalla sin provocar scroll innecesario
         if (shouldFlipUp) {
@@ -1079,14 +1081,17 @@
           menu.style.position = 'fixed';
           menu.style.zIndex = '999999';
 
-          const menuWidth = Math.max(triggerRect.width, 160);
+          // Ancho adaptado al trigger y limitado a la pantalla visible (móvil y desktop)
+          const maxAllowedWidth = Math.max(120, window.innerWidth - 24);
+          const menuWidth = Math.min(Math.max(triggerRect.width, 160), maxAllowedWidth);
           let leftPos = triggerRect.left;
           if (leftPos + menuWidth > window.innerWidth - 12) {
-            leftPos = triggerRect.right - menuWidth;
+            leftPos = Math.max(12, window.innerWidth - 12 - menuWidth);
           }
           if (leftPos < 12) leftPos = 12;
           menu.style.left = `${leftPos}px`;
           menu.style.width = `${menuWidth}px`;
+          menu.style.maxWidth = `${maxAllowedWidth}px`;
 
           if (shouldFlipUp) {
             menu.style.bottom = `${window.innerHeight - triggerRect.top + 4}px`;

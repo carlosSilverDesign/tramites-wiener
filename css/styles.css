@@ -92,7 +92,7 @@ a {
   position: sticky;
   top: 0;
   height: 100vh;
-  overflow-y: auto;
+  overflow: hidden;
 }
 
 .sidebar-brand {
@@ -101,6 +101,7 @@ a {
   gap: 12px;
   padding: 22px 20px;
   border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+  flex-shrink: 0;
 }
 
 .sidebar-brand .logo {
@@ -187,8 +188,27 @@ a {
   color: #FFFFFF;
 }
 
+.sidebar nav {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  padding-bottom: 12px;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255, 255, 255, 0.2) transparent;
+}
+
+.sidebar nav::-webkit-scrollbar {
+  width: 4px;
+}
+
+.sidebar nav::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 4px;
+}
+
 .sidebar-foot {
   margin-top: auto;
+  flex-shrink: 0;
   padding: 16px 20px;
   border-top: 1px solid rgba(255, 255, 255, 0.12);
   font-size: 12px;
@@ -2524,6 +2544,25 @@ body.modal-open {
   display: block !important;
 }
 
+@media (max-width: 768px) {
+  .custom-select-container,
+  .custom-select-wrap {
+    width: 100% !important;
+    max-width: 100% !important;
+  }
+
+  .custom-select-trigger {
+    width: 100% !important;
+    max-width: 100% !important;
+  }
+
+  .custom-select-menu,
+  .custom-dropdown-menu {
+    max-width: calc(100vw - 24px) !important;
+    box-sizing: border-box !important;
+  }
+}
+
 .custom-select-menu.dropdown-above,
 .custom-dropdown-menu.dropdown-above {
   box-shadow: 0 -10px 25px -5px rgba(0, 0, 0, 0.14), 0 -8px 10px -6px rgba(0, 0, 0, 0.08);
@@ -4134,6 +4173,7 @@ input[type="date"]::-webkit-calendar-picker-indicator:hover {
   position: fixed;
   min-width: 140px;
   max-width: 440px;
+  box-sizing: border-box;
   background-color: #FFFFFF;
   border: 1px solid #CBD5E1;
   border-radius: 10px;
