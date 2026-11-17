@@ -1073,6 +1073,47 @@
       color: var(--brand);
     }
 
+    /* Modal Catálogo Maestro de Requisitos - Prevención de recortes */
+    #ov .modal.modal-req-catalog-wrap {
+      max-width: 860px !important;
+      width: 95% !important;
+    }
+
+    .req-table-scroll-container {
+      border: 1px solid var(--border-soft);
+      border-radius: 10px;
+      overflow-x: auto !important;
+      overflow-y: hidden;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.03);
+      -webkit-overflow-scrolling: touch;
+    }
+
+    .req-modal-table {
+      width: 100%;
+      min-width: 660px;
+      border-collapse: collapse;
+      font-size: 13px;
+    }
+
+    .req-modal-table th.col-accion,
+    .req-modal-table td.col-accion {
+      width: 140px !important;
+      min-width: 140px !important;
+      text-align: center !important;
+      padding: 10px 14px !important;
+      white-space: nowrap !important;
+      box-sizing: border-box !important;
+    }
+
+    .req-modal-table td.col-accion button {
+      min-width: 110px !important;
+      white-space: nowrap !important;
+      display: inline-flex !important;
+      align-items: center !important;
+      justify-content: center !important;
+      gap: 6px !important;
+    }
+
     /* Adaptación Mobile del Modal Catálogo Maestro de Requisitos */
     @media (max-width: 680px) {
       #ov .modal {
@@ -1940,7 +1981,35 @@
       t.diasEntrega = t.diasEntrega !== undefined ? Number(t.diasEntrega) : (Number(t.plazoRecojoDias) || 3);
       if (!t.area) t.area = 'Registros Académicos';
       if (t.activo === undefined) t.activo = true;
+      if (t.permiteEmisionMasiva === undefined) t.permiteEmisionMasiva = false;
+      if (!t.plantilla) t.plantilla = {};
+      if (t.plantilla.generaDocumento === undefined) {
+        t.plantilla.generaDocumento = t.tipo !== 'Solicitud';
+      }
       return t;
+    }
+
+    function esTramiteConDocumento(t) {
+      if (!t) return false;
+      const pl = t.plantilla || {};
+      if (pl.generaDocumento !== undefined) return Boolean(pl.generaDocumento);
+      return t.tipo !== 'Solicitud';
+    }
+
+    function setGeneraDocumento(val) {
+      if (!CURRENT_T.plantilla) CURRENT_T.plantilla = {};
+      CURRENT_T.plantilla.generaDocumento = Boolean(val);
+      if (!val) {
+        CURRENT_T.permiteEmisionMasiva = false;
+      }
+      renderStudioUI();
+      APP.toast(val ? 'Se activó la emisión de documento oficial con firma digital.' : 'Trámite configurado como resolución administrativa sin documento descargable.', 'info');
+    }
+
+    function setEmisionMasiva(val) {
+      CURRENT_T.permiteEmisionMasiva = Boolean(val);
+      renderStudioUI();
+      APP.toast(val ? 'Emisión masiva institucional habilitada.' : 'Emisión configurada únicamente para solicitud individual.', 'ok');
     }
 
     function crearTramiteDesdeReceta(recetaId, usarNombrePlantilla = true) {
@@ -2007,11 +2076,12 @@
         out.push({ k: 'pago', tipo: 'pago', titulo: 'El alumno paga arancel final', icono: 'pago' });
       }
 
+      const esDoc = esTramiteConDocumento(CURRENT_T);
       out.push({
         k: 'ent',
         tipo: 'entrega',
-        titulo: CURRENT_T.diasEntrega === 0 ? 'Emisión Digital Inmediata' : 'Entrega del Documento / Respuesta',
-        subtitulo: CURRENT_T.diasEntrega === 0 ? 'Descarga instantánea con QR de verificación' : 'Plazo estimado: ' + CURRENT_T.diasEntrega + ' días hábiles',
+        titulo: esDoc ? (CURRENT_T.diasEntrega === 0 ? 'Emisión Digital Inmediata' : 'Entrega del Documento Oficial') : 'Respuesta al Estudiante y Cierre',
+        subtitulo: esDoc ? (CURRENT_T.diasEntrega === 0 ? 'Descarga instantánea con QR de verificación' : 'Plazo estimado: ' + CURRENT_T.diasEntrega + ' días hábiles') : 'Notificación por correo institucional y estado en portal',
         icono: 'entrega'
       });
 
@@ -2038,10 +2108,15 @@
         partes.push('abona ' + APP.money(t.costo) + ' tras aprobación');
       }
 
-      if (t.diasEntrega === 0) {
-        partes.push('recibe su constancia al instante');
+      const esDoc = esTramiteConDocumento(t);
+      if (esDoc) {
+        if (t.diasEntrega === 0) {
+          partes.push('recibe su constancia al instante' + (t.permiteEmisionMasiva ? ' (con emisión masiva habilitada)' : ''));
+        } else {
+          partes.push('recibe su documento en ' + t.diasEntrega + ' días hábiles' + (t.permiteEmisionMasiva ? ' (o emisión en lote)' : ''));
+        }
       } else {
-        partes.push('recibe su documento en ' + t.diasEntrega + ' días hábiles');
+        partes.push('recibe la respuesta administrativa en ' + (t.diasEntrega === 0 ? 'tiempo real' : t.diasEntrega + ' días hábiles'));
       }
 
       return 'El alumno ' + partes.slice(0, -1).join(', ') + ' y ' + partes[partes.length - 1] + '.';
@@ -2073,8 +2148,12 @@
       }
 
       const plant = DOC.getPlantilla(t);
-      if (t.tipo !== 'Solicitud' && (!plant.cuerpo || plant.cuerpo.trim().length < 20)) {
+      const esDoc = esTramiteConDocumento(t);
+      if (esDoc && (!plant.cuerpo || plant.cuerpo.trim().length < 20)) {
         issues.push({ tipo: 'error', campo: 'plantilla', tab: 'documento', msg: 'El cuerpo de la plantilla oficial de emisión está vacío.' });
+      }
+      if (t.permiteEmisionMasiva && !esDoc) {
+        issues.push({ tipo: 'aviso', campo: 'permiteEmisionMasiva', tab: 'documento', msg: 'La emisión masiva está habilitada pero el trámite está configurado sin emisión de documento.' });
       }
 
       return issues;
@@ -2213,7 +2292,7 @@
             <button type="button" class="studio-tab-btn ${ACTIVE_TAB === 'documento' ? 'active' : ''}" onclick="cambiarTab('documento')">
               ${SVG_ICONS.documento}
               <span>4. Documento & Certificación</span>
-              <span class="tab-count">${t.tipo}</span>
+              <span class="tab-count" style="${!esTramiteConDocumento(t) ? 'background:#E2E8F0;color:#64748B' : ''}">${!esTramiteConDocumento(t) ? 'No aplica' : t.tipo}</span>
             </button>
             <button type="button" class="studio-tab-btn ${ACTIVE_TAB === 'notificaciones' ? 'active' : ''}" onclick="cambiarTab('notificaciones')">
               ${SVG_ICONS.notificaciones}
@@ -2420,6 +2499,7 @@
       const k = SELECTED_STEP_KEY;
 
       if (k === 'sol') {
+        const esDoc = esTramiteConDocumento(t);
         return `
           <div class="inspector-header">
             <h3>
@@ -2434,11 +2514,26 @@
           <div class="inspector-form-group">
             <label>Tipo de Documento / Trámite:</label>
             <div class="custom-select-container">
-              <select id="sel-tipo-doc" onchange="actualizarCampo('tipo', this.value); actualizarCampo('modelo', this.value.toLowerCase())">
+              <select id="sel-tipo-doc" onchange="actualizarCampo('tipo', this.value); actualizarCampo('modelo', this.value.toLowerCase()); setGeneraDocumento(this.value !== 'Solicitud');">
                 <option value="Constancia" ${t.tipo === 'Constancia' ? 'selected' : ''}>Constancia Académica</option>
                 <option value="Certificado" ${t.tipo === 'Certificado' ? 'selected' : ''}>Certificado Oficial</option>
                 <option value="Solicitud" ${t.tipo === 'Solicitud' ? 'selected' : ''}>Solicitud General / Trámite Administrativo</option>
               </select>
+            </div>
+          </div>
+          <!-- Selector explícito de emisión de documento -->
+          <div class="inspector-form-group" style="margin-top:14px;padding:12px;background:#F8FAFC;border:1px solid var(--border-soft);border-radius:8px">
+            <label style="font-size:12.5px;font-weight:700;color:var(--brand-dark);margin-bottom:4px;display:block">¿Emite Documento Oficial Descargable?</label>
+            <div style="font-size:11.5px;color:var(--text-muted);margin-bottom:10px;line-height:1.35">
+              Si se desactiva, el trámite finaliza con resolución y notificación al estudiante, sin generar constancia ni certificado con QR.
+            </div>
+            <div class="studio-state-segmented" style="height:32px">
+              <button type="button" class="studio-seg-btn ${!esDoc ? 'selected draft' : ''}" style="font-size:12px" onclick="setGeneraDocumento(false)" title="Finaliza con resolución administrativa sin documento">
+                <span>No emite documento</span>
+              </button>
+              <button type="button" class="studio-seg-btn ${esDoc ? 'selected active' : ''}" style="font-size:12px" onclick="setGeneraDocumento(true)" title="Genera constancia o certificado oficial con firma y QR">
+                <span>Sí, emite documento</span>
+              </button>
             </div>
           </div>
           <div style="background:var(--brand-soft);border:1px solid var(--border-soft);border-radius:8px;padding:12px;margin-top:14px">
@@ -2554,29 +2649,44 @@
       }
 
       if (k === 'ent') {
+        const esDoc = esTramiteConDocumento(t);
         return `
           <div class="inspector-header">
             <h3>
               ${SVG_ICONS.entrega}
-              <span>Entrega y Emisión al Alumno</span>
+              <span>${esDoc ? 'Entrega y Emisión al Alumno' : 'Respuesta y Cierre de Trámite'}</span>
             </h3>
           </div>
           <div class="inspector-form-group">
-            <label>Días hábiles prometidos para la entrega:</label>
+            <label>${esDoc ? 'Días hábiles prometidos para la entrega:' : 'Plazo prometido para emitir respuesta:'}</label>
             <input type="number" min="0" max="60" class="inspector-input" value="${t.diasEntrega}" onchange="actualizarCampo('diasEntrega', Number(this.value))">
-            <small style="color:var(--text-muted);font-size:11.5px;display:block;margin-top:4px">Si ingresa 0 días, el alumno podrá descargar el documento inmediatamente al aprobarse.</small>
+            <small style="color:var(--text-muted);font-size:11.5px;display:block;margin-top:4px">${esDoc ? (t.diasEntrega === 0 ? 'Entrega inmediata en línea con firma digital.' : 'El alumno podrá descargar el documento tras este plazo.') : 'El estudiante recibirá la notificación formal en este plazo.'}</small>
           </div>
-          <div class="inspector-form-group">
-            <label>Tiempo de vigencia de la constancia emitida (Horas):</label>
-            <input type="number" min="24" step="24" class="inspector-input" value="${t.tiempoVigenciaHrs || 48}" onchange="actualizarCampo('tiempoVigenciaHrs', Number(this.value))">
-          </div>
-          <div style="background:#F0FDF4;border:1px solid #BBF7D0;border-radius:8px;padding:12px;margin-top:14px">
-            <b style="color:#166534;font-size:12.5px">Plantilla oficial con código de verificación QR:</b>
-            <p style="margin:4px 0 8px;font-size:12px;color:#15803D">El documento se emite con firma digital y sello oficial de la Universidad Norbert Wiener.</p>
-            <button type="button" class="btn-studio-secondary" style="width:100%;justify-content:center" onclick="cambiarTab('documento')">
-              Editar Texto de la Plantilla →
-            </button>
-          </div>
+          ${esDoc ? `
+            <div class="inspector-form-group">
+              <label>Tiempo de vigencia de la constancia emitida (Horas):</label>
+              <input type="number" min="24" step="24" class="inspector-input" value="${t.tiempoVigenciaHrs || 48}" onchange="actualizarCampo('tiempoVigenciaHrs', Number(this.value))">
+            </div>
+            <div style="background:#F0FDF4;border:1px solid #BBF7D0;border-radius:8px;padding:12px;margin-top:14px">
+              <b style="color:#166534;font-size:12.5px">Plantilla oficial con código de verificación QR:</b>
+              <p style="margin:4px 0 8px;font-size:12px;color:#15803D">El documento se emite con firma digital y sello oficial de la Universidad Norbert Wiener.</p>
+              <button type="button" class="btn-studio-secondary" style="width:100%;justify-content:center" onclick="cambiarTab('documento')">
+                Editar Texto de la Plantilla →
+              </button>
+            </div>
+            ${t.permiteEmisionMasiva ? `
+              <div style="margin-top:10px;padding:8px 12px;background:#FAF5FF;border:1px solid #E9D5FF;border-radius:6px;font-size:12px;color:#6B21A8;display:flex;align-items:center;gap:6px">
+                <span style="font-weight:700">🎁 Emisión Masiva:</span> Habilitado para generación en lote institucional.
+              </div>
+            ` : ''}
+          ` : `
+            <div style="background:#F8FAFC;border:1px solid var(--border-soft);border-radius:8px;padding:14px;margin-top:14px">
+              <b style="color:var(--brand-dark);font-size:12.5px;display:block;margin-bottom:4px">Resolución Administrativa Final:</b>
+              <p style="margin:0;font-size:12px;color:var(--text-muted);line-height:1.4">
+                Este trámite concluye notificando al estudiante la decisión del área por correo institucional y actualizando su expediente en el portal, sin generar documento impreso ni descargable.
+              </p>
+            </div>
+          `}
         `;
       }
 
@@ -2720,7 +2830,12 @@
 
             <!-- Ciclos Permitidos (Wrap corregido sin desborde) -->
             <div style="background:#F8FAFC;border:1px solid var(--border-soft);border-radius:10px;padding:16px;display:flex;flex-direction:column;min-width:0">
-              <label style="font-weight:700;font-size:13px;display:block;margin-bottom:12px;color:var(--brand-dark)">Ciclos Académicos (Dejar vacío para todos):</label>
+              <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;gap:8px;flex-wrap:wrap">
+                <label style="font-weight:700;font-size:13px;color:var(--brand-dark);margin:0">Ciclos Académicos:</label>
+                <button type="button" class="btn-studio-secondary" style="height:26px;padding:0 10px;font-size:11.5px;font-weight:700" onclick="toggleTodosCiclos()">
+                  ${(a.ciclos || []).length === CICLOS.length ? 'Desmarcar todos' : 'Marcar todos'}
+                </button>
+              </div>
               <div style="display:flex;flex-wrap:wrap;gap:6px">
                 ${CICLOS.map(c => `
                   <label class="chip-check ${(a.ciclos || []).includes(c) ? 'checked' : ''}" style="cursor:pointer;padding:6px 11px;font-size:12px;border-radius:6px">
@@ -2759,6 +2874,32 @@
     // =========================================================================
     function renderDocumentoTabHTML() {
       const t = CURRENT_T;
+      const esDoc = esTramiteConDocumento(t);
+
+      if (!esDoc) {
+        return `
+          <div style="background:#FFFFFF;border:1px solid var(--studio-border);border-radius:12px;padding:44px 24px;text-align:center;box-shadow:var(--studio-shadow);max-width:720px;margin:20px auto">
+            <div style="width:56px;height:56px;border-radius:14px;background:var(--surface-2);color:var(--text-muted);display:grid;place-items:center;margin:0 auto 16px">
+              ${SVG_ICONS.documento}
+            </div>
+            <h3 style="margin:0 0 8px;font-family:'Lato',sans-serif;font-size:19px;font-weight:900;color:var(--brand-dark)">
+              Trámite sin emisión de documento oficial
+            </h3>
+            <p style="margin:0 auto 22px;font-size:13.5px;color:var(--text-muted);line-height:1.55;max-width:540px">
+              Este trámite está configurado como una <b>Solicitud o Trámite Administrativo</b> que finaliza con una resolución interna y notificación formal al estudiante por correo institucional y portal, sin generar una constancia ni certificado con firma digital y QR.
+            </p>
+            <div style="display:flex;justify-content:center;gap:12px;flex-wrap:wrap">
+              <button type="button" class="btn-studio-primary" onclick="setGeneraDocumento(true)">
+                ${SVG_ICONS.plus} Activar Emisión de Documento Oficial
+              </button>
+              <button type="button" class="btn-studio-secondary" onclick="cambiarTab('flujo')">
+                Volver a Flujo & Proceso
+              </button>
+            </div>
+          </div>
+        `;
+      }
+
       const pl = DOC.getPlantilla(t);
 
       return `
@@ -2797,6 +2938,29 @@
                 <button type="button" class="btn-studio-secondary" style="height:26px;padding:0 8px;font-size:11px" onclick="insertarTag('{fecha}')">{fecha}</button>
               </div>
               <textarea class="inspector-textarea" id="textarea-plantilla-cuerpo" rows="8" oninput="actualizarPlantilla('cuerpo', this.value); actualizarCanvasEnVivo()">${E(pl.cuerpo || '')}</textarea>
+            </div>
+
+            <!-- MODALIDAD DE EMISIÓN: EMISIÓN MASIVA INSTITUCIONAL -->
+            <div style="margin-top:16px;padding:16px;background:#F8FAFC;border:1px solid var(--border-soft);border-radius:10px">
+              <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:16px;flex-wrap:wrap">
+                <div style="flex:1;min-width:240px">
+                  <div style="display:flex;align-items:center;gap:8px">
+                    <span style="font-size:13.5px;font-weight:700;color:var(--brand-dark)">Emisión Masiva Institucional (En lote)</span>
+                    ${t.permiteEmisionMasiva ? '<span class="pill purple" style="font-size:10.5px;padding:2px 8px;font-weight:700">Habilitado</span>' : '<span class="pill gray" style="font-size:10.5px;padding:2px 8px">Solo individual</span>'}
+                  </div>
+                  <p style="margin:6px 0 0;font-size:12px;color:var(--text-muted);line-height:1.4">
+                    Permite a la universidad emitir y firmar este documento en lotes masivos por cierre de ciclo o graduación para todos los estudiantes elegibles según la audiencia, sin requerir solicitud individual.
+                  </p>
+                </div>
+                <div class="studio-state-segmented" style="height:32px;align-self:center">
+                  <button type="button" class="studio-seg-btn ${!t.permiteEmisionMasiva ? 'selected draft' : ''}" style="font-size:12px;padding:0 12px" onclick="setEmisionMasiva(false)" title="Solo el estudiante puede solicitarlo individualmente">
+                    <span>Individual</span>
+                  </button>
+                  <button type="button" class="studio-seg-btn ${t.permiteEmisionMasiva ? 'selected active' : ''}" style="font-size:12px;padding:0 12px" onclick="setEmisionMasiva(true)" title="Habilita la emisión institucional en lote">
+                    <span>Lote Masivo</span>
+                  </button>
+                </div>
+              </div>
             </div>
           </div>
 
@@ -3088,14 +3252,14 @@
             <input type="text" id="req-modal-search" class="studio-input" style="padding-left:36px;height:38px;font-size:13px" placeholder="Buscar por nombre de requisito o formato (ej. DNI, PDF, Carta)..." value="${E(filtro)}" oninput="filtrarRequisitosModal(this.value)">
           </div>
 
-          <div style="border:1px solid var(--border-soft);border-radius:10px;overflow:hidden;box-shadow:0 1px 3px rgba(0,0,0,0.03)">
+          <div class="req-table-scroll-container">
             <table class="req-modal-table" style="width:100%;border-collapse:collapse;font-size:13px">
               <thead>
                 <tr style="background:var(--surface-2);border-bottom:1px solid var(--border-soft)">
                   <th style="width:60px;text-align:center;padding:10px 12px;font-weight:700;color:var(--text-soft);font-size:12px">Estado</th>
                   <th style="text-align:left;padding:10px 14px;font-weight:700;color:var(--text-soft);font-size:12px">Requisito Institucional</th>
                   <th style="width:90px;text-align:center;padding:10px 12px;font-weight:700;color:var(--text-soft);font-size:12px">Formato</th>
-                  <th style="width:120px;text-align:center;padding:10px 14px;font-weight:700;color:var(--text-soft);font-size:12px">Acción</th>
+                  <th class="col-accion" style="font-weight:700;color:var(--text-soft);font-size:12px">Acción</th>
                 </tr>
               </thead>
               <tbody>
@@ -3171,7 +3335,7 @@
 
     function abrirModalCatalogoRequisitos() {
       _filtroReqModal = '';
-      APP.openModal(renderContentRequisitosModal(''), { wide: true });
+      APP.openModal(renderContentRequisitosModal(''), { wide: true, className: 'modal-req-catalog-wrap' });
     }
 
     function filtrarRequisitosModal(valor) {
@@ -3680,6 +3844,20 @@
       renderStudioUI();
     }
 
+    function toggleTodosCiclos() {
+      const CICLOS = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12];
+      if (!CURRENT_T.audiencia) CURRENT_T.audiencia = {};
+      const arr = CURRENT_T.audiencia.ciclos || [];
+      if (arr.length === CICLOS.length) {
+        CURRENT_T.audiencia.ciclos = [];
+        APP.toast('Ciclos desmarcados (aplica a todos los ciclos por defecto).', 'info');
+      } else {
+        CURRENT_T.audiencia.ciclos = [...CICLOS];
+        APP.toast('Se marcaron todos los ciclos académicos.', 'ok');
+      }
+      renderStudioUI();
+    }
+
     function actualizarAudiencia(campo, val) {
       CURRENT_T.audiencia[campo] = val;
       renderStudioUI();
@@ -3787,6 +3965,7 @@
         if (!p.id) p.id = 'P-' + (i + 1);
       });
 
+      t.permiteEmisionMasiva = Boolean(t.permiteEmisionMasiva);
       DB.upsertTramite(t);
       ORIGINAL_JSON = JSON.stringify(t);
 

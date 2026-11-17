@@ -955,7 +955,10 @@
           <tr>
             <td style="text-align:center"><span class="mono muted" style="font-size:13px">${idx + 1}</span></td>
             <td>
-              <div class="strong" style="font-size:13.5px;color:var(--text);line-height:1.35">${t.nombre}</div>
+              <div class="strong" style="font-size:13.5px;color:var(--text);line-height:1.35">
+                ${t.nombre}
+                ${t.permiteEmisionMasiva ? '<span class="pill purple" style="font-size:10px;padding:2px 7px;font-weight:700;margin-left:6px;vertical-align:middle" title="Habilitado para emisión institucional masiva en lote">Lote Masivo</span>' : ''}
+              </div>
             </td>
             <td>
               <div style="font-size:12.5px;color:var(--text-soft);line-height:1.4">
@@ -1404,6 +1407,15 @@
                 </select>
               </div>
             </div>
+            <div class="field">
+              <label>Emisión Masiva:</label>
+              <div class="select-wrap">
+                <select class="select" id="t-emision-masiva" title="Permite que este documento se emita en lote institucional de oficio">
+                  <option value="no" ${!t.permiteEmisionMasiva ? 'selected' : ''}>No (Solo individual)</option>
+                  <option value="si" ${t.permiteEmisionMasiva ? 'selected' : ''}>Si (Lote institucional)</option>
+                </select>
+              </div>
+            </div>
           </div>
 
           <!-- OPCIONES AVANZADAS: OCULTAS DE MOMENTO SEGÚN REQUERIMIENTO -->
@@ -1524,6 +1536,7 @@
         envioCorreo: document.getElementById('t-envio-correo').value === 'si',
         pagoMomento: document.getElementById('t-pago-momento') ? document.getElementById('t-pago-momento').value : 'despues',
         activo: document.getElementById('t-habilitar').value === 'si',
+        permiteEmisionMasiva: document.getElementById('t-emision-masiva') ? document.getElementById('t-emision-masiva').value === 'si' : (existing ? Boolean(existing.permiteEmisionMasiva) : false),
         fechaRegistro: existing ? (existing.fechaRegistro || '2026-07-19') : new Date().toISOString().slice(0, 10),
         tipo: document.getElementById('t-tipo') ? document.getElementById('t-tipo').value : (existing ? existing.tipo : 'Constancia'),
         modelo: document.getElementById('t-modelo') ? document.getElementById('t-modelo').value : (existing ? existing.modelo : 'constancia'),

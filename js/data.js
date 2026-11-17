@@ -180,6 +180,7 @@
           tipoActivacion: 'Permanente',
           envioCorreo: true, activo: true, fechaRegistro: '2026-08-01',
           pagoMomento: 'antes', requiereAprobacion: false, diasEntrega: 0, area: 'Registros Académicos',
+          permiteEmisionMasiva: true,
           intenciones: ["certificaciones","grado","practicas","otros"],
           requiereAdjunto: false,
           intenciones: ['grado', 'otros'],
@@ -2298,6 +2299,12 @@
 
     // Asegurar que el trámite T-010 de Certificación Progresiva esté en s.tramites y con diasEntrega = 0
     if (s.tramites) {
+      s.tramites.forEach(t => {
+        if (t.permiteEmisionMasiva === undefined) {
+          t.permiteEmisionMasiva = (t.id === 'T-010');
+          dirty = true;
+        }
+      });
       const certT = s.tramites.find(t => t.id === 'T-010' || (t.nombre && t.nombre.toLowerCase().includes('certificación progresiva')));
       if (!certT) {
         const seedCertT = seed().tramites.find(t => t.id === 'T-010');
@@ -2458,6 +2465,11 @@
     upsertTramite(t) {
       const db = load();
       const i = db.tramites.findIndex(x => x.id === t.id);
+      if (t.permiteEmisionMasiva === undefined && i >= 0) {
+        t.permiteEmisionMasiva = Boolean(db.tramites[i].permiteEmisionMasiva);
+      } else {
+        t.permiteEmisionMasiva = Boolean(t.permiteEmisionMasiva);
+      }
       if (i >= 0) db.tramites[i] = t; else { t.id = 'T-' + String(db.tramites.length + 1).padStart(3, '0'); db.tramites.push(t); }
       save(db); return t;
     },
