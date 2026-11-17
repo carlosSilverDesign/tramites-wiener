@@ -496,7 +496,7 @@
       let filtrados = elegibles.filter(t => {
         const fullTxt = (t.nombre + ' ' + t.descripcion + ' ' + t.tipo + ' ' + t.area).toLowerCase();
         const matchText = !searchTxt || fullTxt.includes(searchTxt);
-        
+
         const tNombre = (t.nombre || '').toLowerCase();
         const tTipo = (t.tipo || '').toLowerCase();
         const tArea = (t.area || '').toLowerCase();
@@ -524,6 +524,47 @@
 
       const cardsHtml = filtrados.map(t => {
         const slaExacto = APP.calcSLA(t.diasEntrega);
+        const esCambioModalidad = t.id === 'T-004' || (t.nombre && t.nombre.toLowerCase().includes('cambio de modalidad'));
+
+        let specsHtml = '';
+        if (esCambioModalidad) {
+          specsHtml = `
+            <span class="spec-item" style="color:#047857;font-weight:600">
+              <span class="spec-ico">${SVG_ICONS.checkCircle}</span>
+              <span>Trámite automático</span>
+            </span>
+            <span class="spec-item" style="color:#0284C7;font-weight:600">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
+              <span>Aprobación con consentimiento</span>
+            </span>`;
+        } else {
+          specsHtml = `
+            <span class="spec-item">
+              <span class="spec-ico">${SVG_ICONS.clock}</span>
+              <span>Entrega estimada: ${(t.id === 'T-010' || (t.nombre && t.nombre.toLowerCase().includes('certificación')) || t.diasEntrega === 0) ? '<b>Inmediata</b>' : `<b>${slaExacto}</b> (${t.diasEntrega} días hábiles)`}</span>
+            </span>
+            ${t.requiereAdjunto ? `
+              <span class="spec-item" style="color:#B45309;font-weight:600">
+                <span class="spec-ico">${SVG_ICONS.attachment}</span>
+                <span>Requiere adjuntar sustento</span>
+              </span>` : `
+              <span class="spec-item" style="color:#047857;font-weight:500">
+                <span class="spec-ico">${SVG_ICONS.checkCircle}</span>
+                <span>Emisión 100% digital</span>
+              </span>`}`;
+        }
+
+        let priceHtml = '';
+        if (esCambioModalidad || !(t.costo > 0)) {
+          priceHtml = `
+            <div class="tram-price-main" style="color:#047857">Gratuito</div>
+            <div class="tram-price-sub">Trámite sin costo</div>`;
+        } else {
+          priceHtml = `
+            <div class="tram-price-main">${APP.money(t.costo)}</div>
+            <div class="tram-price-sub">Tasa oficial · Incluye IGV</div>`;
+        }
+
         return `
           <div class="tram-card">
             <!-- Kicker de categoría sin tags estruendosos -->
@@ -539,26 +580,13 @@
 
             <!-- Especificaciones limpias sin tags de colores que marean -->
             <div class="tram-specs-line">
-              <span class="spec-item">
-                <span class="spec-ico">${SVG_ICONS.clock}</span>
-                <span>Entrega estimada: ${(t.id === 'T-010' || (t.nombre && t.nombre.toLowerCase().includes('certificación')) || t.diasEntrega === 0) ? '<b>Inmediata</b>' : `<b>${slaExacto}</b> (${t.diasEntrega} días hábiles)`}</span>
-              </span>
-              ${t.requiereAdjunto ? `
-                <span class="spec-item" style="color:#B45309;font-weight:600">
-                  <span class="spec-ico">${SVG_ICONS.attachment}</span>
-                  <span>Requiere adjuntar sustento</span>
-                </span>` : `
-                <span class="spec-item" style="color:#047857;font-weight:500">
-                  <span class="spec-ico">${SVG_ICONS.checkCircle}</span>
-                  <span>Emisión 100% digital</span>
-                </span>`}
+              ${specsHtml}
             </div>
 
             <!-- Footer: Precio rotundo y acciones directas -->
             <div class="tram-foot">
               <div class="tram-price-wrap">
-                <div class="tram-price-main">${APP.money(t.costo)}</div>
-                <div class="tram-price-sub">Tasa oficial · Incluye IGV</div>
+                ${priceHtml}
               </div>
               <div class="tram-actions">
                 ${DOC.getPlantilla(t).generaDocumento ? `<button class="btn btn-ghost" onclick="DOC.preview(DB.getTramite('${t.id}'), me, null, {modelo:true})">Ver modelo</button>` : ''}
@@ -721,7 +749,7 @@
       `;
     }
 
-    window.onCertSelectChange = function(certId) {
+    window.onCertSelectChange = function (certId) {
       const previewEl = document.getElementById('cert-courses-preview');
       const avisoEmitido = document.getElementById('cert-already-emitted-alert');
       const niubizBox = document.getElementById('cert-niubiz-box');
@@ -774,10 +802,172 @@
       }
     };
 
+    function abrirModalConsentimientoModalidad(t) {
+      APP.openModal(`
+        <div class="modal-head">
+          <div style="display:flex;align-items:center;gap:12px">
+            <div style="width:36px;height:36px;border-radius:8px;background:#E0F4F6;color:#0F848F;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                <polyline points="14 2 14 8 20 8"></polyline>
+                <path d="m9 15 2 2 4-4"></path>
+              </svg>
+            </div>
+            <div>
+              <span style="font-size:11.5px;font-weight:700;color:#0F848F;text-transform:uppercase;letter-spacing:0.04em;">Registro de Trámite · Alumno</span>
+              <h3 style="margin:2px 0 0 0;font-size:18px;font-family:'Lato',sans-serif;color:#0F172A;">Consentimiento para Cambio de Modalidad</h3>
+            </div>
+          </div>
+          <button class="modal-close" aria-label="Cerrar modal" onclick="APP.closeModal()">×</button>
+        </div>
+
+        <div class="modal-body" style="padding:22px 24px;">
+          <div style="background:#F8FAFC;border:1px solid #E2E8F0;border-radius:10px;padding:22px 24px;box-shadow:0 1px 3px rgba(15,23,42,0.03);">
+            <div style="text-align:center;margin-bottom:18px;padding-bottom:14px;border-bottom:1px solid #E2E8F0;">
+              <div style="font-size:15px;font-weight:900;color:#0F172A;font-family:'Lato',sans-serif;letter-spacing:0.02em;text-transform:uppercase;line-height:1.35;">CONSENTIMIENTO PARA CAMBIO DE MODALIDAD DE ESTUDIOS</div>
+            </div>
+
+            <p style="font-size:13.5px;line-height:1.65;color:#1E293B;margin:0 0 16px 0;text-align:justify;">
+              Yo, <b>${(me && me.nombre) ? me.nombre : 'María Fernanda Quispe'}</b> identificado (a) con DNI/CE N° <b>${(me && me.dni) ? me.dni : '72845109'}</b> domiciliado (a) en <b>Pasaje Olaya 139</b>, en mi calidad de estudiante de la carrera profesional <b>${(perfil && perfil.programa) ? perfil.programa : 'Ingeniería de Sistemas e Informática'}</b> de la Escuela Académico Profesional de <b>${(perfil && perfil.programa) ? perfil.programa : 'Ingeniería de Sistemas e Informática'}</b>
+            </p>
+
+            <div style="font-size:13px;font-weight:800;color:#0F172A;letter-spacing:0.05em;text-align:center;margin:18px 0 14px 0;text-transform:uppercase;">
+              DECLARO BAJO JURAMENTO
+            </div>
+
+            <p style="font-size:13.5px;line-height:1.65;color:#1E293B;margin:0 0 14px 0;text-align:justify;">
+              Que he recibido información adecuada por parte de la Universidad Norbert Wiener sobre las modalidades presencial y semipresencial de las carreras profesionales y el impacto que tiene la migración entre estas.
+            </p>
+
+            <p style="font-size:13.5px;line-height:1.65;color:#1E293B;margin:0 0 14px 0;text-align:justify;">
+              En ese sentido, <b>DOY MI CONSENTIMIENTO</b> para la migración a la modalidad semipresencial el que se desarrollará de acuerdo con el Plan Curricular en la modalidad seleccionada, me comprometo a respetarlo de tal manera que en adelante mi modalidad de estudios será semipresencial con resolución aprobada.
+            </p>
+
+            <p style="font-size:13.5px;line-height:1.65;color:#1E293B;margin:0 0 14px 0;text-align:justify;">
+              Con la suscripción del presente documento, manifiesto plena conformidad con los contenidos virtuales a desarrollar y el impacto que tiene el cambio de modalidad en la información de egreso y en el diploma del grados y títulos.
+            </p>
+
+            <div style="font-size:12.5px;line-height:1.55;color:#475569;margin-top:16px;text-align:justify;background:#FFFFFF;border:1px solid #CBD5E1;border-left:4px solid #0F848F;padding:10px 14px;border-radius:6px;font-style:italic;">
+              Suscribo el presente documento en calidad de Declaración Jurada, en virtud del principio de veracidad establecido por el artículo IV del Título Preliminar de la Ley N° 27444, Ley del Procedimiento Administrativo General.
+            </div>
+          </div>
+        </div>
+
+        <div class="modal-foot">
+          <button class="btn" onclick="APP.closeModal()">Declinar</button>
+          <button class="btn btn-primary" id="btn-aprobar-consentimiento" onclick="aprobarConsentimientoModalidad('${t.id}')">Aceptar</button>
+        </div>
+      `, { wide: false });
+    }
+
+    function aprobarConsentimientoModalidad(tramiteId) {
+      const t = DB.getTramite(tramiteId);
+      if (!t) return;
+
+      const btn = document.getElementById('btn-aprobar-consentimiento');
+      if (btn) {
+        btn.disabled = true;
+        btn.innerHTML = 'Procesando...';
+      }
+
+      // Actualizar la modalidad a Semipresencial en el perfil del alumno activo
+      if (me && me.perfil) {
+        me.perfil.modalidad = 'Semipresencial';
+      }
+      try {
+        const dbRaw = localStorage.getItem('tw_db_v3');
+        if (dbRaw) {
+          const dbParsed = JSON.parse(dbRaw);
+          if (dbParsed && dbParsed.usuarios) {
+            const u = dbParsed.usuarios.find(x => x.id === me.id);
+            if (u && u.perfil) {
+              u.perfil.modalidad = 'Semipresencial';
+              localStorage.setItem('tw_db_v3', JSON.stringify(dbParsed));
+            }
+          }
+        }
+      } catch (e) {
+        console.error('Error actualizando modalidad:', e);
+      }
+
+      const num = DB.solicitudes().length + 201;
+      const s = {
+        id: 'S-2026-0' + num,
+        ticket: '2026.' + (43600 + num),
+        tramiteId: t.id,
+        tramiteNombre: t.nombre,
+        alumnoId: me.id,
+        alumnoNombre: me.nombre,
+        alumnoCodigo: me.codigo,
+        alumnoEmail: me.email,
+        fecha: APP.todayISO(),
+        fechaHora: APP.todayISO() + ' ' + (new Date().toLocaleTimeString('es-PE')),
+        estado: 'Aprobado',
+        costo: 0.00,
+        area: t.area || 'Registros Académicos',
+        pagoMomento: 'despues',
+        motivo: 'Consentimiento para migración a modalidad semipresencial',
+        observacion: 'Declaración jurada y consentimiento suscrito digitalmente por el estudiante bajo la Ley N° 27444. Trámite de aprobación automática.',
+        adjunto: null,
+        pago: {
+          estado: 'pagado',
+          obligacionGenerada: false,
+          metodo: 'Trámite Gratuito (Sin costo)',
+          monto: 0.00,
+          fecha: APP.todayISO(),
+          operacion: 'AUT-' + Math.floor(100000 + Math.random() * 900000)
+        },
+        historial: [
+          {
+            estado: 'Solicitado',
+            fecha: APP.nowStamp(),
+            nota: 'Consentimiento para cambio de modalidad firmado digitalmente en calidad de Declaración Jurada'
+          },
+          {
+            estado: 'Aprobado',
+            fecha: APP.nowStamp(),
+            nota: 'Aprobación automática de cambio de modalidad presencial a semipresencial'
+          }
+        ]
+      };
+
+      DB.addSolicitud(s);
+
+      APP.sendMail({
+        to: me.email,
+        cc: 'registros.academicos@uwiener.edu.pe',
+        subject: `Resolución aprobada · ${t.nombre} (Expediente ${s.id})`,
+        lines: [
+          `Estimado(a) ${me.nombre},`,
+          `Tu trámite de <b>${t.nombre}</b> (Expediente <b>${s.id}</b>) ha sido <b>aprobado automáticamente</b>.`,
+          `Conforme a tu Declaración Jurada y consentimiento suscrito digitalmente bajo la Ley N° 27444, en adelante tu modalidad de estudios queda registrada como <b>Semipresencial</b> de acuerdo con el Plan Curricular correspondiente.`,
+          `El trámite ha sido procesado de forma automática y no genera costo ni arancel alguno.`
+        ]
+      });
+
+      APP.closeModal();
+
+      APP.toast({
+        icon: 'ok',
+        title: '¡Cambio de modalidad aprobado!',
+        body: `Tu consentimiento ha sido registrado y aprobado automáticamente. Redirigiendo a tus trámites...`
+      });
+
+      setTimeout(() => {
+        location.href = 'mis-tramites.html';
+      }, 1200);
+    }
+
     function abrirSolicitud(tramiteId) {
       CURRENT_ATTACHMENT = null;
       const t = DB.getTramite(tramiteId);
       if (!t) return;
+
+      const esCambioModalidad = t.id === 'T-004' || (t.nombre && t.nombre.toLowerCase().includes('cambio de modalidad'));
+      if (esCambioModalidad) {
+        abrirModalConsentimientoModalidad(t);
+        return;
+      }
 
       const esCertProgresiva = t.id === 'T-010' || t.nombre.toLowerCase().includes('certificación progresiva');
       const diasTexto = esCertProgresiva ? 'Inmediato' : (t.diasEntrega === 1 ? '1 día hábil' : `${t.diasEntrega} días hábiles`);
@@ -942,8 +1132,8 @@
               </svg>
               <div style="flex:1;color:#1E293B;font-size:13px;line-height:1.5;">
                 ${t.pagoMomento === 'antes'
-                  ? 'Al continuar serás dirigido a la pasarela de pago <strong style="color:#0F848F;">Niubiz</strong> para abonar <strong style="color:#0F848F;">' + APP.money(t.costo) + '</strong>.'
-                  : 'Tu solicitud entrará a revisión por ' + t.area + '. El pago de <strong style="color:#0F848F;">' + APP.money(t.costo) + '</strong> se realizará una vez que sea aprobada.'}
+            ? 'Al continuar serás dirigido a la pasarela de pago <strong style="color:#0F848F;">Niubiz</strong> para abonar <strong style="color:#0F848F;">' + APP.money(t.costo) + '</strong>.'
+            : 'Tu solicitud entrará a revisión por ' + t.area + '. El pago de <strong style="color:#0F848F;">' + APP.money(t.costo) + '</strong> se realizará una vez que sea aprobada.'}
               </div>
             </div>
           </div>

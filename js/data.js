@@ -75,19 +75,19 @@
           audiencia: { niveles: ['postgrado'], ciclos: [], minCreditos: 0, tercioSuperior: false, quintoSuperior: false, promedioMin: 0 }
         },
         {
-          id: 'T-004', nombre: 'CAMBIO DE MODALIDAD DE ESTUDIOS A PRESENCIAL - PREGRADO', tipo: 'Solicitud', modelo: 'oficio',
-          descripcion: 'Procedimiento de traslado interno a programas en modalidad presencial de pregrado según disponibilidad de vacantes curriculares.',
+          id: 'T-004', nombre: 'Cambio de modalidad Presencial a Semi-presencial', tipo: 'Solicitud', modelo: 'oficio',
+          descripcion: 'Procedimiento de traslado interno a programas en modalidad semipresencial de pregrado según disponibilidad de vacantes curriculares.',
           costo: 0.00, conceptoCodigo: '03030104', conceptoServicio: 'ADECUACION CURRICULAR - PREGRADO',
-          tiempoVigenciaHrs: 72, plazoRecojoDias: 5, observacion: '', tipoActivacion: 'Cronograma',
+          tiempoVigenciaHrs: 72, plazoRecojoDias: 0, observacion: '', tipoActivacion: 'Permanente',
           envioCorreo: true, activo: true, fechaRegistro: '2023-07-18',
-          pagoMomento: 'despues', requiereAprobacion: true, diasEntrega: 5, area: 'Registros Académicos',
+          pagoMomento: 'despues', requiereAprobacion: false, diasEntrega: 0, area: 'Registros Académicos',
           intenciones: ["otros","matricula"],
           requiereAdjunto: false,
           proceso: [
-            { id: 'P-1', orden: 1, area: 'Registros Académicos', descripcion: 'Validación de vacantes y convalidación', observacion: '', duracionDias: 3, activo: true }
+            { id: 'P-1', orden: 1, area: 'Registros Académicos', descripcion: 'Consentimiento digital y aprobación automática', observacion: '', duracionDias: 0, activo: true }
           ],
           cronogramas: [
-            { id: 'CR-04', grado: 'Pregrado', modalidad: 'Modalidad Ordinaria', facultad: 'Todas', carrera: 'Todas', periodo: '2026-2', fechaInicio: '2026-08-01', fechaFin: '2026-09-15', activo: true }
+            { id: 'CR-04', grado: 'Pregrado', modalidad: 'Modalidad Semipresencial', facultad: 'Todas', carrera: 'Todas', periodo: '2026-2', fechaInicio: '2026-08-01', fechaFin: '2026-09-15', activo: true }
           ],
           audiencia: { niveles: ['pregrado'], ciclos: [], minCreditos: 0, tercioSuperior: false, quintoSuperior: false, promedioMin: 0 }
         },
@@ -2368,6 +2368,19 @@
         s.solicitudes.unshift(solExcel);
         dirty = true;
       }
+    }
+
+    // Asegurar actualización de T-004 a altas y bajas y costo 0
+    if (s.tramites) {
+      s.tramites.forEach(t => {
+        if (t.id === 'T-004' || t.nombre === 'CAMBIO DE MODALIDAD DE ESTUDIOS A PRESENCIAL - PREGRADO') {
+          t.nombre = 'Cambio de modalidad Presencial a Semi-presencial';
+          t.costo = 0.00;
+          t.diasEntrega = 0;
+          t.requiereAprobacion = false;
+          dirty = true;
+        }
+      });
     }
 
     if (dirty) save(s);

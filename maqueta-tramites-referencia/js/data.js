@@ -118,12 +118,12 @@
           audiencia: { niveles: ['postgrado'], ciclos: [], minCreditos: 0, tercioSuperior: false, quintoSuperior: false, promedioMin: 0 }
         },
         {
-          id: 'T-004', nombre: 'CAMBIO DE MODALIDAD DE ESTUDIOS A PRESENCIAL - PREGRADO', tipo: 'Solicitud', modelo: 'oficio',
-          descripcion: 'Procedimiento de traslado interno a programas en modalidad presencial de pregrado según disponibilidad de vacantes curriculares.',
+          id: 'T-004', nombre: 'Cambio de modalidad Presencial a Semi-presencial', tipo: 'Solicitud', modelo: 'oficio',
+          descripcion: 'Procedimiento de traslado interno a programas en modalidad semipresencial de pregrado según disponibilidad de vacantes curriculares.',
           costo: 0.00, conceptoCodigo: '03030104', conceptoServicio: 'ADECUACION CURRICULAR - PREGRADO',
-          tiempoVigenciaHrs: 72, plazoRecojoDias: 5, observacion: '', tipoActivacion: 'Cronograma',
+          tiempoVigenciaHrs: 72, plazoRecojoDias: 0, observacion: '', tipoActivacion: 'Permanente',
           envioCorreo: true, activo: true, fechaRegistro: '2023-07-18',
-          pagoMomento: 'despues', requiereAprobacion: true, diasEntrega: 5, area: 'Registros Académicos',
+          pagoMomento: 'despues', requiereAprobacion: false, diasEntrega: 0, area: 'Registros Académicos',
           intenciones: ["otros","matricula"],
           requiereAdjunto: false,
           proceso: [
