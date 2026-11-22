@@ -1,0 +1,246 @@
+/* admin/seguridad.css - Seguridad y Gobierno de Roles Wiener Admin */
+
+.back-nav-bar {
+  margin-bottom: 12px;
+}
+
+.btn-back-users {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  font-weight: 600;
+  font-size: 13px;
+  color: var(--text);
+  border: 1px solid var(--border);
+  background: #FFFFFF;
+  border-radius: 8px;
+  padding: 6px 14px;
+  text-decoration: none;
+  transition: all 0.18s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.03);
+}
+
+.btn-back-users:hover {
+  color: var(--brand);
+  border-color: var(--brand);
+  background: var(--brand-soft);
+  transform: translateX(-2px);
+}
+
+.perm-table th {
+  padding: 12px 14px;
+}
+
+.perm-table td {
+  padding: 10px 14px;
+  vertical-align: middle;
+}
+
+.perm-table td.chk {
+  text-align: center;
+}
+
+.th-center {
+  text-align: center;
+}
+
+.th-modulo {
+  min-width: 240px;
+}
+
+.matrix-header-wrap {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.m-0 {
+  margin: 0 !important;
+}
+
+.matrix-sub-desc {
+  margin: 2px 0 0 0;
+}
+
+.perm-id-tag {
+  font-size: 11px;
+}
+
+.role-th-header {
+  text-align: center;
+  min-width: 150px;
+}
+
+.role-title {
+  font-size: 14px;
+  font-weight: 700;
+  display: block;
+  color: var(--text);
+}
+
+.role-count-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  margin-top: 6px;
+  font-size: 11px;
+  color: var(--brand);
+  background: var(--brand-soft);
+  padding: 3px 10px;
+  border-radius: 12px;
+  font-weight: 600;
+  text-decoration: none;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+}
+
+.role-count-badge:hover {
+  background: var(--brand);
+  color: #FFF;
+}
+
+.role-desc-sub {
+  font-size: 11px;
+  color: var(--text-muted);
+  margin-top: 2px;
+  font-weight: normal;
+}
+
+.perm-toggle-label {
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 4px;
+  border-radius: 6px;
+  transition: background 0.15s ease;
+}
+
+.perm-toggle-label:hover {
+  background: var(--surface-2);
+}
+
+.perm-checkbox {
+  width: 17px;
+  height: 17px;
+  cursor: pointer;
+  accent-color: var(--brand);
+}
+
+.info-banner-roles {
+  background: #F0F9FA;
+  border: 1px solid #BCE3E6;
+  border-radius: 10px;
+  padding: 14px 18px;
+  margin-bottom: 18px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 13px;
+  color: #0F848F;
+  line-height: 1.45;
+}
+
+.info-banner-icon {
+  width: 22px;
+  height: 22px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.btn-reset-matrix {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-weight: 600;
+  font-size: 12.5px;
+}
+
+.policy-list {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.policy-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 14px;
+  border: 1px solid var(--border-soft);
+  border-radius: 10px;
+}
+
+.policy-label-text {
+  font-size: 14px;
+}
+
+.audit-date {
+  white-space: nowrap;
+}
+
+.badge-role-tag {
+  display: inline-block;
+  padding: 2px 7px;
+  font-size: 10.5px;
+  border-radius: 4px;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.badge-role-tag.admin, .badge-role-tag.administrativo {
+  background: #EFF6FF;
+  color: #1D4ED8;
+  border: 1px solid #BFDBFE;
+}
+
+.badge-role-tag.docente {
+  background: #F0FDF4;
+  color: #15803D;
+  border: 1px solid #BBF7D0;
+}
+
+.badge-role-tag.director {
+  background: #FAF5FF;
+  color: #7E22CE;
+  border: 1px solid #E9D5FF;
+}
+
+.table-wrap-seguridad {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  border: 1px solid var(--border-soft);
+  border-radius: 10px;
+  background: #FFF;
+}
+
+.table-wrap-seguridad table.data {
+  min-width: 700px;
+  width: 100%;
+  margin: 0;
+}
+
+@media (max-width: 768px) {
+  .matrix-header-wrap {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  .btn-reset-matrix {
+    width: 100%;
+    justify-content: center;
+  }
+  .policy-item {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+  }
+  .policy-item .switch {
+    align-self: flex-end;
+  }
+}

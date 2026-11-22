@@ -1,0 +1,439 @@
+/* ==========================================================================
+   VISTA: MIS DOCUMENTOS (alumno/mis-documentos.css)
+   Universidad Norbert Wiener - Sistema de Trámites
+   ========================================================================== */
+
+/* Barra de auditoría y retorno para el Administrador */
+.demo-audit-bar {
+  background: #E0F4F6;
+  border: 1px solid #BCE3E6;
+  padding: 12px 18px;
+  border-radius: 10px;
+  margin-bottom: 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.03);
+}
+
+.demo-audit-left {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: #0F848F;
+}
+
+.demo-audit-icon {
+  width: 32px;
+  height: 32px;
+  border-radius: 6px;
+  background: #0F848F;
+  color: #FFFFFF;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.demo-audit-title {
+  font-weight: 700;
+  color: #0F172A;
+  font-size: 13.5px;
+}
+
+.demo-audit-desc {
+  font-size: 12px;
+  color: #475569;
+}
+
+.demo-audit-code {
+  font-family: monospace;
+  color: #0F848F;
+}
+
+.btn-back-admin {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  font-weight: 600;
+  padding: 6px 12px;
+}
+
+/* Banner de reglas institucionales */
+.rules-banner-wiener {
+  background: #F0F9FA;
+  border: 1px solid #BCE3E6;
+  border-radius: 12px;
+  padding: 18px 22px;
+  margin-bottom: 24px;
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+  box-shadow: var(--shadow);
+}
+
+.rules-banner-icon {
+  width: 38px;
+  height: 38px;
+  border-radius: 10px;
+  background: #0F848F;
+  color: #FFFFFF;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.rules-banner-content {
+  flex: 1;
+}
+
+.rules-banner-title {
+  font-family: 'Lato', sans-serif;
+  font-size: 15px;
+  font-weight: 700;
+  color: #0F848F;
+  margin: 0 0 4px 0;
+}
+
+.rules-banner-desc {
+  font-size: 13.5px;
+  color: #334155;
+  line-height: 1.5;
+  margin: 0 0 10px 0;
+}
+
+.rules-pills-row {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  font-size: 12.5px;
+}
+
+.rules-check-pill {
+  background: #DCFCE7;
+  color: #166534;
+  padding: 4px 12px;
+  border-radius: 8px;
+  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  border: 1px solid #BBF7D0;
+}
+
+.svg-shrink-0 {
+  flex-shrink: 0;
+}
+
+/* Pestañas (Tabs) */
+.tabs-bar {
+  display: flex;
+  gap: 12px;
+  border-bottom: 1px solid #CBD5E1;
+  padding-bottom: 0;
+  margin-bottom: 22px;
+}
+
+.tab-item {
+  padding: 10px 18px;
+  font-size: 14px;
+  font-weight: 600;
+  color: #5B6E80;
+  cursor: pointer;
+  border-bottom: 3px solid transparent;
+  transition: all 0.18s ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.tab-item:hover {
+  color: #0F848F;
+}
+
+.tab-item.active {
+  color: #0F848F;
+  border-bottom-color: #0F848F;
+}
+
+.tab-item .tab-count {
+  font-size: 11.5px;
+  background: #F1F5F9;
+  color: #475569;
+  padding: 2px 8px;
+  border-radius: 999px;
+  font-weight: 700;
+}
+
+.tab-item.active .tab-count {
+  background: #E0F4F6;
+  color: #0F848F;
+}
+
+/* Tabla de cursos y calificaciones */
+.courses-table {
+  width: 100%;
+  margin: 16px 0;
+  border-collapse: collapse;
+}
+
+.courses-table-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 14px;
+  border-bottom: 1px solid #E2E8F0;
+  border-radius: 8px;
+  transition: background 0.15s ease;
+}
+
+.courses-table-row:hover {
+  background: #F8FAFC;
+}
+
+.course-title-sub {
+  font-size: 13.5px;
+  font-weight: 600;
+  color: #1E293B;
+}
+
+.course-code-tag {
+  font-family: monospace;
+  font-weight: 700;
+  color: #0F848F;
+}
+
+.course-ciclo-tag {
+  font-size: 12px;
+  color: #64748B;
+  font-weight: normal;
+}
+
+.course-status-side {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.course-grade-badge {
+  font-size: 13px;
+  font-weight: 700;
+  color: #0F848F;
+  background: #F0F9FA;
+  padding: 3px 10px;
+  border-radius: 6px;
+  border: 1px solid #BCE3E6;
+}
+
+.course-check-tag {
+  background: #E6F6ED;
+  color: #278B52;
+  padding: 4px 10px;
+  border-radius: 12px;
+  font-size: 11.5px;
+  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+
+/* Callout de certificación completada */
+.cert-completion-callout {
+  background: #F0FDF4;
+  border: 1px solid #BBF7D0;
+  border-radius: 10px;
+  padding: 16px 20px;
+  margin-top: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+
+.cert-completion-text {
+  font-size: 13px;
+  color: #334155;
+  line-height: 1.5;
+  flex: 1;
+  min-width: 260px;
+}
+
+.cert-completion-text b {
+  color: #0F172A;
+}
+
+.cert-callout-badge-wrap {
+  margin-top: 6px;
+}
+
+.cert-free-pill {
+  font-size: 11.5px;
+  font-weight: 700;
+  background: #E0F4F6;
+  color: #0F848F;
+  border: 1px solid #BCE3E6;
+  padding: 3px 10px;
+  border-radius: 6px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.cert-actions-btns {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.btn-inline-icon {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.cert-header-right {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.cert-header-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-weight: 700;
+}
+
+/* Tarjetas para otros documentos emitidos */
+.doc-issued-card {
+  background: #FFFFFF;
+  border: 1px solid #D5DDE5;
+  border-radius: 12px;
+  padding: 20px 24px;
+  margin-bottom: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 16px;
+  box-shadow: var(--shadow);
+  transition: all 0.2s ease;
+}
+
+.doc-issued-card:hover {
+  border-color: #0F848F;
+  box-shadow: 0 4px 14px rgba(15, 132, 143, 0.08);
+}
+
+.doc-issued-left {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex: 1;
+  min-width: 260px;
+}
+
+.doc-issued-icon {
+  width: 44px;
+  height: 44px;
+  border-radius: 10px;
+  background: #E6F6ED;
+  color: #278B52;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.doc-issued-details h3 {
+  font-family: 'Lato', sans-serif;
+  font-size: 16.5px;
+  font-weight: 700;
+  color: #0F172A;
+  margin: 0 0 3px 0;
+}
+
+.doc-issued-meta {
+  font-size: 12.5px;
+  color: #64748B;
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.doc-code-pill {
+  font-family: monospace;
+  font-weight: 700;
+  color: #0F172A;
+  background: #F1F5F9;
+  padding: 2px 8px;
+  border-radius: 6px;
+}
+
+.doc-signature-badge {
+  color: #278B52;
+  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.doc-actions-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+/* Estado vacío */
+.empty-state-box {
+  text-align: center;
+  padding: 48px 24px;
+  background: #FFFFFF;
+  border: 1px dashed #CBD5E1;
+  border-radius: 12px;
+  color: #64748B;
+  margin: 20px 0;
+}
+
+.empty-state-icon-wrap {
+  margin-bottom: 12px;
+  color: #94A3B8;
+  display: flex;
+  justify-content: center;
+}
+
+.empty-state-title {
+  font-size: 16.5px;
+  color: #0F172A;
+  margin: 0 0 6px 0;
+}
+
+.empty-state-title-sm {
+  font-size: 16px;
+  color: #1E293B;
+  margin: 0 0 4px 0;
+}
+
+.empty-state-desc {
+  font-size: 13.5px;
+  color: #64748B;
+  margin: 0 0 18px 0;
+}
+
+.empty-state-desc-sm {
+  font-size: 13px;
+  margin: 0;
+}
+
+.btn-empty-solicitar {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}

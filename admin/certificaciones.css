@@ -1,0 +1,944 @@
+/* admin/certificaciones.css - Emisión Masiva de Certificaciones Progresivas Wiener Admin */
+
+/* =========================================================================
+   ESTILOS ESPECÍFICOS - EMISIÓN MASIVA DE CERTIFICACIONES PROGRESIVAS
+   Cumplimiento estricto de Design.md (Wiener Design System)
+   ========================================================================= */
+
+/* Banner institucional Wiener (Teal / Cyan #F0F9FA) con Contenido Desplegable */
+.rules-banner-wiener {
+  background: #F0F9FA;
+  border: 1px solid #BCE3E6;
+  border-radius: 12px;
+  padding: 18px 22px;
+  margin-bottom: 24px;
+  box-shadow: var(--shadow);
+  transition: all 0.25s ease;
+}
+
+.rules-banner-head-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  width: 100%;
+  flex-wrap: wrap;
+}
+
+.rules-banner-left {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  flex: 1;
+  min-width: 280px;
+}
+
+.rules-banner-icon {
+  width: 44px;
+  height: 44px;
+  border-radius: 10px;
+  background: #0F848F;
+  color: #FFFFFF;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  box-shadow: 0 2px 6px rgba(15, 132, 143, 0.25);
+}
+
+.rules-banner-title {
+  font-family: 'Lato', sans-serif;
+  font-size: 16px;
+  font-weight: 700;
+  color: #0F848F;
+  margin: 0 0 3px 0;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.rules-banner-sub {
+  font-size: 12.5px;
+  color: #5B6E80;
+  line-height: 1.4;
+}
+
+.rules-toggle-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  background: #FFFFFF !important;
+  border: 1px solid #BCE3E6 !important;
+  border-radius: 8px;
+  color: #0F848F !important;
+  font-size: 12.5px;
+  font-weight: 700;
+  cursor: pointer;
+  user-select: none;
+  transition: all 0.2s ease;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+}
+
+.rules-toggle-btn:hover {
+  background: #E6F6ED !important;
+  border-color: #0F848F !important;
+}
+
+.rules-toggle-arrow {
+  transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.rules-collapsible-body {
+  margin-top: 16px;
+  padding-top: 16px;
+  border-top: 1px dashed #BCE3E6;
+  width: 100%;
+  animation: fadeInDropdown 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.rules-banner-desc {
+  font-size: 13.5px;
+  color: #334155;
+  line-height: 1.55;
+  margin: 0 0 14px 0;
+}
+
+.rules-pills-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 12px;
+}
+
+.rules-check-pill {
+  background: #FFFFFF;
+  border: 1px solid #CBD5E1;
+  border-radius: 8px;
+  padding: 10px 14px;
+  font-size: 12.5px;
+  color: #1E293B;
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  line-height: 1.45;
+}
+
+.rules-check-pill.highlight {
+  background: #E6F6ED;
+  border-color: #A7F3D0;
+  color: #065F46;
+}
+
+/* Tarjetas de KPIs Ejecutivos (Enfoque Masivo & Automatización) */
+.kpi-mass-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.kpi-mass-card {
+  background: #FFFFFF;
+  border: 1px solid #CBD5E1;
+  border-radius: 10px;
+  padding: 18px 20px;
+  box-shadow: var(--shadow);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.kpi-mass-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(15, 23, 42, 0.08);
+}
+
+.kpi-mass-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 8px;
+}
+
+.kpi-mass-lbl {
+  font-family: 'Roboto', sans-serif;
+  font-size: 11.5px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: #5B6E80;
+}
+
+.kpi-mass-icon-box {
+  width: 36px;
+  height: 36px;
+  border-radius: 8px;
+  background: #F1F5F9;
+  color: #0F848F;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.kpi-mass-val {
+  font-family: 'Lato', sans-serif;
+  font-size: 28px;
+  font-weight: 900;
+  color: #0F172A;
+  line-height: 1.1;
+  margin-bottom: 4px;
+}
+
+.kpi-mass-sub {
+  font-size: 12px;
+  color: #64748B;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+/* Pestañas de Navegación */
+.tabs-bar {
+  display: flex;
+  gap: 12px;
+  border-bottom: 1px solid #CBD5E1;
+  margin-bottom: 22px;
+}
+
+.tab-item {
+  padding: 12px 20px;
+  font-size: 14px;
+  font-weight: 700;
+  font-family: 'Lato', sans-serif;
+  color: #5B6E80;
+  cursor: pointer;
+  border-bottom: 3px solid transparent;
+  transition: all 0.18s ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.tab-item:hover {
+  color: #0F848F;
+}
+
+.tab-item.active {
+  color: #0F848F;
+  border-bottom-color: #0F848F;
+}
+
+.tab-count {
+  font-size: 11.5px;
+  background: #F1F5F9;
+  color: #475569;
+  padding: 2px 8px;
+  border-radius: 999px;
+  font-weight: 700;
+}
+
+.tab-item.active .tab-count {
+  background: #E0F4F6;
+  color: #0F848F;
+}
+
+/* Tarjetas del Configurador Previo (Estricto Design.md) */
+.config-card {
+  background: #FFFFFF;
+  border: 1px solid #CBD5E1;
+  border-radius: 12px;
+  padding: 24px;
+  margin-bottom: 24px;
+  box-shadow: var(--shadow);
+}
+
+.config-card-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 20px;
+  padding-bottom: 14px;
+  border-bottom: 1px solid #E2E8F0;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.config-card-head h2 {
+  font-family: 'Lato', sans-serif;
+  font-size: 17px;
+  font-weight: 700;
+  color: #0F172A;
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+/* Formularios, Grid e Inputs (Altura exacta 40px según Design.md) */
+.form-grid-3 {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 16px;
+  margin-bottom: 16px;
+}
+
+.form-field {
+  display: flex;
+  flex-direction: column;
+}
+
+.form-field label {
+  height: 16px;
+  line-height: 16px;
+  margin: 0 0 6px 0;
+  display: block;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: #5B6E80;
+}
+
+.form-field input[type="text"],
+.form-field input[type="number"],
+.form-field input[type="date"] {
+  height: 40px !important;
+  min-height: 40px !important;
+  padding: 0 14px;
+  border: 1px solid #CBD5E1;
+  border-radius: 8px;
+  font-family: 'Roboto', sans-serif;
+  font-size: 13.5px;
+  color: #1E293B;
+  background-color: #FFFFFF;
+  transition: all 0.2s ease;
+  box-sizing: border-box;
+  width: 100%;
+}
+
+.form-field input:focus {
+  border-color: #0F848F !important;
+  box-shadow: 0 0 0 3px rgba(15, 132, 143, 0.15) !important;
+  outline: none;
+}
+
+/* Ajuste de altura estricta para controles personalizados */
+.custom-select-trigger,
+.date-display-input {
+  height: 40px !important;
+  min-height: 40px !important;
+  box-sizing: border-box;
+  font-size: 13.5px !important;
+}
+
+/* Inputs con icono a la izquierda (Design.md: margen estricto 42px) */
+.input-wrap-icon-left {
+  position: relative;
+  width: 100%;
+}
+
+.input-wrap-icon-left .input-icon-svg {
+  position: absolute;
+  left: 14px !important;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 16px;
+  height: 16px;
+  color: #5B6E80;
+  pointer-events: none;
+  z-index: 2;
+}
+
+.input-wrap-icon-left input {
+  padding: 0 14px 0 42px !important;
+  line-height: 38px !important;
+  height: 40px !important;
+}
+
+/* Checkbox corporativo tipo Tarjeta/Chip */
+.rule-checkbox-box {
+  background: #F8FAFC;
+  border: 1px solid #E2E8F0;
+  border-radius: 10px;
+  padding: 16px 18px;
+  margin: 16px 0;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.rule-checkbox-title {
+  font-size: 11.5px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: #5B6E80;
+  margin-bottom: 2px;
+}
+
+.rule-chips-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px;
+  align-items: center;
+}
+
+.rule-chip-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 14px;
+  background: #FFFFFF;
+  border: 1px solid #CBD5E1;
+  border-radius: 8px;
+  font-size: 13px;
+  color: #1E293B;
+  cursor: pointer;
+  user-select: none;
+  transition: all 0.15s ease;
+}
+
+.rule-chip-label:hover {
+  border-color: #0F848F;
+  background: #F0FAFA;
+}
+
+.rule-chip-label input[type="checkbox"] {
+  width: 17px;
+  height: 17px;
+  accent-color: #0F848F;
+  cursor: pointer;
+  margin: 0;
+}
+
+/* Malla formativa desplegable */
+.malla-collapsible {
+  background: #F8FAFC;
+  border: 1px solid #E2E8F0;
+  border-radius: 8px;
+  margin: 16px 0;
+  overflow: hidden;
+}
+
+.malla-header-toggle {
+  padding: 12px 18px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  cursor: pointer;
+  background: #F1F5F9;
+  font-size: 13px;
+  font-weight: 700;
+  color: #334155;
+  user-select: none;
+  transition: background 0.15s ease;
+}
+
+.malla-header-toggle:hover {
+  background: #E2E8F0;
+  color: #0F848F;
+}
+
+.malla-body-table {
+  padding: 14px 18px;
+  overflow-x: auto;
+}
+
+/* Tabla de cursos vinculados */
+.table-courses {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 12.5px;
+}
+
+.table-courses th {
+  background: #E4E8EC;
+  color: #5B6E80;
+  font-family: 'Roboto', sans-serif;
+  font-size: 11.5px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  padding: 10px 14px;
+  text-align: left;
+  border-bottom: 1px solid #CBD5E1;
+}
+
+.table-courses td {
+  padding: 10px 14px;
+  border-bottom: 1px solid #E2E8F0;
+  color: #1E293B;
+}
+
+.table-courses tr:last-child td {
+  border-bottom: none;
+}
+
+/* Tarjeta de Resumen y Botones de Emisión */
+.config-action-banner {
+  background: #F0F9FA;
+  border: 1px solid #BCE3E6;
+  border-radius: 10px;
+  padding: 18px 22px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+  flex-wrap: wrap;
+  margin-top: 20px;
+}
+
+.config-action-info {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.config-action-icon {
+  width: 44px;
+  height: 44px;
+  border-radius: 10px;
+  background: #0F848F;
+  color: #FFFFFF;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+/* Tablas Administrativas (.vt-table de Design.md) */
+.vt-table-card {
+  background: #FFFFFF;
+  border: 1px solid #CBD5E1;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: var(--shadow);
+  margin-bottom: 24px;
+}
+
+.vt-table-toolbar {
+  padding: 16px 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 14px;
+  flex-wrap: wrap;
+  border-bottom: 1px solid #E2E8F0;
+  background: #FAFAFA;
+}
+
+.vt-table-wrapper {
+  width: 100%;
+  overflow-x: auto;
+}
+
+.vt-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+
+.vt-table th {
+  background: #E4E8EC;
+  color: #5B6E80;
+  font-family: 'Roboto', sans-serif;
+  font-size: 11.5px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  padding: 12px 16px;
+  text-align: left;
+  border-bottom: 1px solid #CBD5E1;
+  white-space: nowrap;
+}
+
+.vt-table td {
+  padding: 14px 16px;
+  border-bottom: 1px solid #E2E8F0;
+  vertical-align: middle;
+  color: #1E293B;
+  font-family: 'Roboto', sans-serif;
+}
+
+.vt-table tr:hover {
+  background: #F8FAFC;
+}
+
+/* Badges tipo pill limpios sin punto ni círculo previo (Design.md) */
+.pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-size: 11.5px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  white-space: nowrap;
+}
+
+.pill::before {
+  display: none !important;
+}
+
+.pill.ok {
+  background: #E6F6ED;
+  color: #166534;
+  border: 1px solid #A7F3D0;
+}
+
+.pill.warn {
+  background: #FFFBEB;
+  color: #92400E;
+  border: 1px solid #FCD34D;
+}
+
+.pill.info {
+  background: #E0F2FE;
+  color: #075985;
+  border: 1px solid #BAE6FD;
+}
+
+.pill.paused {
+  background: #F1F5F9;
+  color: #475569;
+  border: 1px solid #CBD5E1;
+}
+
+/* Panel informativo sobre programaciones (Tab 2) */
+.schedule-info-card {
+  background: #FFFFFF;
+  border: 1px solid #CBD5E1;
+  border-radius: 12px;
+  padding: 24px;
+  margin-bottom: 24px;
+  box-shadow: var(--shadow);
+}
+
+.schedule-qa-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 16px;
+  margin-top: 16px;
+}
+
+.schedule-qa-item {
+  background: #F8FAFC;
+  border: 1px solid #E2E8F0;
+  border-radius: 8px;
+  padding: 14px 16px;
+}
+
+.schedule-qa-q {
+  font-size: 13px;
+  font-weight: 700;
+  color: #0F848F;
+  margin-bottom: 6px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.schedule-qa-a {
+  font-size: 12.5px;
+  color: #475569;
+  line-height: 1.5;
+}
+
+/* Stepper animado dentro del modal */
+.sim-stepper {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin: 18px 0;
+}
+
+.sim-step-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 14px;
+  border-radius: 8px;
+  background: #F8FAFC;
+  border: 1px solid #E2E8F0;
+  font-size: 13px;
+  color: #475569;
+  transition: all 0.2s ease;
+}
+
+.sim-step-item.active {
+  background: #F0F9FA;
+  border-color: #0F848F;
+  color: #0F848F;
+  font-weight: 700;
+}
+
+.sim-step-item.done {
+  background: #F0FDF4;
+  border-color: #86EFAC;
+  color: #166534;
+  font-weight: 600;
+}
+
+.sim-step-circle {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: #E2E8F0;
+  color: #64748B;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 11px;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+
+.sim-step-item.active .sim-step-circle {
+  background: #0F848F;
+  color: #FFFFFF;
+}
+
+.sim-step-item.done .sim-step-circle {
+  background: #16A34A;
+  color: #FFFFFF;
+}
+
+.progress-track {
+  height: 8px;
+  background: #E2E8F0;
+  border-radius: 4px;
+  overflow: hidden;
+  margin-bottom: 16px;
+}
+
+.progress-fill {
+  height: 100%;
+  width: 0%;
+  background: #0F848F;
+  transition: width 0.3s ease;
+}
+
+/* Clases complementarias para componentes de Storybook */
+.cert-icon-svg {
+  flex-shrink: 0;
+  vertical-align: middle;
+}
+
+.audit-header-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.audit-header-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 8px;
+  background: #E0F4F6;
+  color: #0F848F;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.audit-header-tag {
+  font-size: 11.5px;
+  font-weight: 700;
+  color: #0F848F;
+  text-transform: uppercase;
+}
+
+.audit-header-title {
+  margin: 2px 0 0 0;
+  font-size: 18px;
+  font-family: 'Lato', sans-serif;
+  color: #0F172A;
+}
+
+.audit-meta-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 12px;
+  margin-bottom: 18px;
+  background: #F8FAFC;
+  padding: 14px;
+  border-radius: 8px;
+  border: 1px solid #E2E8F0;
+  font-size: 12.5px;
+}
+
+.audit-meta-lbl {
+  color: #64748B;
+  font-size: 11px;
+  text-transform: uppercase;
+  font-weight: 700;
+}
+
+.audit-meta-val {
+  font-weight: 700;
+  color: #0F172A;
+  margin-top: 2px;
+}
+
+.audit-meta-val-cert {
+  font-weight: 700;
+  color: #0F848F;
+  margin-top: 2px;
+}
+
+.audit-meta-val-success {
+  font-weight: 700;
+  color: #16A34A;
+  margin-top: 2px;
+}
+
+.audit-section-title {
+  font-size: 13.5px;
+  font-family: 'Lato', sans-serif;
+  margin: 0 0 10px 0;
+  color: #0F172A;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.pill-free-cert {
+  font-size: 11px;
+}
+
+.modal-table-scroll {
+  border: 1px solid #CBD5E1;
+  border-radius: 8px;
+  max-height: 330px;
+  overflow-x: auto !important;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.modal-vt-table {
+  min-width: 820px;
+  width: 100%;
+  margin: 0;
+}
+
+.th-folio {
+  width: 130px;
+  white-space: nowrap;
+}
+
+.th-student {
+  min-width: 200px;
+  white-space: nowrap;
+}
+
+.th-email {
+  min-width: 220px;
+  white-space: nowrap;
+}
+
+.th-center-fixed {
+  width: 140px;
+  text-align: center;
+  white-space: nowrap;
+}
+
+.th-status-fixed {
+  width: 120px;
+  text-align: center;
+  white-space: nowrap;
+}
+
+.th-profile-fixed {
+  width: 120px;
+  text-align: center;
+  white-space: nowrap;
+}
+
+.td-empty-table {
+  text-align: center;
+  padding: 24px;
+  color: #64748B;
+}
+
+.td-folio-val {
+  font-family: monospace;
+  font-weight: 700;
+  color: #0F848F;
+  white-space: nowrap;
+}
+
+.student-cod-sub {
+  font-size: 11.5px;
+  color: #64748B;
+  font-family: monospace;
+}
+
+.email-mono-text {
+  font-family: monospace;
+  color: #334155;
+}
+
+.date-muted-center {
+  text-align: center;
+  font-size: 12px;
+  color: #64748B;
+  white-space: nowrap;
+}
+
+.td-center-nowrap {
+  text-align: center;
+  white-space: nowrap;
+}
+
+.pill-emitido-sm {
+  font-size: 10.5px;
+  font-weight: 700;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.btn-student-profile {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 11.5px;
+  padding: 3px 8px;
+  color: #0F848F;
+}
+
+.audit-footer-callout {
+  margin-top: 14px;
+  padding: 10px 14px;
+  border-radius: 8px;
+  background: #F0F9FA;
+  border: 1px solid #BCE3E6;
+  font-size: 12px;
+  color: #0F848F;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.select-container-170 {
+  width: 170px;
+}
+
+.btn-action-icon {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.btn-action-danger {
+  color: #DC2626;
+  padding: 4px 6px;
+}

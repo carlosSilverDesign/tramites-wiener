@@ -636,6 +636,39 @@
           ]
         }
       ],
+      
+      // ---- Matriz de Roles y Permisos Institucionales (Gobierno de Accesos) ----
+      matrizSeguridad: {
+        modulos: [
+          { id: 'catalogo', nombre: 'Catálogo de trámites' },
+          { id: 'registrar', nombre: 'Registrar trámite (Mesa de partes / Asistido)' },
+          { id: 'solicitudes', nombre: 'Vista de trámites (Bandeja Operativa)' },
+          { id: 'flujos', nombre: 'Flujos de trámites' },
+          { id: 'procesar', nombre: 'Procesar y estadísticas' },
+          { id: 'reportes', nombre: 'Reportes y exportación CSV' },
+          { id: 'tramites', nombre: 'Configuración de Trámites y Áreas' },
+          { id: 'certificaciones', nombre: 'Certificaciones Progresivas' },
+          { id: 'usuarios', nombre: 'Administrador de usuarios' },
+          { id: 'seguridad', nombre: 'Seguridad y Políticas' }
+        ],
+        permisos: {
+          administrativo: {
+            catalogo: true, registrar: true, solicitudes: true, flujos: true,
+            procesar: true, reportes: true, tramites: true, certificaciones: true,
+            usuarios: false, seguridad: false
+          },
+          docente: {
+            catalogo: true, registrar: false, solicitudes: true, flujos: false,
+            procesar: false, reportes: false, tramites: false, certificaciones: false,
+            usuarios: false, seguridad: false
+          },
+          director: {
+            catalogo: true, registrar: true, solicitudes: true, flujos: true,
+            procesar: true, reportes: true, tramites: true, certificaciones: true,
+            usuarios: true, seguridad: true
+          }
+        }
+      },
       sedesCatalogo: [
         '7803-2 --> LOCAL 1 / Jr. Larrabure y Unanue 110 Santa Beatriz, Lima',
         '7803-1 --> LOCAL 2 / Av. Arequipa 440 Lima Centro',
@@ -1037,7 +1070,50 @@
         {
           id: 'U-ADM-1', rol: 'administrativo', nombre: 'Carlos Mendoza Ríos', codigo: 'ADM-0091',
           email: 'c.mendoza@uwiener.edu.pe', dni: '40981233', estado: 'activo', area: 'Registros Académicos',
-          permisos: ['tramites', 'solicitudes', 'flujos', 'procesar', 'reportes', 'usuarios', 'seguridad', 'registrar', 'certificaciones']
+          cargo: 'Jefatura Operativa de Registros', sede: '7803-2 --> LOCAL 1 / Jr. Larrabure y Unanue 110 Santa Beatriz, Lima',
+          permisos: ['tramites', 'solicitudes', 'flujos', 'procesar', 'reportes', 'registrar', 'certificaciones']
+        },
+        {
+          id: 'U-ADM-2', rol: 'administrativo', nombre: 'Paula Mayra Jackeline Zorrilla Morris', codigo: 'ADM-665092',
+          email: 'p.zorrilla@uwiener.edu.pe', dni: '43881290', estado: 'activo', area: 'Dirección de Bienestar Universitario',
+          cargo: 'Responsable de Becas y Bienestar', sede: '7803-2 --> LOCAL 1 / Jr. Larrabure y Unanue 110 Santa Beatriz, Lima',
+          permisos: ['catalogo', 'solicitudes', 'reportes']
+        },
+        {
+          id: 'U-ADM-3', rol: 'administrativo', nombre: 'Lucía Margarita Paredes Soto', codigo: 'ADM-412236',
+          email: 'l.paredes@uwiener.edu.pe', dni: '41223655', estado: 'activo', area: 'Grados y Títulos',
+          cargo: 'Coordinadora de Grados y Títulos', sede: '7803-2 --> LOCAL 1 / Jr. Larrabure y Unanue 110 Santa Beatriz, Lima',
+          permisos: ['catalogo', 'solicitudes', 'procesar', 'reportes']
+        },
+        {
+          id: 'U-DOC-1', rol: 'docente', nombre: 'Dr. Jorge Alfonso Santa Cruz Salazar', codigo: 'DOC-712149',
+          email: 'j.santacruz@uwiener.edu.pe', dni: '09841235', estado: 'activo', area: 'Representante de Unidades Académicas',
+          cargo: 'Docente Evaluador / Coordinador Posgrado', sede: '7803-2 --> LOCAL 1 / Jr. Larrabure y Unanue 110 Santa Beatriz, Lima',
+          permisos: ['catalogo', 'solicitudes']
+        },
+        {
+          id: 'U-DOC-2', rol: 'docente', nombre: 'Dr. Nahum Santa Cruz Jara', codigo: 'DOC-794673',
+          email: 'n.santacruz@uwiener.edu.pe', dni: '10842299', estado: 'activo', area: 'Dirección de Escuela de Medicina Humana',
+          cargo: 'Docente Dictaminador de Cursos', sede: '7803-2 --> LOCAL 1 / Jr. Larrabure y Unanue 110 Santa Beatriz, Lima',
+          permisos: ['catalogo', 'solicitudes']
+        },
+        {
+          id: 'U-DOC-3', rol: 'docente', nombre: 'Mg. Jhan Karlo Santamaria Calderon', codigo: 'DOC-722486',
+          email: 'j.santamaria@uwiener.edu.pe', dni: '72248610', estado: 'activo', area: 'Representante de Unidades Académicas',
+          cargo: 'Docente Revisor Curricular', sede: '7803-2 --> LOCAL 1 / Jr. Larrabure y Unanue 110 Santa Beatriz, Lima',
+          permisos: ['catalogo', 'solicitudes']
+        },
+        {
+          id: 'U-DIR-1', rol: 'director', nombre: 'Dr. Miguel Angel Faustor Müller', codigo: 'DIR-611901',
+          email: 'm.faustor@uwiener.edu.pe', dni: '40119022', estado: 'activo', area: 'Registros Académicos',
+          cargo: 'Director de Registros Académicos', sede: '7803-2 --> LOCAL 1 / Jr. Larrabure y Unanue 110 Santa Beatriz, Lima',
+          permisos: ['catalogo', 'registrar', 'solicitudes', 'flujos', 'procesar', 'reportes', 'tramites', 'certificaciones', 'usuarios', 'seguridad']
+        },
+        {
+          id: 'U-DIR-2', rol: 'director', nombre: 'Dra. Gianella Magdalena Garcia Grandez', codigo: 'DIR-636671',
+          email: 'g.garcia@uwiener.edu.pe', dni: '42119933', estado: 'activo', area: 'Dirección de Escuela de Medicina Humana',
+          cargo: 'Directora de Escuela', sede: '7803-2 --> LOCAL 1 / Jr. Larrabure y Unanue 110 Santa Beatriz, Lima',
+          permisos: ['catalogo', 'solicitudes', 'flujos', 'procesar', 'reportes', 'tramites', 'usuarios']
         },
         {
           id: 'U-ALU-2', rol: 'alumno', nombre: 'José Antonio Ramos', codigo: '2019054420',
@@ -1946,6 +2022,21 @@
       s.colaboradores = defaults.colaboradores;
       dirty = true;
     }
+    if (!s.matrizSeguridad) {
+      s.matrizSeguridad = defaults.matrizSeguridad;
+      dirty = true;
+    }
+    const tieneDocente = (s.usuarios || []).some(u => u.rol === 'docente');
+    const tieneDirector = (s.usuarios || []).some(u => u.rol === 'director');
+    if (!tieneDocente || !tieneDirector) {
+      const staffDefaults = defaults.usuarios.filter(u => u.rol === 'docente' || u.rol === 'director' || (u.rol === 'administrativo' && u.id !== 'U-ADM-1'));
+      staffDefaults.forEach(defU => {
+        if (!s.usuarios.some(u => u.codigo === defU.codigo || u.email === defU.email)) {
+          s.usuarios.push(defU);
+          dirty = true;
+        }
+      });
+    }
 
     // Normalizar áreas existentes
     if (s.areas) {
@@ -2517,8 +2608,82 @@
     upsertUsuario(u) {
       const db = load();
       const i = db.usuarios.findIndex(x => x.id === u.id);
-      if (i >= 0) db.usuarios[i] = u; else { u.id = 'U-' + Date.now(); db.usuarios.push(u); }
+      if (i >= 0) db.usuarios[i] = u; else { u.id = 'U-' + (u.rol === 'director' ? 'DIR' : u.rol === 'docente' ? 'DOC' : u.rol === 'alumno' ? 'ALU' : 'ADM') + '-' + Date.now().toString().slice(-6); db.usuarios.push(u); }
       save(db); return u;
+    },
+    deleteUsuario(id) {
+      const db = load();
+      db.usuarios = (db.usuarios || []).filter(u => u.id !== id);
+      save(db);
+    },
+    matrizSeguridad() {
+      const db = load();
+      if (!db.matrizSeguridad) {
+        db.matrizSeguridad = seed().matrizSeguridad;
+        save(db);
+      }
+      return db.matrizSeguridad;
+    },
+    saveMatrizSeguridad(m) {
+      const db = load();
+      db.matrizSeguridad = m;
+      save(db);
+      return m;
+    },
+    getResponsablesByArea(areaNombre) {
+      const db = load();
+      if (!areaNombre) return [];
+      const area = (db.areas || []).find(a => (a.nombre || '').toLowerCase() === (areaNombre || '').toLowerCase());
+      return area ? (area.responsables || []) : [];
+    },
+    getUsuariosByArea(areaNombre) {
+      const db = load();
+      if (!areaNombre) return [];
+      return (db.usuarios || []).filter(u => u.rol !== 'alumno' && (u.area || '').toLowerCase() === (areaNombre || '').toLowerCase());
+    },
+    syncResponsableConUsuario(areaNombre, resp) {
+      if (!resp || !resp.personal) return null;
+      const db = load();
+      if (!db.usuarios) db.usuarios = [];
+      let u = db.usuarios.find(x => x.codigo === 'PER-' + resp.personal || x.codigo === resp.personal || (x.dni && resp.dni && x.dni === resp.dni) || (x.nombre && x.nombre.toLowerCase() === (resp.nombre || '').toLowerCase()));
+      
+      let rol = resp.rol || 'administrativo';
+      const cargoLower = (resp.cargo || '').toLowerCase();
+      if (!resp.rol) {
+        if (cargoLower.includes('director') || cargoLower.includes('decano')) {
+          rol = 'director';
+        } else if (cargoLower.includes('docente') || cargoLower.includes('dictaminador') || cargoLower.includes('evaluador') || cargoLower.includes('revisor')) {
+          rol = 'docente';
+        }
+      }
+
+      const cod = 'PER-' + resp.personal;
+      const emailPart = (resp.nombre || 'colaborador').split(',')[0].trim().toLowerCase().replace(/[^a-z0-9]/g, '');
+      const email = (emailPart ? emailPart.slice(0, 8) : 'colaborador') + '@uwiener.edu.pe';
+
+      if (!u) {
+        u = {
+          id: 'U-' + (rol === 'director' ? 'DIR' : rol === 'docente' ? 'DOC' : 'ADM') + '-' + resp.personal,
+          rol: rol,
+          nombre: resp.nombre || 'Colaborador Wiener',
+          codigo: cod,
+          email: email,
+          dni: resp.dni || ('4' + String(resp.personal).padStart(7, '0').slice(-7)),
+          estado: resp.activo ? 'activo' : 'inactivo',
+          area: areaNombre || 'Registros Académicos',
+          cargo: resp.cargo || 'Responsable',
+          sede: resp.sede || (db.sedesCatalogo && db.sedesCatalogo[0]) || ''
+        };
+        db.usuarios.push(u);
+      } else {
+        u.area = areaNombre || u.area;
+        u.cargo = resp.cargo || u.cargo;
+        u.rol = rol;
+        if (resp.sede) u.sede = resp.sede;
+        if (resp.activo !== undefined) u.estado = resp.activo ? 'activo' : 'inactivo';
+      }
+      save(db);
+      return u;
     },
     addSolicitud(s) { const db = load(); db.solicitudes.unshift(s); save(db); return s; },
     updateSolicitud(s) { const db = load(); const i = db.solicitudes.findIndex(x => x.id === s.id); if (i >= 0) db.solicitudes[i] = s; save(db); return s; },
@@ -2636,6 +2801,8 @@
         const todasAtendidas = s.proceso.every(p => p.estado === 'Atendido' || p.estado === 'Procede');
         if (todasAtendidas) {
           s.estado = 'Aprobado';
+        } else {
+          s.estado = 'En revisión';
         }
         if (!s.historial) s.historial = [];
         s.historial.push({

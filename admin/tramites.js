@@ -1,1009 +1,6 @@
-<!DOCTYPE html>
-<html lang="es">
-
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Configuración de Trámites · Wiener Admin</title>
-  <link
-    href="https://fonts.googleapis.com/css2?family=Lato:wght@400;700;900&family=Roboto:wght@400;500;700&display=swap"
-    rel="stylesheet">
-  <link rel="stylesheet" href="../css/styles.css">
-  <style>
-    /* Tabs de navegación estilo Wiener */
-    .tabs-header {
-      display: flex;
-      gap: 8px;
-      margin-bottom: 22px;
-      border-bottom: 2px solid var(--border-soft);
-      padding-bottom: 4px;
-    }
-
-    .tab-nav-btn {
-      display: inline-flex;
-      align-items: center;
-      gap: 10px;
-      padding: 10px 18px;
-      border-radius: 10px 10px 0 0;
-      border: none;
-      background: transparent;
-      color: var(--text-muted);
-      font-family: 'Lato', sans-serif;
-      font-size: 14.5px;
-      font-weight: 700;
-      cursor: pointer;
-      position: relative;
-      transition: all 0.2s ease;
-    }
-
-    .tab-nav-btn:hover {
-      color: var(--brand);
-      background: var(--surface-2);
-    }
-
-    .tab-nav-btn.active {
-      color: var(--brand-dark);
-      background: var(--surface);
-      border-bottom: 3px solid var(--brand);
-      margin-bottom: -6px;
-    }
-
-    .tab-nav-btn .count-badge {
-      font-size: 11px;
-      font-weight: 700;
-      padding: 2px 8px;
-      border-radius: 12px;
-      background: var(--surface-2);
-      color: var(--text-soft);
-    }
-
-    .tab-nav-btn.active .count-badge {
-      background: var(--brand-tint);
-      color: var(--brand-dark);
-    }
-
-    /* Barra de filtros y búsqueda */
-    .filter-card {
-      background: var(--surface);
-      border: 1px solid var(--border-soft);
-      border-radius: var(--radius-sm);
-      padding: 14px 18px;
-      margin-bottom: 18px;
-      display: flex;
-      flex-wrap: wrap;
-      align-items: center;
-      justify-content: space-between;
-      gap: 14px;
-      box-shadow: var(--shadow);
-    }
-
-    .filter-group {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      flex-wrap: wrap;
-    }
-
-    .filter-item {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      font-size: 13.5px;
-      color: var(--text-soft);
-      font-weight: 500;
-    }
-
-    .filter-input {
-      padding: 8px 12px;
-      font-size: 13.5px;
-      border: 1px solid var(--border);
-      border-radius: 8px;
-      background: #FFF;
-      outline: none;
-      min-width: 220px;
-    }
-
-    .filter-select {
-      padding: 8px 12px;
-      font-size: 13.5px;
-      border: 1px solid var(--border);
-      border-radius: 8px;
-      background: #FFF;
-      outline: none;
-    }
-
-    /* Custom select look & feel en barra de filtros */
-    .filter-card .select-wrap.inline,
-    .filter-card .custom-select-wrap {
-      width: 135px !important;
-      margin: 0 !important;
-      display: inline-block !important;
-      vertical-align: middle !important;
-    }
-
-    .filter-card .custom-select-trigger {
-      height: 38px !important;
-      min-height: 38px !important;
-      max-height: 38px !important;
-      border-radius: 8px !important;
-      padding: 0 32px 0 12px !important;
-      display: flex !important;
-      align-items: center !important;
-      background: #FFFFFF !important;
-      font-size: 13.5px !important;
-      border: 1px solid var(--border) !important;
-      box-sizing: border-box !important;
-    }
-
-    .filter-card .custom-select-label {
-      line-height: 36px !important;
-      font-size: 13.5px !important;
-    }
-
-    .filter-card .custom-select-arrow {
-      right: 12px !important;
-    }
-
-    .filter-card .custom-select-menu {
-      min-width: 135px !important;
-      z-index: 200 !important;
-      border-radius: 8px !important;
-    }
-
-    /* Mini etiquetas y badges */
-    .concept-tag {
-      display: inline-flex;
-      align-items: center;
-      gap: 5px;
-      background: #F1F5F9;
-      border: 1px solid #CBD5E1;
-      border-radius: 6px;
-      padding: 2px 7px;
-      font-size: 11px;
-      color: #334155;
-      font-family: monospace;
-    }
-
-    .flow-badge {
-      display: inline-flex;
-      align-items: center;
-      gap: 4px;
-      font-size: 11.5px;
-      color: var(--brand-dark);
-      background: var(--brand-soft);
-      border: 1px solid #BFE6E9;
-      padding: 3px 8px;
-      border-radius: 12px;
-      font-weight: 600;
-    }
-
-    .action-btn-group {
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      flex-wrap: wrap;
-    }
-
-    .btn-icon-action {
-      display: inline-flex;
-      align-items: center;
-      gap: 5px;
-      padding: 5px 9px;
-      font-size: 12px;
-      border-radius: 6px;
-      border: 1px solid var(--border);
-      background: #FFF;
-      color: var(--text-soft);
-      cursor: pointer;
-      font-weight: 600;
-      transition: all 0.15s ease;
-    }
-
-    .btn-icon-action:hover {
-      background: var(--surface-2);
-      border-color: var(--brand);
-      color: var(--brand-dark);
-    }
-
-    .btn-icon-action.highlight {
-      background: var(--brand-soft);
-      border-color: var(--brand);
-      color: var(--brand-dark);
-    }
-
-    .avatar-chip {
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      background: #FFF;
-      border: 1px solid var(--border-soft);
-      border-radius: 16px;
-      padding: 3px 9px 3px 4px;
-      font-size: 12px;
-      margin: 2px 4px 2px 0;
-    }
-
-    .avatar-mini {
-      width: 20px;
-      height: 20px;
-      border-radius: 50%;
-      background: var(--brand);
-      color: #FFF;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 9.5px;
-      font-weight: 700;
-    }
-
-    /* Tablas modales */
-    .modal-table {
-      width: 100%;
-      border-collapse: collapse;
-      font-size: 13px;
-      margin-top: 10px;
-    }
-
-    .modal-table th {
-      background: var(--surface-2);
-      padding: 9px 12px;
-      text-align: left;
-      font-weight: 700;
-      color: var(--text-soft);
-      border-bottom: 2px solid var(--border);
-    }
-
-    .modal-table td {
-      padding: 8px 12px;
-      border-bottom: 1px solid var(--border-soft);
-      vertical-align: middle;
-    }
-
-    .modal-table tr:hover td {
-      background: #FAFAFA;
-    }
-
-
-    /* Modal Wide con ancho optimizado para evitar cortes de información */
-    .modal.wide {
-      max-width: 960px !important;
-      width: 96% !important;
-    }
-
-    /* Switch toggle compacto para tablas */
-    .switch.switch-sm {
-      width: 36px;
-      height: 20px;
-      display: inline-block;
-      vertical-align: middle;
-      margin: 0;
-    }
-
-    .switch.switch-sm .slider::before {
-      height: 14px;
-      width: 14px;
-      left: 3px;
-      top: 3px;
-    }
-
-    .switch.switch-sm input:checked+.slider::before {
-      transform: translateX(16px);
-    }
-
-    /* Subtabs internas de modales estilo Wiener */
-    .modal-subnav {
-      display: flex;
-      gap: 6px;
-      border-bottom: 2px solid var(--border-soft);
-      margin-bottom: 20px;
-    }
-
-    .modal-subnav-btn {
-      padding: 10px 18px;
-      font-size: 13.5px;
-      font-weight: 700;
-      font-family: 'Lato', sans-serif;
-      color: var(--text-muted);
-      background: transparent;
-      border: none;
-      border-bottom: 3px solid transparent;
-      cursor: pointer;
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      transition: all 0.2s ease;
-      margin-bottom: -2px;
-      border-radius: 6px 6px 0 0;
-    }
-
-    .modal-subnav-btn svg {
-      flex-shrink: 0;
-    }
-
-    .modal-subnav-btn:hover {
-      color: var(--brand);
-      background: var(--surface-2);
-    }
-
-    .modal-subnav-btn.active {
-      color: var(--brand);
-      border-bottom-color: var(--brand);
-      background: #FFFFFF;
-      box-shadow: 0 -2px 6px rgba(0, 0, 0, 0.03);
-    }
-
-    .char-limit-text {
-      font-size: 11px;
-      color: var(--text-muted);
-      margin-top: 4px;
-      text-align: right;
-    }
-
-    .search-panel-box {
-      background: #F8FAFC;
-      border: 1px solid #CBD5E1;
-      border-radius: 10px;
-      padding: 14px 16px;
-      margin-bottom: 16px;
-    }
-
-    .btn-circle-del {
-      width: 28px;
-      height: 28px;
-      border-radius: 50%;
-      background: #FEE2E2;
-      color: #DC2626;
-      border: 1px solid #FCA5A5;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      cursor: pointer;
-      line-height: 1;
-      transition: all 0.15s ease;
-      padding: 0;
-      flex-shrink: 0;
-    }
-
-    .btn-circle-del:hover {
-      background: #DC2626;
-      color: #FFF;
-    }
-
-    .btn-circle-add {
-      width: 28px;
-      height: 28px;
-      border-radius: 50%;
-      background: #ECFDF5;
-      color: #047857;
-      border: 1px solid #A7F3D0;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      cursor: pointer;
-      line-height: 1;
-      transition: all 0.15s ease;
-      padding: 0;
-      flex-shrink: 0;
-    }
-
-    .btn-circle-add:hover {
-      background: #047857;
-      color: #FFF;
-    }
-
-    .detail-card-info {
-      background: #FFF;
-      border: 1px solid var(--border-soft);
-      border-radius: 10px;
-      padding: 16px;
-      margin-bottom: 14px;
-    }
-
-    /* Botones de acción y jerarquía visual Wiener */
-    .btn-dark {
-      background: #0F172A;
-      border: 1px solid #0F172A;
-      color: #FFFFFF;
-      font-weight: 700;
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      border-radius: 8px;
-      padding: 8px 16px;
-      font-size: 13.5px;
-      cursor: pointer;
-      transition: all 0.2s ease;
-    }
-
-    .btn-dark:hover {
-      background: #1E293B;
-      border-color: #1E293B;
-      color: #FFFFFF;
-    }
-
-    .btn-search-bar {
-      height: 38px;
-      padding: 0 16px;
-      font-family: inherit;
-      font-size: 13.5px;
-      font-weight: 700;
-      border-radius: 8px;
-      background: #0F172A;
-      border: 1px solid #0F172A;
-      color: #FFFFFF;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      gap: 7px;
-      cursor: pointer;
-      transition: all 0.2s ease;
-    }
-
-    .btn-search-bar:hover {
-      background: #1E293B;
-      border-color: #1E293B;
-    }
-
-    .btn-new-bar {
-      height: 38px;
-      padding: 0 18px;
-      font-family: inherit;
-      font-size: 13.5px;
-      font-weight: 700;
-      border-radius: 8px;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      gap: 7px;
-      cursor: pointer;
-    }
-
-    /* =========================================================================
-       TABLA PRINCIPAL RESPONSIVE (1366px completo sin scroll; <1366px scroll horizontal)
-       ========================================================================= */
-    .table-wrap {
-      overflow-x: auto !important;
-      -webkit-overflow-scrolling: touch;
-      border: 1px solid var(--border);
-      border-radius: 12px;
-      background: var(--surface);
-      max-width: 100%;
-    }
-
-    .table-wrap::-webkit-scrollbar {
-      height: 7px;
-    }
-    .table-wrap::-webkit-scrollbar-track {
-      background: #F8FAFC;
-      border-radius: 4px;
-    }
-    .table-wrap::-webkit-scrollbar-thumb {
-      background: #CBD5E1;
-      border-radius: 4px;
-    }
-    .table-wrap::-webkit-scrollbar-thumb:hover {
-      background: #94A3B8;
-    }
-
-    .table-wrap table.data {
-      width: 100%;
-      border-collapse: collapse;
-    }
-
-    .table-wrap table.data thead th,
-    .table-wrap table.data tbody td {
-      padding: 12px 8px;
-    }
-
-    .table-wrap table.data thead th:first-child,
-    .table-wrap table.data tbody td:first-child {
-      padding-left: 12px;
-    }
-
-    .table-wrap table.data thead th:last-child,
-    .table-wrap table.data tbody td:last-child {
-      padding-right: 12px;
-    }
-
-    /* >= 1366px: Todo el contenido cabe completo sin scroll horizontal */
-    @media (min-width: 1366px) {
-      .table-wrap table.data {
-        min-width: 0 !important;
-      }
-    }
-
-    /* < 1366px: Se activa scroll horizontal sin deformar ni cortar columnas */
-    @media (max-width: 1365px) {
-      .table-wrap table.data {
-        min-width: 1060px !important;
-      }
-    }
-
-    /* Tablet y Mobile: tabs, barra de filtros y ancho mínimo legible de tabla */
-    @media (max-width: 1024px) {
-      .table-wrap table.data {
-        min-width: 960px !important;
-      }
-    }
-
-    @media (max-width: 920px) {
-      .tabs-header {
-        overflow-x: auto;
-        flex-wrap: nowrap;
-        -webkit-overflow-scrolling: touch;
-        scrollbar-width: none;
-      }
-      .tabs-header::-webkit-scrollbar {
-        display: none;
-      }
-      .tab-nav-btn {
-        white-space: nowrap;
-        flex-shrink: 0;
-        padding: 10px 14px;
-        font-size: 13.5px;
-      }
-      .filter-card {
-        flex-direction: column;
-        align-items: stretch;
-        gap: 12px;
-      }
-      .filter-group {
-        flex-wrap: wrap;
-        width: 100%;
-      }
-      .filter-actions-wrap {
-        display: flex;
-        width: 100%;
-        gap: 8px;
-      }
-      .filter-actions-wrap > * {
-        flex: 1;
-        justify-content: center;
-      }
-      .filter-card > .btn-new-bar {
-        width: 100%;
-        justify-content: center;
-      }
-    }
-
-    @media (max-width: 640px) {
-      .filter-group {
-        flex-direction: column;
-        align-items: stretch;
-        gap: 10px;
-      }
-      .filter-item {
-        width: 100%;
-        justify-content: space-between;
-      }
-      .filter-input {
-        min-width: 0;
-        width: 100%;
-        flex: 1;
-      }
-      .filter-card .select-wrap.inline,
-      .filter-card .custom-select-wrap {
-        flex: 1;
-        width: auto !important;
-        min-width: 140px;
-      }
-      .btn-search-bar {
-        width: 100%;
-      }
-      .filter-actions-wrap {
-        flex-direction: column;
-      }
-      .filter-actions-wrap > * {
-        width: 100%;
-      }
-    }
-
-    /* Grilla de 4 acciones (2 arriba, 2 abajo) del mismo tamaño + botón eliminar */
-    .action-cell-wrap {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      gap: 6px;
-      white-space: nowrap;
-      flex-shrink: 0;
-    }
-
-    .action-grid-2x2 {
-      display: grid;
-      grid-template-columns: repeat(2, 74px);
-      gap: 4px;
-    }
-
-    .btn-grid-act {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      gap: 4px;
-      width: 74px;
-      height: 27px;
-      box-sizing: border-box;
-      font-family: inherit;
-      font-size: 11px;
-      font-weight: 700;
-      border-radius: 6px;
-      border: 1px solid var(--border);
-      background: #FFFFFF;
-      color: var(--text);
-      cursor: pointer;
-      transition: all 0.15s ease;
-      white-space: nowrap;
-    }
-
-    .btn-grid-act:hover {
-      background: var(--surface-2);
-      border-color: var(--brand);
-      color: var(--brand-dark);
-    }
-
-    .btn-grid-act svg {
-      flex-shrink: 0;
-      color: var(--brand-dark);
-    }
-
-    .btn-grid-del {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      width: 28px;
-      height: 58px;
-      border-radius: 6px;
-      border: 1px solid #FCA5A5;
-      background: #FEE2E2;
-      color: #DC2626;
-      cursor: pointer;
-      transition: all 0.15s ease;
-      flex-shrink: 0;
-    }
-
-    .btn-grid-del:hover {
-      background: #FCA5A5;
-      color: #991B1B;
-    }
-
-    /* Editor de texto enriquecido (RTE) */
-    .rte-box {
-      border: 1px solid var(--border);
-      border-radius: 8px;
-      overflow: hidden;
-      background: #FFF;
-    }
-
-    .rte-bar {
-      background: #F8FAFC;
-      border-bottom: 1px solid #E2E8F0;
-      padding: 6px 8px;
-      display: flex;
-      align-items: center;
-      gap: 4px;
-      flex-wrap: wrap;
-    }
-
-    .rte-tool-btn {
-      background: #FFF;
-      border: 1px solid #CBD5E1;
-      border-radius: 4px;
-      padding: 2px 7px;
-      font-size: 11.5px;
-      font-weight: 700;
-      cursor: pointer;
-      color: #334155;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      min-width: 24px;
-      height: 24px;
-      user-select: none;
-    }
-
-    .rte-tool-btn:hover {
-      background: #E2E8F0;
-      color: var(--brand-dark);
-    }
-
-    .rte-editor-area {
-      width: 100%;
-      min-height: 110px;
-      padding: 10px 12px;
-      border: none;
-      outline: none;
-      font-family: inherit;
-      font-size: 13.5px;
-      resize: vertical;
-      line-height: 1.5;
-      box-sizing: border-box;
-    }
-
-    /* Tarjetas de cronograma sistema de diseño Wiener */
-    .cronog-card-wiener {
-      border: 1px solid var(--border-soft);
-      border-radius: 10px;
-      background: #FFFFFF;
-      margin-bottom: 14px;
-      overflow: visible !important;
-      box-shadow: var(--shadow-sm);
-      transition: box-shadow 0.2s ease;
-    }
-
-    .cronog-card-wiener>div:first-child {
-      border-top-left-radius: 9px;
-      border-top-right-radius: 9px;
-    }
-
-    .cronog-card-wiener:hover {
-      box-shadow: var(--shadow);
-    }
-
-    /* =========================================================================
-       PROPUESTA B: CONSTRUCTOR VISUAL DE FLUJO INTERACTIVO (Estilo flujos.html)
-       ========================================================================= */
-    .flow-builder-box {
-      background: #F8FAFC;
-      border: 1px solid #CBD5E1;
-      border-radius: 12px;
-      padding: 16px;
-      margin-top: 14px;
-      position: relative;
-    }
-
-    .flow-builder-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 12px;
-      flex-wrap: wrap;
-      gap: 10px;
-    }
-
-    .flow-builder-title {
-      font-size: 13.5px;
-      font-weight: 700;
-      color: var(--text);
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-
-    .flow-controls-row {
-      display: flex;
-      align-items: flex-end;
-      gap: 16px;
-      flex-wrap: wrap;
-      background: #FFFFFF;
-      padding: 12px 16px;
-      border-radius: 10px;
-      border: 1px solid #E2E8F0;
-      margin-bottom: 14px;
-    }
-
-    .flow-control-field {
-      display: flex;
-      flex-direction: column;
-      gap: 6px;
-    }
-
-    .flow-control-label {
-      font-size: 11.5px;
-      font-weight: 700;
-      color: #475569;
-      text-transform: uppercase;
-      letter-spacing: 0.35px;
-      margin: 0;
-      line-height: 1.2;
-    }
-
-    .flow-control-item {
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      font-size: 12.5px;
-      font-weight: 600;
-      color: var(--text);
-    }
-
-    .flow-container-wrap {
-      overflow-x: auto;
-      padding: 6px 2px 10px 2px;
-      -webkit-overflow-scrolling: touch;
-    }
-
-    .flow-container-wrap::-webkit-scrollbar {
-      height: 6px;
-    }
-    .flow-container-wrap::-webkit-scrollbar-track {
-      background: #F1F5F9;
-      border-radius: 4px;
-    }
-    .flow-container-wrap::-webkit-scrollbar-thumb {
-      background: #CBD5E1;
-      border-radius: 4px;
-    }
-    .flow-container-wrap::-webkit-scrollbar-thumb:hover {
-      background: #94A3B8;
-    }
-
-    .flow-line-diagram {
-      display: flex;
-      align-items: center;
-      gap: 0;
-      min-width: max-content;
-      flex-wrap: nowrap;
-    }
-
-    .flow-card-node {
-      background: #FFFFFF;
-      border: 1.5px solid #CBD5E1;
-      border-radius: 10px;
-      padding: 12px 16px;
-      min-width: 140px;
-      text-align: center;
-      position: relative;
-      transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
-      user-select: none;
-      flex-shrink: 0;
-    }
-
-    .flow-card-node b {
-      font-size: 13px;
-      display: block;
-      color: var(--text);
-      margin-bottom: 3px;
-    }
-
-    .flow-card-node span {
-      font-size: 11.5px;
-      color: var(--text-muted);
-      display: block;
-    }
-
-    .flow-card-node.start {
-      background: #E6F7F6;
-      border-color: #00A499;
-    }
-
-    .flow-card-node.start b {
-      color: #006D66;
-    }
-
-    .flow-card-node.review {
-      background: #F1F5F9;
-      border-color: #94A3B8;
-    }
-
-    .flow-card-node.approval {
-      background: #F8FAFC;
-      border-color: #94A3B8;
-    }
-
-    .flow-card-node.pay {
-      background: #E0F2FE;
-      border-color: #7DD3FC;
-    }
-
-    .flow-card-node.pay b {
-      color: #0369A1;
-    }
-
-    .flow-card-node.end {
-      background: #FAF5FF;
-      border-color: #D8B4FE;
-    }
-
-    .flow-card-node.end b {
-      color: #6B21A8;
-    }
-
-    .flow-arrow-conn {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      color: #5f6368;
-      padding: 0 6px;
-      flex-shrink: 0;
-    }
-
-    .flow-card-node.clickable {
-      cursor: pointer;
-      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
-    }
-
-    .flow-card-node.clickable:hover {
-      transform: translateY(-3px);
-      box-shadow: 0 6px 14px rgba(0, 164, 153, 0.18);
-      border-color: var(--brand);
-    }
-
-    .flow-card-node .node-badge {
-      display: inline-flex;
-      align-items: center;
-      gap: 3px;
-      margin-top: 6px;
-      padding: 2px 7px;
-      font-size: 10.5px;
-      font-weight: 700;
-      border-radius: 10px;
-    }
-
-    .flow-card-node.clickable .node-badge {
-      background: rgba(0, 164, 153, 0.12);
-      color: #006D66;
-    }
-
-    .flow-card-node:not(.clickable) .node-badge {
-      background: #E2E8F0;
-      color: #64748B;
-    }
-
-    .pago-segmented-wrap {
-      display: inline-flex;
-      background: #E2E8F0;
-      border-radius: 8px;
-      padding: 3px;
-      gap: 3px;
-      height: 36px;
-      box-sizing: border-box;
-      align-items: center;
-    }
-
-    .pago-segmented-btn {
-      padding: 0 14px;
-      height: 30px;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 12px;
-      font-weight: 700;
-      border-radius: 6px;
-      cursor: pointer;
-      border: none;
-      background: transparent;
-      color: #475569;
-      transition: all 0.15s ease;
-      white-space: nowrap;
-    }
-
-    .pago-segmented-btn.active {
-      background: #FFFFFF;
-      color: var(--brand-dark);
-      box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
-    }
-
-    .flow-interactive-banner {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      padding: 10px 14px;
-      border-radius: 8px;
-      font-size: 12.5px;
-      margin-bottom: 12px;
-      line-height: 1.45;
-    }
-
-    .flow-interactive-banner.active {
-      background: #ECFDF5;
-      border: 1px solid #A7F3D0;
-      color: #065F46;
-    }
-
-    .flow-interactive-banner.pending {
-      background: #EFF6FF;
-      border: 1px solid #BFDBFE;
-      color: #1E40AF;
-    }
-  </style>
-</head>
-
-<body>
-  <script src="../js/data.js"></script>
-  <script src="../js/shell.js"></script>
-  <script src="../js/doc.js"></script>
-  <script>
+/* admin/tramites.js - Lógica y Gestión de Configuración de Trámites */
     const ctx = APP.renderShell('tramites');
-    const CICLOS = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
+    const CICLOS = [1,2,3,4,5,6,7,8,9,10];
     let ACTIVE_TAB = 'tramites'; // 'tramites' | 'areas' | 'requisitos'
     let SEARCH_QUERY = '';
     let FILTER_ESTADO = 'todos';
@@ -1209,16 +206,10 @@
       ctx.mount.innerHTML = `
         <div class="page-head" style="margin-bottom:14px">
           <div>
-            <div style="display:inline-flex;align-items:center;gap:8px;margin-bottom:4px">
-              <h1 style="margin:0">Configuración de Trámites</h1>
-              <span class="pill" style="background:#E0F2FE;color:#0369A1;font-weight:700;font-size:11px">Propuesta B · Flujos Visuales</span>
-            </div>
-            <p>Administración modular: Áreas de atención y responsables, catálogo de requisitos y parametrización ágil por flujos.</p>
+            <h1>Configuración de Trámites</h1>
+            <p>Administración modular: Áreas de atención y responsables, catálogo de requisitos y parametrización de trámites.</p>
           </div>
           <div style="display:flex;align-items:center;gap:10px">
-            <a href="flujos.html" class="btn btn-outline" style="font-size:12.5px;font-weight:700;display:inline-flex;align-items:center;gap:6px" title="Ver diagrama lineal de flujos de todos los trámites">
-              📊 <span>Ver Flujos de Trámites</span>
-            </a>
             <span class="pill ok">Institución Activa</span>
           </div>
         </div>
@@ -1289,7 +280,10 @@
           <tr>
             <td style="text-align:center"><span class="mono muted" style="font-size:13px">${idx + 1}</span></td>
             <td>
-              <div class="strong" style="font-size:13.5px;color:var(--text);line-height:1.35">${t.nombre}</div>
+              <div class="strong" style="font-size:13.5px;color:var(--text);line-height:1.35">
+                ${t.nombre}
+                ${t.permiteEmisionMasiva ? '<span class="pill purple" style="font-size:10px;padding:2px 7px;font-weight:700;margin-left:6px;vertical-align:middle" title="Habilitado para emisión institucional masiva en lote">Lote Masivo</span>' : ''}
+              </div>
             </td>
             <td>
               <div style="font-size:12.5px;color:var(--text-soft);line-height:1.4">
@@ -1354,11 +348,10 @@
             </div>
             <button class="btn btn-search-bar" onclick="buscarTramite()">${SVG_ICONS.search} <span>Buscar</span></button>
           </div>
-          <div class="filter-actions-wrap" style="display:inline-flex;align-items:center;gap:8px">
-            <a href="flujos.html" class="btn btn-outline" style="height:36px;display:inline-flex;align-items:center;gap:6px;font-weight:700;font-size:12.5px" title="Ver diagrama lineal global de todos los trámites">
-              📊 <span>Ver Flujos</span>
+          <div style="display:flex;gap:8px;align-items:center">
+            <a href="tramite-studio.html" class="btn btn-primary btn-new-bar" style="text-decoration:none" title="Diseñar y configurar un nuevo trámite en Trámite Studio 2026">
+              ${SVG_ICONS.plus} <span>Nuevo Trámite</span>
             </a>
-            <button class="btn btn-primary btn-new-bar" onclick="editarTramite(null)">${SVG_ICONS.plus} <span>Nuevo Trámite</span></button>
           </div>
         </div>
 
@@ -1515,6 +508,16 @@
           <td style="text-align:center"><span class="mono muted" style="font-size:13px">${idx + 1}</span></td>
           <td>
             <div class="strong" style="font-size:14px;color:var(--text);line-height:1.35">${r.titulo}</div>
+            ${r.plantillaDoc ? `
+              <div style="margin-top:6px;display:inline-flex;align-items:center;gap:6px;padding:3px 8px;background:#F8FAFC;border:1px solid #E2E8F0;border-radius:6px;font-size:11.5px">
+                <span class="tag ${r.plantillaDoc.tipo === 'WORD' ? 'blue' : (r.plantillaDoc.tipo === 'EXCEL' ? 'ok' : 'err')}" style="font-size:9.5px;padding:1px 5px;font-weight:800">${r.plantillaDoc.tipo}</span>
+                <span style="font-weight:600;color:var(--text);max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${r.plantillaDoc.nombre}</span>
+                <span style="color:var(--text-muted)">(${r.plantillaDoc.peso})</span>
+                <button type="button" class="btn btn-sm btn-outline" style="padding:1px 6px;height:22px;font-size:11px;display:inline-flex;align-items:center;gap:3px" onclick="descargarPlantillaSimuladaGlobal('${r.id}')" title="Descargar documento plantilla">
+                  ${SVG_ICONS.doc} <span>Descargar</span>
+                </button>
+              </div>
+            ` : ''}
           </td>
           <td>
             <div style="font-size:12.5px;color:var(--text-soft);line-height:1.45">${r.observacion || '<span class="muted">-</span>'}</div>
@@ -1602,358 +605,19 @@
     }
 
     // =========================================================================
-    // PROPUESTA B: GESTIÓN DE FLUJO OPERATIVO Y MODAL NUEVO / EDITAR TRÁMITE
+    // MODAL: REGISTRAR / EDITAR TRÁMITE (Captura 2)
     // =========================================================================
-    let NAV_FROM_MODAL_TRAMITE = null;
-
-    function renderModalFlowNodes({ id, area, proceso, requiereApr, esPago, pagoMomento, costo, dias, reqCount, isSaved }) {
-      const arrow = `<div class="flow-arrow-conn">
-          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" height="24px" width="24px" fill="#5f6368"><path d="M16.61,12.75H5.25q-0.32,0-0.53-0.22T4.5,12t0.22-0.53t0.53-0.22H16.61L13.32,7.96Q13.1,7.73 13.1,7.44T13.32,6.9q0.23-0.23 0.53-0.24t0.53,0.22l4.48,4.48q0.14,0.14 0.2,0.3T19.12,12t-0.06,0.34t-0.2,0.3l-4.48,4.48q-0.22,0.22-0.53,0.22T13.32,17.1q-0.22-0.23-0.22-0.53t0.22-0.53l3.29-3.29Z"/></svg>
-        </div>`;
-      const clkAttr = (paso) => isSaved
-        ? `onclick="clickFlujoPaso('${id}', '${paso}')"`
-        : `onclick="alertModalNoGuardado()"`;
-
-      // 1. Solicitud (Alumno)
-      const solBadge = isSaved
-        ? `<span class="node-badge">⚙️ ${reqCount || 0} req.</span>`
-        : `<span class="node-badge">1. Solicitud</span>`;
-      const sol = `
-        <div class="flow-card-node start ${isSaved ? 'clickable' : ''}" ${clkAttr('solicitud')} title="${isSaved ? 'Clic para configurar requisitos y documentos del alumno' : 'Paso 1: Solicitud del Alumno'}">
-          <b>Solicitud</b>
-          <span>Alumno</span>
-          ${solBadge}
-        </div>
-      `;
-
-      // 2. Pago (Niubiz)
-      const pagoBadge = isSaved
-        ? `<span class="node-badge">⚙️ Concepto</span>`
-        : `<span class="node-badge">Niubiz</span>`;
-      const pagoNode = `
-        <div class="flow-card-node pay ${isSaved ? 'clickable' : ''}" ${clkAttr('pago')} title="${isSaved ? 'Clic para cambiar concepto contable de caja y arancel' : 'Pago del trámite mediante pasarela Niubiz'}">
-          <b>Pago (Niubiz)</b>
-          <span>${APP.money(costo || 0)}</span>
-          ${pagoBadge}
-        </div>
-      `;
-
-      // 3. Revisión: Desglose de múltiples áreas secuenciales
-      let revNodes = '';
-      if (Array.isArray(proceso) && proceso.length > 1) {
-        revNodes = proceso.map((p, idx) => {
-          const pArea = p.area || 'Registros Académicos';
-          const pDias = p.duracionDias || 2;
-          const badge = isSaved
-            ? `<span class="node-badge">⚙️ ${pDias} d. háb.</span>`
-            : `<span class="node-badge">${pDias} días</span>`;
-          return `
-            <div class="flow-card-node review ${isSaved ? 'clickable' : ''}" ${clkAttr('revision')} title="${isSaved ? 'Paso ' + (idx + 1) + ': ' + pArea + ' (' + pDias + ' días háb.) - Clic para gestionar proceso secuencial' : 'Paso ' + (idx + 1) + ' de revisión: ' + pArea}">
-              <b>Rev. ${idx + 1}: ${pArea}</b>
-              <span style="max-width:140px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${p.descripcion || pArea}">${p.descripcion ? p.descripcion : pArea}</span>
-              ${badge}
-            </div>
-          `;
-        }).join(arrow);
-      } else {
-        const singleArea = (Array.isArray(proceso) && proceso[0] && proceso[0].area) ? proceso[0].area : (area || 'Registros Académicos');
-        const revBadge = isSaved
-          ? `<span class="node-badge">⚙️ 1 etapa</span>`
-          : `<span class="node-badge">Revisión</span>`;
-        revNodes = `
-          <div class="flow-card-node review ${isSaved ? 'clickable' : ''}" ${clkAttr('revision')} title="${isSaved ? 'Clic para configurar áreas responsables, tareas y días de duración' : 'Paso de revisión por área responsable'}">
-            <b>Revisión</b>
-            <span style="max-width:140px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${singleArea}">${singleArea}</span>
-            ${revBadge}
-          </div>
-        `;
-      }
-
-      // 4. Aprobación (Administrativo)
-      const aprBadge = isSaved
-        ? `<span class="node-badge">⚙️ Aprobación</span>`
-        : `<span class="node-badge">Resolución</span>`;
-      const apr = requiereApr ? `
-        ${arrow}
-        <div class="flow-card-node approval ${isSaved ? 'clickable' : ''}" ${clkAttr('aprobacion')} title="${isSaved ? 'Clic para ajustar requerimiento de aprobación administrativa' : 'Aprobación por personal administrativo'}">
-          <b>Aprobación</b>
-          <span>Administrativo</span>
-          ${aprBadge}
-        </div>
-      ` : '';
-
-      // 5. Emisión
-      const emiBadge = isSaved
-        ? `<span class="node-badge">⚙️ Entrega & Mail</span>`
-        : `<span class="node-badge">Salida</span>`;
-      const fin = `
-        <div class="flow-card-node end ${isSaved ? 'clickable' : ''}" ${clkAttr('emision')} title="${isSaved ? 'Clic para configurar plantillas de correo, cronograma o formato de documento' : 'Emisión y entrega del trámite'}">
-          <b>Emisión</b>
-          <span>${dias || 3} días háb.</span>
-          ${emiBadge}
-        </div>
-      `;
-
-      if (esPago) {
-        if (pagoMomento === 'antes') {
-          return `${sol}${arrow}${pagoNode}${arrow}${revNodes}${apr}${arrow}${fin}`;
-        } else {
-          return `${sol}${arrow}${revNodes}${apr}${arrow}${pagoNode}${arrow}${fin}`;
-        }
-      } else {
-        return `${sol}${arrow}${revNodes}${apr}${arrow}${fin}`;
-      }
-    }
-
-    function actualizarDiagramaFlujoModal() {
-      const diagEl = document.getElementById('modal-flow-line-diagram');
-      if (!diagEl) return;
-
-      const id = diagEl.dataset.tramiteId || '';
-      const isSaved = Boolean(id);
-      const areaEl = document.getElementById('t-area-resp');
-      const aprValEl = document.getElementById('t-requiere-apr-val');
-      const esPagoEl = document.getElementById('t-es-pago-val');
-      const pagoMomEl = document.getElementById('t-pago-momento');
-      const costoEl = document.getElementById('t-costo');
-      const recojoEl = document.getElementById('t-recojo');
-
-      const area = areaEl ? areaEl.value : 'Registros Académicos';
-      const requiereApr = aprValEl ? (aprValEl.value === 'si') : true;
-      const esPago = esPagoEl ? (esPagoEl.value === 'si') : false;
-      const pagoMomento = pagoMomEl ? pagoMomEl.value : 'despues';
-      const costo = esPago ? (parseFloat(costoEl ? costoEl.value : 0) || 0) : 0;
-      const dias = recojoEl ? (parseInt(recojoEl.value) || 3) : 3;
-
-      const t = id ? DB.getTramite(id) : null;
-      const reqCount = t && t.requisitos ? t.requisitos.length : 0;
-      const proceso = (t && Array.isArray(t.proceso) && t.proceso.length) ? t.proceso : [{ area, duracionDias: 2 }];
-
-      diagEl.innerHTML = renderModalFlowNodes({
-        id,
-        area,
-        proceso,
-        requiereApr,
-        esPago,
-        pagoMomento,
-        costo,
-        dias,
-        reqCount,
-        isSaved
-      });
-    }
-
-    function setModalAprobacion(requerida) {
-      const valEl = document.getElementById('t-requiere-apr-val');
-      if (valEl) valEl.value = requerida ? 'si' : 'no';
-
-      const btnSi = document.getElementById('btn-apr-si');
-      const btnNo = document.getElementById('btn-apr-no');
-      if (btnSi) btnSi.classList.toggle('active', requerida);
-      if (btnNo) btnNo.classList.toggle('active', !requerida);
-
-      actualizarDiagramaFlujoModal();
-    }
-
-    function setModalPago(esPago) {
-      const valEl = document.getElementById('t-es-pago-val');
-      if (valEl) valEl.value = esPago ? 'si' : 'no';
-
-      const btnGratis = document.getElementById('btn-pago-gratis');
-      const btnCosto = document.getElementById('btn-pago-costo');
-      if (btnGratis) btnGratis.classList.toggle('active', !esPago);
-      if (btnCosto) btnCosto.classList.toggle('active', esPago);
-
-      const wrapPagoMomento = document.getElementById('wrap-pago-momento');
-      if (wrapPagoMomento) wrapPagoMomento.style.display = esPago ? 'flex' : 'none';
-
-      const boxConcepto = document.getElementById('box-concepto-pago');
-      if (boxConcepto) boxConcepto.style.display = esPago ? 'block' : 'none';
-
-      const costoEl = document.getElementById('t-costo');
-      if (!esPago && costoEl) {
-        costoEl.value = 0;
-      } else if (esPago && costoEl && parseFloat(costoEl.value) === 0) {
-        costoEl.value = 30.00;
-      }
-
-      actualizarDiagramaFlujoModal();
-    }
-
-    function alertModalNoGuardado() {
-      APP.toast({
-        icon: '💡',
-        title: 'Primero graba el trámite',
-        body: 'Haz clic en «Grabar Trámite» abajo para guardar los datos básicos y activar la configuración detallada de cada paso.'
-      });
-    }
-
-    function clickFlujoPaso(id, paso) {
-      const t = DB.getTramite(id);
-      if (!t) return;
-      NAV_FROM_MODAL_TRAMITE = id;
-
-      if (paso === 'solicitud') {
-        editarProcesoTramite(id);
-        APP.toast({ icon: '📎', title: 'Paso 1: Solicitud', body: `Gestiona los requisitos y adjuntos solicitados al alumno.` });
-      } else if (paso === 'revision') {
-        editarProcesoTramite(id);
-        APP.toast({ icon: '🏢', title: 'Paso 2: Revisión', body: `Configura las áreas, tareas y tiempos en días.` });
-      } else if (paso === 'aprobacion') {
-        mostrarModalAprobacionFlujo(id);
-      } else if (paso === 'pago') {
-        abrirCatalogoConceptos();
-      } else if (paso === 'emision') {
-        mostrarModalEmisionFlujo(id);
-      }
-    }
-
-    function cerrarSubmodalVolverFlujo() {
-      if (NAV_FROM_MODAL_TRAMITE) {
-        const returnId = NAV_FROM_MODAL_TRAMITE;
-        NAV_FROM_MODAL_TRAMITE = null;
-        editarTramite(returnId);
-      } else {
-        APP.closeModal();
-      }
-    }
-
-    function mostrarModalAprobacionFlujo(id) {
-      const t = DB.getTramite(id);
-      if (!t) return;
-      const actual = Boolean(t.requiereAprobacion);
-
-      APP.openModal(`
-        <div class="modal-head">
-          <div style="display:flex;align-items:center;gap:10px">
-            <div style="width:34px;height:34px;border-radius:8px;background:var(--brand-soft);color:var(--brand);display:flex;align-items:center;justify-content:center">
-              👤
-            </div>
-            <div>
-              <h3>Etapa de Aprobación Administrativa</h3>
-              <div style="font-size:12px;color:var(--text-muted)">Trámite: ${t.nombre}</div>
-            </div>
-          </div>
-          <button class="modal-close" onclick="cerrarSubmodalVolverFlujo()">×</button>
-        </div>
-        <div class="modal-body">
-          <div class="alert info" style="margin-bottom:16px">
-            Define si las solicitudes ingresadas por los estudiantes requieren una resolución o aprobación administrativa formal antes de pasar a la emisión final.
-          </div>
-          <div style="background:#F8FAFC;border:1px solid #CBD5E1;border-radius:10px;padding:16px">
-            <label style="font-size:14px;font-weight:700;display:flex;align-items:center;gap:10px;cursor:pointer">
-              <input type="checkbox" id="sub-aprobacion-toggle" ${actual ? 'checked' : ''} style="width:18px;height:18px">
-              <span>Habilitar etapa de Aprobación Administrativa</span>
-            </label>
-            <p style="margin:8px 0 0 28px;font-size:12.5px;color:var(--text-muted)">
-              Si se desactiva, una vez concluida la revisión del área institucional, el trámite avanzará directamente al pago o a la emisión sin requerir un paso administrativo adicional.
-            </p>
-          </div>
-        </div>
-        <div class="modal-foot">
-          <button type="button" class="btn" onclick="cerrarSubmodalVolverFlujo()">← Volver al Trámite</button>
-          <button type="button" class="btn btn-primary" onclick="guardarAprobacionFlujo('${id}')">✓ Guardar Ajuste</button>
-        </div>
-      `, { wide: false });
-    }
-
-    function guardarAprobacionFlujo(id) {
-      const t = DB.getTramite(id);
-      if (!t) return;
-      const chk = document.getElementById('sub-aprobacion-toggle');
-      t.requiereAprobacion = chk ? chk.checked : true;
-      DB.upsertTramite(t);
-      APP.toast({ icon: '✅', title: 'Aprobación actualizada', body: t.requiereAprobacion ? 'Etapa de aprobación activada.' : 'Aprobación automática activada.' });
-      cerrarSubmodalVolverFlujo();
-    }
-
-    function mostrarModalEmisionFlujo(id) {
-      const t = DB.getTramite(id);
-      if (!t) return;
-
-      APP.openModal(`
-        <div class="modal-head">
-          <div style="display:flex;align-items:center;gap:10px">
-            <div style="width:34px;height:34px;border-radius:8px;background:var(--brand-soft);color:var(--brand);display:flex;align-items:center;justify-content:center">
-              🏁
-            </div>
-            <div>
-              <h3>Etapa de Emisión y Salida del Trámite</h3>
-              <div style="font-size:12px;color:var(--text-muted)">Trámite: ${t.nombre}</div>
-            </div>
-          </div>
-          <button class="modal-close" onclick="cerrarSubmodalVolverFlujo()">×</button>
-        </div>
-        <div class="modal-body">
-          <p style="margin-top:0;font-size:13.5px;color:var(--text)">
-            Selecciona el componente que deseas configurar para la etapa final de emisión:
-          </p>
-          <div style="display:flex;flex-direction:column;gap:12px">
-            <div style="display:flex;align-items:center;justify-content:space-between;padding:14px;border:1px solid var(--border-soft);border-radius:10px;background:#FFF">
-              <div>
-                <div style="font-weight:700;font-size:13.5px;color:var(--brand-dark);display:flex;align-items:center;gap:6px">
-                  ${SVG_ICONS.correo} Plantillas de Notificación por Mail
-                </div>
-                <div style="font-size:12px;color:var(--text-muted);margin-top:3px">
-                  Configura remitente, asunto y mensaje enviado al estudiante en estados Aprobado, Rechazado y Observado.
-                </div>
-              </div>
-              <button type="button" class="btn btn-sm btn-outline" style="font-weight:700;white-space:nowrap" onclick="configurarCorreo('${id}')">
-                Configurar Mail ➔
-              </button>
-            </div>
-
-            <div style="display:flex;align-items:center;justify-content:space-between;padding:14px;border:1px solid var(--border-soft);border-radius:10px;background:#FFF">
-              <div>
-                <div style="font-weight:700;font-size:13.5px;color:var(--brand-dark);display:flex;align-items:center;gap:6px">
-                  ${SVG_ICONS.cronograma} Cronograma y Periodos Institucionales
-                </div>
-                <div style="font-size:12px;color:var(--text-muted);margin-top:3px">
-                  Define periodos académicos vigentes, facultades y carreras aplicables.
-                </div>
-              </div>
-              <button type="button" class="btn btn-sm btn-outline" style="font-weight:700;white-space:nowrap" onclick="gestionarCronograma('${id}')">
-                Gestionar Fechas ➔
-              </button>
-            </div>
-
-            <div style="display:flex;align-items:center;justify-content:space-between;padding:14px;border:1px solid var(--border-soft);border-radius:10px;background:#FFF">
-              <div>
-                <div style="font-weight:700;font-size:13.5px;color:var(--brand-dark);display:flex;align-items:center;gap:6px">
-                  ${SVG_ICONS.doc} Vista Previa del Documento / Constancia
-                </div>
-                <div style="font-size:12px;color:var(--text-muted);margin-top:3px">
-                  Verifica el membrete oficial, emisor, firmante institucional y formato emitido.
-                </div>
-              </div>
-              <button type="button" class="btn btn-sm btn-outline" style="font-weight:700;white-space:nowrap" onclick="DOC.preview(DB.getTramite('${id}'))">
-                Vista Previa ➔
-              </button>
-            </div>
-          </div>
-        </div>
-        <div class="modal-foot">
-          <button type="button" class="btn" onclick="cerrarSubmodalVolverFlujo()">← Volver al Trámite</button>
-        </div>
-      `, { wide: false });
-    }
-
-    // =========================================================================
-    // MODAL PRINCIPAL: REGISTRAR / EDITAR TRÁMITE (Propuesta B)
-    // =========================================================================
-    function editarTramite(id, opts = {}) {
+    function editarTramite(id) {
       const t = id ? JSON.parse(JSON.stringify(DB.getTramite(id))) : {
         id: null, codigo: 'T-00' + (DB.tramites().length + 1), nombre: '', tipo: 'Constancia', modelo: 'constancia',
         descripcion: '', conceptoCodigo: '', conceptoServicio: '', costo: 0,
         tiempoVigenciaHrs: 48, plazoRecojoDias: 3, observacion: '',
         tipoActivacion: 'Permanente', envioCorreo: true, activo: true, area: 'Registros Académicos',
-        pagoMomento: 'despues', requiereAprobacion: true, diasEntrega: 3,
+        pagoMomento: 'antes', requiereAprobacion: true, diasEntrega: 3,
         audiencia: { niveles: ['pregrado'], ciclos: [], minCreditos: 0, tercioSuperior: false, quintoSuperior: false, promedioMin: 0 },
         requisitos: [], proceso: [], cronogramas: []
       };
       DRAFT = t;
-      const isSaved = Boolean(id);
-      const justSaved = Boolean(opts && opts.justSaved);
       const areas = DB.areas();
       const a = t.audiencia || { niveles: ['pregrado'], ciclos: [], minCreditos: 0 };
       const pl = DOC.getPlantilla(t);
@@ -1961,38 +625,6 @@
 
       const titLen = (t.nombre || '').length;
       const obsLen = (t.observacion || '').length;
-      const esPago = (t.costo > 0 || (t.conceptoCodigo && t.conceptoCodigo !== '00000000') || t.requierePago === true);
-
-      // Banner interactivo según estado
-      let bannerHTML = '';
-      if (justSaved) {
-        bannerHTML = `
-          <div class="flow-interactive-banner active">
-            <span style="font-size:20px">🎉</span>
-            <div>
-              <b>¡Trámite guardado con éxito!</b> Las tarjetas del flujo lineal de abajo ya están interactivas. Haz clic sobre cualquiera de ellas para configurar sus requisitos, áreas de revisión o correos de salida.
-            </div>
-          </div>
-        `;
-      } else if (isSaved) {
-        bannerHTML = `
-          <div class="flow-interactive-banner active" style="background:#F0FDF4;border-color:#BBF7D0;color:#166534">
-            <span style="font-size:18px">⚙️</span>
-            <div>
-              <b>Modo Configuración por Flujo:</b> Haz clic en cualquiera de las etapas del diagrama lineal para gestionar requisitos, áreas secuenciales, aprobación o correos.
-            </div>
-          </div>
-        `;
-      } else {
-        bannerHTML = `
-          <div class="flow-interactive-banner pending">
-            <span style="font-size:18px">💡</span>
-            <div>
-              <b>Paso 1:</b> Define el título, descripción y estructura general del flujo. Al presionar <b>«Grabar Trámite»</b> podrás entrar a configurar el detalle de cada etapa haciendo clic en sus tarjetas.
-            </div>
-          </div>
-        `;
-      }
 
       APP.openModal(`
         <div class="modal-head">
@@ -2001,16 +633,17 @@
               ${SVG_ICONS.edit}
             </div>
             <div>
-              <h3>${id ? ('Editar Trámite: ' + (t.nombre || '')) : 'Registrar Nuevo Trámite (Propuesta B)'}</h3>
+              <h3>${id ? 'Editar Trámite' : 'Registrar Nuevo Trámite'}</h3>
               <div style="font-size:12px;color:var(--text-muted)">Institución: Universidad Privada Norbert Wiener S.A.</div>
             </div>
           </div>
-          <button class="modal-close" onclick="cerrarSubmodalVolverFlujo()">×</button>
+          <div style="display:flex;align-items:center;gap:10px">
+            ${id ? `<a href="tramite-studio.html?id=${id}" class="btn btn-sm btn-outline" style="border-color:var(--brand);color:var(--brand);font-size:12px;font-weight:700;display:inline-flex;align-items:center;gap:6px;text-decoration:none" title="Abrir y configurar este trámite con Trámite Studio 2026"><span>✨ Trámite Studio</span></a>` : ''}
+            <button class="modal-close" onclick="APP.closeModal()">×</button>
+          </div>
         </div>
         <div class="modal-body">
           
-          ${bannerHTML}
-
           <div class="form-grid">
             <div class="field full">
               <label>Título: *</label>
@@ -2036,135 +669,37 @@
                     <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg>
                   </button>
                 </div>
-                <textarea class="rte-editor-area" id="t-desc" rows="3" placeholder="Ingrese la descripción detallada del trámite...">${t.descripcion || ''}</textarea>
+                <textarea class="rte-editor-area" id="t-desc" rows="4" placeholder="Ingrese la descripción detallada del trámite...">${t.descripcion || ''}</textarea>
               </div>
             </div>
           </div>
 
-          <!-- ============================================================= -->
-          <!-- CONSTRUCTOR Y DIAGRAMA VISUAL DE FLUJO (Estilo flujos.html)   -->
-          <!-- ============================================================= -->
-          <div class="flow-builder-box">
-            <div class="flow-builder-header">
-              <div class="flow-builder-title">
-                <span style="color:var(--brand)">${SVG_ICONS.proceso}</span>
-                <span>Flujo de Pasos del Trámite</span>
-                <span class="tag teal" style="font-size:11px">Diagrama Lineal</span>
-              </div>
-              <div style="font-size:12px;color:var(--text-muted);font-weight:600">
-                ${isSaved ? '🖱️ Clic en cada etapa para configurar' : 'Diseña el flujo preliminar'}
-              </div>
+          <!-- CONCEPTO DE CAJA / FACTURACIÓN (Captura 2) -->
+          <div style="margin-top:14px;background:#F8FAFC;border:1px solid #CBD5E1;border-radius:10px;padding:14px 16px">
+            <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+              <span style="font-weight:700;font-size:13px;color:var(--text);min-width:65px">Concepto:</span>
+              <button class="btn btn-sm" type="button" style="background:#0284C7;color:#FFF;border:1px solid #0369A1;padding:5px 12px;font-weight:700;letter-spacing:1px" onclick="abrirCatalogoConceptos()" title="Seleccionar concepto de caja">...</button>
+              <input class="input" id="t-concepto-cod" value="${t.conceptoCodigo || ''}" placeholder="Código" readonly style="width:110px;background:#FFF;font-weight:700;font-family:monospace;color:var(--brand-dark)">
+              <input class="input" id="t-concepto-serv" value="${t.conceptoServicio || ''}" placeholder="Servicio contable de facturación" readonly style="flex:1;min-width:220px;background:#FFF;font-weight:600">
             </div>
 
-            <!-- Controles interactivos de configuración rápida del flujo (Labels arriba) -->
-            <div class="flow-controls-row">
-              <div class="flow-control-field">
-                <label class="flow-control-label">Área de Revisión:</label>
-                <div class="select-wrap inline" style="margin:0;width:210px">
-                  <select class="select" id="t-area-resp" style="padding:5px 10px;font-size:12.5px;height:36px" onchange="actualizarDiagramaFlujoModal()">
-                    ${areas.map(ar => `<option value="${ar.nombre}" ${t.area === ar.nombre ? 'selected' : ''}>${ar.nombre}</option>`).join('')}
-                  </select>
-                </div>
+            <div class="form-grid" style="margin-top:12px">
+              <div class="field">
+                <label>Costo: S/.</label>
+                <input class="input" id="t-costo" type="number" step="0.5" min="0" value="${t.costo || 0}">
               </div>
-
-              <div class="flow-control-field">
-                <label class="flow-control-label">Aprobación Administrativa:</label>
-                <div class="pago-segmented-wrap">
-                  <button type="button" class="pago-segmented-btn ${!t.requiereAprobacion ? 'active' : ''}" id="btn-apr-no" onclick="setModalAprobacion(false)">No requiere</button>
-                  <button type="button" class="pago-segmented-btn ${t.requiereAprobacion ? 'active' : ''}" id="btn-apr-si" onclick="setModalAprobacion(true)">Requerida</button>
-                </div>
-                <input type="hidden" id="t-requiere-apr-val" value="${t.requiereAprobacion ? 'si' : 'no'}">
+              <div class="field">
+                <label>Tiempo vigencia del trámite(Hrs):</label>
+                <input class="input" id="t-vigencia" type="number" min="0" value="${t.tiempoVigenciaHrs || 48}">
               </div>
-
-              <div class="flow-control-field">
-                <label class="flow-control-label">Modalidad de Pago:</label>
-                <div class="pago-segmented-wrap">
-                  <button type="button" class="pago-segmented-btn ${!esPago ? 'active' : ''}" id="btn-pago-gratis" onclick="setModalPago(false)">Gratuito</button>
-                  <button type="button" class="pago-segmented-btn ${esPago ? 'active' : ''}" id="btn-pago-costo" onclick="setModalPago(true)">Con Pago</button>
-                </div>
-                <input type="hidden" id="t-es-pago-val" value="${esPago ? 'si' : 'no'}">
-              </div>
-
-              <div class="flow-control-field" id="wrap-pago-momento" style="${esPago ? 'display:flex;' : 'display:none;'}">
-                <label class="flow-control-label">Momento de Cobro:</label>
-                <div class="select-wrap inline" style="margin:0;width:205px">
-                  <select class="select" id="t-pago-momento" style="padding:5px 10px;font-size:12.5px;height:36px" onchange="actualizarDiagramaFlujoModal()">
-                    <option value="despues" ${t.pagoMomento !== 'antes' ? 'selected' : ''}>Después de revisión</option>
-                    <option value="antes" ${t.pagoMomento === 'antes' ? 'selected' : ''}>Al solicitar (anticipado)</option>
-                  </select>
-                </div>
-              </div>
-            </div>
-
-            <!-- Contenedor del Diagrama Lineal (Desglose de múltiples áreas) -->
-            <div class="flow-container-wrap">
-              <div class="flow-line-diagram" id="modal-flow-line-diagram" data-tramite-id="${t.id || ''}">
-                ${renderModalFlowNodes({
-        id: t.id,
-        area: t.area,
-        proceso: (t.proceso && t.proceso.length) ? t.proceso : [{ area: t.area, duracionDias: 2 }],
-        requiereApr: t.requiereAprobacion,
-        esPago: esPago,
-        pagoMomento: t.pagoMomento,
-        costo: t.costo,
-        dias: t.plazoRecojoDias || 3,
-        reqCount: (t.requisitos || []).length,
-        isSaved: isSaved
-      })}
+              <div class="field">
+                <label>Plazo Máx. Recojo (Días):</label>
+                <input class="input" id="t-recojo" type="number" min="0" value="${t.plazoRecojoDias || 3}">
               </div>
             </div>
           </div>
 
-          <!-- ============================================================= -->
-          <!-- CONCEPTO DE CAJA / FACTURACIÓN (Labels arriba, + Agregar)     -->
-          <!-- ============================================================= -->
-          <div id="box-concepto-pago" style="${esPago ? 'display:block;' : 'display:none;'}margin-top:14px;background:#F8FAFC;border:1px solid #CBD5E1;border-radius:10px;padding:16px">
-            <div style="display:flex;align-items:flex-end;gap:14px;flex-wrap:wrap">
-              
-              <!-- Botón Agregar con label encima -->
-              <div class="flow-control-field">
-                <label class="flow-control-label">Concepto de Caja:</label>
-                <button class="btn btn-primary" type="button" style="height:36px;padding:0 14px;display:inline-flex;align-items:center;gap:6px;font-weight:700;font-size:12.5px" onclick="abrirCatalogoConceptos()" title="Seleccionar concepto desde el catálogo contable">
-                  ${SVG_ICONS.plus} <span>Agregar</span>
-                </button>
-              </div>
-
-              <!-- Código (No focusable) -->
-              <div class="flow-control-field" style="width:120px">
-                <label class="flow-control-label">Código:</label>
-                <input class="input" id="t-concepto-cod" value="${t.conceptoCodigo || ''}" placeholder="Sin código" readonly tabindex="-1" onfocus="this.blur()" style="height:36px;background:#F1F5F9;border:1px solid #CBD5E1;font-weight:700;font-family:monospace;color:var(--brand-dark);cursor:default;outline:none;user-select:none;box-shadow:none">
-              </div>
-
-              <!-- Servicio Contable (No focusable) -->
-              <div class="flow-control-field" style="flex:1;min-width:220px">
-                <label class="flow-control-label">Servicio Contable de Facturación:</label>
-                <input class="input" id="t-concepto-serv" value="${t.conceptoServicio || ''}" placeholder="Ningún concepto seleccionado (clic en + Agregar)" readonly tabindex="-1" onfocus="this.blur()" style="height:36px;background:#F1F5F9;border:1px solid #CBD5E1;font-weight:600;color:var(--text);cursor:default;outline:none;user-select:none;box-shadow:none">
-              </div>
-
-              <!-- Costo: S/. (Editable con label encima) -->
-              <div class="flow-control-field" style="width:130px">
-                <label class="flow-control-label">Costo: S/.</label>
-                <input class="input" id="t-costo" type="number" step="0.5" min="0" value="${t.costo || 0}" oninput="actualizarDiagramaFlujoModal()" style="height:36px;font-weight:700;color:var(--brand-dark)">
-              </div>
-
-            </div>
-          </div>
-
-          <!-- ============================================================= -->
-          <!-- FORM-GRID: PARÁMETROS OPERATIVOS INSTITUCIONALES               -->
-          <!-- ============================================================= -->
-          <div class="form-grid" style="margin-top:14px">
-            <div class="field">
-              <label>Tiempo vigencia del trámite(Hrs):</label>
-              <input class="input" id="t-vigencia" type="number" min="0" value="${t.tiempoVigenciaHrs || 48}">
-            </div>
-            <div class="field">
-              <label>Plazo Máx. Recojo (Días):</label>
-              <input class="input" id="t-recojo" type="number" min="0" value="${t.plazoRecojoDias || 3}" oninput="actualizarDiagramaFlujoModal()">
-            </div>
-          </div>
-
-          <!-- OBSERVACIÓN INSTITUCIONAL Y CONFIGURACIONES ADICIONALES -->
+          <!-- OBSERVACIÓN INSTITUCIONAL -->
           <div class="form-grid" style="margin-top:14px">
             <div class="field full">
               <label>Observación:</label>
@@ -2199,11 +734,22 @@
                 </select>
               </div>
             </div>
+            <div class="field">
+              <label>Emisión Masiva:</label>
+              <div class="select-wrap">
+                <select class="select" id="t-emision-masiva" title="Permite que este documento se emita en lote institucional de oficio">
+                  <option value="no" ${!t.permiteEmisionMasiva ? 'selected' : ''}>No (Solo individual)</option>
+                  <option value="si" ${t.permiteEmisionMasiva ? 'selected' : ''}>Si (Lote institucional)</option>
+                </select>
+              </div>
+            </div>
           </div>
 
           <!-- OPCIONES AVANZADAS: OCULTAS DE MOMENTO SEGÚN REQUERIMIENTO -->
           <div id="opciones-avanzadas-tramite" style="display:none">
             <input type="hidden" id="t-codigo" value="${t.codigo || t.id || 'AUTOGENERADO'}">
+            <input type="hidden" id="t-area-resp" value="${t.area || 'Registros Académicos'}">
+            <input type="hidden" id="t-pago-momento" value="${t.pagoMomento || 'despues'}">
             <input type="checkbox" id="t-aud-pre" ${a.niveles && a.niveles.includes('pregrado') ? 'checked' : ''}>
             <input type="checkbox" id="t-aud-post" ${a.niveles && a.niveles.includes('postgrado') ? 'checked' : ''}>
             <input type="checkbox" id="t-aud-tercio" ${a.tercioSuperior ? 'checked' : ''}>
@@ -2223,8 +769,8 @@
         </div>
         <div class="modal-foot">
           <button type="button" class="btn" onclick="APP.closeModal()">Cerrar</button>
-          <button type="button" class="btn btn-primary" onclick="guardarTramite('${id || ''}', true)" style="display:inline-flex;align-items:center;gap:6px">
-            ${SVG_ICONS.check} ${id ? 'Guardar y Continuar Configurando' : 'Grabar Trámite'}
+          <button type="button" class="btn btn-primary" onclick="guardarTramite('${id || ''}')" style="display:inline-flex;align-items:center;gap:6px">
+            ${SVG_ICONS.check} Grabar
           </button>
         </div>
       `, { wide: true });
@@ -2287,18 +833,12 @@
         document.getElementById('t-titulo').value = servicio;
       }
       cerrarConceptPopup();
-      actualizarDiagramaFlujoModal();
       APP.toast({ icon: '🏷️', title: 'Concepto vinculado', body: `Código ${codigo}: ${servicio} (S/ ${monto})` });
     }
 
-    function guardarTramite(id, keepOpen = false) {
-      const nombreEl = document.getElementById('t-titulo');
-      if (!nombreEl || !nombreEl.value.trim()) {
-        APP.toast({ icon: '⚠️', title: 'Falta título', body: 'Ingresa el título o nombre del trámite.' });
-        if (nombreEl) nombreEl.focus();
-        return;
-      }
-      const nombre = nombreEl.value.trim();
+    function guardarTramite(id) {
+      const nombre = document.getElementById('t-titulo').value.trim();
+      if (!nombre) { APP.toast({ icon: '⚠️', title: 'Falta título', body: 'Ingresa el título o nombre del trámite.' }); return; }
 
       const niveles = [];
       if (document.getElementById('t-aud-pre') && document.getElementById('t-aud-pre').checked) niveles.push('pregrado');
@@ -2306,36 +846,29 @@
       const ciclos = Array.from(document.querySelectorAll('input[data-ciclo]:checked')).map(i => +i.dataset.ciclo);
 
       const existing = id ? DB.getTramite(id) : null;
-      const esPagoVal = document.getElementById('t-es-pago-val') ? (document.getElementById('t-es-pago-val').value === 'si') : false;
-      const costoVal = esPagoVal ? (parseFloat(document.getElementById('t-costo').value) || 0) : 0;
-      const areaResp = document.getElementById('t-area-resp') ? document.getElementById('t-area-resp').value : (existing ? existing.area : 'Registros Académicos');
-      const reqApr = document.getElementById('t-requiere-apr-val') ? (document.getElementById('t-requiere-apr-val').value === 'si') : (existing ? existing.requiereAprobacion : true);
-      const pagoMomento = document.getElementById('t-pago-momento') ? document.getElementById('t-pago-momento').value : (existing ? existing.pagoMomento : 'despues');
-
-      const nuevoId = id || (existing ? existing.id : 'T-00' + (DB.tramites().length + 1));
 
       const t = {
-        id: nuevoId,
-        codigo: document.getElementById('t-codigo') ? document.getElementById('t-codigo').value : (existing ? existing.codigo : nuevoId),
+        id: id || null,
+        codigo: document.getElementById('t-codigo') ? document.getElementById('t-codigo').value : (existing ? existing.codigo : 'T-00' + (DB.tramites().length + 1)),
         nombre,
         descripcion: document.getElementById('t-desc') ? document.getElementById('t-desc').value.trim() : (existing ? existing.descripcion : ''),
-        conceptoCodigo: esPagoVal ? (document.getElementById('t-concepto-cod') ? document.getElementById('t-concepto-cod').value.trim() : '') : '00000000',
-        conceptoServicio: esPagoVal ? (document.getElementById('t-concepto-serv') ? document.getElementById('t-concepto-serv').value.trim() : '') : 'COSTO CERO / GRATUITO',
-        costo: costoVal,
+        conceptoCodigo: document.getElementById('t-concepto-cod') ? document.getElementById('t-concepto-cod').value.trim() : '',
+        conceptoServicio: document.getElementById('t-concepto-serv') ? document.getElementById('t-concepto-serv').value.trim() : '',
+        costo: parseFloat(document.getElementById('t-costo').value) || 0,
         tiempoVigenciaHrs: parseInt(document.getElementById('t-vigencia').value) || 48,
         plazoRecojoDias: parseInt(document.getElementById('t-recojo').value) || 3,
-        area: areaResp,
+        area: document.getElementById('t-area-resp') ? document.getElementById('t-area-resp').value : (existing ? existing.area : 'Registros Académicos'),
         observacion: document.getElementById('t-obs') ? document.getElementById('t-obs').value.trim() : '',
         tipoActivacion: document.getElementById('t-tipo-act').value,
         envioCorreo: document.getElementById('t-envio-correo').value === 'si',
-        pagoMomento: pagoMomento,
+        pagoMomento: document.getElementById('t-pago-momento') ? document.getElementById('t-pago-momento').value : 'despues',
         activo: document.getElementById('t-habilitar').value === 'si',
+        permiteEmisionMasiva: document.getElementById('t-emision-masiva') ? document.getElementById('t-emision-masiva').value === 'si' : (existing ? Boolean(existing.permiteEmisionMasiva) : false),
         fechaRegistro: existing ? (existing.fechaRegistro || '2026-07-19') : new Date().toISOString().slice(0, 10),
         tipo: document.getElementById('t-tipo') ? document.getElementById('t-tipo').value : (existing ? existing.tipo : 'Constancia'),
         modelo: document.getElementById('t-modelo') ? document.getElementById('t-modelo').value : (existing ? existing.modelo : 'constancia'),
         diasEntrega: parseInt(document.getElementById('t-recojo').value) || 3,
-        requiereAprobacion: reqApr,
-        requierePago: esPagoVal,
+        requiereAprobacion: existing ? existing.requiereAprobacion : true,
         requiereAdjunto: existing ? existing.requiereAdjunto : false,
         adjuntoIndicacion: existing ? existing.adjuntoIndicacion : '',
         intenciones: existing ? existing.intenciones : ['todos'],
@@ -2356,11 +889,10 @@
           cargo: document.getElementById('p-cargo') ? document.getElementById('p-cargo').value.trim() : 'Secretario General'
         },
         requisitos: existing && existing.requisitos ? existing.requisitos : [],
-        proceso: existing && existing.proceso && existing.proceso.length ? existing.proceso : [
-          { id: 'P-1', orden: 1, area: areaResp, descripcion: 'revisión documentaria', observacion: '', duracionDias: 2, activo: true }
+        proceso: existing && existing.proceso ? existing.proceso : [
+          { id: 'P-1', orden: 1, area: 'Registros Académicos', descripcion: 'revisa las notas', observacion: '', duracionDias: 2, activo: true }
         ],
         cronogramas: existing && existing.cronogramas ? existing.cronogramas : [],
-        correos: existing && existing.correos ? existing.correos : [],
         correoConfig: existing && existing.correoConfig ? existing.correoConfig : {
           remitente: 'tramites@uwiener.edu.pe',
           asunto: `Actualización sobre tu trámite: ${nombre}`,
@@ -2369,15 +901,9 @@
       };
 
       DB.upsertTramite(t);
+      APP.closeModal();
+      APP.toast({ icon: '✅', title: 'Trámite Guardado', body: `«${nombre}» se configuró exitosamente.` });
       render();
-
-      if (keepOpen) {
-        APP.toast({ icon: '✅', title: 'Trámite Guardado', body: `«${nombre}» guardado. ¡Tarjetas del flujo activadas!` });
-        editarTramite(nuevoId, { justSaved: true });
-      } else {
-        APP.closeModal();
-        APP.toast({ icon: '✅', title: 'Trámite Guardado', body: `«${nombre}» se configuró exitosamente.` });
-      }
     }
 
     function eliminarTramite(id) {
@@ -2566,7 +1092,7 @@
               <div style="font-size:12px;color:var(--text-muted)">Configuración de flujo operativo secuencial institucional</div>
             </div>
           </div>
-          <button class="modal-close" onclick="cerrarSubmodalVolverFlujo()">×</button>
+          <button class="modal-close" onclick="APP.closeModal()">×</button>
         </div>
         <div class="modal-body">
 
@@ -2642,7 +1168,7 @@
 
         </div>
         <div class="modal-foot">
-          <button type="button" class="btn" onclick="cerrarSubmodalVolverFlujo()">${NAV_FROM_MODAL_TRAMITE ? '← Volver al Trámite' : 'Cerrar'}</button>
+          <button type="button" class="btn" onclick="APP.closeModal()">Cerrar</button>
           <button type="button" class="btn btn-primary" onclick="grabarProcesoYRequisitos()" style="display:inline-flex;align-items:center;gap:6px">
             ${SVG_ICONS.check} Grabar Proceso y Requisitos
           </button>
@@ -2722,15 +1248,9 @@
         t.adjuntoIndicacion = 'Adjuntar los documentos requeridos en el catálogo oficial.';
       }
       DB.upsertTramite(t);
+      APP.closeModal();
       APP.toast({ icon: '✅', title: 'Flujo actualizado', body: `Requisitos y proceso guardados para «${t.nombre}».` });
       render();
-      if (NAV_FROM_MODAL_TRAMITE) {
-        const returnId = NAV_FROM_MODAL_TRAMITE;
-        NAV_FROM_MODAL_TRAMITE = null;
-        setTimeout(() => editarTramite(returnId), 150);
-      } else {
-        APP.closeModal();
-      }
     }
 
     // =========================================================================
@@ -2790,7 +1310,7 @@
         carrera: 'Todas',
         periodo: '2026-1',
         fechaInicio: new Date().toISOString().slice(0, 10),
-        fechaFin: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().slice(0, 10),
+        fechaFin: new Date(Date.now() + 30*24*60*60*1000).toISOString().slice(0, 10),
         activo: true
       });
       renderCronogramaModal();
@@ -2838,15 +1358,9 @@
       const t = DB.getTramite(DRAFT_CRONOGRAMA_ID);
       t.cronogramas = DRAFT_CRONOGRAMA;
       DB.upsertTramite(t);
+      APP.closeModal();
       APP.toast({ icon: '📅', title: 'Cronograma guardado', body: `Rangos de cronograma actualizados para «${t.nombre}».` });
       render();
-      if (NAV_FROM_MODAL_TRAMITE) {
-        const returnId = NAV_FROM_MODAL_TRAMITE;
-        NAV_FROM_MODAL_TRAMITE = null;
-        setTimeout(() => editarTramite(returnId), 150);
-      } else {
-        APP.closeModal();
-      }
     }
 
     function renderCronogramaModal() {
@@ -2955,7 +1469,7 @@
               <div style="font-size:12px;color:var(--text-muted)">Configuración de visibilidad académica por grado, modalidad y periodo</div>
             </div>
           </div>
-          <button class="modal-close" onclick="cerrarSubmodalVolverFlujo()">×</button>
+          <button class="modal-close" onclick="APP.closeModal()">×</button>
         </div>
         <div class="modal-body">
 
@@ -2975,7 +1489,7 @@
 
         </div>
         <div class="modal-foot">
-          <button type="button" class="btn" onclick="cerrarSubmodalVolverFlujo()">${NAV_FROM_MODAL_TRAMITE ? '← Volver al Trámite' : 'Cerrar'}</button>
+          <button type="button" class="btn" onclick="APP.closeModal()">Cerrar</button>
           <button type="button" class="btn btn-primary" onclick="grabarItemsCronograma()" style="display:inline-flex;align-items:center;gap:6px">
             ${SVG_ICONS.check} Grabar Cronograma
           </button>
@@ -3188,7 +1702,7 @@
               <div style="font-size:12px;color:var(--text-muted)">Plantillas de notificación automática disparadas en hitos de resolución</div>
             </div>
           </div>
-          <button class="modal-close" onclick="cerrarSubmodalVolverFlujo()">×</button>
+          <button class="modal-close" onclick="APP.closeModal()">×</button>
         </div>
         <div class="modal-body">
 
@@ -3222,7 +1736,7 @@
 
         </div>
         <div class="modal-foot">
-          <button type="button" class="btn" onclick="cerrarSubmodalVolverFlujo()">${NAV_FROM_MODAL_TRAMITE ? '← Volver al Trámite' : 'Cerrar'}</button>
+          <button type="button" class="btn" onclick="APP.closeModal()">Cerrar</button>
           <button type="button" class="btn btn-primary" onclick="guardarTodosLosCorreos()" style="display:inline-flex;align-items:center;gap:6px">
             ${SVG_ICONS.check} Grabar Cambios
           </button>
@@ -3318,15 +1832,9 @@
         };
       }
       DB.upsertTramite(t);
+      APP.closeModal();
       APP.toast({ icon: '✉️', title: 'Correos guardados', body: `Plantillas de notificación actualizadas para «${t.nombre}».` });
       render();
-      if (NAV_FROM_MODAL_TRAMITE) {
-        const returnId = NAV_FROM_MODAL_TRAMITE;
-        NAV_FROM_MODAL_TRAMITE = null;
-        setTimeout(() => editarTramite(returnId), 150);
-      } else {
-        APP.closeModal();
-      }
     }
 
     // =========================================================================
@@ -3353,7 +1861,7 @@
               <div style="font-size:12px;color:var(--text-muted)">Catálogo Institucional · Flujo de Trámites</div>
             </div>
           </div>
-          <button class="modal-close" onclick="cerrarSubmodalVolverFlujo()">×</button>
+          <button class="modal-close" onclick="APP.closeModal()">×</button>
         </div>
         <div class="modal-body">
           <div class="form-grid">
@@ -3403,6 +1911,42 @@
                   </select>
                 </div>
               </div>
+            </div>
+          </div>
+
+          <!-- SECCIÓN: DOCUMENTO / PLANTILLA DESCARGABLE PARA EL ESTUDIANTE (Word, Excel o PDF) -->
+          <div style="margin-top:16px;background:#FFFFFF;border:1px solid var(--border-soft);border-radius:10px;padding:14px 16px">
+            <div style="font-size:13px;font-weight:700;color:var(--text);margin-bottom:2px">Formato / Plantilla Base Descargable</div>
+            <div style="font-size:12px;color:var(--text-muted);margin-bottom:10px">Documento oficial (Word, Excel o PDF) que el estudiante podrá descargar para completar y presentar.</div>
+            
+            <div id="global-plantilla-container">
+              ${(window._globalTempPlantilla !== undefined ? window._globalTempPlantilla : r.plantillaDoc) ? `
+                <div style="display:flex;align-items:center;justify-content:space-between;padding:8px 12px;background:#F8FAFC;border:1px solid #CBD5E1;border-radius:8px">
+                  <div style="display:flex;align-items:center;gap:8px">
+                    <span class="tag ${(window._globalTempPlantilla !== undefined ? window._globalTempPlantilla : r.plantillaDoc).tipo === 'WORD' ? 'blue' : ((window._globalTempPlantilla !== undefined ? window._globalTempPlantilla : r.plantillaDoc).tipo === 'EXCEL' ? 'ok' : 'err')}" style="font-size:10px;padding:2px 6px;font-weight:800">
+                      ${(window._globalTempPlantilla !== undefined ? window._globalTempPlantilla : r.plantillaDoc).tipo}
+                    </span>
+                    <b style="font-size:13px;color:var(--text);max-width:230px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${(window._globalTempPlantilla !== undefined ? window._globalTempPlantilla : r.plantillaDoc).nombre}</b>
+                    <span style="font-size:11.5px;color:var(--text-muted)">(${(window._globalTempPlantilla !== undefined ? window._globalTempPlantilla : r.plantillaDoc).peso || '35 KB'})</span>
+                  </div>
+                  <div style="display:flex;align-items:center;gap:6px">
+                    <button type="button" class="btn btn-sm btn-outline" style="padding:4px 8px;font-size:11.5px;display:inline-flex;align-items:center;gap:4px" onclick="descargarPlantillaSimuladaGlobal('${id || ''}')">
+                      ${SVG_ICONS.doc} <span>Descargar</span>
+                    </button>
+                    <button type="button" class="btn btn-sm btn-outline" style="padding:4px 8px;font-size:11.5px;display:inline-flex;align-items:center;gap:4px" onclick="abrirUploaderPlantillaGlobal()">
+                      ${SVG_ICONS.edit} <span>Cambiar</span>
+                    </button>
+                    <button type="button" class="btn btn-sm" style="background:#FEE2E2;border:1px solid #FCA5A5;color:#DC2626;padding:4px 8px" onclick="eliminarPlantillaGlobal('${id || ''}')">
+                      ${SVG_ICONS.trash}
+                    </button>
+                  </div>
+                </div>
+              ` : `
+                <button type="button" class="btn btn-sm btn-outline" style="padding:6px 12px;font-size:12px;font-weight:700;display:inline-flex;align-items:center;gap:6px;border-style:dashed" onclick="abrirUploaderPlantillaGlobal()">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"></path></svg>
+                  <span>Adjuntar formato descargable (Word, Excel o PDF)</span>
+                </button>
+              `}
             </div>
           </div>
 
@@ -3458,6 +2002,117 @@
       }
     }
 
+    window._globalTempPlantilla = undefined;
+
+    function abrirUploaderPlantillaGlobal() {
+      let fileInput = document.getElementById('global-plantilla-file-input');
+      if (!fileInput) {
+        fileInput = document.createElement('input');
+        fileInput.type = 'file';
+        fileInput.id = 'global-plantilla-file-input';
+        fileInput.accept = '.pdf,.doc,.docx,.xls,.xlsx';
+        fileInput.style.display = 'none';
+        fileInput.onchange = handleSubirPlantillaGlobal;
+        document.body.appendChild(fileInput);
+      }
+      fileInput.value = '';
+      fileInput.click();
+    }
+
+    function handleSubirPlantillaGlobal(e) {
+      const file = e.target.files && e.target.files[0];
+      if (!file) return;
+
+      const ext = file.name.split('.').pop().toLowerCase();
+      let tipo = 'PDF';
+      if (ext === 'doc' || ext === 'docx') tipo = 'WORD';
+      else if (ext === 'xls' || ext === 'xlsx') tipo = 'EXCEL';
+      else if (ext === 'pdf') tipo = 'PDF';
+
+      const sizeKb = Math.round(file.size / 1024);
+      const peso = sizeKb > 1024 ? (sizeKb / 1024).toFixed(1) + ' MB' : (sizeKb || 14) + ' KB';
+
+      window._globalTempPlantilla = {
+        nombre: file.name,
+        tipo: tipo,
+        peso: peso,
+        fecha: new Date().toISOString().slice(0, 10)
+      };
+
+      const container = document.getElementById('global-plantilla-container');
+      if (container) {
+        const p = window._globalTempPlantilla;
+        container.innerHTML = `
+          <div style="display:flex;align-items:center;justify-content:space-between;padding:8px 12px;background:#F8FAFC;border:1px solid #CBD5E1;border-radius:8px">
+            <div style="display:flex;align-items:center;gap:8px">
+              <span class="tag ${p.tipo === 'WORD' ? 'blue' : (p.tipo === 'EXCEL' ? 'ok' : 'err')}" style="font-size:10px;padding:2px 6px;font-weight:800">${p.tipo}</span>
+              <b style="font-size:13px;color:var(--text);max-width:230px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${p.nombre}</b>
+              <span style="font-size:11.5px;color:var(--text-muted)">(${p.peso})</span>
+            </div>
+            <div style="display:flex;align-items:center;gap:6px">
+              <button type="button" class="btn btn-sm btn-outline" style="padding:4px 8px;font-size:11.5px;display:inline-flex;align-items:center;gap:4px" onclick="abrirUploaderPlantillaGlobal()">
+                ${SVG_ICONS.edit} <span>Cambiar</span>
+              </button>
+              <button type="button" class="btn btn-sm" style="background:#FEE2E2;border:1px solid #FCA5A5;color:#DC2626;padding:4px 8px" onclick="eliminarPlantillaGlobal()">
+                ${SVG_ICONS.trash}
+              </button>
+            </div>
+          </div>
+        `;
+      }
+      APP.toast({ icon: '✅', title: 'Archivo cargado', body: `Plantilla «${file.name}» lista para guardar.` });
+    }
+
+    function eliminarPlantillaGlobal(id) {
+      window._globalTempPlantilla = null;
+      if (id) {
+        DB.adjuntarPlantillaRequisito(id, null);
+      }
+      const container = document.getElementById('global-plantilla-container');
+      if (container) {
+        container.innerHTML = `
+          <button type="button" class="btn btn-sm btn-outline" style="padding:6px 12px;font-size:12px;font-weight:700;display:inline-flex;align-items:center;gap:6px;border-style:dashed" onclick="abrirUploaderPlantillaGlobal()">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"></path></svg>
+            <span>Adjuntar formato descargable (Word, Excel o PDF)</span>
+          </button>
+        `;
+      }
+      APP.toast({ icon: 'ℹ️', title: 'Plantilla retirada', body: 'Se ha removido el archivo descargable.' });
+    }
+
+    function descargarPlantillaSimuladaGlobal(id) {
+      const allReqs = DB.requisitos() || [];
+      const req = allReqs.find(r => r.id === id);
+      const p = req ? req.plantillaDoc : null;
+      if (!p) {
+        APP.toast({ icon: '⚠️', title: 'Sin archivo', body: 'Este requisito no cuenta con documento descargable.' });
+        return;
+      }
+
+      const contenido = `UNIVERSIDAD PRIVADA NORBERT WIENER\n` +
+        `FORMATO INSTITUCIONAL DE TRÁMITES ACADÉMICOS\n` +
+        `------------------------------------------------------------\n` +
+        `Requisito: ${req.titulo} (Código: ${req.id})\n` +
+        `Documento Base: ${p.nombre}\n` +
+        `Formato: ${p.tipo}\n` +
+        `Fecha de Registro: ${p.fecha || '2026-06-10'}\n` +
+        `------------------------------------------------------------\n` +
+        `Indicaciones para el estudiante:\n` +
+        `Descargue este formato oficial, complete la información solicitada\n` +
+        `con sus datos institucionales y adjúntelo firmado digitalmente al portal.\n`;
+
+      const blob = new Blob([contenido], { type: 'text/plain;charset=utf-8' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = p.nombre;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+      APP.toast({ icon: '📥', title: 'Descargando archivo', body: `Iniciando descarga de «${p.nombre}»...` });
+    }
+
     function guardarRequisito(id) {
       const titulo = document.getElementById('req-titulo').value.trim();
       if (!titulo) {
@@ -3484,6 +2139,9 @@
         }
       }
 
+      const existingReq = id ? DB.getRequisito(id) : null;
+      const plantillaDoc = window._globalTempPlantilla !== undefined ? window._globalTempPlantilla : (existingReq ? existingReq.plantillaDoc : null);
+
       const r = {
         id: id || ('REQ-' + String(DB.requisitos().length + 1).padStart(3, '0')),
         codigo: document.getElementById('req-cod').value,
@@ -3492,10 +2150,12 @@
         requiereAdjunto: reqAdj,
         adjuntoNombre: adjNom,
         formato: fmt,
+        plantillaDoc: plantillaDoc,
         activo: document.getElementById('req-habilitar').checked,
         fechaRegistro: (id && DB.getRequisito(id)) ? DB.getRequisito(id).fechaRegistro : new Date().toISOString().slice(0, 10)
       };
 
+      window._globalTempPlantilla = undefined;
       DB.upsertRequisito(r);
       APP.closeModal();
       APP.toast({ icon: '✅', title: id ? 'Requisito actualizado' : 'Requisito guardado', body: `«${titulo}» registrado en el catálogo maestro.` });
@@ -3518,7 +2178,7 @@
             <span style="color:var(--warn-fg);display:inline-flex;align-items:center">${SVG_ICONS.warn}</span>
             <h3>Confirmar Eliminación de Requisito</h3>
           </div>
-          <button class="modal-close" onclick="cerrarSubmodalVolverFlujo()">×</button>
+          <button class="modal-close" onclick="APP.closeModal()">×</button>
         </div>
         <div class="modal-body">
           <p style="font-size:14px;color:var(--text);margin-bottom:12px">
@@ -3590,7 +2250,7 @@
               <div style="font-size:12px;color:var(--text-muted)">Gestión de Entidad Institucional · Flujo de Trámites</div>
             </div>
           </div>
-          <button class="modal-close" onclick="cerrarSubmodalVolverFlujo()">×</button>
+          <button class="modal-close" onclick="APP.closeModal()">×</button>
         </div>
         <div class="modal-body">
           <div class="form-grid">
@@ -3857,11 +2517,11 @@
               <td style="min-width:210px">
                 <div style="font-size:12px;color:var(--text-soft);line-height:1.35">${r.sede || '-'}</div>
               </td>
-              <td style="width:135px">
-                <select class="select" style="font-size:12px;font-weight:600;padding:5px 8px;width:100%" onchange="draftCambiarResponsable(${idx}, 'cargo', this.value)">
-                  <option value="Responsable" ${r.cargo === 'Responsable' ? 'selected' : ''}>Responsable</option>
-                  <option value="Coordinador" ${r.cargo === 'Coordinador' ? 'selected' : ''}>Coordinador</option>
-                  <option value="Reporteador" ${r.cargo === 'Reporteador' ? 'selected' : ''}>Reporteador</option>
+              <td style="width:145px">
+                <select class="select" style="font-size:11.5px;font-weight:600;padding:5px 6px;width:100%" onchange="draftCambiarResponsable(${idx}, 'cargo', this.value)">
+                  <option value="Responsable (Administrativo)" ${(!r.cargo || r.cargo.includes('Responsable') || r.cargo === 'Administrativo') ? 'selected' : ''}>Administrativo</option>
+                  <option value="Docente Revisor" ${(r.cargo && (r.cargo.includes('Docente') || r.cargo.includes('Revisor') || r.cargo.includes('Dictaminador'))) ? 'selected' : ''}>Docente</option>
+                  <option value="Director de Área" ${(r.cargo && (r.cargo.includes('Director') || r.cargo.includes('Jefe') || r.cargo.includes('Decano'))) ? 'selected' : ''}>Director</option>
                 </select>
               </td>
               <td style="text-align:center;width:75px">
@@ -3881,11 +2541,16 @@
           <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;flex-wrap:wrap;gap:10px">
             <div>
               <div class="section-label" style="margin:0">Equipo de Responsables del Área</div>
-              <div style="font-size:12px;color:var(--text-muted)">Define los colaboradores que atienden este departamento y sus permisos.</div>
+              <div style="font-size:12px;color:var(--text-muted)">Define los colaboradores que atienden este departamento y sus permisos de acceso.</div>
             </div>
-            <button class="btn btn-sm btn-primary" type="button" onclick="toggleColabSearch()" style="display:inline-flex;align-items:center;gap:6px">
-              ${SHOW_COLAB_SEARCH ? SVG_ICONS.cross + ' Cerrar Búsqueda' : SVG_ICONS.plus + ' Agregar Responsable'}
-            </button>
+            <div style="display:flex;align-items:center;gap:8px">
+              <a href="usuarios.html?area=${encodeURIComponent(DRAFT_AREA.nombre)}" class="btn btn-sm btn-outline" style="text-decoration:none" title="Ver cuentas de acceso vinculadas en Usuarios">
+                ${SVG_ICONS.user} <span>Ver en Usuarios</span>
+              </a>
+              <button class="btn btn-sm btn-primary" type="button" onclick="toggleColabSearch()" style="display:inline-flex;align-items:center;gap:6px">
+                ${SHOW_COLAB_SEARCH ? SVG_ICONS.cross + ' Cerrar Búsqueda' : SVG_ICONS.plus + ' Agregar Responsable'}
+              </button>
+            </div>
           </div>
 
           ${searchPanelHTML}
@@ -4079,8 +2744,16 @@
       }
 
       DB.upsertArea(DRAFT_AREA);
+
+      // Sincronizar automáticamente el equipo de responsables con las cuentas de usuarios
+      if (Array.isArray(DRAFT_AREA.responsables)) {
+        DRAFT_AREA.responsables.forEach(r => {
+          DB.syncResponsableConUsuario(DRAFT_AREA.nombre, r);
+        });
+      }
+
       APP.closeModal();
-      APP.toast({ icon: '🏢', title: 'Área actualizada', body: `«${DRAFT_AREA.nombre}» guardada con sedes y responsables.` });
+      APP.toast({ icon: '🏢', title: 'Área actualizada', body: `«${DRAFT_AREA.nombre}» guardada y sincronizada con el módulo de Usuarios.` });
       render();
     }
 
@@ -4200,7 +2873,7 @@
             <span style="color:var(--warn-fg);display:inline-flex;align-items:center">${SVG_ICONS.warn}</span>
             <h3>Confirmar Eliminación de Área</h3>
           </div>
-          <button class="modal-close" onclick="cerrarSubmodalVolverFlujo()">×</button>
+          <button class="modal-close" onclick="APP.closeModal()">×</button>
         </div>
         <div class="modal-body">
           <p style="font-size:14px;color:var(--text);margin-bottom:12px">
@@ -4245,19 +2918,73 @@
 
     render();
 
-    // Sincronización con parámetros de URL (ej. enlaces desde flujos.html)
-    (function checkUrlParams() {
-      const params = new URLSearchParams(window.location.search);
-      if (params.get('nuevo') === '1') {
-        setTimeout(() => editarTramite(null), 120);
-      } else if (params.get('editar')) {
-        const id = params.get('editar');
-        if (DB.getTramite(id)) {
-          setTimeout(() => editarTramite(id), 120);
-        }
-      }
-    })();
-  </script>
-</body>
 
-</html>
+// Exposición explícita en window para compatibilidad con templates dinámicos
+window.rteCommand = rteCommand;
+window.updateCharCounter = updateCharCounter;
+window.mostrarConfirmacionModal = mostrarConfirmacionModal;
+window.cerrarConfirmacionModal = cerrarConfirmacionModal;
+window.render = render;
+window.setTab = setTab;
+window.renderTabContent = renderTabContent;
+window.renderTramitesTab = renderTramitesTab;
+window.buscarTramite = buscarTramite;
+window.renderAreasTab = renderAreasTab;
+window.buscarArea = buscarArea;
+window.renderRequisitosTab = renderRequisitosTab;
+window.buscarRequisito = buscarRequisito;
+window.editarTramite = editarTramite;
+window.abrirCatalogoConceptos = abrirCatalogoConceptos;
+window.cerrarConceptPopup = cerrarConceptPopup;
+window.seleccionarConcepto = seleccionarConcepto;
+window.guardarTramite = guardarTramite;
+window.eliminarTramite = eliminarTramite;
+window.editarProcesoTramite = editarProcesoTramite;
+window.renderProcesoModalBody = renderProcesoModalBody;
+window.procesoAgregarRequisitoItem = procesoAgregarRequisitoItem;
+window.procesoAgregarAreaItem = procesoAgregarAreaItem;
+window.confirmarQuitarRequisitoTramite = confirmarQuitarRequisitoTramite;
+window.confirmarQuitarPasoProceso = confirmarQuitarPasoProceso;
+window.grabarProcesoYRequisitos = grabarProcesoYRequisitos;
+window.gestionarCronograma = gestionarCronograma;
+window.cronogCambiarGrado = cronogCambiarGrado;
+window.syncCronogramaDraftFromDOM = syncCronogramaDraftFromDOM;
+window.cronogAgregarItem = cronogAgregarItem;
+window.confirmarQuitarUltimoItemCronograma = confirmarQuitarUltimoItemCronograma;
+window.confirmarQuitarItemCronograma = confirmarQuitarItemCronograma;
+window.grabarItemsCronograma = grabarItemsCronograma;
+window.renderCronogramaModal = renderCronogramaModal;
+window.configurarCorreo = configurarCorreo;
+window.renderCorreoModal = renderCorreoModal;
+window.abrirSubformCorreo = abrirSubformCorreo;
+window.cerrarSubformCorreo = cerrarSubformCorreo;
+window.guardarSubformCorreo = guardarSubformCorreo;
+window.confirmarQuitarCorreo = confirmarQuitarCorreo;
+window.guardarTodosLosCorreos = guardarTodosLosCorreos;
+window.editarRequisito = editarRequisito;
+window.toggleReqAdjuntoBox = toggleReqAdjuntoBox;
+window.abrirUploaderPlantillaGlobal = abrirUploaderPlantillaGlobal;
+window.handleSubirPlantillaGlobal = handleSubirPlantillaGlobal;
+window.eliminarPlantillaGlobal = eliminarPlantillaGlobal;
+window.descargarPlantillaSimuladaGlobal = descargarPlantillaSimuladaGlobal;
+window.guardarRequisito = guardarRequisito;
+window.eliminarRequisito = eliminarRequisito;
+window.confirmarEliminarRequisito = confirmarEliminarRequisito;
+window.nuevaArea = nuevaArea;
+window.guardarNuevaArea = guardarNuevaArea;
+window.editarArea = editarArea;
+window.syncDraftGeneralFields = syncDraftGeneralFields;
+window.setSubtabEditArea = setSubtabEditArea;
+window.renderEditAreaModal = renderEditAreaModal;
+window.draftAgregarSede = draftAgregarSede;
+window.confirmarQuitarSede = confirmarQuitarSede;
+window.draftCambiarSede = draftCambiarSede;
+window.toggleColabSearch = toggleColabSearch;
+window.buscarColaboradores = buscarColaboradores;
+window.draftAgregarColaborador = draftAgregarColaborador;
+window.confirmarQuitarResponsable = confirmarQuitarResponsable;
+window.draftCambiarResponsable = draftCambiarResponsable;
+window.guardarEdicionArea = guardarEdicionArea;
+window.verDetalleArea = verDetalleArea;
+window.eliminarArea = eliminarArea;
+window.confirmarEliminarArea = confirmarEliminarArea;

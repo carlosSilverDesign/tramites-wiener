@@ -1,0 +1,14 @@
+/* admin/vista-tramites.css - Redirección a solicitudes */
+
+.redirect-container {
+  padding: 40px;
+  text-align: center;
+  font-family: 'Lato', sans-serif;
+  color: var(--text, #1e293b);
+}
+
+.redirect-container a {
+  color: var(--brand, #0066cc);
+  font-weight: 700;
+  text-decoration: underline;
+}
