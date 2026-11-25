@@ -92,11 +92,39 @@
         <p class="doc-lead">${pl.emisor} de la Universidad Privada Norbert Wiener, que suscribe, hace constar:</p>
         <p class="doc-body">${cuerpo}</p>
         <p class="doc-date">${v.fecha}</p>
-        <div class="doc-sign">
-          <div class="doc-sign-line"></div>
-          <b>${pl.firmante}</b>
-          <span>${pl.cargo}</span>
-        </div>
+        ${(() => {
+          const fs = (sol && sol.firmas && Array.isArray(sol.firmas) && sol.firmas.length > 0) ? sol.firmas : (
+            ((sol && (sol.certificacionId || sol.tramiteId === 'T-010')) || (t && (t.id === 'T-010' || (t.nombre && t.nombre.toLowerCase().includes('conocimiento'))))) ? [
+              { orden: 1, rol: 'Administrativo', nombre: 'Carlos Mendoza Ríos', cargo: 'Jefatura Operativa de Registros', firmaId: 'FDM-ADM-0091' },
+              { orden: 2, rol: 'Director', nombre: 'Dr. Miguel Angel Faustor Müller', cargo: 'Director de Escuela y Registros', firmaId: 'FDM-DIR-6119' },
+              { orden: 3, rol: 'Decano', nombre: 'Dr. Augusto Salcedo Vílchez', cargo: 'Decano de la Facultad', firmaId: 'FDM-DEC-0001' }
+            ] : null
+          );
+          if (fs) {
+            return `
+              <div class="doc-signs-grid" style="display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-top:40px;text-align:center;">
+                ${fs.map(f => `
+                  <div class="doc-sign-col" style="padding:0 8px;">
+                    <div class="doc-sign-line" style="width:100%;max-width:180px;height:1px;background:#333;margin:0 auto 8px;"></div>
+                    <b style="font-size:12px;display:block;line-height:1.3;">${f.nombre}</b>
+                    <span style="font-size:11px;color:#555;display:block;line-height:1.3;">${f.cargo || f.rol}</span>
+                    <span style="display:inline-flex;align-items:center;gap:3px;margin-top:4px;font-size:9.5px;color:#0F848F;background:#E6F4F5;padding:2px 6px;border-radius:4px;font-weight:600;">
+                      <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                      Firma Digital (${f.rol})
+                    </span>
+                  </div>
+                `).join('')}
+              </div>
+            `;
+          }
+          return `
+            <div class="doc-sign">
+              <div class="doc-sign-line"></div>
+              <b>${pl.firmante}</b>
+              <span>${pl.cargo}</span>
+            </div>
+          `;
+        })()}
         <footer class="doc-foot">
           Documento electrónico. Verifique su autenticidad en constancias.uwiener.edu.pe con el código ${v.codigoDoc}.
           ${v.operacion ? ' · Pago Niubiz Op. ' + v.operacion : ''}

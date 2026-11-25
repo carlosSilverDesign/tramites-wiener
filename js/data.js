@@ -647,7 +647,7 @@
           { id: 'procesar', nombre: 'Procesar y estadísticas' },
           { id: 'reportes', nombre: 'Reportes y exportación CSV' },
           { id: 'tramites', nombre: 'Configuración de Trámites y Áreas' },
-          { id: 'certificaciones', nombre: 'Certificaciones Progresivas' },
+          { id: 'certificaciones', nombre: 'Certificaciones de Conocimiento' },
           { id: 'usuarios', nombre: 'Administrador de usuarios' },
           { id: 'seguridad', nombre: 'Seguridad y Políticas' }
         ],
@@ -1114,6 +1114,12 @@
           email: 'g.garcia@uwiener.edu.pe', dni: '42119933', estado: 'activo', area: 'Dirección de Escuela de Medicina Humana',
           cargo: 'Directora de Escuela', sede: '7803-2 --> LOCAL 1 / Jr. Larrabure y Unanue 110 Santa Beatriz, Lima',
           permisos: ['catalogo', 'solicitudes', 'flujos', 'procesar', 'reportes', 'tramites', 'usuarios']
+        },
+        {
+          id: 'U-DEC-1', rol: 'director', subrol: 'decano', nombre: 'Dr. Augusto Salcedo Vílchez', codigo: 'DEC-330211',
+          email: 'a.salcedo@uwiener.edu.pe', dni: '08129481', estado: 'activo', area: 'Decanato de Facultad',
+          cargo: 'Decano de la Facultad de Ingeniería y Negocios', sede: '7803-2 --> LOCAL 1 / Jr. Larrabure y Unanue 110 Santa Beatriz, Lima',
+          permisos: ['catalogo', 'registrar', 'solicitudes', 'flujos', 'procesar', 'reportes', 'tramites', 'certificaciones', 'usuarios', 'seguridad']
         },
         {
           id: 'U-ALU-2', rol: 'alumno', nombre: 'José Antonio Ramos', codigo: '2019054420',
@@ -1989,7 +1995,35 @@
             { estado: 'Emitido', fecha: '2026-09-15 14:20', nota: 'Documento emitido con firma digital' }
           ]
         }
-      ]
+      ],
+
+      // Workflow de Aprobación Institucional y Firmas Digitales para Emisión Masiva
+      workflowFirmas: {
+        administrativo: {
+          aprobado: true,
+          fecha: '24/11/2026',
+          hora: '10:15',
+          usuario: 'Carlos Mendoza Ríos',
+          cargo: 'Jefatura Operativa de Registros Académicos',
+          firmaId: 'FDM-ADM-0091'
+        },
+        director: {
+          aprobado: false,
+          fecha: null,
+          hora: null,
+          usuario: 'Dr. Miguel Angel Faustor Müller',
+          cargo: 'Director de Registros y Asuntos Académicos',
+          firmaId: 'FDM-DIR-6119'
+        },
+        decano: {
+          aprobado: false,
+          fecha: null,
+          hora: null,
+          usuario: 'Dr. Augusto Salcedo Vílchez',
+          cargo: 'Decano de la Facultad de Ingeniería y Negocios',
+          firmaId: 'FDM-DEC-3302'
+        }
+      }
     };
   }
 
@@ -2417,6 +2451,7 @@
     if (!s.programasCertificaciones) { s.programasCertificaciones = seed().programasCertificaciones; dirty = true; }
     if (!s.programacionesEmision || s.programacionesEmision.length <= 1) { s.programacionesEmision = seed().programacionesEmision; dirty = true; }
     if (!s.lotesEmision || s.lotesEmision.length <= 1) { s.lotesEmision = seed().lotesEmision; dirty = true; }
+    if (!s.workflowFirmas) { s.workflowFirmas = seed().workflowFirmas; dirty = true; }
 
     // Asegurar alumnos de ISI para auditoría
     if (!s.usuarios.some(u => u.id === 'U-ALU-ISI-2')) {
@@ -2518,6 +2553,52 @@
     getCertificacion(id) {
       const db = load();
       return (db.certificacionesProgresivas || []).find(c => c.id === id || c.codigo === id);
+    },
+    actualizarCursosCertificacion(certId, cursos) {
+      const db = load();
+      if (!db.certificacionesProgresivas) return null;
+      const cert = db.certificacionesProgresivas.find(c => c.id === certId || c.codigo === certId);
+      if (cert) {
+        cert.cursos = cursos;
+        save(db);
+        return cert;
+      }
+      return null;
+    },
+    cursosDisponiblesMalla(programaId = 'PROG-ISI') {
+      const db = load();
+      const todos = [
+        { codigo: 'MA1001', nombre: 'MATEMÁTICA DISCRETA', ciclo: 2, tipo: 'O', creditaje: 4 },
+        { codigo: 'IS6011', nombre: 'ALGORÍTMICA Y ESTRUCTURA DE DATOS', ciclo: 3, tipo: 'O', creditaje: 4 },
+        { codigo: 'IG7062', nombre: 'GESTIÓN DE PROCESOS DE NEGOCIO', ciclo: 3, tipo: 'O', creditaje: 4 },
+        { codigo: 'IS6021', nombre: 'PROGRAMACIÓN ORIENTADA A OBJETOS', ciclo: 4, tipo: 'O', creditaje: 4 },
+        { codigo: 'IS6032', nombre: 'BASE DE DATOS', ciclo: 4, tipo: 'O', creditaje: 4 },
+        { codigo: 'IS6041', nombre: 'INTRODUCCIÓN A LOS LENGUAJES DE PROGRAMACIÓN', ciclo: 5, tipo: 'O', creditaje: 4 },
+        { codigo: 'IS6051', nombre: 'SISTEMAS OPERATIVOS Y PROGRAMACIÓN', ciclo: 5, tipo: 'O', creditaje: 4 },
+        { codigo: 'IS6052', nombre: 'SOFTWARE II: ANÁLISIS Y DISEÑO', ciclo: 5, tipo: 'O', creditaje: 4 },
+        { codigo: 'IS6053', nombre: 'ARQUITECTURA DE COMPUTADORAS', ciclo: 5, tipo: 'O', creditaje: 4 },
+        { codigo: 'IS6064', nombre: 'SOFTWARE III: CONSTRUCCIÓN Y TRANSICIÓN', ciclo: 6, tipo: 'O', creditaje: 4 },
+        { codigo: 'IS6065', nombre: 'CIRCUITOS DIGITALES Y ELECTRÓNICOS', ciclo: 6, tipo: 'O', creditaje: 4 },
+        { codigo: 'IS6066', nombre: 'REDES DE COMUNICACIÓN DE DATOS', ciclo: 6, tipo: 'O', creditaje: 4 },
+        { codigo: 'IS6074', nombre: 'DESARROLLO DE APLICACIONES WEB', ciclo: 6, tipo: 'O', creditaje: 4 },
+        { codigo: 'IS6071', nombre: 'INTERNET DE LAS COSAS', ciclo: 7, tipo: 'O', creditaje: 4 },
+        { codigo: 'IS6077', nombre: 'SOFTWARE IV: PROYECTO INTEGRADOR', ciclo: 7, tipo: 'O', creditaje: 4 },
+        { codigo: 'IS6081', nombre: 'DESARROLLO DE APLICACIONES MÓVILES', ciclo: 7, tipo: 'O', creditaje: 4 },
+        { codigo: 'IS6054', nombre: 'ARQUITECTURA TECNOLÓGICA EN LA NUBE', ciclo: 7, tipo: 'O', creditaje: 4 },
+        { codigo: 'IS6061', nombre: 'SERVICIOS COGNITIVOS IN CLOUD', ciclo: 8, tipo: 'O', creditaje: 4 },
+        { codigo: 'IS6082', nombre: 'SOFTWARE V: PROCESOS Y GESTIÓN DE PROYECTOS', ciclo: 8, tipo: 'O', creditaje: 4 },
+        { codigo: 'IS6085', nombre: 'PRINCIPIOS DE LOS SISTEMAS DISTRIBUIDOS', ciclo: 8, tipo: 'O', creditaje: 4 },
+        { codigo: 'IS6086', nombre: 'ANÁLISIS Y VISUALIZACIÓN DE DATOS', ciclo: 8, tipo: 'O', creditaje: 4 },
+        { codigo: 'AD5010', nombre: 'GESTIÓN ESTRATÉGICA Y LIDERAZGO TI', ciclo: 8, tipo: 'O', creditaje: 3 },
+        { codigo: 'IS6072', nombre: 'GESTIÓN DE CIENCIA Y DATOS IN CLOUD', ciclo: 9, tipo: 'O', creditaje: 4 },
+        { codigo: 'IS6073', nombre: 'INGENIERÍA DE SOFTWARE SEGURO', ciclo: 9, tipo: 'O', creditaje: 4 },
+        { codigo: 'IS6091', nombre: 'CIBERSEGURIDAD Y HACKING ÉTICO', ciclo: 9, tipo: 'O', creditaje: 4 },
+        { codigo: 'IS6093', nombre: 'COMPUTACIÓN DISTRIBUIDA', ciclo: 9, tipo: 'O', creditaje: 4 },
+        { codigo: 'IS6099', nombre: 'TALLER DE TESIS I: METODOLOGÍA', ciclo: 9, tipo: 'O', creditaje: 4 },
+        { codigo: 'IS6100', nombre: 'TALLER DE TESIS II: SUSTENTACIÓN', ciclo: 10, tipo: 'O', creditaje: 4 },
+        { codigo: 'IS6104', nombre: 'IA GENERATIVA PARA LOS NEGOCIOS', ciclo: 10, tipo: 'O', creditaje: 4 }
+      ];
+      return todos;
     },
     certificacionEmitida(alumnoId, certId) {
       const db = load();
@@ -3084,7 +3165,7 @@
           sede: '7803-2 - Jr. Larrabure y Unanue 110 Santa Beatriz, Lima',
           institucion: 'Universidad Norbert Wiener',
           tramiteId: 'T-010',
-          tramiteNombre: 'Certificación Progresiva: ' + cert.titulo,
+          tramiteNombre: 'Certificación de Conocimiento: ' + cert.titulo,
           certificacionId: cert.id,
           certificacionTitulo: cert.titulo,
           cicloOtorgamiento: cert.cicloOtorgamiento || 'Ciclo VI',
@@ -3106,6 +3187,11 @@
           conceptoCodigo: '01020120',
           origen: 'Emisión Masiva Admin - Gratuita',
           loteId: loteId,
+          firmas: opciones.firmas || [
+            { orden: 1, rol: 'Administrativo', nombre: 'Carlos Mendoza Ríos', cargo: 'Jefatura Operativa de Registros Académicos', fecha: fechaHoraNow, firmaId: 'FDM-ADM-0091' },
+            { orden: 2, rol: 'Director', nombre: 'Dr. Miguel Angel Faustor Müller', cargo: 'Director de Registros y Asuntos Académicos', fecha: fechaHoraNow, firmaId: 'FDM-DIR-6119' },
+            { orden: 3, rol: 'Decano', nombre: 'Dr. Augusto Salcedo Vílchez', cargo: 'Decano de la Facultad de Ingeniería y Negocios', fecha: fechaHoraNow, firmaId: 'FDM-DEC-0001' }
+          ],
           pago: {
             estado: 'exonerado',
             obligacionGenerada: false,
@@ -3115,17 +3201,17 @@
             nroDocumento: 'GRATUITO-MASIVO-' + solId,
             operacion: 'INST-2026-CP-' + solId
           },
-          detalle: `Emisión masiva institucional gratuita de ${cert.titulo} por cierre de ciclo ${periodo}.`,
+          detalle: `Emisión masiva institucional gratuita de Certificación de Conocimiento (${cert.titulo}) por cierre de ciclo ${periodo}.`,
           requisitos: [],
           proceso: [
-            { orden: 1, area: 'Registros Académicos', plazoHoras: 0, diasRetraso: 0, observacionInterna: 'Emisión masiva aprobada de oficio.', estado: 'Atendido', fechaAtencion: fechaNow }
+            { orden: 1, area: 'Registros Académicos', plazoHoras: 0, diasRetraso: 0, observacionInterna: 'Emisión masiva aprobada por Administrativo, Director y Decano.', estado: 'Atendido', fechaAtencion: fechaNow }
           ],
-          mensajeSolicitante: `Tu ${cert.titulo} ha sido emitida de forma gratuita institucional por cierre de ciclo y enviada a tu correo institucional ${alumno.email}. Ya puedes visualizarla y descargarla en 'Mis documentos'.`,
+          mensajeSolicitante: `Tu ${cert.titulo} ha sido emitida de forma gratuita institucional por cierre de ciclo con firma digital refrendada por Administrativo, Director y Decano, y enviada a tu correo institucional ${alumno.email}. Ya puedes visualizarla y descargarla en 'Mis documentos'.`,
           historial: [
             {
               fecha: fechaHoraNow,
               estado: 'Emitido',
-              nota: `Emisión masiva institucional gratuita de Certificación Progresiva (${cert.titulo}) por cierre de ciclo ${periodo}. Validado cumplimiento de nota mínima ≥ 14.00 y solvencia económica sin deuda. Notificado a correo institucional ${alumno.email}`,
+              nota: `Emisión masiva institucional gratuita de Certificación de Conocimiento (${cert.titulo}) por cierre de ciclo ${periodo}. Firmas refrendadas: Administrativo, Director y Decano. Validado cumplimiento de nota mínima ≥ 14.00 y solvencia económica sin deuda. Notificado a correo institucional ${alumno.email}`,
               usuario: 'Carlos Mendoza Ríos (Registros Académicos)'
             }
           ]
@@ -3152,6 +3238,11 @@
         estado: 'Despachado',
         usuario: 'Carlos Mendoza Ríos (Registros Académicos)',
         tipo: 'Cierre de Ciclo Masivo Gratuito',
+        firmas: opciones.firmas || [
+          { orden: 1, rol: 'Administrativo', nombre: 'Carlos Mendoza Ríos', cargo: 'Jefatura Operativa de Registros', fecha: fechaHoraNow, firmado: true, firmaId: 'FDM-ADM-0091' },
+          { orden: 2, rol: 'Director', nombre: 'Dr. Miguel Angel Faustor Müller', cargo: 'Director de Escuela y Registros', fecha: fechaHoraNow, firmado: true, firmaId: 'FDM-DIR-6119' },
+          { orden: 3, rol: 'Decano', nombre: 'Dr. Augusto Salcedo Vílchez', cargo: 'Decano de la Facultad', fecha: fechaHoraNow, firmado: true, firmaId: 'FDM-DEC-0001' }
+        ],
         alumnosEmitidos: emitidos.map(e => ({
           codigo: e.alumnoCodigo,
           nombre: e.alumnoNombre,
@@ -3176,8 +3267,75 @@
       // Restaurar lotes y programaciones base de seed
       db.lotesEmision = seed().lotesEmision;
       db.programacionesEmision = seed().programacionesEmision;
+      db.workflowFirmas = seed().workflowFirmas;
       save(db);
       return { ok: true, message: 'Data de emisión masiva reiniciada a valores base' };
+    },
+    workflowFirmas() {
+      const db = load();
+      if (!db.workflowFirmas) {
+        db.workflowFirmas = seed().workflowFirmas;
+        save(db);
+      }
+      return db.workflowFirmas;
+    },
+    aprobarPasoWorkflow(rol, infoCustom) {
+      const db = load();
+      if (!db.workflowFirmas) db.workflowFirmas = seed().workflowFirmas;
+      const wf = db.workflowFirmas;
+
+      if (rol === 'director' && !wf.administrativo?.aprobado) {
+        return { ok: false, error: 'El Administrativo debe aprobar y refrendar primero (Paso 1).' };
+      }
+      if (rol === 'decano' && !wf.director?.aprobado) {
+        return { ok: false, error: 'El Director debe aprobar y refrendar antes del Decano (Paso 2).' };
+      }
+
+      const now = new Date();
+      const fechaStr = now.toLocaleDateString('es-PE', { day: '2-digit', month: '2-digit', year: 'numeric' });
+      const horaStr = now.toLocaleTimeString('es-PE', { hour: '2-digit', minute: '2-digit' });
+
+      if (wf[rol]) {
+        wf[rol].aprobado = true;
+        wf[rol].fecha = fechaStr;
+        wf[rol].hora = horaStr;
+        if (infoCustom && infoCustom.usuario) wf[rol].usuario = infoCustom.usuario;
+        if (infoCustom && infoCustom.cargo) wf[rol].cargo = infoCustom.cargo;
+        save(db);
+        return { ok: true, wf: db.workflowFirmas };
+      }
+      return { ok: false, error: 'Rol no válido en el workflow.' };
+    },
+    reiniciarWorkflowFirmas() {
+      const db = load();
+      db.workflowFirmas = {
+        administrativo: {
+          aprobado: false,
+          fecha: null,
+          hora: null,
+          usuario: 'Carlos Mendoza Ríos',
+          cargo: 'Jefatura Operativa de Registros Académicos',
+          firmaId: 'FDM-ADM-0091'
+        },
+        director: {
+          aprobado: false,
+          fecha: null,
+          hora: null,
+          usuario: 'Dr. Miguel Angel Faustor Müller',
+          cargo: 'Director de Registros y Asuntos Académicos',
+          firmaId: 'FDM-DIR-6119'
+        },
+        decano: {
+          aprobado: false,
+          fecha: null,
+          hora: null,
+          usuario: 'Dr. Augusto Salcedo Vílchez',
+          cargo: 'Decano de la Facultad de Ingeniería y Negocios',
+          firmaId: 'FDM-DEC-3302'
+        }
+      };
+      save(db);
+      return db.workflowFirmas;
     }
   };
 

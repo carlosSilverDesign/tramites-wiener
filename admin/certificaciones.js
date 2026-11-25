@@ -1,4 +1,4 @@
-// admin/certificaciones.js - Emisión Masiva de Certificaciones Progresivas Wiener Admin
+// admin/certificaciones.js - Emisión Masiva de Certificaciones de Conocimiento Wiener Admin
 
 const ctx = APP.renderShell('certificaciones');
 if (!ctx) throw new Error('Auth required');
@@ -15,6 +15,56 @@ let selectedCertId = 'CP-ISI-01';
 let selectedPeriodo = '2026-II';
 let selectedModalidad = 'todas';
 let selectedCiclo = 'todos';
+
+// Workflow de Aprobación Institucional y Firmas Digitales (Administrativo -> Director -> Decano)
+let workflowFirmas = DB.workflowFirmas();
+let activeWorkflowRole = workflowFirmas.director?.aprobado ? 'decano' : (workflowFirmas.administrativo?.aprobado ? 'director' : 'administrativo');
+
+function setWorkflowRole(rol) {
+  activeWorkflowRole = rol;
+  renderPage();
+}
+
+function aprobarPasoWorkflow(rol) {
+  const res = DB.aprobarPasoWorkflow(rol);
+  if (!res.ok) {
+    APP.toast({
+      icon: 'warn',
+      title: 'Orden de Refrendo Requerido',
+      body: res.error
+    });
+    return;
+  }
+
+  workflowFirmas = DB.workflowFirmas();
+  if (rol === 'administrativo') activeWorkflowRole = 'director';
+  else if (rol === 'director') activeWorkflowRole = 'decano';
+
+  const cargoMap = {
+    administrativo: 'Administrativo (Registros Académicos)',
+    director: 'Director de Escuela y Registros',
+    decano: 'Decano de la Facultad'
+  };
+
+  APP.toast({
+    icon: 'ok',
+    title: 'Firma Digital Registrada',
+    body: `Firma de ${cargoMap[rol]} refrendada para la emisión masiva.`
+  });
+
+  renderPage();
+}
+
+function reiniciarWorkflowFirmas() {
+  workflowFirmas = DB.reiniciarWorkflowFirmas();
+  activeWorkflowRole = 'administrativo';
+  APP.toast({
+    icon: 'info',
+    title: 'Proceso de Firmas Reiniciado',
+    body: 'El flujo de firmas ahora requiere la aprobación secuencial desde el Administrativo (Paso 1).'
+  });
+  renderPage();
+}
 
 // Reglas institucionales configurables
 let configNotaMin = 14.0;
@@ -61,6 +111,138 @@ function toggleRules() {
 
 function toggleMalla() {
   isMallaExpanded = !isMallaExpanded;
+  renderPage();
+}
+
+function quitarCursoCertificacion(codigoCurso) {
+  const cert = DB.getCertificacion(selectedCertId);
+  if (!cert) return;
+
+  if ((cert.cursos || []).length <= 1) {
+    APP.toast({
+      icon: 'warn',
+      title: 'Validación Curricular',
+      body: 'La certificación debe contener al menos una asignatura vinculada.'
+    });
+    return;
+  }
+
+  const nuevoCursos = (cert.cursos || []).filter(c => c.codigo !== codigoCurso);
+  DB.actualizarCursosCertificacion(cert.id, nuevoCursos);
+  APP.toast({
+    icon: 'ok',
+    title: 'Asignatura Retirada',
+    body: `La asignatura ${codigoCurso} fue quitada de la certificación.`
+  });
+  renderPage();
+}
+
+function abrirModalAgregarCurso() {
+  const cert = DB.getCertificacion(selectedCertId);
+  if (!cert) return;
+
+  const cursosActuales = (cert.cursos || []).map(c => c.codigo);
+  const catalogoCompleto = DB.cursosDisponiblesMalla ? DB.cursosDisponiblesMalla(selectedProgramId) : [];
+  const disponibles = catalogoCompleto.filter(c => !cursosActuales.includes(c.codigo));
+
+  APP.openModal(`
+    <div class="modal-head">
+      <div class="audit-header-row">
+        <div class="audit-header-icon">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path>
+            <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path>
+          </svg>
+        </div>
+        <div>
+          <span class="audit-header-tag">Malla Curricular Institucional</span>
+          <h3 class="audit-header-title">Agregar Asignatura a la Certificación</h3>
+        </div>
+      </div>
+      <button class="modal-close" onclick="APP.closeModal()">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+      </button>
+    </div>
+
+    <div class="modal-body">
+      <p style="font-size:13px;color:#475569;margin:0 0 12px 0;">
+        Selecciona una asignatura del plan curricular para vincularla a <b>${cert.titulo}</b>.
+      </p>
+
+      <div class="modal-courses-search">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+        <input type="text" id="input-buscar-curso-modal" class="form-control" placeholder="Buscar asignatura por nombre o código..." oninput="filtrarCursosDisponibles(this.value)">
+      </div>
+
+      <div class="modal-courses-list" id="modal-courses-container">
+        ${disponibles.length === 0 ? `
+          <div style="padding:24px;text-align:center;color:#64748B;font-size:13px;">
+            Todas las asignaturas del plan curricular ya se encuentran vinculadas a esta certificación.
+          </div>
+        ` : disponibles.map(c => `
+          <div class="modal-course-item" data-code="${c.codigo}" data-name="${c.nombre.toLowerCase()}">
+            <div>
+              <span class="modal-course-cod">${c.codigo}</span>
+              <div class="modal-course-nom">${c.nombre}</div>
+              <div class="modal-course-sub">Ciclo ${c.ciclo} · ${c.creditaje} créditos · Carácter Obligatorio</div>
+            </div>
+            <button type="button" class="btn btn-primary btn-sm" onclick="agregarCursoCertificacion('${c.codigo}')" style="display:inline-flex;align-items:center;gap:5px;flex-shrink:0;">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+              <span>Agregar</span>
+            </button>
+          </div>
+        `).join('')}
+      </div>
+    </div>
+
+    <div class="modal-foot">
+      <button class="btn btn-outline" onclick="APP.closeModal()">Cerrar</button>
+    </div>
+  `, { wide: false });
+}
+
+function filtrarCursosDisponibles(query) {
+  const q = (query || '').toLowerCase().trim();
+  const items = document.querySelectorAll('#modal-courses-container .modal-course-item');
+  items.forEach(it => {
+    const code = (it.getAttribute('data-code') || '').toLowerCase();
+    const name = (it.getAttribute('data-name') || '').toLowerCase();
+    if (!q || code.includes(q) || name.includes(q)) {
+      it.style.display = 'flex';
+    } else {
+      it.style.display = 'none';
+    }
+  });
+}
+
+function agregarCursoCertificacion(codigoCurso) {
+  const cert = DB.getCertificacion(selectedCertId);
+  if (!cert) return;
+
+  const catalogo = DB.cursosDisponiblesMalla ? DB.cursosDisponiblesMalla(selectedProgramId) : [];
+  const cursoToAdd = catalogo.find(c => c.codigo === codigoCurso);
+  if (!cursoToAdd) return;
+
+  const nuevoCursos = [...(cert.cursos || [])];
+  if (!nuevoCursos.some(c => c.codigo === codigoCurso)) {
+    nuevoCursos.push({
+      codigo: cursoToAdd.codigo,
+      nombre: cursoToAdd.nombre,
+      ciclo: cursoToAdd.ciclo,
+      tipo: cursoToAdd.tipo || 'O',
+      creditaje: cursoToAdd.creditaje || 4,
+      nota: 16,
+      cumple: true
+    });
+    DB.actualizarCursosCertificacion(cert.id, nuevoCursos);
+  }
+
+  APP.closeModal();
+  APP.toast({
+    icon: 'ok',
+    title: 'Asignatura Vinculada',
+    body: `${cursoToAdd.nombre} fue agregado a ${cert.titulo}.`
+  });
   renderPage();
 }
 
@@ -145,6 +327,10 @@ function verDetalleLote(loteId) {
   }
 
   const alumnos = lote.alumnosEmitidos || [];
+  const rawFecha = lote.fechaFormato || lote.fecha || '24/11/2026 17:45 hrs';
+  const fechaFmt = rawFecha.includes(' · ')
+    ? rawFecha
+    : (rawFecha.includes(' ') ? rawFecha.replace(' ', ' · ') : rawFecha);
 
   APP.openModal(`
     <div class="modal-head">
@@ -164,7 +350,9 @@ function verDetalleLote(loteId) {
           <h3 class="audit-header-title">${lote.id}</h3>
         </div>
       </div>
-      <button class="modal-close" onclick="APP.closeModal()">×</button>
+      <button class="modal-close" onclick="APP.closeModal()">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+      </button>
     </div>
 
     <div class="modal-body">
@@ -174,7 +362,7 @@ function verDetalleLote(loteId) {
           <div class="audit-meta-val">${lote.programa}</div>
         </div>
         <div>
-          <div class="audit-meta-lbl">Certificación Progresiva</div>
+          <div class="audit-meta-lbl">Certificación</div>
           <div class="audit-meta-val-cert">${lote.certificacionTitulo}</div>
         </div>
         <div>
@@ -184,6 +372,61 @@ function verDetalleLote(loteId) {
         <div>
           <div class="audit-meta-lbl">Total Emitidos / Despacho</div>
           <div class="audit-meta-val-success">${lote.totalAlumnos} alumnos · ${lote.tasaEntrega || '100%'}</div>
+        </div>
+      </div>
+
+      <!-- Firmas Institucionales Registradas en este Lote (Circuito Oficial de 3 Instancias) -->
+      <div class="audit-signatures-box">
+        <div class="audit-signatures-title">
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#0F848F" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path><polyline points="9 12 11 14 15 10"></polyline></svg>
+          <span>Firmas Institucionales Registradas en este Lote (Circuito Oficial de 3 Instancias)</span>
+        </div>
+        <div class="audit-signatures-grid">
+          <div class="audit-signature-item">
+            <div class="audit-sig-top">
+              <span class="audit-sig-step">Paso 1 · Operador</span>
+              <span class="audit-sig-badge ok">
+                <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                <span>Firmado</span>
+              </span>
+            </div>
+            <div class="audit-sig-name">Carlos Mendoza Ríos</div>
+            <div class="audit-sig-cargo">Jefatura Operativa de Registros Académicos</div>
+            <div class="audit-sig-meta">
+              <span class="audit-sig-id mono">ID: FDM-ADM-0091</span>
+              <span class="audit-sig-date">Refrendado el ${fechaFmt}</span>
+            </div>
+          </div>
+          <div class="audit-signature-item">
+            <div class="audit-sig-top">
+              <span class="audit-sig-step">Paso 2 · Dirección</span>
+              <span class="audit-sig-badge ok">
+                <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                <span>Firmado</span>
+              </span>
+            </div>
+            <div class="audit-sig-name">Dr. Miguel Angel Faustor Müller</div>
+            <div class="audit-sig-cargo">Director de Registros y Asuntos Académicos</div>
+            <div class="audit-sig-meta">
+              <span class="audit-sig-id mono">ID: FDM-DIR-6119</span>
+              <span class="audit-sig-date">Refrendado el ${fechaFmt}</span>
+            </div>
+          </div>
+          <div class="audit-signature-item">
+            <div class="audit-sig-top">
+              <span class="audit-sig-step">Paso 3 · Decanato</span>
+              <span class="audit-sig-badge ok">
+                <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                <span>Firmado</span>
+              </span>
+            </div>
+            <div class="audit-sig-name">Dr. Augusto Salcedo Vílchez</div>
+            <div class="audit-sig-cargo">Decano de la Facultad de Ingeniería y Negocios</div>
+            <div class="audit-sig-meta">
+              <span class="audit-sig-id mono">ID: FDM-DEC-3302</span>
+              <span class="audit-sig-date">Refrendado el ${fechaFmt}</span>
+            </div>
+          </div>
         </div>
       </div>
 
@@ -244,15 +487,81 @@ function verDetalleLote(loteId) {
       </div>
 
       <div class="audit-footer-callout">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path><path d="m9 12 2 2 4-4"></path></svg>
-        <div><b>Auditoría de Secretaría General:</b> Los documentos de este lote fueron firmados digitalmente con certificado institucional oficial y quedaron archivados en el repositorio de Secretaría General.</div>
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path><path d="m9 12 2 2 4-4"></path></svg>
+        <div><b>Auditoría de Registros Académicos:</b> Los documentos de este lote fueron firmados digitalmente con certificado institucional oficial y quedaron archivados en el repositorio de Registros Académicos.</div>
       </div>
     </div>
 
-    <div class="modal-foot">
+    <div class="modal-foot" style="display:flex;justify-content:space-between;align-items:center;">
+      <button type="button" class="btn btn-primary" onclick="descargarReporteLote('${lote.id}')" style="display:inline-flex;align-items:center;gap:8px;">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+          <polyline points="7 10 12 15 17 10"></polyline>
+          <line x1="12" y1="15" x2="12" y2="3"></line>
+        </svg>
+        <span>Descargar Reporte</span>
+      </button>
       <button class="btn btn-outline" onclick="APP.closeModal()">Cerrar</button>
     </div>
   `, { wide: true });
+}
+
+// Descarga oficial del reporte de lote en formato CSV con BOM UTF-8
+function descargarReporteLote(loteId) {
+  const lote = DB.getLoteEmision(loteId);
+  if (!lote) {
+    APP.toast({ icon: 'warn', title: 'Error del sistema', body: 'Lote no encontrado para descarga.' });
+    return;
+  }
+
+  const alumnos = lote.alumnosEmitidos || [];
+
+  let csv = '\uFEFF';
+  csv += '========================================================================\r\n';
+  csv += 'UNIVERSIDAD PRIVADA NORBERT WIENER - REPORTE DE AUDITORÍA DE LOTE MASIVO\r\n';
+  csv += 'SISTEMA DE TRÁMITES - CERTIFICACIONES DE CONOCIMIENTO\r\n';
+  csv += '========================================================================\r\n\r\n';
+  csv += `ID de Lote:,"${lote.id}"\r\n`;
+  csv += `Programa Académico:,"${lote.programa}"\r\n`;
+  csv += `Certificación de Conocimiento:,"${lote.certificacionTitulo}"\r\n`;
+  csv += `Periodo Lectivo:,"${lote.periodo}"\r\n`;
+  csv += `Fecha y Hora de Emisión:,"${lote.fechaFormato || lote.fecha}"\r\n`;
+  csv += `Total Estudiantes Acreditados:,"${lote.totalAlumnos}"\r\n`;
+  csv += `Tasa de Despacho Digital:,"${lote.tasaEntrega || '100%'}"\r\n`;
+  csv += `Canal de Notificación:,"${lote.canalDespacho || 'Correo Institucional @uwiener.edu.pe'}"\r\n\r\n`;
+
+  csv += 'FIRMANTES INSTITUCIONALES DEL WORKFLOW (3 ESTAMENTOS):\r\n';
+  csv += '1. Administrativo:,"Carlos Mendoza Ríos - Jefatura Operativa de Registros Académicos (FDM-ADM-0091)"\r\n';
+  csv += '2. Director:,"Dr. Miguel Angel Faustor Müller - Director de Registros y Escuela (FDM-DIR-6119)"\r\n';
+  csv += '3. Decano:,"Dr. Augusto Salcedo Vílchez - Decano de la Facultad de Ingeniería y Negocios (FDM-DEC-0001)"\r\n\r\n';
+
+  csv += 'DETALLE DE ESTUDIANTES ACREDITADOS:\r\n';
+  csv += 'N° Folio/Solicitud,Código Alumno,Nombre del Estudiante,Correo Institucional,Fecha Emisión,Estado,Firmas\r\n';
+
+  alumnos.forEach((alu, idx) => {
+    const cod = alu.codigo || ('202' + (idx + 1) + '100' + (idx + 120));
+    const nom = alu.nombre || (typeof alu === 'string' ? alu : 'Estudiante Regular');
+    const mail = alu.email || ('a' + cod + '@uwiener.edu.pe');
+    const fol = alu.folio || ('2026.' + (11024 + idx));
+    const fch = alu.fecha || lote.fechaFormato || lote.fecha;
+    csv += `"${fol}","${cod}","${nom}","${mail}","${fch}","Emitido con Firma Digital","3/3 (Adm, Dir, Dec)"\r\n`;
+  });
+
+  const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `Reporte_Auditoria_${lote.id}.csv`;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
+
+  APP.toast({
+    icon: 'ok',
+    title: 'Descarga Completada',
+    body: `Reporte oficial del lote ${lote.id} descargado exitosamente.`
+  });
 }
 
 // Controladores interactivos para el selector de hora personalizada en modales
@@ -367,12 +676,14 @@ function abrirModalNuevaProgramacion() {
           <h3 class="audit-header-title">Nueva Programación de Emisión Masiva</h3>
         </div>
       </div>
-      <button class="modal-close" onclick="APP.closeModal()">×</button>
+      <button class="modal-close" onclick="APP.closeModal()">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+      </button>
     </div>
 
     <div class="modal-body">
       <p style="font-size:13px;color:#475569;margin:0 0 16px 0;line-height:1.5;">
-        Configura una tarea automatizada para que el sistema evalúe a los alumnos y emita de forma gratuita las certificaciones progresivas en la fecha y hora exacta del cierre lectivo.
+        Configura una tarea automatizada para que el sistema evalúe a los alumnos y emita de forma gratuita las certificaciones de conocimiento en la fecha y hora exacta del cierre lectivo.
       </p>
 
       <div style="display:flex;flex-direction:column;gap:14px;">
@@ -381,11 +692,12 @@ function abrirModalNuevaProgramacion() {
           <input type="text" id="modal-prog-nombre" class="form-control" value="Cierre Académico 2026-II - Sistemas Módulo I" placeholder="Ej. Cierre Académico 2026-II...">
         </div>
 
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;">
+        <div class="modal-form-grid-2">
           <div class="form-field">
             <label for="modal-prog-programa">Programa Académico</label>
             <div class="custom-select-container">
               <select id="modal-prog-programa">
+                <option value="TODOS">Todos los programas académicos</option>
                 ${programas.map(p => `
                   <option value="${p.id}" ${p.id === selectedProgramId ? 'selected' : ''}>${p.nombre}</option>
                 `).join('')}
@@ -394,10 +706,10 @@ function abrirModalNuevaProgramacion() {
           </div>
 
           <div class="form-field">
-            <label for="modal-prog-cert">Certificación Progresiva</label>
+            <label for="modal-prog-cert">Certificación de Conocimiento</label>
             <div class="custom-select-container">
               <select id="modal-prog-cert">
-                <option value="TODAS">Todas las Certificaciones del Programa (Ciclos VI al X)</option>
+                <option value="TODOS">Todas las Certificaciones de Conocimiento (Todos)</option>
                 ${certs.map(c => `
                   <option value="${c.id}">[${c.cicloOtorgamiento}] ${c.titulo}</option>
                 `).join('')}
@@ -406,7 +718,7 @@ function abrirModalNuevaProgramacion() {
           </div>
         </div>
 
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;">
+        <div class="modal-form-grid-2">
           <div class="form-field">
             <label for="modal-prog-periodo">Periodo Lectivo</label>
             <div class="custom-select-container">
@@ -418,7 +730,7 @@ function abrirModalNuevaProgramacion() {
             </div>
           </div>
 
-          <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+          <div class="modal-form-grid-2 subgrid-time">
             <div class="form-field">
               <label for="modal-prog-fecha">Fecha Programada</label>
               <div class="custom-date-container">
@@ -561,6 +873,7 @@ function guardarNuevaProgramacion() {
   const chkNota = document.getElementById('modal-prog-chk-nota').checked;
   const chkDeuda = document.getElementById('modal-prog-chk-deuda').checked;
   const chkDup = document.getElementById('modal-prog-chk-dup').checked;
+  const chkMail = document.getElementById('modal-prog-chk-mail') ? document.getElementById('modal-prog-chk-mail').checked : true;
 
   if (!nombre) {
     APP.toast({ icon: 'warn', title: 'Campo obligatorio', body: 'Ingresa un nombre para la programación.' });
@@ -578,17 +891,18 @@ function guardarNuevaProgramacion() {
   DB.programarEmisionMasiva({
     nombre: nombre,
     programaId: progId,
-    programaNombre: progObj ? progObj.nombre : 'Ingeniería de Sistemas e Informática',
+    programaNombre: progObj ? progObj.nombre : (progId === 'TODOS' ? 'Todos los programas académicos' : 'Ingeniería de Sistemas e Informática'),
     certificacionId: certId,
-    certificacionTitulo: certObj ? certObj.titulo : 'Todas las Certificaciones del Programa (Ciclos VI al X)',
-    cicloOtorgamiento: certObj ? certObj.cicloOtorgamiento : 'Ciclos VI al X',
+    certificacionTitulo: certObj ? certObj.titulo : 'Todas las Certificaciones de Conocimiento',
+    cicloOtorgamiento: certObj ? certObj.cicloOtorgamiento : 'Todos los ciclos',
     periodo: periodo,
     fechaEjecucion: fechaCompleta,
     alumnosEstimados: 40,
     reglas: {
       notaMinima: chkNota ? 14.0 : 11.0,
       exigirSinDeuda: chkDeuda,
-      omitirYaEmitidos: chkDup
+      omitirYaEmitidos: chkDup,
+      despachoCorreo: chkMail
     },
     observacion: obs || 'Programación automática por cierre de periodo lectivo.'
   });
@@ -635,7 +949,9 @@ function abrirModalEditarProgramacion(progId) {
           <h3 class="audit-header-title">Editar Programación · ${item.id}</h3>
         </div>
       </div>
-      <button class="modal-close" onclick="APP.closeModal()">×</button>
+      <button class="modal-close" onclick="APP.closeModal()">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+      </button>
     </div>
 
     <div class="modal-body">
@@ -645,11 +961,12 @@ function abrirModalEditarProgramacion(progId) {
           <input type="text" id="edit-prog-nombre" class="form-control" value="${item.nombre}">
         </div>
 
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;">
+        <div class="modal-form-grid-2">
           <div class="form-field">
             <label for="edit-prog-programa">Programa Académico</label>
             <div class="custom-select-container">
               <select id="edit-prog-programa">
+                <option value="TODOS" ${item.programaId === 'TODOS' ? 'selected' : ''}>Todos los programas académicos</option>
                 ${programas.map(p => `
                   <option value="${p.id}" ${p.id === item.programaId ? 'selected' : ''}>${p.nombre}</option>
                 `).join('')}
@@ -658,10 +975,10 @@ function abrirModalEditarProgramacion(progId) {
           </div>
 
           <div class="form-field">
-            <label for="edit-prog-cert">Certificación Objetivo</label>
+            <label for="edit-prog-cert">Certificación de Conocimiento Objetivo</label>
             <div class="custom-select-container">
               <select id="edit-prog-cert">
-                <option value="TODAS" ${item.certificacionId === 'TODAS' ? 'selected' : ''}>Todas las Certificaciones (Ciclos VI al X)</option>
+                <option value="TODOS" ${item.certificacionId === 'TODOS' || item.certificacionId === 'TODAS' ? 'selected' : ''}>Todas las Certificaciones de Conocimiento (Todos)</option>
                 ${certs.map(c => `
                   <option value="${c.id}" ${c.id === item.certificacionId ? 'selected' : ''}>[${c.cicloOtorgamiento}] ${c.titulo}</option>
                 `).join('')}
@@ -670,7 +987,7 @@ function abrirModalEditarProgramacion(progId) {
           </div>
         </div>
 
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;">
+        <div class="modal-form-grid-2">
           <div class="form-field">
             <label for="edit-prog-periodo">Periodo Lectivo</label>
             <div class="custom-select-container">
@@ -682,7 +999,7 @@ function abrirModalEditarProgramacion(progId) {
             </div>
           </div>
 
-          <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+          <div class="modal-form-grid-2 subgrid-time">
             <div class="form-field">
               <label for="edit-prog-fecha">Fecha Programada</label>
               <div class="custom-date-container">
@@ -777,6 +1094,10 @@ function abrirModalEditarProgramacion(progId) {
               <input type="checkbox" id="edit-prog-chk-dup" ${item.reglas?.omitirYaEmitidos !== false ? 'checked' : ''}>
               <span><b>Regla 3:</b> No duplicidad</span>
             </label>
+            <label class="rule-chip-label">
+              <input type="checkbox" id="edit-prog-chk-mail" ${item.reglas?.despachoCorreo !== false ? 'checked' : ''}>
+              <span>Despacho a @uwiener.edu.pe</span>
+            </label>
           </div>
         </div>
 
@@ -821,6 +1142,7 @@ function guardarEdicionProgramacion(id) {
   const chkNota = document.getElementById('edit-prog-chk-nota').checked;
   const chkDeuda = document.getElementById('edit-prog-chk-deuda').checked;
   const chkDup = document.getElementById('edit-prog-chk-dup').checked;
+  const chkMail = document.getElementById('edit-prog-chk-mail') ? document.getElementById('edit-prog-chk-mail').checked : true;
 
   const certObj = DB.getCertificacion(certId);
   const progObj = (DB.programasCertificaciones() || []).find(p => p.id === progId);
@@ -829,16 +1151,17 @@ function guardarEdicionProgramacion(id) {
   DB.actualizarProgramacionEmision(id, {
     nombre: nombre,
     programaId: progId,
-    programaNombre: progObj ? progObj.nombre : 'Ingeniería de Sistemas e Informática',
+    programaNombre: progObj ? progObj.nombre : (progId === 'TODOS' ? 'Todos los programas académicos' : 'Ingeniería de Sistemas e Informática'),
     certificacionId: certId,
-    certificacionTitulo: certObj ? certObj.titulo : 'Todas las Certificaciones del Programa (Ciclos VI al X)',
-    cicloOtorgamiento: certObj ? certObj.cicloOtorgamiento : 'Ciclos VI al X',
+    certificacionTitulo: certObj ? certObj.titulo : 'Todas las Certificaciones de Conocimiento',
+    cicloOtorgamiento: certObj ? certObj.cicloOtorgamiento : 'Todos los ciclos',
     periodo: periodo,
     fechaEjecucion: fechaCompleta,
     reglas: {
       notaMinima: chkNota ? 14.0 : 11.0,
       exigirSinDeuda: chkDeuda,
-      omitirYaEmitidos: chkDup
+      omitirYaEmitidos: chkDup,
+      despachoCorreo: chkMail
     },
     observacion: obs
   });
@@ -918,7 +1241,7 @@ function ejecutarEmisionMasiva(targetCertId = null) {
         </div>
         <div class="sim-step-item" id="sim-step-4">
           <div class="sim-step-circle">4</div>
-          <div>Generando documentos digitales oficiales con <b>firma electrónica de Secretaría General</b>...</div>
+          <div>Generando documentos digitales oficiales con las firmas refrendadas de <b>Administrativo, Director y Decano</b>...</div>
         </div>
         <div class="sim-step-item" id="sim-step-5">
           <div class="sim-step-circle">5</div>
@@ -958,23 +1281,37 @@ function ejecutarEmisionMasiva(targetCertId = null) {
     if (step4) { step4.classList.remove('active'); step4.classList.add('done'); }
     if (step5) step5.classList.add('active');
 
+    // Preparar firmas refrendadas de los 3 estamentos
+    const nowStr = new Date().toLocaleDateString('es-PE', { day: '2-digit', month: '2-digit', year: 'numeric' });
+    workflowFirmas.administrativo.aprobado = true;
+    workflowFirmas.director.aprobado = true;
+    workflowFirmas.decano.aprobado = true;
+    if (!workflowFirmas.decano.fecha) workflowFirmas.decano.fecha = nowStr;
+
+    const firmasLote = [
+      { orden: 1, rol: 'Administrativo', nombre: workflowFirmas.administrativo.usuario, cargo: workflowFirmas.administrativo.cargo, fecha: workflowFirmas.administrativo.fecha || nowStr, firmaId: workflowFirmas.administrativo.firmaId },
+      { orden: 2, rol: 'Director', nombre: workflowFirmas.director.usuario, cargo: workflowFirmas.director.cargo, fecha: workflowFirmas.director.fecha || nowStr, firmaId: workflowFirmas.director.firmaId },
+      { orden: 3, rol: 'Decano', nombre: workflowFirmas.decano.usuario, cargo: workflowFirmas.decano.cargo, fecha: workflowFirmas.decano.fecha || nowStr, firmaId: workflowFirmas.decano.firmaId }
+    ];
+
     // Ejecución real en base de datos
     const alumnoIdsList = targets.map(t => t.alumnoId);
     const resultado = DB.emitirCertificacionesMasivas(alumnoIdsList, cert.id, {
       periodo: selectedPeriodo,
       notaMinima: configNotaMin,
       exigirSinDeuda: configExigirSinDeuda,
-      omitirYaEmitidos: configOmitirYaEmitidos
+      omitirYaEmitidos: configOmitirYaEmitidos,
+      firmas: firmasLote
     });
 
     // Enviar correos institucionales simulados
     resultado.emitidos.forEach(item => {
       APP.sendMail({
         to: item.alumnoEmail,
-        subject: `Emisión Oficial de Certificación Progresiva - ${cert.titulo}`,
+        subject: `Emisión Oficial de Certificación de Conocimiento - ${cert.titulo}`,
         lines: [
           `Estimado(a) estudiante ${item.alumnoNombre}:`,
-          `Nos complace informarte que, al haber culminado el módulo correspondiente con nota mínima aprobatoria y encontrándote al día en tus obligaciones económicas al cierre del periodo ${selectedPeriodo}, se ha emitido tu "${cert.titulo}" con firma digital institucional.`,
+          `Nos complace informarte que, al haber culminado el módulo correspondiente con nota mínima aprobatoria y encontrándote al día en tus obligaciones económicas al cierre del periodo ${selectedPeriodo}, se ha emitido tu "${cert.titulo}" con firma digital refrendada por Administrativo, Director y Decano.`,
           `Puedes acceder de manera gratuita a tu documento oficial desde tu intranet en la sección "Mis documentos" para su descarga e impresión con valor oficial.`,
           `Atentamente,<br>Dirección de Registros y Asuntos Académicos<br>Universidad Norbert Wiener`
         ],
@@ -1006,13 +1343,13 @@ function ejecutarEmisionMasiva(targetCertId = null) {
             ¡Lote de Emisión Masiva Completado!
           </h3>
           <p style="font-size:14px;color:#475569;margin:0 0 18px 0;line-height:1.5;">
-            Se ha generado el lote <b>${loteId}</b> con <b>${total} certificación(es) oficial(es)</b> firmadas digitalmente y notificadas a los correos institucionales correspondientes.
+            Se ha generado el lote <b>${loteId}</b> con <b>${total} Certificación(es) de Conocimiento</b> refrendadas digitalmente por Administrativo, Director y Decano y notificadas a los correos institucionales correspondientes.
           </p>
 
           <div style="background:#F8FAFC;border:1px solid #CBD5E1;border-radius:8px;padding:14px;text-align:left;font-size:13px;margin-bottom:20px;">
             <div style="display:flex;justify-content:space-between;margin-bottom:6px;">
               <span style="font-weight:700;color:#0F848F;">Estudiantes acreditados en este lote:</span>
-              <span class="pill ok" style="font-size:11px;">
+              <span class="pill ok" style="font-size:11px;display:inline-flex;align-items:center;gap:4px;">
                 <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>
                 100% Notificado
               </span>
@@ -1020,7 +1357,10 @@ function ejecutarEmisionMasiva(targetCertId = null) {
             ${targets.length > 0 ? targets.map(t => `
               <div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px dashed #E2E8F0;font-size:12.5px;">
                 <span><b>${t.codigo}</b> - ${t.nombre}</span>
-                <span style="color:#16A34A;font-weight:600;">✓ Notificado a ${t.email}</span>
+                <span style="color:#16A34A;font-weight:600;display:inline-flex;align-items:center;gap:4px;">
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                  Notificado a ${t.email}
+                </span>
               </div>
             `).join('') : `
               <div style="color:#64748B;font-size:12.5px;padding:4px 0;">
@@ -1064,6 +1404,372 @@ function reiniciarDataDemo() {
     APP.toast({ icon: 'ok', title: 'Data restablecida', body: 'Data de prueba de certificaciones reiniciada a valores base.' });
     renderPage();
   }
+}
+
+// --------------------------------------------------------------------------
+// CINTILLO Y WORKFLOW DE FIRMAS OFICIALES EN CERTIFICACIONES (REUTILIZADO DE INICIO)
+// --------------------------------------------------------------------------
+function getActorWorkflowCertificaciones(user) {
+  if (!user) return 'administrativo';
+  const subrol = (user.subrol || '').toLowerCase();
+  const rol = (user.rol || '').toLowerCase();
+  const cargo = (user.cargo || '').toLowerCase();
+
+  if (subrol === 'decano' || cargo.includes('decano')) return 'decano';
+  if (rol === 'director' || subrol === 'director' || cargo.includes('director')) return 'director';
+  return 'administrativo';
+}
+
+function renderCintilloWorkflowCertificaciones() {
+  const container = document.getElementById('certificaciones-cintillo-slot');
+  if (!container) return;
+
+  const session = APP.getSession() || {};
+  const allUsers = DB.usuarios();
+  const user = allUsers.find(u => u.id === session.id || u.codigo === session.codigo) || session;
+  const actor = getActorWorkflowCertificaciones(user);
+
+  if (!actor) {
+    container.innerHTML = '';
+    return;
+  }
+
+  const wf = DB.workflowFirmas();
+  const admOk = !!wf.administrativo?.aprobado;
+  const dirOk = !!wf.director?.aprobado;
+  const decOk = !!wf.decano?.aprobado;
+  const allOk = admOk && dirOk && decOk;
+
+  const currentTurno = !admOk ? 'administrativo' : (!dirOk ? 'director' : (!decOk ? 'decano' : 'completado'));
+  const esMiTurno = (actor === currentTurno);
+
+  const cargoMap = {
+    administrativo: 'Jefatura Operativa de Registros Académicos',
+    director: 'Director de Registros y Asuntos Académicos',
+    decano: 'Decano de la Facultad de Ingeniería y Negocios'
+  };
+
+  const pasoEsperado = !admOk ? 'Administrativo' : 'Director de Registros';
+
+  const svgCheck = `<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>`;
+  const svgActive = `<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>`;
+  const svgWait = `<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="2"></circle></svg>`;
+  const svgArrow = `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>`;
+
+  container.innerHTML = `
+    <div class="home-cintillo-card ${esMiTurno ? 'is-urgent' : (allOk ? 'is-complete' : '')}">
+      <div class="home-cintillo-left">
+        <!-- Radar Pulse Indicator animado en loop -->
+        <div class="cintillo-radar-pulse" title="Atención Prioritaria en Vivo">
+          <span class="crp-ring"></span>
+          <span class="crp-dot"></span>
+        </div>
+        <div class="home-cintillo-icon" title="Tarea de Refrendo Oficial Pendiente">
+          <!-- Icono de Task Pendiente con check y acción CTA -->
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path>
+            <rect x="8" y="2" width="8" height="4" rx="1" ry="1"></rect>
+            <path d="m9 14 2 2 4-4"></path>
+          </svg>
+        </div>
+        <div class="home-cintillo-info">
+          <div class="home-cintillo-title">
+            <span class="cintillo-title-main">Refrendo Oficial: Certificaciones de Conocimiento</span>
+            <span class="cintillo-title-lot-wrap">
+              <span class="cintillo-title-lot">(Lote 2026-II)</span>
+              ${esMiTurno ? '<span class="cintillo-urgent-pill">Firma Requerida</span>' : (allOk ? '<span class="cintillo-ok-pill">100% Emitido</span>' : '')}
+            </span>
+          </div>
+          <div class="home-cintillo-sub">
+            ${allOk
+              ? 'Lote completado con las 3 firmas refrendadas (Administrativo, Director y Decano). 42 diplomas emitidos.'
+              : (esMiTurno
+                ? `Su firma digital como <b>${cargoMap[actor]}</b> es requerida para refrendar el lote de 42 estudiantes aptos.`
+                : `En espera del refrendo de <b>${pasoEsperado}</b> para continuar el flujo secuencial oficial.`
+              )
+            }
+          </div>
+        </div>
+      </div>
+
+      <div class="home-cintillo-right">
+        <div class="home-cintillo-stepper">
+          <div class="hc-step ${admOk ? 'done' : (currentTurno === 'administrativo' ? 'active' : '')}">
+            <span class="hc-step-icon">${admOk ? svgCheck : (currentTurno === 'administrativo' ? svgActive : svgWait)}</span>
+            <span>1. Administrativo</span>
+          </div>
+          <span class="hc-step-sep">${svgArrow}</span>
+          <div class="hc-step ${dirOk ? 'done' : (currentTurno === 'director' ? 'active' : '')}">
+            <span class="hc-step-icon">${dirOk ? svgCheck : (currentTurno === 'director' ? svgActive : svgWait)}</span>
+            <span>2. Director</span>
+          </div>
+          <span class="hc-step-sep">${svgArrow}</span>
+          <div class="hc-step ${decOk ? 'done' : (currentTurno === 'decano' ? 'active' : '')}">
+            <span class="hc-step-icon">${decOk ? svgCheck : (currentTurno === 'decano' ? svgActive : svgWait)}</span>
+            <span>3. Decano</span>
+          </div>
+        </div>
+
+        <div class="home-cintillo-actions">
+          ${esMiTurno ? `
+            <button type="button" class="btn btn-primary btn-cintillo-cta" onclick="abrirModalRefrendoCertificaciones('${actor}')">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>
+              <span>Aprobar y Firmar</span>
+            </button>
+          ` : (allOk ? `
+            <button type="button" class="btn btn-outline btn-cintillo-cta" onclick="abrirModalRefrendoCertificaciones('${actor}')">
+              <span>Ver Firmas</span>
+            </button>
+          ` : `
+            <button type="button" class="btn btn-outline btn-cintillo-cta" onclick="abrirModalRefrendoCertificaciones('${actor}')">
+              <span>Ver Estado</span>
+            </button>
+          `)}
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+function abrirModalRefrendoCertificaciones(rolParam) {
+  const session = APP.getSession() || {};
+  const allUsers = DB.usuarios();
+  const user = allUsers.find(u => u.id === session.id || u.codigo === session.codigo) || session;
+  let rol = rolParam || getActorWorkflowCertificaciones(user) || 'director';
+
+  const wf = DB.workflowFirmas();
+  const admOk = !!wf.administrativo?.aprobado;
+  const dirOk = !!wf.director?.aprobado;
+  const decOk = !!wf.decano?.aprobado;
+  const currentTurno = !admOk ? 'administrativo' : (!dirOk ? 'director' : (!decOk ? 'decano' : 'completado'));
+  const esMiTurno = (rol === currentTurno);
+  const yaFirme = (rol === 'administrativo' && admOk) || (rol === 'director' && dirOk) || (rol === 'decano' && decOk);
+
+  const cargoMap = {
+    administrativo: 'Jefatura Operativa de Registros Académicos',
+    director: 'Director de Registros y Asuntos Académicos',
+    decano: 'Decano de la Facultad de Ingeniería y Negocios'
+  };
+
+  APP.openModal(`
+    <div class="modal-head">
+      <div class="modal-refrendo-header">
+        <div class="modal-refrendo-icon" title="Tarea de Refrendo Oficial Pendiente">
+          <!-- Icono de Task Pendiente Oficial -->
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path>
+            <rect x="8" y="2" width="8" height="4" rx="1" ry="1"></rect>
+            <path d="m9 14 2 2 4-4"></path>
+          </svg>
+        </div>
+        <div>
+          <span style="font-size:11px;font-weight:700;color:#0F848F;text-transform:uppercase;letter-spacing:0.04em;">Aprobación Oficial y Refrendo Digital</span>
+          <h3 style="font-family:'Lato',sans-serif;font-size:16.5px;font-weight:700;color:#0F172A;margin:2px 0 0 0;">
+            Certificaciones de Conocimiento · Periodo 2026-II
+          </h3>
+        </div>
+      </div>
+      <button class="modal-close" onclick="APP.closeModal()">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+      </button>
+    </div>
+
+    <div class="modal-body">
+      <!-- Barra de simulación interactiva para demo de los 3 usuarios -->
+      <div class="modal-refrendo-sim-bar">
+        <span style="font-size:11.5px;color:#475569;font-weight:600;">Simular ingreso / firma como:</span>
+        <div class="modal-refrendo-sim-btns">
+          <button type="button" class="btn btn-sm ${rol === 'administrativo' ? 'btn-primary' : 'btn-outline'}" onclick="abrirModalRefrendoCertificaciones('administrativo')" style="padding:3px 10px;font-size:11.5px;">Administrativo</button>
+          <button type="button" class="btn btn-sm ${rol === 'director' ? 'btn-primary' : 'btn-outline'}" onclick="abrirModalRefrendoCertificaciones('director')" style="padding:3px 10px;font-size:11.5px;">Director</button>
+          <button type="button" class="btn btn-sm ${rol === 'decano' ? 'btn-primary' : 'btn-outline'}" onclick="abrirModalRefrendoCertificaciones('decano')" style="padding:3px 10px;font-size:11.5px;">Decano</button>
+          <button type="button" class="btn btn-sm btn-ghost" onclick="reiniciarWorkflowDesdeCertificaciones()" title="Reiniciar demostración" style="padding:3px 8px;font-size:11px;color:#64748B;">Reiniciar</button>
+        </div>
+      </div>
+
+      <!-- Resumen Ejecutivo del Lote -->
+      <div class="modal-refrendo-summary-grid">
+        <div class="modal-refrendo-summary-card">
+          <div class="modal-refrendo-summary-lbl">Estudiantes Aptos</div>
+          <div class="modal-refrendo-summary-val" style="color:#0F848F;">42 egresados</div>
+        </div>
+        <div class="modal-refrendo-summary-card">
+          <div class="modal-refrendo-summary-lbl">Arancel / Costo</div>
+          <div class="modal-refrendo-summary-val" style="color:#166534;">S/ 0.00 (Gratuito)</div>
+        </div>
+        <div class="modal-refrendo-summary-card">
+          <div class="modal-refrendo-summary-lbl">Periodo Lectivo</div>
+          <div class="modal-refrendo-summary-val">2026-II (Ordinario)</div>
+        </div>
+        <div class="modal-refrendo-summary-card">
+          <div class="modal-refrendo-summary-lbl">Programa Académico</div>
+          <div class="modal-refrendo-summary-val" style="font-size:12.5px;">Ing. de Sistemas</div>
+        </div>
+      </div>
+
+      <!-- Stepper de 3 actores -->
+      <div style="font-size:12px;font-weight:700;color:#0F172A;margin:12px 0 6px 0;">Flujo Secuencial de Refrendos Oficiales:</div>
+      <div class="modal-refrendo-stepper">
+        <!-- Paso 1 -->
+        <div class="modal-refrendo-step-box ${admOk ? 'done' : (currentTurno === 'administrativo' ? 'active' : 'locked')}">
+          <div style="display:flex;justify-content:space-between;align-items:center;">
+            <span style="font-size:11px;font-weight:700;color:#64748B;">PASO 1 · OPERADOR</span>
+            <span class="pill ${admOk ? 'ok' : 'info'}" style="font-size:10px;">${admOk ? 'Refrendado' : 'Pendiente'}</span>
+          </div>
+          <div>
+            <div style="font-size:12.5px;font-weight:700;color:#0F172A;">Carlos Mendoza Ríos</div>
+            <div style="font-size:10.5px;color:#64748B;">Jefatura Operativa de Registros</div>
+          </div>
+          ${admOk ? `
+            <div style="font-size:10px;color:#166534;background:#DCFCE7;padding:5px 8px;border-radius:4px;line-height:1.4;">
+              <b>Firma Digital Registrada</b><br>Refrendado el ${wf.administrativo.fecha} · ID: ${wf.administrativo.firmaId}
+            </div>
+          ` : `
+            <div style="font-size:10.5px;color:#64748B;">Esperando validación de registros</div>
+          `}
+        </div>
+
+        <!-- Paso 2 -->
+        <div class="modal-refrendo-step-box ${dirOk ? 'done' : (currentTurno === 'director' ? 'active' : 'locked')}">
+          <div style="display:flex;justify-content:space-between;align-items:center;">
+            <span style="font-size:11px;font-weight:700;color:#64748B;">PASO 2 · DIRECCIÓN</span>
+            <span class="pill ${dirOk ? 'ok' : (currentTurno === 'director' ? 'warn' : 'gray')}" style="font-size:10px;">${dirOk ? 'Refrendado' : (admOk ? 'Tu Turno' : 'En Espera')}</span>
+          </div>
+          <div>
+            <div style="font-size:12.5px;font-weight:700;color:#0F172A;">Dr. Miguel Angel Faustor</div>
+            <div style="font-size:10.5px;color:#64748B;">Director de Registros Académicos</div>
+          </div>
+          ${dirOk ? `
+            <div style="font-size:10px;color:#166534;background:#DCFCE7;padding:5px 8px;border-radius:4px;line-height:1.4;">
+              <b>Firma Digital Registrada</b><br>Refrendado el ${wf.director.fecha} · ID: ${wf.director.firmaId}
+            </div>
+          ` : `
+            <div style="font-size:10.5px;color:${admOk ? '#0F848F' : '#64748B'};font-weight:${admOk ? '600' : '400'};">
+              ${admOk ? 'Habilitado para refrendar firma digital' : 'Requiere Paso 1 completado'}
+            </div>
+          `}
+        </div>
+
+        <!-- Paso 3 -->
+        <div class="modal-refrendo-step-box ${decOk ? 'done' : (currentTurno === 'decano' ? 'active' : 'locked')}">
+          <div style="display:flex;justify-content:space-between;align-items:center;">
+            <span style="font-size:11px;font-weight:700;color:#64748B;">PASO 3 · DECANATO</span>
+            <span class="pill ${decOk ? 'ok' : (currentTurno === 'decano' ? 'warn' : 'gray')}" style="font-size:10px;">${decOk ? 'Refrendado' : (dirOk ? 'Tu Turno' : 'En Espera')}</span>
+          </div>
+          <div>
+            <div style="font-size:12.5px;font-weight:700;color:#0F172A;">Dr. Augusto Salcedo Vílchez</div>
+            <div style="font-size:10.5px;color:#64748B;">Decano de la Facultad de Ingeniería</div>
+          </div>
+          ${decOk ? `
+            <div style="font-size:10px;color:#166534;background:#DCFCE7;padding:5px 8px;border-radius:4px;line-height:1.4;">
+              <b>Firma Digital Registrada</b><br>Refrendado el ${wf.decano.fecha} · ID: ${wf.decano.firmaId}
+            </div>
+          ` : `
+            <div style="font-size:10.5px;color:${dirOk ? '#0F848F' : '#64748B'};font-weight:${dirOk ? '600' : '400'};">
+              ${dirOk ? 'Habilitado para firma decanal final' : 'Requiere Paso 2 completado'}
+            </div>
+          `}
+        </div>
+      </div>
+
+      <!-- Preview del documento oficial con los 3 bloques de firmas -->
+      <div class="modal-refrendo-doc-preview">
+        <div class="mrdp-header">
+          <div>
+            <div style="font-size:11px;font-weight:700;color:#0F848F;text-transform:uppercase;">Resolución Decanal y Certificado Oficial</div>
+            <div class="mrdp-title">Certificación en "Gestión de Procesos y Datos Digitales" (Ciclo VI)</div>
+          </div>
+          <span class="pill ok" style="font-size:11px;">Aprobación Académica</span>
+        </div>
+        <p style="font-size:11.5px;color:#475569;margin:0 0 10px 0;line-height:1.45;">
+          Por cuanto los 42 egresados han acreditado la aprobación integral de los cursos correspondientes al módulo formativo, se expide el refrendo oficial de acuerdo al Reglamento General de Certificaciones de Conocimiento de la Universidad Privada Norbert Wiener.
+        </p>
+        <div class="mrdp-firmas-row">
+          <div class="mrdp-firma-slot">
+            <div style="font-size:10px;color:${admOk ? '#166534' : '#94A3B8'};font-weight:700;">
+              ${admOk ? '✓ FIRMA REGISTRADA' : '○ PENDIENTE'}
+            </div>
+            <div class="mrdp-firma-line"></div>
+            <div class="mrdp-firma-nom">Carlos Mendoza Ríos</div>
+            <div class="mrdp-firma-cargo">Jefatura de Registros</div>
+          </div>
+
+          <div class="mrdp-firma-slot">
+            <div style="font-size:10px;color:${dirOk ? '#166534' : '#94A3B8'};font-weight:700;">
+              ${dirOk ? '✓ FIRMA REGISTRADA' : '○ PENDIENTE'}
+            </div>
+            <div class="mrdp-firma-line"></div>
+            <div class="mrdp-firma-nom">Dr. Miguel Angel Faustor</div>
+            <div class="mrdp-firma-cargo">Director de Registros</div>
+          </div>
+
+          <div class="mrdp-firma-slot">
+            <div style="font-size:10px;color:${decOk ? '#166534' : '#94A3B8'};font-weight:700;">
+              ${decOk ? '✓ FIRMA REGISTRADA' : '○ PENDIENTE'}
+            </div>
+            <div class="mrdp-firma-line"></div>
+            <div class="mrdp-firma-nom">Dr. Augusto Salcedo</div>
+            <div class="mrdp-firma-cargo">Decano de Facultad</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="modal-foot">
+      <button class="btn btn-outline" onclick="APP.closeModal()">Cerrar</button>
+      ${esMiTurno ? `
+        <button class="btn btn-primary" onclick="ejecutarFirmaDesdeCertificaciones('${rol}')" style="display:inline-flex;align-items:center;gap:6px;font-weight:700;">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>
+          <span>Aprobar y Refrendar Firma Digital (${rol.toUpperCase()})</span>
+        </button>
+      ` : (yaFirme ? `
+        <span class="pill ok" style="font-size:12px;padding:6px 14px;">✓ Tu firma se encuentra registrada</span>
+      ` : `
+        <span class="pill info" style="font-size:12px;padding:6px 14px;">Esperando paso secuencial anterior</span>
+      `)}
+    </div>
+  `, { wide: true });
+}
+
+function ejecutarFirmaDesdeCertificaciones(rol) {
+  const session = APP.getSession() || {};
+  const allUsers = DB.usuarios();
+  const user = allUsers.find(u => u.id === session.id || u.codigo === session.codigo) || session;
+
+  const cargoMap = {
+    administrativo: 'Jefatura Operativa de Registros Académicos',
+    director: 'Director de Registros y Asuntos Académicos',
+    decano: 'Decano de la Facultad de Ingeniería y Negocios'
+  };
+
+  const res = DB.aprobarPasoWorkflow(rol, {
+    usuario: user.nombre || 'Autoridad Institucional',
+    cargo: cargoMap[rol] || user.cargo || 'Funcionario Académico'
+  });
+
+  if (!res.ok) {
+    APP.toast({ icon: 'err', title: 'Error en firma', body: res.error });
+    return;
+  }
+
+  APP.toast({
+    icon: 'ok',
+    title: 'Firma Registrada con Éxito',
+    body: `Se ha registrado el refrendo oficial de ${cargoMap[rol]}. Los documentos del lote 2026-II han sido actualizados.`
+  });
+
+  APP.closeModal();
+  renderPage();
+}
+
+function reiniciarWorkflowDesdeCertificaciones() {
+  DB.reiniciarWorkflowFirmas();
+  APP.toast({
+    icon: 'ok',
+    title: 'Proceso de Firmas Reiniciado',
+    body: 'El flujo secuencial de 3 firmas se ha restablecido para nueva simulación.'
+  });
+  APP.closeModal();
+  renderPage();
 }
 
 function renderPage() {
@@ -1111,11 +1817,14 @@ function renderPage() {
   const countAptos = evalData.filter(e => e.apto).length;
 
   ctx.mount.innerHTML = `
+    <!-- Cintillo Institucional de Workflow de Certificaciones (Posición Top, justo debajo de topbar) -->
+    <div id="certificaciones-cintillo-slot"></div>
+
     <!-- Cabecera de Página (.page-head) -->
     <div class="page-head">
       <div>
-        <h1>Emisión Masiva de Certificaciones Progresivas</h1>
-        <p>Configuración de reglas del sistema, automatización de lotes de cierre de ciclo y auditoría histórica de despachos oficiales sin costo.</p>
+        <h1>Emisión Masiva de Certificaciones de Conocimiento</h1>
+        <p>Configuración de reglas del sistema, workflow de aprobación (Administrativo, Director, Decano), automatización de lotes de cierre de ciclo y auditoría histórica de despachos oficiales sin costo.</p>
       </div>
       <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;">
         <button class="btn btn-outline" onclick="reiniciarDataDemo()" title="Restablece la data de simulación para hacer una nueva demostración" style="display:inline-flex;align-items:center;gap:6px;">
@@ -1140,20 +1849,20 @@ function renderPage() {
     <div class="rules-banner-wiener">
       <div class="rules-banner-head-row">
         <div class="rules-banner-left">
-          <div class="rules-banner-icon">
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
-              <path d="m9 12 2 2 4-4"></path>
-            </svg>
-          </div>
-          <div>
+          <div class="rules-banner-top-title-row">
+            <div class="rules-banner-icon">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+                <path d="m9 12 2 2 4-4"></path>
+              </svg>
+            </div>
             <div class="rules-banner-title">
               <span>Reglas Institucionales de Emisión Automática y Gratuita (Cierre de Ciclo)</span>
               <span class="pill ok" style="font-size:11px;font-weight:700;">Sin costo · Gratuito</span>
             </div>
-            <div class="rules-banner-sub">
-              Validación algorítmica desatendida del sistema (Promedio mínimo ≥ 14.00, Solvencia Sin Deuda S/ 0.00 y no duplicidad).
-            </div>
+          </div>
+          <div class="rules-banner-sub">
+            Validación algorítmica desatendida del sistema (Promedio mínimo ≥ 14.00, Solvencia Sin Deuda S/ 0.00 y no duplicidad).
           </div>
         </div>
 
@@ -1174,7 +1883,7 @@ function renderPage() {
       <!-- Contenido Desplegable -->
       <div class="rules-collapsible-body" id="rules-collapsible-body" style="display:${isRulesExpanded ? 'block' : 'none'};">
         <div class="rules-banner-desc">
-          Las Certificaciones Progresivas se generan de forma masiva y gratuita para los alumnos que culminan los módulos formativos de su plan curricular, validando las reglas internas del sistema y despachando de oficio las constancias digitales con firma electrónica a las cuentas de correo institucional.
+          Las Certificaciones de Conocimiento se generan de forma masiva y gratuita para los alumnos que culminan los módulos formativos de su plan curricular, validando las reglas internas del sistema y despachando de oficio las constancias digitales con firmas refrendadas por Administrativo, Director y Decano a las cuentas de correo institucional.
         </div>
         <div class="rules-pills-grid">
           <div class="rules-check-pill highlight">
@@ -1191,7 +1900,7 @@ function renderPage() {
           </div>
           <div class="rules-check-pill">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;color:#0F848F;"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg>
-            <div><b>Despacho Electrónico:</b> Envío automático con firma de Secretaría General a <b>@uwiener.edu.pe</b>.</div>
+            <div><b>Despacho Electrónico:</b> Envío automático con firmas refrendadas de Administrativo, Director y Decano a <b>@uwiener.edu.pe</b>.</div>
           </div>
         </div>
       </div>
@@ -1276,7 +1985,7 @@ function renderPage() {
     <!-- Pestañas de Navegación -->
     <div class="tabs-bar">
       <div class="tab-item ${activeTab === 'configurador' ? 'active' : ''}" onclick="setMainTab('configurador')">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;">
           <line x1="4" y1="21" x2="4" y2="14"></line>
           <line x1="4" y1="10" x2="4" y2="3"></line>
           <line x1="12" y1="21" x2="12" y2="12"></line>
@@ -1290,7 +1999,7 @@ function renderPage() {
         Configurador y Emisión Masiva
       </div>
       <div class="tab-item ${activeTab === 'programacion' ? 'active' : ''}" onclick="setMainTab('programacion')">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;">
           <circle cx="12" cy="12" r="10"></circle>
           <polyline points="12 6 12 12 16 14"></polyline>
         </svg>
@@ -1304,6 +2013,9 @@ function renderPage() {
 
   // Hidratar desplegables personalizados y datepickers con rotación de flecha
   hydrateInteractiveControls(ctx.mount);
+
+  // Render del Cintillo Institucional de Workflow
+  renderCintilloWorkflowCertificaciones();
 
   if (activeInputId) {
     const el = document.getElementById(activeInputId);
@@ -1341,7 +2053,7 @@ function renderTabConfigurador(currentProgram, currentCert, certsDisponibles, co
     <div class="config-card">
       <div class="config-card-head">
         <h2>
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="color:#0F848F;">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="color:#0F848F;flex-shrink:0;">
             <circle cx="12" cy="12" r="3"></circle>
             <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
           </svg>
@@ -1353,7 +2065,8 @@ function renderTabConfigurador(currentProgram, currentCert, certsDisponibles, co
         </div>
       </div>
 
-      <div class="form-grid-3">
+      <!-- Grid Unificado de los 6 Parámetros Configurables (Adaptación 3 / 2 / 1 columnas) -->
+      <div class="form-grid-config">
         <!-- Programa Académico (Custom Select Personalizado Wiener) -->
         <div class="form-field">
           <label for="cfg-programa">Programa Académico</label>
@@ -1368,9 +2081,9 @@ function renderTabConfigurador(currentProgram, currentCert, certsDisponibles, co
           </div>
         </div>
 
-        <!-- Certificación Progresiva Objetivo (Custom Select Personalizado Wiener) -->
+        <!-- Certificación de Conocimiento Objetivo (Custom Select Personalizado Wiener) -->
         <div class="form-field">
-          <label for="cfg-cert">Certificación Progresiva a Emitir</label>
+          <label for="cfg-cert">Certificación de Conocimiento a Emitir</label>
           <div class="custom-select-container">
             <select id="cfg-cert" onchange="onCertChange(this.value)">
               ${certsDisponibles.map(c => `
@@ -1393,10 +2106,8 @@ function renderTabConfigurador(currentProgram, currentCert, certsDisponibles, co
             </select>
           </div>
         </div>
-      </div>
 
-      <!-- Filtros de Modalidad, Ciclo y Nota Mínima -->
-      <div class="form-grid-3" style="margin-bottom:12px;">
+        <!-- Modalidad de Estudios -->
         <div class="form-field">
           <label for="cfg-modalidad">Modalidad de Estudios</label>
           <div class="custom-select-container">
@@ -1408,6 +2119,7 @@ function renderTabConfigurador(currentProgram, currentCert, certsDisponibles, co
           </div>
         </div>
 
+        <!-- Ciclo de Otorgamiento -->
         <div class="form-field">
           <label for="cfg-ciclo">Ciclo de Otorgamiento</label>
           <div class="custom-select-container">
@@ -1422,6 +2134,7 @@ function renderTabConfigurador(currentProgram, currentCert, certsDisponibles, co
           </div>
         </div>
 
+        <!-- Regla 1: Nota Mínima -->
         <div class="form-field">
           <label for="cfg-nota">Regla 1: Nota Mínima Requerida</label>
           <input type="number" id="cfg-nota" step="0.5" min="11" max="20" value="${configNotaMin}" onchange="onParamRuleChange()" title="Por reglamento institucional la nota aprobatoria en cada asignatura debe ser mínimo 14.00">
@@ -1439,7 +2152,7 @@ function renderTabConfigurador(currentProgram, currentCert, certsDisponibles, co
 
           <label class="rule-chip-label">
             <input type="checkbox" id="cfg-emitidos" ${configOmitirYaEmitidos ? 'checked' : ''} onchange="onParamRuleChange()">
-            <span><b>Regla 3:</b> Excluir alumnos con certificación ya emitida (Evitar duplicidad)</span>
+            <span><b>Regla 3:</b> Excluir alumnos con certificación ya emitida</span>
           </label>
 
           <label class="rule-chip-label">
@@ -1452,16 +2165,18 @@ function renderTabConfigurador(currentProgram, currentCert, certsDisponibles, co
       <!-- Malla Curricular Desplegable -->
       <div class="malla-collapsible">
         <div class="malla-header-toggle" onclick="toggleMalla()">
-          <div style="display:flex;align-items:center;gap:8px;">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"></path>
-              <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path>
-            </svg>
-            <span>Malla Formativa de la Certificación: <b>${currentCert.titulo}</b> (${currentCert.cursos?.length || 0} asignaturas vinculadas)</span>
-            <span class="pill ok" style="font-size:11px;padding:2px 8px;">Otorga en: ${currentCert.cicloOtorgamiento}</span>
+          <div class="malla-toggle-left">
+            <div class="malla-toggle-title-group">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#0F848F" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;">
+                <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"></path>
+                <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path>
+              </svg>
+              <span class="malla-toggle-title">Malla Formativa de la Certificación: <b>${currentCert.titulo}</b> <span class="malla-toggle-count">(${currentCert.cursos?.length || 0} asignaturas vinculadas)</span></span>
+            </div>
+            <span class="pill ok malla-toggle-pill">Otorga en: ${currentCert.cicloOtorgamiento}</span>
           </div>
-          <div style="display:flex;align-items:center;gap:6px;font-size:12px;color:#0F848F;">
-            <span>${isMallaExpanded ? 'Ocultar asignaturas' : 'Ver asignaturas vinculadas'}</span>
+          <div class="malla-toggle-btn">
+            <span>${isMallaExpanded ? 'Ocultar Cursos' : 'Ver Cursos'}</span>
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="transform:${isMallaExpanded ? 'rotate(180deg)' : 'rotate(0deg)'};transition:transform 0.25s ease;">
               <polyline points="6 9 12 15 18 9"></polyline>
             </svg>
@@ -1470,37 +2185,242 @@ function renderTabConfigurador(currentProgram, currentCert, certsDisponibles, co
 
         ${isMallaExpanded ? `
           <div class="malla-body-table">
-            <table class="table-courses">
-              <thead>
-                <tr>
-                  <th style="width:110px;">Cód. Curso</th>
-                  <th>Cursos Vinculados (Asignatura)</th>
-                  <th style="width:100px;text-align:center;">Ciclo Curso</th>
-                  <th style="width:80px;text-align:center;">Tipo</th>
-                  <th style="width:90px;text-align:center;">Creditaje</th>
-                  <th style="width:200px;text-align:center;">Condición Requerida</th>
-                </tr>
-              </thead>
-              <tbody>
-                ${(currentCert.cursos || []).map(c => `
+            <div class="malla-table-scroll">
+              <table class="table-courses">
+                <thead>
                   <tr>
-                    <td style="font-family:monospace;font-weight:700;color:#0F848F;">${c.codigo}</td>
-                    <td><b>${c.nombre}</b></td>
-                    <td style="text-align:center;">Ciclo ${c.ciclo}</td>
-                    <td style="text-align:center;"><span class="pill" style="font-size:11px;padding:2px 8px;background:#F1F5F9;color:#475569;">${c.creditaje || 4} cr.</span></td>
-                    <td style="text-align:center;">${c.tipo || 'O'}</td>
-                    <td style="text-align:center;">
-                      <span style="font-size:12px;color:#166534;font-weight:600;display:inline-flex;align-items:center;gap:4px;">
-                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
-                        Aprobado con Nota ≥ ${configNotaMin.toFixed(2)}
-                      </span>
-                    </td>
+                    <th style="width:100px;">Cód. Curso</th>
+                    <th>Cursos Vinculados (Asignatura)</th>
+                    <th style="width:95px;text-align:center;">Ciclo Curso</th>
+                    <th style="width:75px;text-align:center;">Tipo</th>
+                    <th style="width:85px;text-align:center;">Creditaje</th>
+                    <th style="width:190px;text-align:center;">Condición Requerida</th>
+                    <th style="width:70px;text-align:center;">Quitar</th>
                   </tr>
-                `).join('')}
-              </tbody>
-            </table>
+                </thead>
+                <tbody>
+                  ${(currentCert.cursos || []).map(c => `
+                    <tr>
+                      <td style="font-family:monospace;font-weight:700;color:#0F848F;">${c.codigo}</td>
+                      <td><b>${c.nombre}</b></td>
+                      <td style="text-align:center;">Ciclo ${c.ciclo}</td>
+                      <td style="text-align:center;"><span class="pill" style="font-size:11px;padding:2px 8px;background:#F1F5F9;color:#475569;">${c.creditaje || 4} cr.</span></td>
+                      <td style="text-align:center;">${c.tipo || 'O'}</td>
+                      <td style="text-align:center;">
+                        <span style="font-size:12px;color:#166534;font-weight:600;display:inline-flex;align-items:center;gap:4px;">
+                          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                          Aprobado con Nota ≥ ${configNotaMin.toFixed(2)}
+                        </span>
+                      </td>
+                      <td style="text-align:center;">
+                        <button type="button" class="btn-remove-course" onclick="quitarCursoCertificacion('${c.codigo}')" title="Quitar curso de esta certificación">
+                          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <polyline points="3 6 5 6 21 6"></polyline>
+                            <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                            <line x1="10" y1="11" x2="10" y2="17"></line>
+                            <line x1="14" y1="11" x2="14" y2="17"></line>
+                          </svg>
+                        </button>
+                      </td>
+                    </tr>
+                  `).join('')}
+                </tbody>
+              </table>
+            </div>
+            <div class="malla-table-footer">
+              <button type="button" class="btn btn-secondary btn-sm" onclick="abrirModalAgregarCurso()" style="display:inline-flex;align-items:center;gap:6px;font-weight:600;">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                  <line x1="12" y1="5" x2="12" y2="19"></line>
+                  <line x1="5" y1="12" x2="19" y2="12"></line>
+                </svg>
+                <span>Agregar Curso a la Malla</span>
+              </button>
+            </div>
           </div>
         ` : ''}
+      </div>
+
+      <!-- WORKFLOW INSTITUCIONAL DE APROBACIÓN Y FIRMAS DIGITALES (ADMINISTRATIVO -> DIRECTOR -> DECANO) -->
+      <div class="workflow-card">
+        <div class="workflow-card-head">
+          <div class="workflow-card-title">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;">
+              <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+              <polyline points="9 12 11 14 15 10"></polyline>
+            </svg>
+            <div>
+              <span>Circuito Oficial de Refrendos y Firmas Institucionales para Emisión Masiva</span>
+              <div style="font-size:12px;font-weight:400;color:#64748B;margin-top:2px;">
+                Aprobación y refrendo secuencial requerido: <b>1. Administrativo</b> → <b>2. Director</b> → <b>3. Decano</b>
+              </div>
+            </div>
+          </div>
+
+          <div class="workflow-actions-wrap">
+            <div class="workflow-profile-bar">
+              <span class="workflow-profile-lbl">Ingresar/Firmar como:</span>
+              <button type="button" class="btn-workflow-role ${activeWorkflowRole === 'administrativo' ? 'active' : ''}" onclick="setWorkflowRole('administrativo')">Administrativo</button>
+              <button type="button" class="btn-workflow-role ${activeWorkflowRole === 'director' ? 'active' : ''}" onclick="setWorkflowRole('director')">Director</button>
+              <button type="button" class="btn-workflow-role ${activeWorkflowRole === 'decano' ? 'active' : ''}" onclick="setWorkflowRole('decano')">Decano</button>
+            </div>
+            <button type="button" class="btn btn-ghost btn-sm" onclick="reiniciarWorkflowFirmas()" title="Reiniciar proceso de firmas a estado inicial" style="font-size:11.5px;color:#64748B;display:inline-flex;align-items:center;gap:4px;">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"></path><path d="M3 3v5h5"></path></svg>
+              <span>Reiniciar</span>
+            </button>
+          </div>
+        </div>
+
+        <div class="workflow-steps-grid">
+          <!-- Paso 1: Administrativo -->
+          <div class="workflow-step-card ${workflowFirmas.administrativo.aprobado ? 'approved' : (activeWorkflowRole === 'administrativo' ? 'active' : '')}">
+            <div class="workflow-step-head">
+              <div class="workflow-step-num">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"></circle><path d="M12 6v6l4 2"></path></svg>
+                <span>Paso 1 · Operador</span>
+              </div>
+              <span class="pill ${workflowFirmas.administrativo.aprobado ? 'ok' : 'info'}" style="font-size:10.5px;">
+                ${workflowFirmas.administrativo.aprobado ? `
+                  <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                  Aprobado
+                ` : 'Pendiente'}
+              </span>
+            </div>
+            <div>
+              <div class="workflow-step-role">Perfil Administrativo</div>
+              <div class="workflow-step-user">${workflowFirmas.administrativo.usuario}</div>
+              <div class="workflow-step-cargo">${workflowFirmas.administrativo.cargo}</div>
+            </div>
+            <div>
+              ${workflowFirmas.administrativo.aprobado ? `
+                <div class="workflow-signature-stamp">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#16A34A" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                  <div>
+                    <b>Firma Digital Registrada</b><br>
+                    <span style="font-size:10px;color:#166534;">Refrendado el ${workflowFirmas.administrativo.fecha} · ID: ${workflowFirmas.administrativo.firmaId}</span>
+                  </div>
+                </div>
+                <button type="button" class="btn btn-ghost btn-sm workflow-step-btn" style="color:#166534;background:#DCFCE7;cursor:default;">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                  <span>Firma Administrativa Acreditada</span>
+                </button>
+              ` : `
+                <button type="button" class="btn btn-primary workflow-step-btn" onclick="aprobarPasoWorkflow('administrativo')">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path><polyline points="9 12 11 14 15 10"></polyline></svg>
+                  <span>Aprobar y Firmar (Administrativo)</span>
+                </button>
+              `}
+            </div>
+          </div>
+
+          <!-- Paso 2: Director -->
+          <div class="workflow-step-card ${workflowFirmas.director.aprobado ? 'approved' : (!workflowFirmas.administrativo.aprobado ? 'locked' : (activeWorkflowRole === 'director' ? 'active' : ''))}">
+            <div class="workflow-step-head">
+              <div class="workflow-step-num">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"></circle><path d="M12 6v6l4 2"></path></svg>
+                <span>Paso 2 · Escuela</span>
+              </div>
+              <span class="pill ${workflowFirmas.director.aprobado ? 'ok' : (!workflowFirmas.administrativo.aprobado ? '' : 'info')}" style="font-size:10.5px;">
+                ${workflowFirmas.director.aprobado ? `
+                  <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                  Aprobado
+                ` : (!workflowFirmas.administrativo.aprobado ? 'En espera del Paso 1' : 'Listo para firmar')}
+              </span>
+            </div>
+            <div>
+              <div class="workflow-step-role">Perfil Director de Escuela</div>
+              <div class="workflow-step-user">${workflowFirmas.director.usuario}</div>
+              <div class="workflow-step-cargo">${workflowFirmas.director.cargo}</div>
+            </div>
+            <div>
+              ${workflowFirmas.director.aprobado ? `
+                <div class="workflow-signature-stamp">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#16A34A" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                  <div>
+                    <b>Firma Digital Registrada</b><br>
+                    <span style="font-size:10px;color:#166534;">Refrendado el ${workflowFirmas.director.fecha} · ID: ${workflowFirmas.director.firmaId}</span>
+                  </div>
+                </div>
+                <button type="button" class="btn btn-ghost btn-sm workflow-step-btn" style="color:#166534;background:#DCFCE7;cursor:default;">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                  <span>Firma de Dirección Acreditada</span>
+                </button>
+              ` : (
+                !workflowFirmas.administrativo.aprobado ? `
+                  <button type="button" class="btn btn-outline workflow-step-btn" disabled title="Requiere previa aprobación del Administrativo" style="opacity:0.6;cursor:not-allowed;">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><rect width="18" height="11" x="3" y="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
+                    <span>Esperando V°B° Administrativo</span>
+                  </button>
+                ` : `
+                  <button type="button" class="btn btn-primary workflow-step-btn" onclick="aprobarPasoWorkflow('director')">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path><polyline points="9 12 11 14 15 10"></polyline></svg>
+                    <span>Aprobar y Firmar (Director)</span>
+                  </button>
+                `
+              )}
+            </div>
+          </div>
+
+          <!-- Paso 3: Decano -->
+          <div class="workflow-step-card ${workflowFirmas.decano.aprobado ? 'approved' : (!workflowFirmas.director.aprobado ? 'locked' : (activeWorkflowRole === 'decano' ? 'active' : ''))}">
+            <div class="workflow-step-head">
+              <div class="workflow-step-num">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"></circle><path d="M12 6v6l4 2"></path></svg>
+                <span>Paso 3 · Facultad</span>
+              </div>
+              <span class="pill ${workflowFirmas.decano.aprobado ? 'ok' : (!workflowFirmas.director.aprobado ? '' : 'warn')}" style="font-size:10.5px;">
+                ${workflowFirmas.decano.aprobado ? `
+                  <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                  Aprobado
+                ` : (!workflowFirmas.director.aprobado ? 'En espera del Paso 2' : 'Firma final pendiente')}
+              </span>
+            </div>
+            <div>
+              <div class="workflow-step-role">Perfil Decano de Facultad</div>
+              <div class="workflow-step-user">${workflowFirmas.decano.usuario}</div>
+              <div class="workflow-step-cargo">${workflowFirmas.decano.cargo}</div>
+            </div>
+            <div>
+              ${workflowFirmas.decano.aprobado ? `
+                <div class="workflow-signature-stamp">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#16A34A" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                  <div>
+                    <b>Firma Digital Registrada</b><br>
+                    <span style="font-size:10px;color:#166534;">Refrendado el ${workflowFirmas.decano.fecha} · ID: ${workflowFirmas.decano.firmaId}</span>
+                  </div>
+                </div>
+                <button type="button" class="btn btn-ghost btn-sm workflow-step-btn" style="color:#166534;background:#DCFCE7;cursor:default;">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                  <span>Firma Decanal Acreditada</span>
+                </button>
+              ` : (
+                !workflowFirmas.director.aprobado ? `
+                  <button type="button" class="btn btn-outline workflow-step-btn" disabled title="Requiere previa aprobación del Director de Escuela" style="opacity:0.6;cursor:not-allowed;">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><rect width="18" height="11" x="3" y="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
+                    <span>Esperando V°B° Director</span>
+                  </button>
+                ` : `
+                  <button type="button" class="btn btn-primary workflow-step-btn" onclick="aprobarPasoWorkflow('decano')" style="background:#0F848F;">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path><polyline points="9 12 11 14 15 10"></polyline></svg>
+                    <span>Refrendar y Firmar (Decano)</span>
+                  </button>
+                `
+              )}
+            </div>
+          </div>
+        </div>
+
+        <div class="workflow-summary-banner">
+          <div style="display:flex;align-items:center;gap:8px;">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>
+            <span>
+              ${workflowFirmas.administrativo.aprobado && workflowFirmas.director.aprobado && workflowFirmas.decano.aprobado ? `
+                <b>Circuito completado al 100%:</b> Las 3 firmas oficiales (Administrativo, Director y Decano) figurarán con certificado digital en los documentos que se emitirán de forma masiva.
+              ` : `
+                <b>Proceso en curso (${(workflowFirmas.administrativo.aprobado ? 1 : 0) + (workflowFirmas.director.aprobado ? 1 : 0) + (workflowFirmas.decano.aprobado ? 1 : 0)} de 3 firmas registradas):</b> Se refrendará la firma de cada autoridad en orden secuencial obligatorio antes de la emisión final del lote.
+              `}
+            </span>
+          </div>
+        </div>
       </div>
 
       <!-- BANNER DE RESUMEN DE EJECUCIÓN Y BOTÓN SOLICITADO 'Ejecutar Emisión Masiva' -->
@@ -1509,21 +2429,27 @@ function renderTabConfigurador(currentProgram, currentCert, certsDisponibles, co
           <div class="config-action-icon">
             ${getSvgExecIcon(24, '#FFFFFF')}
           </div>
-          <div>
-            <div style="font-weight:700;font-size:15px;color:#0F172A;margin-bottom:2px;">
+          <div class="config-action-details">
+            <div class="config-action-title">
               Emisión Masiva de Oficio al Cierre de Periodo ${selectedPeriodo}
             </div>
-            <div style="font-size:12.5px;color:#475569;display:flex;align-items:center;gap:12px;flex-wrap:wrap;">
-              <span>Certificación: <b>${currentCert.titulo}</b></span>
-              <span>·</span>
-              <span style="color:#166534;font-weight:600;">✓ Trámite Gratuito Institucional (S/ 0.00)</span>
-              <span>·</span>
-              <span style="color:#0F848F;font-weight:600;">⚡ ${countAptos} estudiante(s) apto(s) en este lote</span>
+            <div class="config-action-meta">
+              <span class="config-meta-item">Certificación: <b>${currentCert.titulo}</b></span>
+              <span class="config-meta-sep">·</span>
+              <span class="config-meta-item config-meta-free">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                Trámite Gratuito Institucional (S/ 0.00)
+              </span>
+              <span class="config-meta-sep">·</span>
+              <span class="config-meta-item config-meta-aptos">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon></svg>
+                ${countAptos} estudiante(s) apto(s) en este lote
+              </span>
             </div>
           </div>
         </div>
 
-        <div style="display:flex;gap:12px;align-items:center;flex-wrap:wrap;">
+        <div class="config-action-buttons">
           <button class="btn btn-secondary" onclick="abrirModalNuevaProgramacion()" style="display:inline-flex;align-items:center;gap:8px;">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
               <rect width="18" height="18" x="3" y="4" rx="2"></rect>
@@ -1549,7 +2475,7 @@ function renderTabConfigurador(currentProgram, currentCert, certsDisponibles, co
     <div class="vt-table-card">
       <div class="vt-table-toolbar">
         <div style="display:flex;align-items:center;gap:10px;">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#0F848F" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#0F848F" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;">
             <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"></path>
             <polyline points="3 3 3 8 8 8"></polyline>
             <polyline points="12 7 12 12 15 15"></polyline>
@@ -1581,14 +2507,14 @@ function renderTabConfigurador(currentProgram, currentCert, certsDisponibles, co
             </select>
           </div>
 
-          <!-- DatePicker Personalizado Wiener (Desde) -->
-          <div class="custom-date-container" style="width:145px;" title="Fecha inicio de lote">
-            <input type="date" id="filter-date-desde" class="form-control" value="${filterDateDesde}" onchange="filterDateDesde=this.value; renderPage();">
-          </div>
-
-          <!-- DatePicker Personalizado Wiener (Hasta) -->
-          <div class="custom-date-container" style="width:145px;" title="Fecha fin de lote">
-            <input type="date" id="filter-date-hasta" class="form-control" value="${filterDateHasta}" onchange="filterDateHasta=this.value; renderPage();">
+          <!-- Rango de Fechas (Desde / Hasta) adaptado a 1 sola línea en mobile -->
+          <div class="filter-dates-row">
+            <div class="custom-date-container" style="width:145px;" title="Fecha inicio de lote">
+              <input type="date" id="filter-date-desde" class="form-control" value="${filterDateDesde}" onchange="filterDateDesde=this.value; renderPage();">
+            </div>
+            <div class="custom-date-container" style="width:145px;" title="Fecha fin de lote">
+              <input type="date" id="filter-date-hasta" class="form-control" value="${filterDateHasta}" onchange="filterDateHasta=this.value; renderPage();">
+            </div>
           </div>
 
           ${hayFiltrosActivos ? `
@@ -1607,7 +2533,7 @@ function renderTabConfigurador(currentProgram, currentCert, certsDisponibles, co
               <th style="width:140px;">Lote ID</th>
               <th style="width:140px;">Fecha y Hora</th>
               <th>Programa Académico</th>
-              <th>Certificación Progresiva</th>
+              <th>Certificación de Conocimiento</th>
               <th style="width:90px;text-align:center;">Periodo</th>
               <th style="width:120px;text-align:center;">Total Emitidos</th>
               <th>Canal de Despacho</th>
@@ -1703,7 +2629,7 @@ function renderTabProgramacion(programaciones) {
             <line x1="12" y1="8" x2="12" y2="16"></line>
             <line x1="8" y1="12" x2="16" y2="12"></line>
           </svg>
-          <span>+ Nueva Programación de Cierre</span>
+          <span>Nueva Programación de Cierre</span>
         </button>
       </div>
 
@@ -1884,6 +2810,18 @@ window.togglePausa = togglePausa;
 window.ejecutarEmisionMasiva = ejecutarEmisionMasiva;
 window.ejecutarProgramacionAhora = ejecutarProgramacionAhora;
 window.reiniciarDataDemo = reiniciarDataDemo;
+window.descargarReporteLote = descargarReporteLote;
+window.quitarCursoCertificacion = quitarCursoCertificacion;
+window.abrirModalAgregarCurso = abrirModalAgregarCurso;
+window.filtrarCursosDisponibles = filtrarCursosDisponibles;
+window.agregarCursoCertificacion = agregarCursoCertificacion;
+window.setWorkflowRole = setWorkflowRole;
+window.aprobarPasoWorkflow = aprobarPasoWorkflow;
+window.reiniciarWorkflowFirmas = reiniciarWorkflowFirmas;
+window.renderCintilloWorkflowCertificaciones = renderCintilloWorkflowCertificaciones;
+window.abrirModalRefrendoCertificaciones = abrirModalRefrendoCertificaciones;
+window.ejecutarFirmaDesdeCertificaciones = ejecutarFirmaDesdeCertificaciones;
+window.reiniciarWorkflowDesdeCertificaciones = reiniciarWorkflowDesdeCertificaciones;
 window.renderPage = renderPage;
 
 // Inicialización de la vista

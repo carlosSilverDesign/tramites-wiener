@@ -1083,3 +1083,731 @@
     grid-template-columns: 1fr;
   }
 }
+
+/* ==========================================================================
+   SOLUCIÓN HÍBRIDA: CINTILLO Y MODAL DE FIRMAS DE CERTIFICACIONES DE CONOCIMIENTO
+   ========================================================================== */
+
+/* Cintillo prioritario de aprobación en #home-banner-slot */
+.home-banner-wrapper.banner-workflow-urgent {
+  background: linear-gradient(135deg, #071E3D 0%, #0B2545 40%, #0F848F 100%);
+  border: 1px solid #14B8A6;
+  box-shadow: 0 4px 20px rgba(15, 132, 143, 0.22);
+}
+
+.home-banner-wrapper.banner-workflow-complete {
+  background: linear-gradient(135deg, #064E3B 0%, #065F46 45%, #0F766E 100%);
+  border: 1px solid #34D399;
+}
+
+.home-banner-wrapper.banner-workflow-waiting {
+  background: linear-gradient(135deg, #1E293B 0%, #334155 50%, #0F848F 100%);
+  border: 1px solid #64748B;
+}
+
+.banner-priority-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(245, 158, 11, 0.18);
+  border: 1px solid #F59E0B;
+  color: #FEF08A;
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  margin-bottom: 10px;
+}
+
+.banner-priority-tag.tag-complete {
+  background: rgba(34, 197, 94, 0.2);
+  border-color: #4ADE80;
+  color: #BBF7D0;
+}
+
+.banner-priority-tag.tag-waiting {
+  background: rgba(148, 163, 184, 0.2);
+  border-color: #94A3B8;
+  color: #E2E8F0;
+}
+
+.pulsing-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #F59E0B;
+  box-shadow: 0 0 0 0 rgba(245, 158, 11, 0.7);
+  animation: pulse-gold 1.8s infinite;
+}
+
+@keyframes pulse-gold {
+  0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(245, 158, 11, 0.7); }
+  70% { transform: scale(1); box-shadow: 0 0 0 7px rgba(245, 158, 11, 0); }
+  100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(245, 158, 11, 0); }
+}
+
+/* Stepper horizontal dentro del banner */
+.banner-workflow-stepper {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: rgba(0, 0, 0, 0.25);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 10px;
+  padding: 10px 14px;
+  margin: 14px 0 16px 0;
+  max-width: 620px;
+}
+
+.bw-step {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex: 1;
+  min-width: 0;
+}
+
+.bw-step-icon {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 11px;
+  font-weight: 700;
+  flex-shrink: 0;
+  background: rgba(255, 255, 255, 0.15);
+  color: #FFFFFF;
+}
+
+.bw-step.done .bw-step-icon {
+  background: #22C55E;
+  color: #FFFFFF;
+}
+
+.bw-step.current .bw-step-icon {
+  background: #07C8CC;
+  color: #071E3D;
+  box-shadow: 0 0 0 3px rgba(7, 200, 204, 0.3);
+}
+
+.bw-step-text {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.bw-step-text b {
+  font-size: 11.5px;
+  color: #FFFFFF;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.bw-step-text span {
+  font-size: 10px;
+  color: rgba(255, 255, 255, 0.7);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.bw-step-arrow {
+  color: rgba(255, 255, 255, 0.4);
+  font-size: 12px;
+  user-select: none;
+}
+
+@media (max-width: 768px) {
+  .banner-workflow-stepper {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 8px;
+  }
+  .bw-step-arrow {
+    display: none;
+  }
+}
+
+/* Badge de alerta en tabs de tareas */
+.home-tab-badge.badge-alert {
+  background: #F59E0B;
+  color: #000000;
+  font-weight: 800;
+}
+
+/* Modal Ejecutivo de Refrendo */
+.modal-refrendo-header {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.modal-refrendo-icon {
+  width: 44px;
+  height: 44px;
+  border-radius: 10px;
+  background: linear-gradient(135deg, #0F848F 0%, #064E3B 100%);
+  color: #FFFFFF;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.modal-refrendo-summary-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+  margin: 14px 0;
+}
+
+@media (max-width: 768px) {
+  .modal-refrendo-summary-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+.modal-refrendo-summary-card {
+  background: #F8FAFC;
+  border: 1px solid #E2E8F0;
+  border-radius: 8px;
+  padding: 10px 12px;
+}
+
+.modal-refrendo-summary-lbl {
+  font-size: 11px;
+  font-weight: 700;
+  color: #64748B;
+  text-transform: uppercase;
+  margin-bottom: 3px;
+}
+
+.modal-refrendo-summary-val {
+  font-size: 14px;
+  font-weight: 700;
+  color: #0F172A;
+}
+
+/* Stepper de firmas dentro del modal */
+.modal-refrendo-stepper {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+  margin: 16px 0;
+}
+
+@media (max-width: 768px) {
+  .modal-refrendo-stepper {
+    grid-template-columns: 1fr;
+  }
+}
+
+.modal-refrendo-step-box {
+  background: #F8FAFC;
+  border: 1.5px solid #E2E8F0;
+  border-radius: 10px;
+  padding: 14px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.modal-refrendo-step-box.done {
+  background: #F0FDF4;
+  border-color: #86EFAC;
+}
+
+.modal-refrendo-step-box.active {
+  background: #FAFEFE;
+  border-color: #0F848F;
+  box-shadow: 0 0 0 1px #0F848F;
+}
+
+.modal-refrendo-step-box.locked {
+  background: #F1F5F9;
+  opacity: 0.7;
+}
+
+/* Vista previa del documento ministerial */
+.modal-refrendo-doc-preview {
+  background: #FFFFFF;
+  border: 1.5px dashed #CBD5E1;
+  border-radius: 10px;
+  padding: 16px 20px;
+  margin: 16px 0;
+}
+
+.mrdp-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid #E2E8F0;
+  padding-bottom: 10px;
+  margin-bottom: 12px;
+}
+
+.mrdp-title {
+  font-size: 13.5px;
+  font-weight: 700;
+  color: #0F172A;
+}
+
+.mrdp-firmas-row {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 14px;
+  padding-top: 12px;
+  border-top: 1px dashed #E2E8F0;
+}
+
+@media (max-width: 768px) {
+  .mrdp-firmas-row {
+    grid-template-columns: 1fr;
+  }
+}
+
+.mrdp-firma-slot {
+  text-align: center;
+  padding: 8px;
+  background: #FAFAFA;
+  border-radius: 6px;
+  border: 1px solid #E2E8F0;
+}
+
+.mrdp-firma-line {
+  border-top: 1px solid #94A3B8;
+  margin: 8px 16px 6px 16px;
+}
+
+.mrdp-firma-nom {
+  font-size: 11.5px;
+  font-weight: 700;
+  color: #1E293B;
+}
+
+.mrdp-firma-cargo {
+  font-size: 10px;
+  color: #64748B;
+}
+
+/* Barra de simulación en modal */
+.modal-refrendo-sim-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: #F1F5F9;
+  padding: 8px 12px;
+  border-radius: 8px;
+  margin-bottom: 14px;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.modal-refrendo-sim-btns {
+  display: inline-flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+/* ==========================================================================
+   CINTILLO PRIORITARIO DE WORKFLOW (POSICIÓN TOP, SOBRE HERO GREETING)
+   Estilo institucional: Fondo blanco, trazo gris suave, altura optimizada
+   ========================================================================== */
+.home-cintillo-card {
+  background: #FFFFFF;
+  border: 1px solid #E2E8F0;
+  border-radius: 12px;
+  padding: 16px 22px;
+  margin-bottom: 0 !important;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.04);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+  transition: all 0.2s ease;
+}
+
+.home-cintillo-card.is-urgent {
+  border: 1.5px solid #0F848F;
+  box-shadow: 0 4px 14px rgba(15, 132, 143, 0.10);
+}
+
+.home-cintillo-card.is-complete {
+  border: 1px solid #86EFAC;
+  background: #F0FDF4;
+}
+
+.home-cintillo-left {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  min-width: 0;
+  flex: 1;
+}
+
+/* Radar Pulse Indicator animado en loop */
+.cintillo-radar-pulse {
+  position: relative;
+  width: 14px;
+  height: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  margin-right: -2px;
+}
+
+.crp-ring {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  background: rgba(15, 132, 143, 0.35);
+  animation: radar-ping 2s cubic-bezier(0, 0, 0.2, 1) infinite;
+}
+
+.crp-dot {
+  position: relative;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #0F848F;
+  box-shadow: 0 0 5px rgba(15, 132, 143, 0.6);
+}
+
+@keyframes radar-ping {
+  0% {
+    transform: scale(0.7);
+    opacity: 0.9;
+  }
+  70%, 100% {
+    transform: scale(2.2);
+    opacity: 0;
+  }
+}
+
+.home-cintillo-icon {
+  width: 42px;
+  height: 42px;
+  border-radius: 10px;
+  background: #E6F4F5;
+  color: #0F848F;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.home-cintillo-card.is-urgent .home-cintillo-icon {
+  background: #0F848F;
+  color: #FFFFFF;
+  box-shadow: 0 2px 8px rgba(15, 132, 143, 0.25);
+}
+
+.home-cintillo-card.is-complete .home-cintillo-icon {
+  background: #166534;
+  color: #FFFFFF;
+}
+
+.home-cintillo-info {
+  min-width: 0;
+}
+
+.home-cintillo-title {
+  font-family: 'Lato', sans-serif;
+  font-size: 15.5px;
+  font-weight: 700;
+  color: #0F172A;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  line-height: 1.3;
+}
+
+.cintillo-title-main {
+  font-weight: 700;
+  color: #0F172A;
+}
+
+.cintillo-title-lot-wrap {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.cintillo-title-lot {
+  color: #0F172A;
+}
+
+.home-cintillo-right {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  flex-shrink: 0;
+}
+
+.cintillo-urgent-pill {
+  font-size: 11px;
+  font-weight: 700;
+  color: #991B1B;
+  background: #FEE2E2;
+  border: 1px solid #FECACA;
+  padding: 2px 8px;
+  border-radius: 999px;
+  letter-spacing: 0.02em;
+}
+
+.cintillo-ok-pill {
+  font-size: 11px;
+  font-weight: 700;
+  color: #166534;
+  background: #DCFCE7;
+  border: 1px solid #86EFAC;
+  padding: 2px 8px;
+  border-radius: 999px;
+}
+
+.home-cintillo-sub {
+  font-size: 12px;
+  color: #64748B;
+  margin-top: 3px;
+  line-height: 1.4;
+}
+
+.home-cintillo-stepper {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.hc-step {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  font-weight: 600;
+  color: #64748B;
+  padding: 5px 12px;
+  border-radius: 999px;
+  background: #F8FAFC;
+  border: 1px solid #CBD5E1;
+  white-space: nowrap;
+  transition: all 0.15s ease;
+}
+
+.hc-step.done {
+  color: #166534;
+  background: #F0FDF4;
+  border-color: #86EFAC;
+  font-weight: 700;
+}
+
+.hc-step.active {
+  color: #0F848F;
+  background: #F0FDFA;
+  border: 1.5px solid #0F848F;
+  font-weight: 700;
+  box-shadow: 0 1px 4px rgba(15, 132, 143, 0.15);
+}
+
+.hc-step-icon {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.hc-step.done .hc-step-icon {
+  background: #22C55E;
+  color: #FFFFFF;
+}
+
+.hc-step.active .hc-step-icon {
+  background: #0F848F;
+  color: #FFFFFF;
+}
+
+.hc-step .hc-step-icon {
+  background: #E2E8F0;
+  color: #64748B;
+}
+
+.hc-step-sep {
+  color: #94A3B8;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.home-cintillo-actions {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  padding-left: 14px;
+  border-left: 1px solid #E2E8F0;
+}
+
+.btn-cintillo-cta {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 8px !important;
+  font-size: 13px !important;
+  font-weight: 700 !important;
+  padding: 8px 18px !important;
+  border-radius: 8px !important;
+  white-space: nowrap !important;
+  cursor: pointer !important;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1) !important;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08) !important;
+}
+
+.btn-cintillo-cta.btn-primary {
+  background: #0F848F !important;
+  color: #FFFFFF !important;
+  border: 1.5px solid #0D727C !important;
+  box-shadow: 0 3px 12px rgba(15, 132, 143, 0.35) !important;
+}
+
+.btn-cintillo-cta.btn-primary:hover {
+  background: #0B6770 !important;
+  transform: translateY(-1px) !important;
+  box-shadow: 0 5px 16px rgba(15, 132, 143, 0.45) !important;
+}
+
+.btn-cintillo-cta.btn-outline {
+  background: #FFFFFF !important;
+  color: #0F848F !important;
+  border: 1.5px solid #0F848F !important;
+  box-shadow: 0 1px 4px rgba(15, 132, 143, 0.12) !important;
+}
+
+.btn-cintillo-cta.btn-outline:hover {
+  background: #F0F9FA !important;
+  color: #0B6770 !important;
+  border-color: #0B6770 !important;
+  transform: translateY(-1px) !important;
+}
+
+/* Pills con trazo en modal de Refrendo Digital */
+.modal-refrendo-step-box .pill,
+.mrdp-header .pill,
+.modal-refrendo-stepper .pill {
+  border: 1px solid currentColor !important;
+  font-weight: 700;
+}
+
+.modal-refrendo-step-box .pill.ok,
+.mrdp-header .pill.ok {
+  background: #DCFCE7 !important;
+  color: #166534 !important;
+  border: 1px solid #86EFAC !important;
+}
+
+.modal-refrendo-step-box .pill.warn {
+  background: #FEF3C7 !important;
+  color: #92400E !important;
+  border: 1px solid #FCD34D !important;
+}
+
+.modal-refrendo-step-box .pill.info {
+  background: #EFF6FF !important;
+  color: #1E40AF !important;
+  border: 1px solid #93C5FD !important;
+}
+
+@media (max-width: 1366px) and (min-width: 961px) {
+  .home-cintillo-card {
+    padding: 14px 18px;
+    gap: 16px;
+  }
+
+  .home-cintillo-title {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 2px;
+  }
+
+  .cintillo-title-main {
+    display: block;
+    white-space: nowrap;
+    font-size: 15px;
+  }
+
+  .cintillo-title-lot-wrap {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .home-cintillo-right {
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 8px;
+  }
+
+  .home-cintillo-stepper {
+    justify-content: flex-end;
+  }
+
+  .home-cintillo-actions {
+    display: flex;
+    justify-content: flex-end;
+  }
+}
+
+@media (max-width: 960px) {
+  .home-cintillo-card {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 14px;
+    padding: 16px;
+  }
+
+  .home-cintillo-right {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 12px;
+    width: 100%;
+  }
+
+  .home-cintillo-stepper {
+    justify-content: flex-start;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    padding-bottom: 2px;
+    scrollbar-width: none;
+    width: 100%;
+  }
+
+  .home-cintillo-stepper::-webkit-scrollbar {
+    display: none;
+  }
+
+  .home-cintillo-actions {
+    display: flex;
+    justify-content: stretch;
+    width: 100%;
+    padding-left: 0;
+    border-left: none;
+    margin-top: 4px;
+  }
+
+  .home-cintillo-actions .btn,
+  .home-cintillo-actions .btn-cintillo-cta {
+    width: 100% !important;
+    justify-content: center !important;
+    padding: 10px 18px !important;
+  }
+}

@@ -24,7 +24,33 @@ const SVG_ICONS = {
 };
 
 // --------------------------------------------------------------------------
-// 1. BANNER INSTITUCIONAL DEL PRIMER SCROLL (BANNER ÚNICO CON ILUSTRACIÓN)
+// 0. GESTIÓN DE ROLES PARA WORKFLOW DE CERTIFICACIONES DE CONOCIMIENTO
+// --------------------------------------------------------------------------
+function getActorWorkflowCertificaciones(user) {
+  if (!user) return null;
+  const email = (user.email || '').toLowerCase();
+  const nombre = (user.nombre || '').toLowerCase();
+  const cargo = (user.cargo || '').toLowerCase();
+  const area = (user.area || '').toLowerCase();
+  const rol = (user.rol || '').toLowerCase();
+
+  if (email.includes('salcedo') || nombre.includes('salcedo') || cargo.includes('decano') || user.subrol === 'decano') {
+    return 'decano';
+  }
+  if (email.includes('faustor') || nombre.includes('faustor') || cargo.includes('director') || rol === 'director') {
+    return 'director';
+  }
+  if (email.includes('mendoza') || nombre.includes('carlos mendoza') || (rol === 'administrativo' && area.includes('registro'))) {
+    return 'administrativo';
+  }
+  if (rol === 'administrativo') {
+    return 'administrativo';
+  }
+  return null;
+}
+
+// --------------------------------------------------------------------------
+// 1. BANNER INSTITUCIONAL DEL PRIMER SCROLL (BANNER ESTÁNDAR RESTAURADO)
 // --------------------------------------------------------------------------
 function renderBanner() {
   const container = document.getElementById('home-banner-slot');
@@ -66,9 +92,351 @@ function renderBanner() {
 }
 
 // --------------------------------------------------------------------------
+// 1.1 CINTILLO INSTITUCIONAL DE WORKFLOW DE CERTIFICACIONES (FONDO BLANCO / TRAZO GRIS)
+// --------------------------------------------------------------------------
+function renderCintilloWorkflow() {
+  const container = document.getElementById('home-cintillo-slot');
+  if (!container) return;
+
+  const session = APP.getSession() || {};
+  const allUsers = DB.usuarios();
+  const user = allUsers.find(u => u.id === session.id || u.codigo === session.codigo) || session;
+  const actor = getActorWorkflowCertificaciones(user);
+
+  if (!actor) {
+    container.innerHTML = '';
+    return;
+  }
+
+  const wf = DB.workflowFirmas();
+  const admOk = !!wf.administrativo?.aprobado;
+  const dirOk = !!wf.director?.aprobado;
+  const decOk = !!wf.decano?.aprobado;
+  const allOk = admOk && dirOk && decOk;
+
+  const currentTurno = !admOk ? 'administrativo' : (!dirOk ? 'director' : (!decOk ? 'decano' : 'completado'));
+  const esMiTurno = (actor === currentTurno);
+
+  const cargoMap = {
+    administrativo: 'Jefatura Operativa de Registros Académicos',
+    director: 'Director de Registros y Asuntos Académicos',
+    decano: 'Decano de la Facultad de Ingeniería y Negocios'
+  };
+
+  const pasoEsperado = !admOk ? 'Administrativo' : 'Director de Registros';
+
+  // SVG Icons vectoriales estrictos para el stepper y estados
+  const svgCheck = `<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>`;
+  const svgActive = `<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>`;
+  const svgWait = `<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="2"></circle></svg>`;
+  const svgArrow = `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>`;
+
+  container.innerHTML = `
+    <div class="home-cintillo-card ${esMiTurno ? 'is-urgent' : (allOk ? 'is-complete' : '')}">
+      <div class="home-cintillo-left">
+        <!-- Indicador animado en loop (círculo radar pulsante en vivo) -->
+        <div class="cintillo-radar-pulse" title="Atención Prioritaria en Vivo">
+          <span class="crp-ring"></span>
+          <span class="crp-dot"></span>
+        </div>
+        <div class="home-cintillo-icon" title="Tarea de Refrendo Oficial Pendiente">
+          <!-- Icono de Task Pendiente con check y acción CTA -->
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path>
+            <rect x="8" y="2" width="8" height="4" rx="1" ry="1"></rect>
+            <path d="m9 14 2 2 4-4"></path>
+          </svg>
+        </div>
+        <div class="home-cintillo-info">
+          <div class="home-cintillo-title">
+            <span class="cintillo-title-main">Refrendo Oficial: Certificaciones de Conocimiento</span>
+            <span class="cintillo-title-lot-wrap">
+              <span class="cintillo-title-lot">(Lote 2026-II)</span>
+              ${esMiTurno ? '<span class="cintillo-urgent-pill">Firma Requerida</span>' : (allOk ? '<span class="cintillo-ok-pill">100% Emitido</span>' : '')}
+            </span>
+          </div>
+          <div class="home-cintillo-sub">
+            ${allOk
+              ? 'Lote completado con las 3 firmas refrendadas (Administrativo, Director y Decano). 42 diplomas emitidos.'
+              : (esMiTurno
+                ? `Su firma digital como <b>${cargoMap[actor]}</b> es requerida para refrendar el lote de 42 estudiantes aptos.`
+                : `En espera del refrendo de <b>${pasoEsperado}</b> para continuar el flujo secuencial oficial.`
+              )
+            }
+          </div>
+        </div>
+      </div>
+
+      <div class="home-cintillo-right">
+        <div class="home-cintillo-stepper">
+          <div class="hc-step ${admOk ? 'done' : (currentTurno === 'administrativo' ? 'active' : '')}">
+            <span class="hc-step-icon">${admOk ? svgCheck : (currentTurno === 'administrativo' ? svgActive : svgWait)}</span>
+            <span>1. Administrativo</span>
+          </div>
+          <span class="hc-step-sep">${svgArrow}</span>
+          <div class="hc-step ${dirOk ? 'done' : (currentTurno === 'director' ? 'active' : '')}">
+            <span class="hc-step-icon">${dirOk ? svgCheck : (currentTurno === 'director' ? svgActive : svgWait)}</span>
+            <span>2. Director</span>
+          </div>
+          <span class="hc-step-sep">${svgArrow}</span>
+          <div class="hc-step ${decOk ? 'done' : (currentTurno === 'decano' ? 'active' : '')}">
+            <span class="hc-step-icon">${decOk ? svgCheck : (currentTurno === 'decano' ? svgActive : svgWait)}</span>
+            <span>3. Decano</span>
+          </div>
+        </div>
+
+        <div class="home-cintillo-actions">
+          ${esMiTurno ? `
+            <button type="button" class="btn btn-primary btn-cintillo-cta" onclick="abrirModalRefrendoInicio('${actor}')">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>
+              <span>Aprobar y Firmar</span>
+            </button>
+          ` : (allOk ? `
+            <button type="button" class="btn btn-outline btn-cintillo-cta" onclick="abrirModalRefrendoInicio('${actor}')">
+              <span>Ver Firmas</span>
+            </button>
+          ` : `
+            <button type="button" class="btn btn-outline btn-cintillo-cta" onclick="abrirModalRefrendoInicio('${actor}')">
+              <span>Ver Estado</span>
+            </button>
+          `)}
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+// --------------------------------------------------------------------------
+// MODAL EJECUTIVO DE REFRENDO EN 1 CLIC (SOLUCIÓN HÍBRIDA)
+// --------------------------------------------------------------------------
+function abrirModalRefrendoInicio(rolParam) {
+  const session = APP.getSession() || {};
+  const allUsers = DB.usuarios();
+  const user = allUsers.find(u => u.id === session.id || u.codigo === session.codigo) || session;
+  let rol = rolParam || getActorWorkflowCertificaciones(user) || 'director';
+
+  const wf = DB.workflowFirmas();
+  const admOk = !!wf.administrativo?.aprobado;
+  const dirOk = !!wf.director?.aprobado;
+  const decOk = !!wf.decano?.aprobado;
+  const currentTurno = !admOk ? 'administrativo' : (!dirOk ? 'director' : (!decOk ? 'decano' : 'completado'));
+  const esMiTurno = (rol === currentTurno);
+  const yaFirme = (rol === 'administrativo' && admOk) || (rol === 'director' && dirOk) || (rol === 'decano' && decOk);
+
+  const cargoMap = {
+    administrativo: 'Jefatura Operativa de Registros Académicos',
+    director: 'Director de Registros y Asuntos Académicos',
+    decano: 'Decano de la Facultad de Ingeniería y Negocios'
+  };
+
+  APP.openModal(`
+    <div class="modal-head">
+      <div class="modal-refrendo-header">
+        <div class="modal-refrendo-icon" title="Tarea de Refrendo Oficial Pendiente">
+          <!-- Icono de Task Pendiente Oficial -->
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path>
+            <rect x="8" y="2" width="8" height="4" rx="1" ry="1"></rect>
+            <path d="m9 14 2 2 4-4"></path>
+          </svg>
+        </div>
+        <div>
+          <span style="font-size:11px;font-weight:700;color:#0F848F;text-transform:uppercase;letter-spacing:0.04em;">Aprobación Oficial y Refrendo Digital</span>
+          <h3 style="font-family:'Lato',sans-serif;font-size:16.5px;font-weight:700;color:#0F172A;margin:2px 0 0 0;">
+            Certificaciones de Conocimiento · Periodo 2026-II
+          </h3>
+        </div>
+      </div>
+      <button class="modal-close" onclick="APP.closeModal()">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+      </button>
+    </div>
+
+    <div class="modal-body">
+      <!-- Barra de simulación interactiva para demo de los 3 usuarios -->
+      <div class="modal-refrendo-sim-bar">
+        <span style="font-size:11.5px;color:#475569;font-weight:600;">Simular ingreso / firma como:</span>
+        <div class="modal-refrendo-sim-btns">
+          <button type="button" class="btn btn-sm ${rol === 'administrativo' ? 'btn-primary' : 'btn-outline'}" onclick="abrirModalRefrendoInicio('administrativo')" style="padding:3px 10px;font-size:11.5px;">Administrativo</button>
+          <button type="button" class="btn btn-sm ${rol === 'director' ? 'btn-primary' : 'btn-outline'}" onclick="abrirModalRefrendoInicio('director')" style="padding:3px 10px;font-size:11.5px;">Director</button>
+          <button type="button" class="btn btn-sm ${rol === 'decano' ? 'btn-primary' : 'btn-outline'}" onclick="abrirModalRefrendoInicio('decano')" style="padding:3px 10px;font-size:11.5px;">Decano</button>
+          <button type="button" class="btn btn-sm btn-ghost" onclick="reiniciarWorkflowDesdeInicio()" title="Reiniciar demostración" style="padding:3px 8px;font-size:11px;color:#64748B;">Reiniciar</button>
+        </div>
+      </div>
+
+      <!-- Resumen Ejecutivo del Lote -->
+      <div class="modal-refrendo-summary-grid">
+        <div class="modal-refrendo-summary-card">
+          <div class="modal-refrendo-summary-lbl">Estudiantes Aptos</div>
+          <div class="modal-refrendo-summary-val" style="color:#0F848F;">42 egresados</div>
+        </div>
+        <div class="modal-refrendo-summary-card">
+          <div class="modal-refrendo-summary-lbl">Arancel / Costo</div>
+          <div class="modal-refrendo-summary-val" style="color:#166534;">S/ 0.00 (Gratuito)</div>
+        </div>
+        <div class="modal-refrendo-summary-card">
+          <div class="modal-refrendo-summary-lbl">Periodo Lectivo</div>
+          <div class="modal-refrendo-summary-val">2026-II (Ordinario)</div>
+        </div>
+        <div class="modal-refrendo-summary-card">
+          <div class="modal-refrendo-summary-lbl">Programa Académico</div>
+          <div class="modal-refrendo-summary-val" style="font-size:12.5px;">Ing. de Sistemas</div>
+        </div>
+      </div>
+
+      <!-- Stepper de 3 actores -->
+      <div style="font-size:12px;font-weight:700;color:#0F172A;margin:12px 0 6px 0;">Flujo Secuencial de Refrendos Oficiales:</div>
+      <div class="modal-refrendo-stepper">
+        <!-- Paso 1 -->
+        <div class="modal-refrendo-step-box ${admOk ? 'done' : (currentTurno === 'administrativo' ? 'active' : 'locked')}">
+          <div style="display:flex;justify-content:space-between;align-items:center;">
+            <span style="font-size:11px;font-weight:700;color:#64748B;">PASO 1 · OPERADOR</span>
+            <span class="pill ${admOk ? 'ok' : 'info'}" style="font-size:10px;">${admOk ? 'Refrendado' : 'Pendiente'}</span>
+          </div>
+          <div>
+            <div style="font-size:12.5px;font-weight:700;color:#0F172A;">Carlos Mendoza Ríos</div>
+            <div style="font-size:10.5px;color:#64748B;">Jefatura Operativa de Registros</div>
+          </div>
+          ${admOk ? `
+            <div style="font-size:10px;color:#166534;background:#DCFCE7;padding:5px 8px;border-radius:4px;line-height:1.4;">
+              <b>Firma Digital Registrada</b><br>Refrendado el ${wf.administrativo.fecha} · ID: ${wf.administrativo.firmaId}
+            </div>
+          ` : `
+            <div style="font-size:10.5px;color:#64748B;">Esperando validación de registros</div>
+          `}
+        </div>
+
+        <!-- Paso 2 -->
+        <div class="modal-refrendo-step-box ${dirOk ? 'done' : (currentTurno === 'director' ? 'active' : 'locked')}">
+          <div style="display:flex;justify-content:space-between;align-items:center;">
+            <span style="font-size:11px;font-weight:700;color:#64748B;">PASO 2 · DIRECCIÓN</span>
+            <span class="pill ${dirOk ? 'ok' : (currentTurno === 'director' ? 'warn' : 'gray')}" style="font-size:10px;">${dirOk ? 'Refrendado' : (admOk ? 'Tu Turno' : 'En Espera')}</span>
+          </div>
+          <div>
+            <div style="font-size:12.5px;font-weight:700;color:#0F172A;">Dr. Miguel Angel Faustor</div>
+            <div style="font-size:10.5px;color:#64748B;">Director de Registros Académicos</div>
+          </div>
+          ${dirOk ? `
+            <div style="font-size:10px;color:#166534;background:#DCFCE7;padding:5px 8px;border-radius:4px;line-height:1.4;">
+              <b>Firma Digital Registrada</b><br>Refrendado el ${wf.director.fecha} · ID: ${wf.director.firmaId}
+            </div>
+          ` : `
+            <div style="font-size:10.5px;color:${admOk ? '#0F848F' : '#64748B'};font-weight:${admOk ? '600' : '400'};">
+              ${admOk ? 'Habilitado para refrendar firma digital' : 'Requiere Paso 1 completado'}
+            </div>
+          `}
+        </div>
+
+        <!-- Paso 3 -->
+        <div class="modal-refrendo-step-box ${decOk ? 'done' : (currentTurno === 'decano' ? 'active' : 'locked')}">
+          <div style="display:flex;justify-content:space-between;align-items:center;">
+            <span style="font-size:11px;font-weight:700;color:#64748B;">PASO 3 · DECANATO</span>
+            <span class="pill ${decOk ? 'ok' : (currentTurno === 'decano' ? 'warn' : 'gray')}" style="font-size:10px;">${decOk ? 'Refrendado' : (dirOk ? 'Tu Turno' : 'En Espera')}</span>
+          </div>
+          <div>
+            <div style="font-size:12.5px;font-weight:700;color:#0F172A;">Dr. Augusto Salcedo Vílchez</div>
+            <div style="font-size:10.5px;color:#64748B;">Decano de la Facultad de Ingeniería</div>
+          </div>
+          ${decOk ? `
+            <div style="font-size:10px;color:#166534;background:#DCFCE7;padding:5px 8px;border-radius:4px;line-height:1.4;">
+              <b>Firma Digital Registrada</b><br>Refrendado el ${wf.decano.fecha} · ID: ${wf.decano.firmaId}
+            </div>
+          ` : `
+            <div style="font-size:10.5px;color:${dirOk ? '#0F848F' : '#64748B'};font-weight:${dirOk ? '600' : '400'};">
+              ${dirOk ? 'Habilitado para firma decanal final' : 'Requiere Paso 2 completado'}
+            </div>
+          `}
+        </div>
+      </div>
+
+      <!-- Preview del documento oficial con los 3 bloques de firmas -->
+      <div class="modal-refrendo-doc-preview">
+        <div class="mrdp-header">
+          <div>
+            <div style="font-size:11px;font-weight:700;color:#0F848F;text-transform:uppercase;">Resolución Decanal y Certificado Oficial</div>
+            <div class="mrdp-title">Certificación en "Gestión de Procesos y Datos Digitales" (Ciclo VI)</div>
+          </div>
+          <span class="pill ok" style="font-size:11px;">Aprobación Académica</span>
+        </div>
+        <p style="font-size:11.5px;color:#475569;margin:0 0 10px 0;line-height:1.45;">
+          Por cuanto los 42 egresados han acreditado la aprobación integral de los cursos correspondientes al módulo formativo, se expide el refrendo oficial de acuerdo al Reglamento General de Certificaciones de Conocimiento de la Universidad Privada Norbert Wiener.
+        </p>
+        <div class="mrdp-firmas-row">
+          <div class="mrdp-firma-slot">
+            <div style="font-size:10px;color:${admOk ? '#166534' : '#94A3B8'};font-weight:700;">
+              ${admOk ? '✓ FIRMA REGISTRADA' : '○ PENDIENTE'}
+            </div>
+            <div class="mrdp-firma-line"></div>
+            <div class="mrdp-firma-nom">Carlos Mendoza Ríos</div>
+            <div class="mrdp-firma-cargo">Jefatura de Registros</div>
+          </div>
+
+          <div class="mrdp-firma-slot">
+            <div style="font-size:10px;color:${dirOk ? '#166534' : '#94A3B8'};font-weight:700;">
+              ${dirOk ? '✓ FIRMA REGISTRADA' : '○ PENDIENTE'}
+            </div>
+            <div class="mrdp-firma-line"></div>
+            <div class="mrdp-firma-nom">Dr. Miguel Angel Faustor</div>
+            <div class="mrdp-firma-cargo">Director de Registros</div>
+          </div>
+
+          <div class="mrdp-firma-slot">
+            <div style="font-size:10px;color:${decOk ? '#166534' : '#94A3B8'};font-weight:700;">
+              ${decOk ? '✓ FIRMA REGISTRADA' : '○ PENDIENTE'}
+            </div>
+            <div class="mrdp-firma-line"></div>
+            <div class="mrdp-firma-nom">Dr. Augusto Salcedo</div>
+            <div class="mrdp-firma-cargo">Decano de Facultad</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="modal-foot">
+      <button class="btn btn-outline" onclick="APP.closeModal()">Cerrar</button>
+      ${esMiTurno ? `
+        <button class="btn btn-primary" onclick="ejecutarFirmaDesdeInicio('${rol}')" style="display:inline-flex;align-items:center;gap:6px;font-weight:700;">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>
+          <span>Aprobar y Refrendar Firma Digital (${rol.toUpperCase()})</span>
+        </button>
+      ` : (yaFirme ? `
+        <span class="pill ok" style="padding:6px 14px;font-size:12px;">Tu firma ya fue registrada con éxito</span>
+      ` : `
+        <button class="btn btn-outline" disabled style="opacity:0.6;cursor:not-allowed;">Esperando refrendo del paso previo</button>
+      `)}
+    </div>
+  `, { wide: true });
+}
+
+function ejecutarFirmaDesdeInicio(rol) {
+  const res = DB.aprobarPasoWorkflow(rol);
+  if (!res.ok) {
+    APP.toast({ icon: 'warn', title: 'Orden Requerido', body: res.error });
+    return;
+  }
+  APP.closeModal();
+  APP.toast({
+    icon: 'ok',
+    title: 'Firma Registrada Exitosamente',
+    body: `Tu refrendo digital oficial como ${rol.toUpperCase()} fue acreditado en el lote de emisión masiva 2026-II.`
+  });
+  render();
+}
+
+function reiniciarWorkflowDesdeInicio() {
+  DB.reiniciarWorkflowFirmas();
+  APP.toast({
+    icon: 'info',
+    title: 'Proceso de Firmas Reiniciado',
+    body: 'El flujo de firmas ha vuelto al Paso 1 (Administrativo).'
+  });
+  abrirModalRefrendoInicio('administrativo');
+}
+
+// --------------------------------------------------------------------------
 // 2. ESTADO DE BANDEJA DE TAREAS Y FILTRADO POR ÁREA
 // --------------------------------------------------------------------------
-let TAB_TAREAS = 'mis-tareas'; // 'mis-tareas' | 'urgentes' | 'todas'
+let TAB_TAREAS = 'mis-tareas'; // 'mis-tareas' | 'atendidas' | 'urgentes' | 'todas'
 
 function setTabTareas(tab) {
   TAB_TAREAS = tab;
@@ -601,9 +969,18 @@ function render() {
   const allUsers = DB.usuarios();
   const user = allUsers.find(u => u.id === session.id || u.codigo === session.codigo) || session;
 
+  const actor = getActorWorkflowCertificaciones(user);
+  const wf = DB.workflowFirmas();
+  const admOk = !!wf.administrativo?.aprobado;
+  const dirOk = !!wf.director?.aprobado;
+  const decOk = !!wf.decano?.aprobado;
+  const currentTurno = !admOk ? 'administrativo' : (!dirOk ? 'director' : (!decOk ? 'decano' : 'completado'));
+  const esMiTurno = (actor === currentTurno);
+  const certTareasCount = esMiTurno ? 1 : 0;
+
   const userNombre = user.nombre || 'Colaborador';
   const primerNombre = userNombre.split(' ')[0] || userNombre;
-  const userRol = user.rol === 'director' ? 'Director Institucional' : user.rol === 'docente' ? 'Docente Revisor' : 'Administrador de Trámites';
+  const userRol = user.subrol === 'decano' ? 'Decano de Facultad' : (user.rol === 'director' ? 'Director Institucional' : user.rol === 'docente' ? 'Docente Revisor' : (user.cargo || 'Administrador de Trámites'));
   const userArea = user.area || 'Registros Académicos';
 
   const allSolicitudes = DB.solicitudes();
@@ -638,6 +1015,9 @@ function render() {
 
   ctx.mount.innerHTML = `
     <div class="home-container">
+      <!-- 0. CINTILLO INSTITUCIONAL DE WORKFLOW (PRIORIDAD TOP, SOBRE EL HERO GREETING) -->
+      <div id="home-cintillo-slot"></div>
+
       <!-- 1. HERO BIENVENIDA & IDENTIDAD OPERATIVA -->
       <div class="home-hero-greeting">
         <div class="hero-left-col">
@@ -850,8 +1230,9 @@ function render() {
     </div>
   `;
 
-  // Render inicial del banner y la tabla
+  // Render inicial del banner, cintillo y la tabla
   renderBanner();
+  renderCintilloWorkflow();
   renderTareasTable();
 }
 
@@ -865,5 +1246,8 @@ window.irASolicitudesPagadas = irASolicitudesPagadas;
 window.irARegistrar = irARegistrar;
 window.abrirBuscadorAlumnoModal = abrirBuscadorAlumnoModal;
 window.ejecutarBusquedaRapidaAlumno = ejecutarBusquedaRapidaAlumno;
+window.abrirModalRefrendoInicio = abrirModalRefrendoInicio;
+window.ejecutarFirmaDesdeInicio = ejecutarFirmaDesdeInicio;
+window.reiniciarWorkflowDesdeInicio = reiniciarWorkflowDesdeInicio;
 
 render();

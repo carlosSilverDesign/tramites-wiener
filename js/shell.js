@@ -93,7 +93,7 @@
       {
         group: 'Configuración y Gobierno', items: [
           { id: 'tramites', label: 'Trámites y Áreas', href: 'admin/tramites.html', icon: 'tramites' },
-          { id: 'certificaciones', label: 'Certificaciones Progresivas', href: 'admin/certificaciones.html', icon: 'certificaciones' },
+          { id: 'certificaciones', label: 'Certificaciones de Conocimiento', href: 'admin/certificaciones.html', icon: 'certificaciones' },
           { id: 'usuarios', label: 'Usuarios y Personal', href: 'admin/usuarios.html', icon: 'usuarios' },
           { id: 'seguridad', label: 'Seguridad y Permisos', href: 'admin/seguridad.html', icon: 'seguridad' }
         ]
@@ -126,7 +126,7 @@
       {
         group: 'Configuración', items: [
           { id: 'tramites', label: 'Trámites', href: 'admin/tramites.html', icon: 'tramites' },
-          { id: 'certificaciones', label: 'Certificaciones Progresivas', href: 'admin/certificaciones.html', icon: 'certificaciones' },
+          { id: 'certificaciones', label: 'Certificaciones de Conocimiento', href: 'admin/certificaciones.html', icon: 'certificaciones' },
           { id: 'usuarios', label: 'Usuarios', href: 'admin/usuarios.html', icon: 'usuarios' },
           { id: 'seguridad', label: 'Seguridad', href: 'admin/seguridad.html', icon: 'seguridad' }
         ]
