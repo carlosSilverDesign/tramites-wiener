@@ -2,8 +2,88 @@
 
 const ctx = APP.renderShell('inicio');
 
-// Iconos SVG vectoriales 100% institucionales (Cero emojis)
+// ==========================================================================
+// CATÁLOGO DE ICONOS SVG INSTITUCIONALES CATEGORIZADOS POR COMPONENTE Y TAMAÑO
+// ==========================================================================
+// Organización semántica de iconos para garantizar tamaños independientes:
+// - KPI: 26x26px (Tarjetas de métricas principales en inicio)
+// - Radar / Pipeline: 21x21px (Flujos macro del ciclo de vida institucional)
+// - Modales: 20x20px (Botones de cerrar y encabezados)
+// - Acciones Rápidas: 20x20px (Herramientas y accesos directos)
+// - Títulos de Sección: 20x20px (Cabeceras de bloques principales)
+// - Tags / SLA: 13x13px (Píldoras, semáforos de plazo y estados compactos)
+// - Metadatos / Header: 14x14px (Datos de usuario y estado del sistema)
+// - Vacíos / Ilustración: 38x38px (Empty state en tablas de tareas)
+
 const SVG_ICONS = {
+  // 1. Tarjetas de Métricas Operativas (KPIs) - Tamaño grande (26x26)
+  kpi: {
+    inbox: '<svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></svg>',
+    check: '<svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"></polyline></svg>',
+    clock: '<svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>',
+    alert: '<svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>',
+    layers: '<svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polygon points="12 2 2 7 12 12 22 7 12 2"></polygon><polyline points="2 17 12 22 22 17"></polyline><polyline points="2 12 12 17 22 12"></polyline></svg>'
+  },
+
+  // 2. Radar General de Flujos de Trámites (Pipeline Institucional) - Tamaño mediano-grande (21x21)
+  radar: {
+    solicitud: '<svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></svg>',
+    inbox: '<svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></svg>',
+    pago: '<svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>',
+    clock: '<svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>',
+    revision: '<svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polygon points="12 2 2 7 12 12 22 7 12 2"></polygon><polyline points="2 17 12 22 22 17"></polyline><polyline points="2 12 12 17 22 12"></polyline></svg>',
+    layers: '<svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polygon points="12 2 2 7 12 12 22 7 12 2"></polygon><polyline points="2 17 12 22 22 17"></polyline><polyline points="2 12 12 17 22 12"></polyline></svg>',
+    resolucion: '<svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"></polyline></svg>',
+    check: '<svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"></polyline></svg>',
+    emision: '<svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line></svg>',
+    fileText: '<svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line></svg>'
+  },
+
+  // 3. Píldoras de SLA, Estados y Badges Compactos - Tamaño compacto (13x13)
+  tags: {
+    clock: '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>',
+    alert: '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>',
+    check: '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"></polyline></svg>'
+  },
+
+  // 4. Ventanas Modales y Botón Cerrar - Tamaño modal accesible (20x20)
+  modal: {
+    close: '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>',
+    fileText: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line></svg>',
+    settings: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>',
+    check: '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"></polyline></svg>'
+  },
+
+  // 5. Herramientas, Accesos Rápidos y Botones de Acción
+  actions: {
+    plus: '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>',
+    search: '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>',
+    settings: '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>',
+    shield: '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>',
+    arrowRight: '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>',
+    download: '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>'
+  },
+
+  // 6. Metadatos, Identidad y Cabecera de Inicio - Tamaño meta (14x14)
+  meta: {
+    user: '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>',
+    building: '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="2" width="16" height="20" rx="2" ry="2"></rect><line x1="9" y1="22" x2="9" y2="2"></line><line x1="8" y1="6" x2="8.01" y2="6"></line><line x1="16" y1="6" x2="16.01" y2="6"></line><line x1="16" y1="10" x2="16.01" y2="10"></line><line x1="16" y1="14" x2="16.01" y2="14"></line><line x1="16" y1="18" x2="16.01" y2="18"></line></svg>',
+    clock: '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>',
+    check: '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"></polyline></svg>'
+  },
+
+  // 7. Ilustración para Estados Vacíos - Tamaño ilustrativo (38x38)
+  empty: {
+    inbox: '<svg width="38" height="38" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></svg>'
+  },
+
+  // 8. Títulos de Bloque y Secciones - Tamaño título (20x20)
+  section: {
+    layers: '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polygon points="12 2 2 7 12 12 22 7 12 2"></polygon><polyline points="2 17 12 22 22 17"></polyline><polyline points="2 12 12 17 22 12"></polyline></svg>',
+    fileText: '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line></svg>'
+  },
+
+  // Propiedades directas heredadas para 100% retrocompatibilidad
   home: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>',
   clock: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>',
   building: '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="2" width="16" height="20" rx="2" ry="2"></rect><line x1="9" y1="22" x2="9" y2="2"></line><line x1="8" y1="6" x2="8.01" y2="6"></line><line x1="16" y1="6" x2="16.01" y2="6"></line><line x1="16" y1="10" x2="16.01" y2="10"></line><line x1="16" y1="14" x2="16.01" y2="14"></line><line x1="16" y1="18" x2="16.01" y2="18"></line></svg>',
@@ -15,11 +95,11 @@ const SVG_ICONS = {
   search: '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>',
   plus: '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>',
   shield: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>',
-  settings: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>',
+  settings: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>',
   inbox: '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></svg>',
   layers: '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polygon points="12 2 2 7 12 12 22 7 12 2"></polygon><polyline points="2 17 12 22 22 17"></polyline><polyline points="2 12 12 17 22 12"></polyline></svg>',
   fileText: '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line></svg>',
-  close: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>',
+  close: '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>',
   download: '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>'
 };
 
@@ -57,7 +137,7 @@ function renderBanner() {
   if (!container) return;
 
   container.innerHTML = `
-    <div class="home-banner-wrapper">
+    <div class="home-banner-wrapper" style="background-image: url('../img/Banner-Tramites.png'); background-size: cover; background-position: center right; background-repeat: no-repeat;">
       <div class="home-banner-decor"></div>
       <div class="home-banner-content">
         <div class="banner-left">
@@ -73,7 +153,8 @@ function renderBanner() {
           </div>
         </div>
         <div class="banner-custom-image-box">
-          <svg class="banner-custom-svg" viewBox="0 0 240 160" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+          <!-- SVG original ocultado (no eliminado) -->
+          <svg class="banner-custom-svg" style="display: none;" viewBox="0 0 240 160" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
             <rect x="20" y="20" width="140" height="110" rx="10" fill="#FFFFFF" fill-opacity="0.12" stroke="#07C8CC" stroke-width="2"/>
             <rect x="36" y="38" width="70" height="8" rx="4" fill="#07C8CC"/>
             <rect x="36" y="54" width="108" height="6" rx="3" fill="#FFFFFF" fill-opacity="0.7"/>
@@ -85,6 +166,8 @@ function renderBanner() {
             <circle cx="68" cy="106" r="6" fill="#FFFFFF" fill-opacity="0.7"/>
             <circle cx="88" cy="106" r="6" fill="#FFFFFF" fill-opacity="0.4"/>
           </svg>
+          <!-- Nueva imagen representativa en prueba -->
+          <img src="../img/chica-tramites.png" alt="Trámites Wiener" class="banner-custom-img">
         </div>
       </div>
     </div>
@@ -248,7 +331,7 @@ function abrirModalRefrendoInicio(rolParam) {
         </div>
       </div>
       <button class="modal-close" onclick="APP.closeModal()">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+        ${SVG_ICONS.modal.close}
       </button>
     </div>
 
@@ -518,7 +601,7 @@ function renderTareasTable() {
     tableBody.innerHTML = `
       <tr>
         <td colspan="7" class="home-empty-tasks">
-          <div class="home-empty-icon">${SVG_ICONS.inbox}</div>
+          <div class="home-empty-icon">${SVG_ICONS.empty.inbox}</div>
           <b>No hay registros en esta bandeja</b>
           <div>${emptyMsg}</div>
         </td>
@@ -544,17 +627,17 @@ function renderTareasTable() {
     let slaPill = '';
     if (isAttended) {
       slaPill = `
-        <span class="sla-pill green">${SVG_ICONS.check} Atendido y derivado</span>
+        <span class="sla-pill green">${SVG_ICONS.tags.check} Atendido y derivado</span>
         <div class="task-step-sub-date">${item.myStep && item.myStep.fechaAtencion ? item.myStep.fechaAtencion : 'Conforme'}</div>
       `;
     } else if (s.estado === 'Aprobado' || s.estado === 'Emitido') {
-      slaPill = `<span class="sla-pill green">${SVG_ICONS.check} Concluido</span>`;
+      slaPill = `<span class="sla-pill green">${SVG_ICONS.tags.check} Concluido</span>`;
     } else if (step.diasRetraso > 0) {
-      slaPill = `<span class="sla-pill red">${SVG_ICONS.alert} ${step.diasRetraso}d retraso</span>`;
+      slaPill = `<span class="sla-pill red">${SVG_ICONS.tags.alert} ${step.diasRetraso}d retraso</span>`;
     } else if (item.isOverdue) {
-      slaPill = `<span class="sla-pill amber">${SVG_ICONS.clock} Por vencer</span>`;
+      slaPill = `<span class="sla-pill amber">${SVG_ICONS.tags.clock} Por vencer</span>`;
     } else {
-      slaPill = `<span class="sla-pill green">${SVG_ICONS.check} A tiempo (${step.plazoHoras || 48}h)</span>`;
+      slaPill = `<span class="sla-pill green">${SVG_ICONS.tags.check} A tiempo (${step.plazoHoras || 48}h)</span>`;
     }
 
     let actionBtn = '';
@@ -577,7 +660,7 @@ function renderTareasTable() {
     let etapaMarkup = '';
     if (isAttended) {
       etapaMarkup = `
-        <span class="task-step-tag ok">${SVG_ICONS.check} Paso #${item.myStep.orden} · ${item.myStep.area}</span>
+        <span class="task-step-tag ok">${SVG_ICONS.tags.check} Paso #${item.myStep.orden} · ${item.myStep.area}</span>
         <div class="task-step-desc">${item.activeStep ? ('Derivado a: <b>' + item.activeStep.area + '</b>') : '<b>Trámite concluido</b>'}</div>
       `;
     } else {
@@ -674,7 +757,7 @@ function abrirModalAtencionTarea(solId) {
           ${s.tramiteNombre} · Registrado el ${s.fechaHora || s.fecha}
         </div>
       </div>
-      <button type="button" class="modal-close" onclick="APP.closeModal()">${SVG_ICONS.close}</button>
+      <button type="button" class="modal-close" onclick="APP.closeModal()">${SVG_ICONS.modal.close}</button>
     </div>
 
     <div class="modal-task-body">
@@ -841,7 +924,7 @@ function abrirBuscadorAlumnoModal() {
         <h3 class="m-0">Búsqueda Rápida de Estudiante</h3>
         <div class="muted" style="font-size:12px;margin-top:2px">Consulta inmediata de identidad, carrera, deudas y solicitudes registradas.</div>
       </div>
-      <button type="button" class="modal-close" onclick="APP.closeModal()">${SVG_ICONS.close}</button>
+      <button type="button" class="modal-close" onclick="APP.closeModal()">${SVG_ICONS.modal.close}</button>
     </div>
 
     <div class="modal-body modal-search-student-box">
@@ -1024,22 +1107,22 @@ function render() {
           <h1 class="hero-greeting-title">Hola, ${primerNombre}</h1>
           <div class="hero-meta-strip">
             <span class="hero-meta-item">
-              ${SVG_ICONS.user} <span class="hero-meta-strong">${userRol}</span>
+              ${SVG_ICONS.meta.user} <span class="hero-meta-strong">${userRol}</span>
             </span>
             <span class="hero-meta-dot">•</span>
             <span class="hero-meta-item">
-              ${SVG_ICONS.building} Área: <span class="hero-meta-strong">${userArea}</span>
+              ${SVG_ICONS.meta.building} Área: <span class="hero-meta-strong">${userArea}</span>
             </span>
           </div>
         </div>
 
         <div class="hero-right-col">
           <div class="hero-clock-box">
-            ${SVG_ICONS.clock} <span>Sistema:</span>
+            ${SVG_ICONS.meta.clock} <span>Sistema:</span>
             <span class="hero-clock-time">${APP.nowStamp()}</span>
           </div>
           <div class="hero-status-pill">
-            ${SVG_ICONS.check} <span>Turno Operativo Activo</span>
+            ${SVG_ICONS.meta.check} <span>Turno Operativo Activo</span>
           </div>
         </div>
       </div>
@@ -1052,7 +1135,7 @@ function render() {
         <div class="home-kpi-card">
           <div class="home-kpi-top">
             <span class="home-kpi-label">Tareas de tu Área</span>
-            <div class="home-kpi-icon kpi-icon-teal">${SVG_ICONS.inbox}</div>
+            <div class="home-kpi-icon kpi-icon-teal">${SVG_ICONS.kpi.inbox}</div>
           </div>
           <div class="home-kpi-value">${misTareasCount}</div>
           <div class="home-kpi-sub">Trámites esperando revisión de ${userArea}</div>
@@ -1061,7 +1144,7 @@ function render() {
         <div class="home-kpi-card">
           <div class="home-kpi-top">
             <span class="home-kpi-label">Atendidos y Derivados</span>
-            <div class="home-kpi-icon kpi-icon-emerald">${SVG_ICONS.check}</div>
+            <div class="home-kpi-icon kpi-icon-emerald">${SVG_ICONS.kpi.check}</div>
           </div>
           <div class="home-kpi-value">${atendidosAreaCount}</div>
           <div class="home-kpi-sub">Expedientes dictaminados y derivados con éxito</div>
@@ -1070,7 +1153,7 @@ function render() {
         <div class="home-kpi-card">
           <div class="home-kpi-top">
             <span class="home-kpi-label">Por Vencer</span>
-            <div class="home-kpi-icon kpi-icon-amber">${SVG_ICONS.alert}</div>
+            <div class="home-kpi-icon kpi-icon-amber">${SVG_ICONS.kpi.clock}</div>
           </div>
           <div class="home-kpi-value">${urgentesCount}</div>
           <div class="home-kpi-sub">Trámites próximos al límite de atención</div>
@@ -1079,7 +1162,7 @@ function render() {
         <div class="home-kpi-card">
           <div class="home-kpi-top">
             <span class="home-kpi-label">Atención a Tiempo</span>
-            <div class="home-kpi-icon kpi-icon-blue">${SVG_ICONS.layers}</div>
+            <div class="home-kpi-icon kpi-icon-blue">${SVG_ICONS.kpi.layers}</div>
           </div>
           <div class="home-kpi-value">96.8%</div>
           <div class="home-kpi-sub">Cumplimiento dentro del plazo institucional normado</div>
@@ -1091,7 +1174,7 @@ function render() {
         <div class="home-section-header">
           <div class="home-section-title-box">
             <h3 class="home-section-title">
-              ${SVG_ICONS.layers} <span>Bandeja de Tareas de Área</span>
+              ${SVG_ICONS.section.layers} <span>Bandeja de Tareas de Área</span>
             </h3>
             <p class="home-section-desc">Solicitudes en revisión, atención de dictámenes y derivación entre áreas académicas.</p>
           </div>
@@ -1140,7 +1223,7 @@ function render() {
       <div class="home-section-card pipeline-card">
         <div class="home-section-title-box">
           <h3 class="home-section-title">
-            ${SVG_ICONS.fileText} <span>Radar General de Flujos de Trámites</span>
+            ${SVG_ICONS.section.fileText} <span>Radar General de Flujos de Trámites</span>
           </h3>
           <p class="home-section-desc">Distribución consolidada de todas las solicitudes activas en el ciclo de vida institucional.</p>
         </div>
@@ -1149,7 +1232,7 @@ function render() {
           <a href="solicitudes.html?estado=Solicitado" class="pipeline-node" title="Ver solicitudes recibidas">
             <div class="pipeline-node-top">
               <span class="pipeline-step-badge">1. SOLICITUD</span>
-              ${SVG_ICONS.inbox}
+              ${SVG_ICONS.radar.solicitud}
             </div>
             <div class="pipeline-step-count">${countSolicitados}</div>
             <div class="pipeline-step-name">Nuevos Registros</div>
@@ -1158,7 +1241,7 @@ function render() {
           <a href="solicitudes.html?estado=pago-pendiente" class="pipeline-node" title="Ver órdenes de pago pendientes">
             <div class="pipeline-node-top">
               <span class="pipeline-step-badge">2. PAGO</span>
-              ${SVG_ICONS.clock}
+              ${SVG_ICONS.radar.pago}
             </div>
             <div class="pipeline-step-count">${countPagoPend}</div>
             <div class="pipeline-step-name">En Caja / Niubiz</div>
@@ -1167,7 +1250,7 @@ function render() {
           <a href="solicitudes.html?estado=En revisión" class="pipeline-node" title="Ver trámites en revisión por departamentos">
             <div class="pipeline-node-top">
               <span class="pipeline-step-badge">3. REVISIÓN</span>
-              ${SVG_ICONS.layers}
+              ${SVG_ICONS.radar.revision}
             </div>
             <div class="pipeline-step-count">${countEnRevision}</div>
             <div class="pipeline-step-name">En Áreas Académicas</div>
@@ -1176,7 +1259,7 @@ function render() {
           <a href="solicitudes.html?estado=Aprobado" class="pipeline-node" title="Ver trámites aprobados procedentes">
             <div class="pipeline-node-top">
               <span class="pipeline-step-badge">4. RESOLUCIÓN</span>
-              ${SVG_ICONS.check}
+              ${SVG_ICONS.radar.resolucion}
             </div>
             <div class="pipeline-step-count">${countAprobados}</div>
             <div class="pipeline-step-name">Dictamen Favorable</div>
@@ -1185,7 +1268,7 @@ function render() {
           <a href="solicitudes.html?estado=Emitido" class="pipeline-node" title="Ver documentos emitidos con firma digital">
             <div class="pipeline-node-top">
               <span class="pipeline-step-badge">5. EMISIÓN</span>
-              ${SVG_ICONS.fileText}
+              ${SVG_ICONS.radar.emision}
             </div>
             <div class="pipeline-step-count">${countEmitidos}</div>
             <div class="pipeline-step-name">Documentos Entregados</div>
@@ -1196,7 +1279,7 @@ function render() {
       <!-- 6. HERRAMIENTAS Y ACCESOS RÁPIDOS OPERATIVOS -->
       <div class="home-quick-actions-grid">
         <a href="registrar.html" class="quick-action-card" title="Registrar un trámite presencial en ventanilla">
-          <div class="quick-action-icon qa-icon-teal">${SVG_ICONS.plus}</div>
+          <div class="quick-action-icon qa-icon-teal">${SVG_ICONS.actions.plus}</div>
           <div class="quick-action-info">
             <div class="quick-action-title">Mesa de Partes Virtual</div>
             <div class="quick-action-desc">Registro asistido y radicación de solicitudes en ventanilla.</div>
@@ -1204,7 +1287,7 @@ function render() {
         </a>
 
         <div class="quick-action-card" onclick="abrirBuscadorAlumnoModal()" title="Consultar expediente de un estudiante">
-          <div class="quick-action-icon qa-icon-blue">${SVG_ICONS.search}</div>
+          <div class="quick-action-icon qa-icon-blue">${SVG_ICONS.actions.search}</div>
           <div class="quick-action-info">
             <div class="quick-action-title">Consulta Rápida de Alumno</div>
             <div class="quick-action-desc">Verifica matrícula, deudas y trámites por DNI o código.</div>
@@ -1212,7 +1295,7 @@ function render() {
         </div>
 
         <a href="flujos.html" class="quick-action-card" title="Visualizar y editar etapas de flujos">
-          <div class="quick-action-icon qa-icon-purple">${SVG_ICONS.settings}</div>
+          <div class="quick-action-icon qa-icon-purple">${SVG_ICONS.actions.settings}</div>
           <div class="quick-action-info">
             <div class="quick-action-title">Flujos y Etapas</div>
             <div class="quick-action-desc">Modelado de etapas, requisitos y derivación de áreas.</div>
@@ -1220,7 +1303,7 @@ function render() {
         </a>
 
         <a href="seguridad.html" class="quick-action-card" title="Consultar permisos institucionales">
-          <div class="quick-action-icon qa-icon-slate">${SVG_ICONS.shield}</div>
+          <div class="quick-action-icon qa-icon-slate">${SVG_ICONS.actions.shield}</div>
           <div class="quick-action-info">
             <div class="quick-action-title">Matriz de Seguridad & Roles</div>
             <div class="quick-action-desc">Gobierno de accesos, permisos y políticas institucionales.</div>
